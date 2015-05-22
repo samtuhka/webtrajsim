@@ -37,20 +37,20 @@ export getHeightmap = (image, heightScale=1) ->
 			v *= heightScale
 
 
-export getTerrain = (url, hscale=1, xzscale=1) ->
-	getImageData url
-	.then (image) ->
+export getTerrain = ({hUrl, hscale=1, xzscale=1, texUrl, texSize, renderer}) ->
+	image = getImageData hUrl
+	texture = (PLoader THREE.TextureLoader) texUrl
+	P.join image, texture, (image, [texture]) ->
 		heights = getHeightmap(image, hscale)
 		nh = heights.length
 		nw = heights[0].length
 		w = (nw) * xzscale - xzscale
 		h = (nh) * xzscale - xzscale
-		hfShape = new Cannon.Heightfield heights, {elementScale: xzscale}
+		hfShape = new Cannon.Heightfield heights, {elementSize: xzscale}
 
 		pos = new Cannon.Vec3 h/2.0, 0, -w
 		pos = new Cannon.Vec3 -w/2.0, 0, -h/2.0
 		rot = (new Cannon.Quaternion)
-		#rot.setFromAxisAngle new Cannon.Vec3(1,0,0), -Math.PI/2.0
 		rot.setFromEuler -Math.PI/2.0, 0, -Math.PI/2.0, 'XYZ'
 
 		hfBody = new Cannon.Body mass: 0
@@ -65,19 +65,23 @@ export getTerrain = (url, hscale=1, xzscale=1) ->
 
 		for row, y in heights
 			for val, x in row
-				#i = (image.height - y - 1)*image.width + x
-				#i = (nh - y - 1) + (nw - x - 1)*heights.length
 				i = y*row.length + x
 				geo.vertices[i].z = val
 
 		geo.computeFaceNormals()
 		geo.computeVertexNormals()
-		material = new THREE.MeshPhongMaterial do
-			shading: THREE.FlatShading
+
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+		wRep = w/texSize
+		hRep = h/texSize
+		texture.repeat.set wRep, hRep
+		texture.anisotropy = renderer.getMaxAnisotropy()
+
+		material = new THREE.MeshLambertMaterial do
+			map: texture
+			shading: THREE.SmoothShading
 		mesh = new THREE.Mesh geo, material
 		mesh.rotation.x = -Math.PI/2.0
-		#mesh.rotation.z = -Math.PI
-		#mesh.scale.x = -1
 
 		phys: hfBody
 		mesh: mesh

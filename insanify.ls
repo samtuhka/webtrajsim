@@ -15,9 +15,9 @@ webpackConfig =
 			* test: /\.ls$/, loader: 'livescript-loader'
 			* test: /\.coffee$/, loader: 'coffee-loader'
 			* test: /\.css$/, loader: "style-loader!css-loader"
-		resolve:
-			alias:
-				three: '/three.js/build/three.js'
+	resolve:
+		alias:
+			three: './three.js/build/three.js'
 	#devtool: "inline-source-map"
 
 webpackFile = (src, dst, config=webpackConfig) ->

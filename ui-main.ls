@@ -183,7 +183,7 @@ runScene = (opts) ->
 			..friction = 10
 			..restitution = 0.3
 		..solver.iterations = 10
-		#..broadphase = new CANNON.SAPBroadphase world
+		..broadphase = new CANNON.SAPBroadphase world
 
 	ctrl.scene = scene = new THREE.Scene
 	ctrl.renderer = renderer = new THREE.WebGLRenderer antialias: true
@@ -194,27 +194,35 @@ runScene = (opts) ->
 	onSize (w, h) ->
 		renderer.setSize window.innerWidth, window.innerHeight
 	$ "body" .append renderer.domElement
-	debugRenderer = new THREE.CannonDebugRenderer scene, world
-	ctrl.afterPhysics.add -> debugRenderer.update!
+	#debugRenderer = new THREE.CannonDebugRenderer scene, world
+	#ctrl.afterPhysics.add -> debugRenderer.update!
 
 	god_camera = new THREE.PerspectiveCamera 50, window.innerWidth/window.innerHeight, 0.01, 450000
 	#god_camera.rotation.y = Math.PI
 	#god_camera.position.y = Math.PI
 	#god_camera.rotation.x = -Math.PI/2
 	god_camera.position.y = 10
-	god_controls = new THREE.OrbitControls god_camera, renderer.domElement
-	ctrl.onUpdate.add god_controls~update
+	#god_controls = new THREE.OrbitControls god_camera, renderer.domElement
+	#ctrl.onUpdate.add god_controls~update
 
-	driver_camera = new THREE.PerspectiveCamera 75, 1, 0.01, 450000
+	driver_camera = new THREE.PerspectiveCamera 50, 1, 0.01, 450000
 	onSize (w, h) ->
 		driver_camera.aspect = w/h
 		driver_camera.updateProjectionMatrix()
-	ctrl.camera = camera = god_camera
+	ctrl.camera = camera = driver_camera
 
-	{getTerrain} = require './terrainLoader.ls'
-	terrain <- getTerrain 'res/terrain/heightmaptest.png', 5 .then
+	/*{getTerrain} = require './terrainLoader.ls'
+	tp = getTerrain do
+		hUrl: 'res/world/heightmap.png'
+		hscale: 100
+		xyscale: 5.0
+		texUrl: 'res/terrain/texture.jpg'
+		texSize: 5
+		renderer: renderer
+
+	terrain <- tp.then
 	world.add terrain.phys
-	scene.add terrain.mesh
+	scene.add terrain.mesh*/
 
 	generateTerrain 'res/terrain/heightmaptest.png'
 	groundTex = THREE.ImageUtils.loadTexture 'res/Seamless_ground_rock.png'
@@ -234,21 +242,21 @@ runScene = (opts) ->
 	groundBody = new Cannon.Body mass: 0
 		..addShape new Cannon.Plane
 		..quaternion.setFromAxisAngle new Cannon.Vec3(1,0,0), -Math.PI/2.0
-	#scene.add ground
-	#world.add groundBody
+	scene.add ground
+	world.add groundBody
 
 	sky = new THREE.Sky
 	sky.uniforms.sunPosition.value.y = 400
 	scene.add sky.mesh
 
-	sunlight = new THREE.DirectionalLight 0xffffff, 0.3
+	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
 	sunlight.position.set 0, 1, 0
 	scene.add sunlight
 	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.3
 		..position.set 0, 4500, 0
 	scene.add hemiLight
-	ambientLight = new THREE.AmbientLight( 0x222222 );
-	scene.add ambientLight
+	#ambientLight = new THREE.AmbientLight( 0x222222 );
+	#scene.add ambientLight
 
 	/*composer = new THREE.EffectComposer renderer
 	composer.addPass new THREE.RenderPass scene, camera
@@ -302,7 +310,7 @@ runScene = (opts) ->
 		effect = new THREE.VREffect renderer
 		onSize (w, h) ->
 			effect.setSize w, h
-		manager = new WebVRManager renderer, effect, hideButton: true
+		manager = new WebVRManager renderer, effect, hideButton: false
 		new Keypress.Listener().simple_combo 'f', ->
 			manager.toggleVRMode()
 		ctrl.onUpdate.add ->
@@ -328,11 +336,18 @@ runScene = (opts) ->
 		#(new THREE.ObjectLoader).load 'res/camaro/blend/camaro_body.json', (s) ->
 		#console.log o
 		#console.log m
+
+		w.computeBoundingBox()
+		wRadius = w.boundingBox.max.z
+		wWidth = w.boundingBox.max.x*2
+
 		o.computeBoundingBox()
 		bbox = o.boundingBox
+		bbox.min.y += 0.3
 		halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
 		body = new THREE.Mesh o, (new THREE.MeshFaceMaterial m)
 		scene.add body
+
 		offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
 
 		bodyPhys = new Cannon.Body mass: 2000
@@ -364,9 +379,7 @@ runScene = (opts) ->
 		controls.connected.add ->
 			controls.set autocenter: 0.6
 
-		w.computeBoundingBox()
-		wRadius = w.boundingBox.max.z
-		wWidth = w.boundingBox.max.x*2
+
 		wheelPositions = [
 			[0.83, 0.0, 1.52],
 			[-0.83, 0.0, 1.52],
@@ -378,7 +391,7 @@ runScene = (opts) ->
 				radius: wRadius
 				directionLocal: new Cannon.Vec3 0, -1, 0
 				axleLocal: new Cannon.Vec3 -1, 0, 0
-				suspensionRestLength: wRadius + 0.1
+				suspensionRestLength: wRadius + 0.25
 				chassisConnectionPointLocal: new Cannon.Vec3(x, y, z).vadd offOrigin
 				suspensionStiffness: 100
 				rollInfluence: 1
@@ -391,7 +404,7 @@ runScene = (opts) ->
 				tmp.add wheel
 				wheel = tmp
 
-			#scene.add wheel
+			scene.add wheel
 
 			ctrl.afterPhysics.add ->
 				car.updateWheelTransform wii
@@ -411,8 +424,10 @@ runScene = (opts) ->
 					wi.engineForce = -enginePower*controls.throttle*controls.direction
 
 		car.addToWorld world
-		bodyPhys.position.y = 10
-		bodyPhys.position.z = -10
+		bodyPhys.position.y = 1
+		#worldbox = new THREE.Box3! .setFromObject terrain.mesh
+		#bodyPhys.position.x = worldbox.max.x*0.73
+		#bodyPhys.position.z = -10
 
 		eye = new THREE.Object3D
 		eye.position.x = 0.4
@@ -426,7 +441,6 @@ runScene = (opts) ->
 		eye.position.z = -2
 		eye.position.y = 2
 		eye.lookAt new THREE.Vector3 0, 0, 0*/
-
 		eye.add driver_camera
 		body.add eye
 
