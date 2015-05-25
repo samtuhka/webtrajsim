@@ -197,7 +197,7 @@ runScene = (opts) ->
 	#debugRenderer = new THREE.CannonDebugRenderer scene, world
 	#ctrl.afterPhysics.add -> debugRenderer.update!
 
-	god_camera = new THREE.PerspectiveCamera 50, window.innerWidth/window.innerHeight, 0.01, 450000
+	god_camera = new THREE.PerspectiveCamera 40, window.innerWidth/window.innerHeight, 0.01, 450000
 	#god_camera.rotation.y = Math.PI
 	#god_camera.position.y = Math.PI
 	#god_camera.rotation.x = -Math.PI/2
@@ -224,19 +224,21 @@ runScene = (opts) ->
 	world.add terrain.phys
 	scene.add terrain.mesh*/
 
-	generateTerrain 'res/terrain/heightmaptest.png'
-	groundTex = THREE.ImageUtils.loadTexture 'res/Seamless_ground_rock.png'
-	groundNorm = THREE.ImageUtils.loadTexture 'res/Seamless_ground_rock_normalmap.png'
-	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
-	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping;
-	groundTex.repeat.set 100, 100
-	groundNorm.repeat.set 100, 100
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
+	terrainSize = 10000
+	textureSize = 5
+	textureRep = terrainSize/textureSize
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
+	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
+	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
+	groundTex.repeat.set textureRep, textureRep
+	groundNorm.repeat.set textureRep, textureRep
 	groundTex.anisotropy = renderer.getMaxAnisotropy()
-	groundMaterial = new THREE.MeshLambertMaterial do
+	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
-		normalmap: groundNorm
-	groundGeometry = new THREE.PlaneGeometry 1000, 1000, 0, 0
+		normalMap: groundNorm
+	groundGeometry = new THREE.PlaneGeometry terrainSize, terrainSize, 0, 0
 	ground = new THREE.Mesh groundGeometry, groundMaterial
 	ground.rotation.x = -Math.PI/2.0
 	groundBody = new Cannon.Body mass: 0
@@ -244,6 +246,26 @@ runScene = (opts) ->
 		..quaternion.setFromAxisAngle new Cannon.Vec3(1,0,0), -Math.PI/2.0
 	scene.add ground
 	world.add groundBody
+
+	roadWidth = 10
+	roadGeo = new THREE.PlaneGeometry terrainSize, roadWidth, 0, 0
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture.jpg'
+	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
+	roadTex.anisotropy = renderer.getMaxAnisotropy()
+	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
+	roadTex.minFilter = THREE.LinearFilter
+	roadTex.wrapS = roadTex.wrapT = THREE.RepeatWrapping
+	roadNorm.wrapS = roadNorm.wrapT = THREE.RepeatWrapping
+	roadTex.repeat.set textureRep/2.0, 1
+	roadNorm.repeat.set textureRep/2.0, 1
+	roadMat = new THREE.MeshPhongMaterial do
+		map: roadTex
+		#normalMap: roadNorm
+	road = new THREE.Mesh roadGeo, roadMat
+	road.rotation.x = -Math.PI/2.0
+	road.rotation.z = -Math.PI/2.0
+	road.position.y = 0.1
+	scene.add road
 
 	sky = new THREE.Sky
 	sky.uniforms.sunPosition.value.y = 400
@@ -326,6 +348,7 @@ runScene = (opts) ->
 	#(new THREE.JSONLoader).load 'res/camaro/blend/body.json', (o, m) ->
 	Promise.props do
 		body: (PLoader THREE.JSONLoader) 'res/camaro/blend/body.json'
+		#body: (PLoader THREE.ObjectLoader) 'res/corolla/body.json'
 		wheel: (PLoader THREE.JSONLoader) 'res/camaro/blend/wheel.json'
 	.then ({body, wheel}) ->
 		[o, m] = body

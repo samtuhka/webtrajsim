@@ -14,5 +14,6 @@ WPORT=10101
 ./wheel/websocketd --port=$WPORT --address=$WHOST ./wheel/wheel.py&
 python3 -m http.server --bind $SHOST $PORT &
 export vblank_mode=0
+export __GL_FSAA_MODE=11
 #$BROWSER "http://$SHOST:$SPORT/index.html?controller=ws://$WHOST:$WPORT/"
 $BROWSER "file://$PWD/index.html?controller=ws://$WHOST:$WPORT/"
