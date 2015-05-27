@@ -139,12 +139,13 @@ generateTerrain = (heightmap) ->
 
 runScene = (opts) ->
 	onSizeSignal = new Signal()
-	onSizeSignal.size = [window.innerWidth, window.innerHeight]
+	console.log opts.container.width(), opts.container.height()
+	onSizeSignal.size = [opts.container.width(), opts.container.height()]
 	onSize = (handler) ->
 		onSizeSignal.add handler
 		handler ...onSizeSignal.size
 	$(window).resize ->
-		onSizeSignal.size = [window.innerWidth, window.innerHeight]
+		onSizeSignal.size = [opts.container.width(), opts.container.height()]
 		onSizeSignal.dispatch ...onSizeSignal.size
 
 	ctrl =
@@ -186,14 +187,14 @@ runScene = (opts) ->
 		..broadphase = new CANNON.SAPBroadphase world
 
 	ctrl.scene = scene = new THREE.Scene
-	ctrl.renderer = renderer = new THREE.WebGLRenderer antialias: true
+	ctrl.renderer = renderer = new THREE.WebGLRenderer antialias: false
 	renderer.getSize = ->
 		s = onSizeSignal.size
 		width: s[0], height: s[1]
 	renderer.setPixelRatio window.devicePixelRatio
 	onSize (w, h) ->
 		renderer.setSize window.innerWidth, window.innerHeight
-	$ "body" .append renderer.domElement
+	opts.container.append renderer.domElement
 	#debugRenderer = new THREE.CannonDebugRenderer scene, world
 	#ctrl.afterPhysics.add -> debugRenderer.update!
 
@@ -202,8 +203,8 @@ runScene = (opts) ->
 	#god_camera.position.y = Math.PI
 	#god_camera.rotation.x = -Math.PI/2
 	god_camera.position.y = 10
-	#god_controls = new THREE.OrbitControls god_camera, renderer.domElement
-	#ctrl.onUpdate.add god_controls~update
+	god_controls = new THREE.OrbitControls god_camera, renderer.domElement
+	ctrl.onUpdate.add god_controls~update
 
 	driver_camera = new THREE.PerspectiveCamera 50, 1, 0.01, 450000
 	onSize (w, h) ->
@@ -238,9 +239,13 @@ runScene = (opts) ->
 		color: 0xffffff
 		map: groundTex
 		normalMap: groundNorm
+
 	groundGeometry = new THREE.PlaneGeometry terrainSize, terrainSize, 0, 0
 	ground = new THREE.Mesh groundGeometry, groundMaterial
 	ground.rotation.x = -Math.PI/2.0
+	# To avoid z-fighting. Should be handled by
+	# polygon offset, but it gives very weird results
+	ground.position.y = -0.1
 	groundBody = new Cannon.Body mass: 0
 		..addShape new Cannon.Plane
 		..quaternion.setFromAxisAngle new Cannon.Vec3(1,0,0), -Math.PI/2.0
@@ -264,7 +269,7 @@ runScene = (opts) ->
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
-	road.position.y = 0.1
+	road.position.y = 0
 	scene.add road
 
 	sky = new THREE.Sky
@@ -332,7 +337,7 @@ runScene = (opts) ->
 		effect = new THREE.VREffect renderer
 		onSize (w, h) ->
 			effect.setSize w, h
-		manager = new WebVRManager renderer, effect, hideButton: false
+		manager = new WebVRManager renderer, effect, hideButton: true
 		new Keypress.Listener().simple_combo 'f', ->
 			manager.toggleVRMode()
 		ctrl.onUpdate.add ->
@@ -390,7 +395,7 @@ runScene = (opts) ->
 
 		enginePower = 6000
 		brakePower = 100
-		maxSteer = 1.0
+		maxSteer = 0.8
 		maxCentering = 0.4
 		maxCenteringSpeed = 10
 		steeringDeadzone = 0.005
@@ -440,11 +445,14 @@ runScene = (opts) ->
 				dir = Math.sign controls.steering
 				mag -= steeringDeadzone
 				mag = Math.max mag, 0
-				steering = mag*dir
+				steering = mag*dir*maxSteer
 				if z > 0
+					# Front wheels
 					wi.steering = maxSteer*steering
-				else
+					# Back wheels
 					wi.engineForce = -enginePower*controls.throttle*controls.direction
+				else
+					#
 
 		car.addToWorld world
 		bodyPhys.position.y = 1
@@ -484,11 +492,15 @@ runScene = (opts) ->
 	ctrl.onUpdate.add -> stats.begin()
 	ctrl.afterUpdate.add -> stats.end()
 	$(stats.domElement)
-	.appendTo $("body")
+	.appendTo opts.container
 	.css do
 		position: 'absolute'
 		left: 0
 		top: 0
+	new Keypress.Listener().simple_combo 's', ->
+		console.log $('#fpsText').text()
 $ ->
-	opts = deparam window.location.search.substring 1
-	runScene(opts)
+	opts =
+		container: $('body')
+	opts <<< deparam window.location.search.substring 1
+	runScene opts
