@@ -24,13 +24,15 @@ export class IdmVehicle
 		@timeHeadway=1.6
 		@minimumGap=2.0
 		#@a=0.73
-		@a=2.0
+		@a=1.5
 		@b=3.0
 		@accelExp=4.0
 	}={}) ->
 
 	step: ({dx, dv, v}) ->
 		freeAccel = (v/@targetV)**@accelExp
+		if freeAccel > 1
+			freeAccel = 1
 		desiredGap = @minimumGap + @timeHeadway*v + v*dv/(2*Math.sqrt(@a*@b))
 		a = @a*(1 - freeAccel - (desiredGap/dx)**2)
 		return a
