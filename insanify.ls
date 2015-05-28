@@ -6,8 +6,8 @@ require! rw
 P = require \bluebird
 require! webpack
 
-new webpack.ProvidePlugin do
-	three: './three.js/build/three.js'
+#new webpack.ProvidePlugin do
+#	three: './three.js/build/three.js'
 
 webpackConfig =
 	module:
