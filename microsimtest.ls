@@ -20,34 +20,7 @@ for i in [0 til n]
 	v.position = i*env.radius/n
 	env.addVehicle(v)
 
-class LoopPlotter
-	(@container, @env) ->
 
-	render: ->
-		@container.empty()
-		d = @env.radius*2
-		relpos = (pos) ->
-			(pos + d/2.0)/d*100
-
-		vs = @env.vehicles
-		meanVelocity = sum map (.velocity*3.6/vs.length), vs
-		#console.log meanVelocity
-		for v, i in vs
-			pos = @env.position2d(v.position)
-			e = $("<div>").css do
-				"background-color": "black"
-				position: "absolute"
-				left: relpos(pos[0]) + "%"
-				top: relpos(pos[1]) + "%"
-				width: "10px"
-				height: "10px"
-			if i == 0
-				$('#velocity').text v.velocity*3.6
-				$('#acceleration').text v.acceleration
-				$('#time').text env.time
-				$('#meanvelocity').text meanVelocity
-				e.css "background-color": "red"
-			@container.append e
 
 $ ->
 	speedup = 100
@@ -60,7 +33,7 @@ $ ->
 		else
 			v.targetV = 0
 		#env.addVehicle new microsim.IdmVehicle
-	plotter = (new LoopPlotter el, env)
+	plotter = (new microsim.LoopPlotter el, env)
 	update = ->
 		plotter.render()
 		for i in [0 til speedup]
