@@ -28,9 +28,11 @@ NonSteeringControl = (orig) ->
 
 {Catchthething} = require './catchthething.ls'
 
-run = (opts) ->
-	catchthething = new Catchthething $('#catchthething')
+#loadScene (opts) ->
 
+	#run = (opts) ->
+	#catchthething = new Catchthething
+loadScene = (opts) ->
 	renderer = new THREE.WebGLRenderer antialias: true
 	renderer.autoClear = false
 	scene = new Scene
@@ -46,6 +48,7 @@ run = (opts) ->
 		v.position = i*spacePerVehicle
 		traffic.addVehicle v
 	scene.afterPhysics.add traffic~step
+	scene.traffic = traffic
 
 	plotter = new LoopPlotter opts.loopContainer, traffic
 	scene.onRender.add plotter~render
@@ -60,7 +63,7 @@ run = (opts) ->
 		onSizeSignal.size = [opts.container.width(), opts.container.height()]
 		onSizeSignal.dispatch ...onSizeSignal.size
 	onSize (w, h) ->
-		renderer.setSize window.innerWidth, window.innerHeight
+		renderer.setSize w, h
 	onSize (w, h) ->
 		scene.camera.aspect = w/h
 		scene.camera.updateProjectionMatrix()
@@ -108,6 +111,10 @@ run = (opts) ->
 		scene.playerVehicle = new MicrosimWrapper player.physical
 			..higlight = true
 		traffic.addVehicle scene.playerVehicle
+		scene.playerModel.onCrash = new Signal
+		player.physical.addEventListener "collide", (e) ->
+			# TODO: Make sure ground collisions don't happen
+			scene.player.onCrash.dispatch e
 
 		$('#currentSpeed').prop max: 120
 		speedbar = $('#currentSpeed').prop "max", 200
@@ -150,18 +157,34 @@ run = (opts) ->
 			renderer.render catchthething.scene, catchthething.camera, screenTarget
 			renderer.clear()
 		*/
-		clock = new THREE.Clock
-		tick = ->
-			dt = clock.getDelta()
-			scene.tick dt
-			catchthething.tick dt
-			requestAnimationFrame tick
-		tick!
-
-
+		return scene
 $ ->
 	opts =
 		container: $('#drivesim')
 		loopContainer: $('#loopviz')
 	opts <<< deparam window.location.search.substring 1
-	run opts
+
+	run = (scene) ->
+		clock = new THREE.Clock
+		tick = ->
+			dt = clock.getDelta()
+			scene.tick dt
+			requestAnimationFrame tick
+		tick!
+
+	loadScene opts
+	.then (scene) ->
+		# Tick couple of times for a smoother
+		# start
+		while not scene.traffic.isInStandstill()
+			scene.traffic.step 1/60
+
+		for [0 to 10]
+			scene.tick 1/60
+		$('#startbutton')
+		.prop "disabled", false
+		.text "Start!"
+		.click ->
+			$('#drivesim').fadeIn(1000)
+			$('#intro').fadeOut(1000)
+			run scene

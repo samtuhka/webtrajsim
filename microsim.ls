@@ -113,6 +113,12 @@ export class LoopMicrosim
 		@vehicles.push v
 		@_updateCircle!
 
+	isInStandstill: ->
+		return false if @time == 0
+		maxvel = Math.max ...map Math.abs, (map (.velocity), @vehicles)
+		maxaccel = Math.max ...map Math.abs, (map (.acceleration), @vehicles)
+		return maxaccel < 1 and maxvel < 1
+
 $ = require 'jquery'
 export class LoopPlotter
 	(@container, @env) ->
