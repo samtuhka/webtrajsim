@@ -46,15 +46,20 @@ export class Scene
 
 export addSky = (scene) ->
 	sky = new THREE.Sky
-	sky.uniforms.sunPosition.value.y = 400
+	sky.uniforms.sunPosition.value.y = 4500
 	scene.visual.add sky.mesh
 
-	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
-	sunlight.position.set 0, 1, 0
+	sunlight = new THREE.DirectionalLight 0xffffff, 0.6
+	sunlight.position.set 0, 4500, 0
 	scene.visual.add sunlight
-	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.3
+	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.1
 		..position.set 0, 4500, 0
 	scene.visual.add hemiLight
+	scene.visual.add new THREE.AmbientLight 0x404040
+	position = new THREE.Vector3
+	scene.beforeRender.add ->
+		position.setFromMatrixPosition scene.camera.matrixWorld
+		sky.mesh.position.z = position.z
 
 export addGround = (scene) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
