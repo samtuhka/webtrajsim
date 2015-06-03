@@ -129,5 +129,6 @@ export addVehicle = (scene, controls=new DummyControls) ->
 
 		eye: eye
 		physical: bodyPhys
+		body: body
 
 

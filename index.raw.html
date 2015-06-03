@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Object tracking simulator</title>
+		<script src="./ui-main.ls" type="text/ls"></script>
+		<style type="text/css">
+			body, html {
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				overflow: hidden;
+			}
+			
+			canvas {
+				width: 100%;
+				height: 100%;
+			}
+			
+			#drivesim {
+				width: 100%;
+				height: 100%;
+				position: relative;
+			}
+			
+			#catchthething {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+			}
+			
+			#loopviz {
+				width: 300px;
+				height: 300px;
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				z-index: 10;
+				
+				/*display: none;*/
+			}
+			
+			#scorehud {
+				width: 300px;
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 10;
+				padding: 10px
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div id="drivesim">
+			<div id="loopviz"></div>
+			<div id="scorehud">
+				<progress id="currentSpeed" max="1" value="0"></progress>
+				<progress id="meanSpeed" max="1" value="0"></progress>
+			</div>
+		</div>
+	</body>
+</html>

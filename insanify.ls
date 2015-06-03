@@ -15,6 +15,7 @@ webpackConfig =
 			* test: /\.ls$/, loader: 'livescript-loader'
 			* test: /\.coffee$/, loader: 'coffee-loader'
 			* test: /\.css$/, loader: "style-loader!css-loader"
+			* test: /\.json$/, loader: "json-loader"
 	resolve:
 		alias:
 			three: './three.js/build/three.js'

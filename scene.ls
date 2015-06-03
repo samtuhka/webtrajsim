@@ -58,7 +58,7 @@ export addSky = (scene) ->
 
 export addGround = (scene) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
-	terrainSize = 10000
+	terrainSize = 1000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
@@ -71,6 +71,7 @@ export addGround = (scene) ->
 		color: 0xffffff
 		map: groundTex
 		normalMap: groundNorm
+	terrain = new THREE.Object3D
 
 	groundGeometry = new THREE.PlaneGeometry terrainSize, terrainSize, 0, 0
 	ground = new THREE.Mesh groundGeometry, groundMaterial
@@ -81,7 +82,7 @@ export addGround = (scene) ->
 	groundBody = new Cannon.Body mass: 0
 		..addShape new Cannon.Plane
 		..quaternion.setFromAxisAngle new Cannon.Vec3(1,0,0), -Math.PI/2.0
-	scene.visual.add ground
+	terrain.add ground
 	scene.physics.add groundBody
 
 	roadWidth = 10
@@ -102,5 +103,16 @@ export addGround = (scene) ->
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = 0
-	scene.visual.add road
+	terrain.add road
+
+	scene.visual.add terrain
+	doubler = terrain.clone()
+	scene.visual.add doubler
+
+	position = new THREE.Vector3
+	scene.beforeRender.add ->
+		position.setFromMatrixPosition scene.camera.matrixWorld
+		nTerrains = Math.floor (position.z+terrainSize/2.0)/terrainSize
+		terrain.position.z = nTerrains*terrainSize
+		doubler.position.z = terrain.position.z + terrainSize
 
