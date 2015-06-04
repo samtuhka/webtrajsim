@@ -19,6 +19,8 @@ export class Scene
 
 		@camera = new THREE.PerspectiveCamera 50, 1, 0.01, 450000
 
+		@time = 0
+
 		@onPhysics.add (dt) ~>
 			@physics.step @stepDuration, dt
 
@@ -26,18 +28,23 @@ export class Scene
 		@beforePhysics.dispatch dt
 		@onPhysics.dispatch dt
 		@afterPhysics.dispatch dt
-		
+
 		@beforeRender.dispatch dt
 		@onRender.dispatch dt
 		@afterRender.dispatch dt
 
+		@time += dt
+		@onTickHandled.dispatch dt
+
 	beforePhysics: new Signal
 	onPhysics: new Signal
 	afterPhysics: new Signal
-	
+
 	beforeRender: new Signal
 	onRender: new Signal
 	afterRender: new Signal
+
+	onTickHandled: new Signal
 
 	bindPhys: (physical, visual) ->
 		@afterPhysics.add ->

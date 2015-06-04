@@ -34,8 +34,9 @@ NonSteeringControl = (orig) ->
 	#catchthething = new Catchthething
 loadScene = (opts) ->
 	renderer = new THREE.WebGLRenderer antialias: true
-	renderer.autoClear = false
 	scene = new Scene
+	renderer.autoClear = false
+	scene.beforeRender.add -> renderer.clear()
 
 	nVehicles = 20
 	spacePerVehicle = 20
@@ -50,9 +51,8 @@ loadScene = (opts) ->
 	scene.afterPhysics.add traffic~step
 	scene.traffic = traffic
 
-	plotter = new LoopPlotter opts.loopContainer, traffic
-	scene.onRender.add plotter~render
-	scene.beforeRender.add -> renderer.clear()
+	#plotter = new LoopPlotter opts.loopContainer, traffic
+	#scene.onRender.add plotter~render
 
 	onSizeSignal = new Signal()
 	onSizeSignal.size = [opts.container.width(), opts.container.height()]
@@ -72,30 +72,43 @@ loadScene = (opts) ->
 	camera = scene.camera
 	renderDriving = ->
 		renderer.render visualWorld, camera
-	renderCatching = ->
-		renderer.render catchthething.scene, catchthething.camera
+	#renderCatching = ->
+	#	renderer.render catchthething.scene, catchthething.camera
 
 	nullScene = new THREE.Scene
 	renderBlank = ->
 		renderer.render nullScene, camera
 	doRender = renderDriving
+	scene.onRender.add (...args) -> doRender ...args
 
-	opts.container.mousedown (e) ->
-		if e.which == 1
-			catchthething.catch()
+	scoreHud = $('#scoreHud')
+	onEyesOpened = new Signal
+	onEyesClosed = new Signal
+	scene.eyesOpen = true
+	onEyesOpened.add !-> scene.eyesOpen := true
+	onEyesClosed.add !-> scene.eyesOpen := false
+
+	openEyes = ->
+		onEyesOpened.dispatch()
+		scoreHud.fadeOut 0.3*1000
+	closeEyes = ->
+		scoreHud.fadeIn 0.3*1000, -> onEyesClosed.dispatch()
+
 	opts.container.on "contextmenu", -> return false
 	opts.container.mousedown (e) ->
-		if e.which == 3
-			doRender := renderCatching
 		if e.which == 1
-			catchthething.catch()
+			closeEyes()
 
 	opts.container.mouseup (e) ->
-		if e.which == 3
-			doRender := renderDriving
+		if e.which == 1
+			openEyes()
 
+	scoreElement = $('#scoreNumber')
+	onEyesClosed.add ->
+		return if not scene.scoring?
+		meanScore = scene.scoring.rawScore/scene.scoring.scoreTime
+		scoreElement.text Math.round meanScore
 
-	scene.onRender.add (...args) -> doRender ...args
 
 	opts.container.append renderer.domElement
 	P.resolve addGround scene
@@ -103,10 +116,12 @@ loadScene = (opts) ->
 	.then -> WsController.Connect opts.controller
 	.then (controls) ->
 		controls = NonSteeringControl controls
+		scene.playerControls = controls
 		addVehicle scene, controls
 	.then (player) ->
 		player.eye.add scene.camera
 		player.physical.position.x = -2.2
+
 		scene.playerModel = player
 		scene.playerVehicle = new MicrosimWrapper player.physical
 			..higlight = true
@@ -114,21 +129,19 @@ loadScene = (opts) ->
 		scene.playerModel.onCrash = new Signal
 		player.physical.addEventListener "collide", (e) ->
 			# TODO: Make sure ground collisions don't happen
-			scene.player.onCrash.dispatch e
+			scene.playerModel.onCrash.dispatch e
 
-		$('#currentSpeed').prop max: 120
-		speedbar = $('#currentSpeed').prop "max", 200
-		meanspeedbar = $('#meanSpeed').prop "max", 200
-		cumspeed = 0
-		cumtime = 0
+		scene.scoring =
+			rawScore: 0
+			scoreTime: 0
+		score = scene.scoring
 		scene.afterPhysics.add (dt) ->
-			position = scene.playerVehicle.position
-			return if position < 1
-			speed = scene.playerVehicle.velocity * 3.6
-			speedbar.prop "value", speed
-			cumtime += dt
-			meanspeed = position/cumtime*3.6
-			meanspeedbar.prop "value", meanspeed
+			score.scoreTime += dt
+			headway = scene.playerVehicle.headway
+			stepScore = dt*(1.0/headway)/0.1*10000
+			if scene.eyesOpen
+				stepScore = 0
+			score.rawScore += stepScore
 
 
 	.then -> addVehicle scene
@@ -164,21 +177,44 @@ $ ->
 		loopContainer: $('#loopviz')
 	opts <<< deparam window.location.search.substring 1
 
-	run = (scene) ->
+	run = (scene) -> new P (accept, reject) ->
+		dataLog = []
+		# WOW, really doesn't belong here!
+		pluck = (obj, ...keys) ->
+			dump = {}
+			for key in keys
+				dump[key] = obj[key]
+			return dump
+
+		dumpVehicle = (v) ->
+			pluck v, \position, \velocity, \acceleration
+
+		addEntry = (scene) ->
+			dataLog.push do
+				scene: pluck scene, \time, \eyesOpen
+				player: dumpVehicle scene.playerVehicle
+				leader: dumpVehicle scene.playerVehicle.leader
+				controls: pluck scene.playerControls, \throttle, \brake, \steering, \direction
+
+
 		clock = new THREE.Clock
 		tick = ->
+			addEntry scene
 			dt = clock.getDelta()
 			scene.tick dt
+			if scene.time > 5*10
+				accept dataLog
+				return
 			requestAnimationFrame tick
 		tick!
 
 	loadScene opts
-	.then (scene) ->
-		# Tick couple of times for a smoother
-		# start
+	.then (scene) -> new P (accept, reject) ->
+		# Wait for the traffic to queue up
 		while not scene.traffic.isInStandstill()
 			scene.traffic.step 1/60
-
+		# Tick couple of times for a smoother
+		# start
 		for [0 to 10]
 			scene.tick 1/60
 		$('#startbutton')
@@ -187,4 +223,8 @@ $ ->
 		.click ->
 			$('#drivesim').fadeIn(1000)
 			$('#intro').fadeOut(1000)
-			run scene
+			accept run scene
+	.then (data) ->
+		console.log data[*-1]
+		opts.container.fadeOut()
+		$('#outro').fadeIn()
