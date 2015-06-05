@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "db.js": "aaronpowell/db.js",
     "jquery-elementresize": "^0.2.1",
     "json-loader": "^0.5.2",
     "jstat": "^1.1.5"

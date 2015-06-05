@@ -11,6 +11,7 @@ Signal = require 'signals'
 {HudScreen} = require './hudscreen.ls'
 
 Keypress = require 'keypress'
+dbjs = require 'db.js'
 
 class MicrosimWrapper
 	(@phys) ->
@@ -28,10 +29,15 @@ NonSteeringControl = (orig) ->
 
 {Catchthething} = require './catchthething.ls'
 
-#loadScene (opts) ->
+dumpData = (log) ->
+	dbjs.open do
+		server: 'tbtTests'
+		version: 1
+		schema:
+			sessions: key: {keyPath: 'id', autoIncrement: true}
+	.then (db) ->
+		db.sessions.add log
 
-	#run = (opts) ->
-	#catchthething = new Catchthething
 loadScene = (opts) ->
 	renderer = new THREE.WebGLRenderer antialias: true
 	scene = new Scene
@@ -202,12 +208,12 @@ $ ->
 			addEntry scene
 			dt = clock.getDelta()
 			scene.tick dt
-			if scene.time > 5*10
+			if scene.time > 5*60
 				accept dataLog
 				return
 			requestAnimationFrame tick
 		tick!
-
+	
 	loadScene opts
 	.then (scene) -> new P (accept, reject) ->
 		# Wait for the traffic to queue up
@@ -221,10 +227,15 @@ $ ->
 		.prop "disabled", false
 		.text "Start!"
 		.click ->
+			startTime = (new Date).toISOString()
 			$('#drivesim').fadeIn(1000)
 			$('#intro').fadeOut(1000)
-			accept run scene
+			run scene .then (data) ->
+				accept do
+					date: startTime
+					name: name
+					data: data
 	.then (data) ->
-		console.log data[*-1]
+		dumpData data
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
