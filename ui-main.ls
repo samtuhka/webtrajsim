@@ -8,7 +8,6 @@ Signal = require 'signals'
 {addVehicle} = require './vehicle.ls'
 {WsController} = require './controls.ls'
 {IdmVehicle, LoopMicrosim, LoopPlotter} = require './microsim.ls'
-{HudScreen} = require './hudscreen.ls'
 
 Keypress = require 'keypress'
 dbjs = require 'db.js'
@@ -19,6 +18,8 @@ class MicrosimWrapper
 		@phys.position.z
 	velocity:~->
 		@phys.velocity.z
+
+	acceleration:~-> null
 
 	step: ->
 
@@ -57,8 +58,8 @@ loadScene = (opts) ->
 	scene.afterPhysics.add traffic~step
 	scene.traffic = traffic
 
-	#plotter = new LoopPlotter opts.loopContainer, traffic
-	#scene.onRender.add plotter~render
+	plotter = new LoopPlotter opts.loopContainer, traffic
+	scene.onRender.add plotter~render
 
 	onSizeSignal = new Signal()
 	onSizeSignal.size = [opts.container.width(), opts.container.height()]
@@ -125,6 +126,7 @@ loadScene = (opts) ->
 		scene.playerControls = controls
 		addVehicle scene, controls
 	.then (player) ->
+		#THE PLAYER VELOCITY IS BROKEN SOMEHOW, HENCE THE JERK<><><
 		player.eye.add scene.camera
 		player.physical.position.x = -2.2
 
@@ -208,7 +210,7 @@ $ ->
 			addEntry scene
 			dt = clock.getDelta()
 			scene.tick dt
-			if scene.time > 5*60
+			if scene.time > 3*60
 				accept dataLog
 				return
 			requestAnimationFrame tick
