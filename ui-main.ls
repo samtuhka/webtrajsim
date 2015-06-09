@@ -6,7 +6,7 @@ Signal = require 'signals'
 
 {Scene, addGround, addSky} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
-{WsController} = require './controls.ls'
+{WsController, KeyboardController} = require './controls.ls'
 {IdmVehicle, LoopMicrosim, LoopPlotter} = require './microsim.ls'
 
 Keypress = require 'keypress'
@@ -120,7 +120,11 @@ loadScene = (opts) ->
 	opts.container.append renderer.domElement
 	P.resolve addGround scene
 	.then -> addSky scene
-	.then -> WsController.Connect opts.controller
+	.then ->
+		if opts.controller?
+			WsController.Connect opts.controller
+		else
+			new KeyboardController
 	.then (controls) ->
 		controls = NonSteeringControl controls
 		scene.playerControls = controls

@@ -1,4 +1,5 @@
 P = require 'bluebird'
+$ = require 'jquery'
 
 export class WsController
 	@Connect = (url) -> new P (resolve, reject) ->
@@ -16,4 +17,26 @@ export class WsController
 
 	set: (obj) ->
 		@socket.send JSON.stringify obj
+
+export class KeyboardController
+	->
+		@throttle = 0
+		@brake = 0
+		@steering = 0
+		@direction = 1
+
+		UP = 38
+		DOWN = 40
+
+		$("body")
+		.keydown (e) ~>
+			switch e.which
+			| UP => @throttle = 1
+			| DOWN => @brake = 1
+		.keyup (e) ~>
+			switch e.which
+			| UP => @throttle = 0
+			| DOWN => @brake = 0
+
+	set: ->
 
