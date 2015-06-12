@@ -2,7 +2,7 @@ $ = require 'jquery'
 deparam = require 'jquery-deparam'
 P = require 'bluebird'
 THREE = require 'three'
-Signal = require 'signals'
+{Signal} = require './signal.ls'
 
 {Scene, addGround, addSky} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'

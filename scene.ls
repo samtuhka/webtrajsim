@@ -1,5 +1,5 @@
 Cannon = require 'cannon'
-{Signal} = require 'signals'
+{Signal} = require './signal.ls'
 
 # Todo: ugly
 window.THREE = THREE = require 'three'
