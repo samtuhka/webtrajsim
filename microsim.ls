@@ -1,4 +1,5 @@
-{sum, map, sortBy, maximumBy} = require 'prelude-ls'
+{sum, map, sortBy, maximumBy} = require 'prelude-ls'
+$ = require 'jquery'
 
 # OMG! https://code.google.com/p/v8/issues/detail?id=3495
 tanh = (x) ->
@@ -16,15 +17,16 @@ export class Vehicle
 
 	step: ->
 
-/*# http://arxiv.org/pdf/patt-sol/9805002
-export class BandoVehicle extends Vehicle
+# http://arxiv.org/pdf/patt-sol/9805002
+/*export class BandoVehicle extends Vehicle
 	(@aMultiplier=2.0) ->
 		# TODO: Allow parametrization
 
 	step: ({dx, v}) ->
 		targetV = 16.8*tanh(0.0860*(dx - 25)) + 0.913
 		a = @aMultiplier*(targetV - v)
-		return a*/
+		return a
+*/
 
 #http://arxiv.org/pdf/cond-mat/0002177v2.pdf
 export class IdmVehicle extends Vehicle
@@ -119,7 +121,6 @@ export class LoopMicrosim
 		maxaccel = Math.max ...map Math.abs, (map (.acceleration), @vehicles)
 		return maxaccel < 1 and maxvel < 1
 
-$ = require 'jquery'
 export class LoopPlotter
 	(@container, @env) ->
 

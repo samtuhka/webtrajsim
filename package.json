@@ -3,7 +3,10 @@
     "db.js": "aaronpowell/db.js",
     "jquery-elementresize": "^0.2.1",
     "json-loader": "^0.5.2",
-    "jstat": "^1.1.5"
+    "jstat": "^1.1.5",
+    "system-livescript": "git://github.com/jampekka/system-livescript",
+    "system-npmlocator": "git://github.com/jampekka/system-npmlocator",
+    "systemjs": "git://github.com/jampekka/systemjs"
   },
   "devDependencies": {
     "LiveScript": "^1.3.1",

@@ -3,7 +3,7 @@ Cannon = require 'cannon'
 
 # Todo: ugly
 window.THREE = THREE = require 'three'
-require 'script!./three.js/examples/js/SkyShader.js'
+require './three.js/examples/js/SkyShader.js'
 
 export class Scene
 	({@stepDuration=1/60}={}) ->

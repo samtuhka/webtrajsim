@@ -3,8 +3,15 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>The Busy Tailgater</title>
-		<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.css" />
-		<script src="./ui-main.ls" type="text/ls"></script>
+		<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.css">
+		<script src="node_modules/systemjs/dist/system.browserify.src.js"></script>
+		<script src="node_modules/system-npmlocator/npmlocator.js"></script>
+		<script src="node_modules/system-livescript/enable-ls.js"></script>
+		<script>
+			System.import('./paths-config.ls').then(function () {
+				System.import("./ui-main.ls");
+			});
+		</script>
 		<style type="text/css">
 			body, html {
 				margin: 0;
@@ -61,12 +68,12 @@
 			<div class="instructions">
 			<h2>Instructions:</h2>
 				<ol>
-					<li>Don't crash!</li>
+					<li>Don&apos;t crash!</li>
 					<li>Tailgate as close as you can</li>
 					<li>Look at the road as little as you can</li>
 				</ol>
 			</div>
-			<input type="text" id="sessionName" />
+			<input type="text" id="sessionName">
 			<button id="startbutton" type="button" class="btn btn-success btn-lg" disabled="disabled">Loading...</button>
 		</div>
 		<div id="drivesim" class="fillScreen">
