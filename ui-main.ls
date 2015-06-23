@@ -58,8 +58,8 @@ loadScene = (opts) ->
 	scene.afterPhysics.add traffic~step
 	scene.traffic = traffic
 
-	plotter = new LoopPlotter opts.loopContainer, traffic
-	scene.onRender.add plotter~render
+	#plotter = new LoopPlotter opts.loopContainer, traffic
+	#scene.onRender.add plotter~render
 
 	onSizeSignal = new Signal()
 	onSizeSignal.size = [opts.container.width(), opts.container.height()]
