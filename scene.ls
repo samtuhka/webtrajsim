@@ -5,14 +5,16 @@ Cannon = require 'cannon'
 window.THREE = THREE = require 'three'
 require './three.js/examples/js/SkyShader.js'
 
+# TODO: Find a good fidelity/performance
+# compromise parameters
 export class Scene
-	({@stepDuration=1/60}={}) ->
+	({@stepDuration=1/240}={}) ->
 		@physics = new Cannon.World
 			..gravity.set 0, -9.81, 0
 			..defaultContactMaterial
 				..friction = 10
 				..restitution = 0.3
-			..solver.iterations = 10
+			..solver.iterations = 100
 			..broadphase = new Cannon.SAPBroadphase @physics
 
 		@visual = new THREE.Scene
@@ -22,7 +24,8 @@ export class Scene
 		@time = 0
 
 		@onPhysics.add (dt) ~>
-			@physics.step @stepDuration, dt
+			stepdur = Math.min dt, @stepDuration
+			@physics.step stepdur, dt
 
 	tick: (dt) ->
 		@beforePhysics.dispatch dt
