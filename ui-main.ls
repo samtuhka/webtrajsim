@@ -29,15 +29,7 @@ NonSteeringControl = (orig) ->
 	return ctrl
 
 {Catchthething} = require './catchthething.ls'
-
-dumpData = (log) ->
-	dbjs.open do
-		server: 'tbtTests'
-		version: 1
-		schema:
-			sessions: key: {keyPath: 'id', autoIncrement: true}
-	.then (db) ->
-		db.sessions.add log
+{Sessions} = require './datalogger.ls'
 
 loadScene = (opts) ->
 	renderer = new THREE.WebGLRenderer antialias: true
@@ -192,7 +184,6 @@ $ ->
 	opts <<< deparam window.location.search.substring 1
 
 	run = (scene) -> new P (accept, reject) ->
-		dataLog = []
 		# WOW, really doesn't belong here!
 		pluck = (obj, ...keys) ->
 			dump = {}
@@ -204,7 +195,7 @@ $ ->
 			pluck v, \position, \velocity, \acceleration
 
 		addEntry = (scene) ->
-			dataLog.push do
+			scene.logger.write do
 				scene: pluck scene, \time, \eyesOpen
 				player: dumpVehicle scene.playerVehicle
 				leader: dumpVehicle scene.playerVehicle.leader
@@ -217,7 +208,7 @@ $ ->
 			dt = clock.getDelta()
 			scene.tick dt
 			if scene.time > 3*60
-				accept dataLog
+				accept scene
 				return
 			requestAnimationFrame tick
 		tick!
@@ -238,12 +229,13 @@ $ ->
 			startTime = (new Date).toISOString()
 			$('#drivesim').fadeIn(1000)
 			$('#intro').fadeOut(1000)
-			run scene .then (data) ->
-				accept do
-					date: startTime
-					name: name
-					data: data
+			Sessions("tbtSessions").then (sessions) ->
+				sessions.create do
+						date: startTime
+						name: name
+			.then (logger) ->
+				scene.logger = logger
+				run(scene)
 	.then (data) ->
-		dumpData data
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
