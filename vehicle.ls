@@ -3,6 +3,7 @@ P = require 'bluebird'
 
 THREE = require 'three'
 Cannon = require 'cannon'
+{Signal} = require './signal.ls'
 
 class DummyControls
 	->
@@ -22,12 +23,8 @@ export addVehicle = (scene, controls=new DummyControls) ->
 	.then ({body, wheel}) ->
 		[o, m] = body
 		[w, wm] = wheel
-		#console.log o, m
-		#w, wm <- (new THREE.JSONLoader).load 'res/camaro/blend/wheel.json'
 
-		#(new THREE.ObjectLoader).load 'res/camaro/blend/camaro_body.json', (s) ->
-		#console.log o
-		#console.log m
+		syncModels = new Signal
 
 		w.computeBoundingBox()
 		wRadius = w.boundingBox.max.z
@@ -46,8 +43,6 @@ export addVehicle = (scene, controls=new DummyControls) ->
 			..addShape (new Cannon.Box halfbox), offOrigin
 			..linearDamping = 0.1
 			..angularDamping = 0.1
-
-		scene.bindPhys bodyPhys, body
 
 		car = new Cannon.RaycastVehicle do
 			chassisBody: bodyPhys
@@ -84,9 +79,9 @@ export addVehicle = (scene, controls=new DummyControls) ->
 				axleLocal: new Cannon.Vec3 -1, 0, 0
 				suspensionRestLength: wRadius + 0.25
 				chassisConnectionPointLocal: new Cannon.Vec3(x, y, z).vadd offOrigin
-				suspensionStiffness: 100
+				suspensionStiffness: 40
 				rollInfluence: 1
-				frictionSlip: 1000
+				frictionSlip: 100
 			wi = car.wheelInfos[wii]
 			wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 			if x < 0
@@ -97,13 +92,12 @@ export addVehicle = (scene, controls=new DummyControls) ->
 
 			scene.visual.add wheel
 
-			scene.afterPhysics.add ->
+			syncModels.add ->
 				car.updateWheelTransform wii
 				wheel.position.copy wi.worldTransform.position
 				wheel.quaternion.copy wi.worldTransform.quaternion
 
 			scene.beforePhysics.add ->
-				wi.brake = brakePower*controls.brake
 				mag = Math.abs controls.steering
 				dir = Math.sign controls.steering
 				mag -= steeringDeadzone
@@ -111,11 +105,19 @@ export addVehicle = (scene, controls=new DummyControls) ->
 				steering = mag*dir*maxSteer
 				if z > 0
 					# Front wheels
+					wi.brake = brakePower*controls.brake
 					wi.steering = maxSteer*steering
+				else
 					# Back wheels
 					wi.engineForce = -enginePower*controls.throttle*controls.direction
-				else
-					#
+
+		syncModels.add ->
+			body.position.copy bodyPhys.position
+			# TODO: This may be wrong way around!
+			body.quaternion.copy bodyPhys.quaternion
+
+		scene.afterPhysics.add ->
+			syncModels.dispatch()
 
 		car.addToWorld scene.physics
 		bodyPhys.position.y = 1
@@ -130,5 +132,6 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		eye: eye
 		physical: bodyPhys
 		body: body
+		forceModelSync: -> syncModels.dispatch()
 
 
