@@ -55,7 +55,7 @@ loadScene = (opts) ->
 			timeHeadway: 1.0
 		v.position = i*spacePerVehicle
 		traffic.addVehicle v
-	scene.afterPhysics.add traffic~step
+	scene.beforePhysics.add traffic~step
 	scene.traffic = traffic
 
 	#plotter = new LoopPlotter opts.loopContainer, traffic
@@ -155,13 +155,14 @@ loadScene = (opts) ->
 				stepScore = 0
 			score.rawScore += stepScore
 
-
 	.then -> addVehicle scene
 	.then (leader) ->
 		leader.physical.position.z = scene.playerVehicle.leader.position
 		leader.physical.position.x = -2.2
-		scene.beforePhysics.add ->
+		scene.beforeRender.add (dt) ->
 			leader.physical.position.z = scene.playerVehicle.leader.position
+			leader.forceModelSync()
+
 
 	.then ->
 		/*screenTarget = new THREE.WebGLRenderTarget 1024, 1024, format: THREE.RGBAFormat
@@ -219,7 +220,7 @@ $ ->
 				return
 			requestAnimationFrame tick
 		tick!
-	
+
 	loadScene opts
 	.then (scene) -> new P (accept, reject) ->
 		# Wait for the traffic to queue up
