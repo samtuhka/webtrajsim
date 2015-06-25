@@ -39,10 +39,16 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
         wtf, info = axes[code]
         if orng is None:
             orng = (info.min, info.max)
-        mapping[code] = dict(name=name, normer=normer(orng, newrng))
+        mapping[(ecodes.EV_ABS, code)] = dict(name=name, normer=normer(orng, newrng))
+
+    def mapKey(code, name):
+        mapping[(ecodes.EV_KEY, code)] = dict(name=name, normer=lambda ev: bool(ev.value))
+
+    FRONT_RIGHT_KEY = 294 # Not defined in linux/input.h
     mapAxis(ecodes.ABS_X, "steering", (1, -1))
     mapAxis(ecodes.ABS_Z, "throttle", (1, 0))
     mapAxis(ecodes.ABS_RZ, "brake", (1, 0), (0, 255))
+    mapKey(FRONT_RIGHT_KEY, "blinder")
     
     def handlemsg(msg):
             msg = json.loads(msg)
@@ -59,9 +65,9 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     
     def sendloop():
         for event in dev.read_loop():
-            if event.type != ecodes.EV_ABS: continue
-            if event.code not in mapping: continue
-            axis = mapping[event.code]
+            tc = (event.type, event.code)
+            if tc not in mapping: continue
+            axis = mapping[tc]
             msg = {}
             msg[axis['name']] = axis['normer'](event)
             json.dump(msg, outf)

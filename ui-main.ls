@@ -102,13 +102,8 @@ loadScene = (opts) ->
 		scoreHud.fadeIn 0.3*1000, -> onEyesClosed.dispatch()
 
 	opts.container.on "contextmenu", -> return false
-	opts.container.mousedown (e) ->
-		if e.which == 1
-			closeEyes()
-
-	opts.container.mouseup (e) ->
-		if e.which == 1
-			openEyes()
+	
+	
 
 	scoreElement = $('#scoreNumber')
 	onEyesClosed.add ->
@@ -127,6 +122,12 @@ loadScene = (opts) ->
 			new KeyboardController
 	.then (controls) ->
 		controls = NonSteeringControl controls
+		controls.change.add (type, value) ->
+			return if type != "blinder"
+			if value
+				closeEyes()
+			else
+				openEyes()
 		scene.playerControls = controls
 		addVehicle scene, controls
 	.then (player) ->
