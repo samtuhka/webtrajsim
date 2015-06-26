@@ -235,7 +235,7 @@ $ ->
 						name: name
 			.then (logger) ->
 				scene.logger = logger
-				run(scene)
-	.then (data) ->
+				run(scene).then accept
+	.then (scene) ->
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
