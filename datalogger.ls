@@ -15,8 +15,8 @@ class _Sessions
 
 	create: (info) ->
 		@db.sessions.add info
-		.then (entry) ~>
-			return new Session @db, entry.sessionSurrogateId
+		.then ([entry]) ~>
+			return new Session(@db, entry.sessionSurrogateId)
 
 class Session
 	(@db, @sessionId) ->
