@@ -227,6 +227,7 @@ $ ->
 		.text "Start!"
 		.click ->
 			startTime = (new Date).toISOString()
+			name = $('#sessionName').val()
 			$('#drivesim').fadeIn(1000)
 			$('#intro').fadeOut(1000)
 			Sessions("tbtSessions").then (sessions) ->
