@@ -15,7 +15,7 @@ $ ->
 		db.sessions.query().all().execute()
 	.then (listing) ->
 		el = $('#sessionListing')
-		for session in listing
+		for let session in listing
 			link = $('<a href="#">').click -> dump db, session
 			link.text "#{session.name}_#{session.date}"
 			$("<li>").appendTo el .append link
