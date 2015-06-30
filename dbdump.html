@@ -1,0 +1,13 @@
+<script src="node_modules/systemjs/dist/system.browserify.src.js"></script>
+<script src="node_modules/system-npmlocator/npmlocator.js"></script>
+<script src="node_modules/system-livescript/enable-ls.js"></script>
+<script>
+	System.import('./paths-config.ls').then(function () {
+		System.import("./dbdump.ls");
+	});
+</script>
+
+<h1>Clicidiclick to download</h1>
+<ul id="sessionListing">
+</ul>
+
