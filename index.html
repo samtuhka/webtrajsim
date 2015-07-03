@@ -46,10 +46,19 @@
 			}
 			
 			#scoreHud {
-				z-index: 10;
+				z-index: 20;
 				padding: 10px;
+				position: fixed;
+				bottom: 10%;
+				right: 30%;
 				background-color: black;
 				color: white;
+				display: block;
+			}
+
+			#blinder {
+				z-index: 10;
+				background-color: black;
 			}
 
 			.instructions {
@@ -78,8 +87,16 @@
 		</div>
 		<div id="drivesim" class="fillScreen">
 			<div id="loopviz"></div>
-			<div id="scoreHud" class="fillScreen">
-				<h1 id="scoreNumber"></h1>
+			<div id="blinder" class="fillScreen"></div>
+			<div id="scoreHud">
+				<div>
+					<h4>Average <span id="meanMoneyValue"></span></h4>
+					<progress id="meanMoneyBar"></progress>
+				</div>
+				<div>
+					<h4>Current <span id="instantMoneyValue"></span></h4>
+					<progress id="instantMoneyBar"></progress>
+				</div>
 			</div>
 		</div>
 		<div id="outro" class="container">

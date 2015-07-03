@@ -80,7 +80,8 @@ loadScene = (opts) ->
 	doRender = renderDriving
 	scene.onRender.add (...args) -> doRender ...args
 
-	scoreHud = $('#scoreHud')
+	#scoreHud = $('#scoreHud')
+	blinder = $('#blinder')
 	onEyesOpened = new Signal
 	onEyesClosed = new Signal
 	scene.eyesOpen = true
@@ -89,19 +90,41 @@ loadScene = (opts) ->
 
 	openEyes = ->
 		onEyesOpened.dispatch()
-		scoreHud.fadeOut 0.3*1000
+		blinder.fadeOut 0.3*1000
 	closeEyes = ->
-		scoreHud.fadeIn 0.3*1000, -> onEyesClosed.dispatch()
+		blinder.fadeIn 0.3*1000, -> onEyesClosed.dispatch()
 
 	opts.container.on "contextmenu", -> return false
-	
-	
 
-	scoreElement = $('#scoreNumber')
-	onEyesClosed.add ->
-		return if not scene.scoring?
-		meanScore = scene.scoring.rawScore/scene.scoring.scoreTime
-		scoreElement.text Math.round meanScore
+	scoreElement = $('#fuelConsumption')
+	els =
+		instantValue: $ '#instantMoneyValue'
+		instantBar: $ '#instantMoneyBar' .prop min: 0, max: 40
+		meanValue: $ '#meanMoneyValue'
+		meanBar: $ '#meanMoneyBar' .prop min: 0, max: 40
+	
+	scene.beforeRender.add ->
+		s = scene.scoring
+		metersPerLiter = scene.scoring.distanceTraveled/scene.scoring.fuelConsumed
+		litersPerMeter = 1.0/metersPerLiter
+		litersPer100km = litersPerMeter*1000*100
+
+		instMetersPerLiter = scene.playerVehicle.velocity/s.instantConsumption
+		instLitersPer100km = (1.0/instMetersPerLiter)*1000*100
+
+		moneyPerMeter = scene.scoring.moneyGathered/scene.scoring.distanceTraveled
+		moneyPerHour = scene.scoring.moneyGathered/scene.scoring.scoreTime*60*60
+		#scoreElement.text moneyPerHour
+		
+		instMoneyPerHour = s.moneyRate*60*60
+		els.instantBar.val instMoneyPerHour
+		els.instantValue.text Math.round instMoneyPerHour
+		els.meanBar.val moneyPerHour
+		els.meanValue.text moneyPerHour.toFixed 1
+		#scoreElement.text "#{Math.round s.moneyRate*60*60*8} / #{Math.round moneyPerHour}"
+		#scoreElement.text instLitersPer100km
+		#scoreElement.text moneyPerMeter * 100*1000
+		#scoreElement.text litersPer100km
 
 
 	opts.container.append renderer.domElement
@@ -137,16 +160,23 @@ loadScene = (opts) ->
 			scene.playerModel.onCrash.dispatch e
 
 		scene.scoring =
-			rawScore: 0
 			scoreTime: 0
+			cumulativeThrottle: 0
+			fuelConsumed: 0
+			instantConsumption: 0
+		maximumFuelFlow = 200/60/1000
+		constantConsumption = maximumFuelFlow*0.1
+		fuelPrice = 1.5
+		meterCompensation = 0.44/1000
 		score = scene.scoring
 		scene.afterPhysics.add (dt) ->
 			score.scoreTime += dt
-			headway = scene.playerVehicle.headway
-			stepScore = dt*(1.0/headway)/0.1*10000
-			if scene.eyesOpen
-				stepScore = 0
-			score.rawScore += stepScore
+			score.instantConsumption = scene.playerControls.throttle*maximumFuelFlow + constantConsumption
+			score.fuelConsumed += score.instantConsumption*dt
+			score.distanceTraveled = scene.playerVehicle.position
+			score.moneyRate = scene.playerVehicle.velocity*meterCompensation - score.instantConsumption*fuelPrice
+			score.moneyGathered = score.distanceTraveled*meterCompensation - score.fuelConsumed*fuelPrice
+
 
 	.then -> addVehicle scene
 	.then (leader) ->
@@ -200,6 +230,7 @@ $ ->
 				player: dumpVehicle scene.playerVehicle
 				leader: dumpVehicle scene.playerVehicle.leader
 				controls: pluck scene.playerControls, \throttle, \brake, \steering, \direction
+				scoring: scene.scoring
 
 
 		clock = new THREE.Clock
