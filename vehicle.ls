@@ -22,6 +22,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		wheel: (PLoader THREE.JSONLoader) 'res/camaro/blend/wheel.json'
 	.then ({body, wheel}) ->
 		[o, m] = body
+		body = new THREE.Mesh o, (new THREE.MeshFaceMaterial m)
 		[w, wm] = wheel
 
 		syncModels = new Signal
@@ -30,11 +31,9 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		wRadius = w.boundingBox.max.z
 		wWidth = w.boundingBox.max.x*2
 
-		o.computeBoundingBox()
-		bbox = o.boundingBox
+		bbox = new THREE.Box3().setFromObject body
 		bbox.min.y += 0.3
 		halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
-		body = new THREE.Mesh o, (new THREE.MeshFaceMaterial m)
 		scene.visual.add body
 
 		offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
