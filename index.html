@@ -66,9 +66,12 @@
 			}
 
 			#outro {
-				display: none;
 			}
 			
+			#outro > .centered {
+				width: 500px;
+				margin: auto;
+			}
 		</style>
 	</head>
 	<body>
@@ -99,8 +102,11 @@
 				</div>
 			</div>
 		</div>
-		<div id="outro" class="container">
+		<div id="outro" class="fillScreen">
+			<div class="centered">
 			<h1>Thanks!</h1>
+			Your score was <span id="finalScore"></span>
+			</div>
 		</div>
 	</body>
 </html>

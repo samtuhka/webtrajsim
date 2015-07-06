@@ -146,7 +146,6 @@ loadScene = (opts) ->
 		scene.playerControls = controls
 		addVehicle scene, controls
 	.then (player) ->
-		#THE PLAYER VELOCITY IS BROKEN SOMEHOW, HENCE THE JERK<><><
 		player.eye.add scene.camera
 		player.physical.position.x = -2.2
 
@@ -185,8 +184,6 @@ loadScene = (opts) ->
 		scene.beforeRender.add (dt) ->
 			leader.physical.position.z = scene.playerVehicle.leader.position
 			leader.forceModelSync()
-
-
 	.then ->
 		/*screenTarget = new THREE.WebGLRenderTarget 1024, 1024, format: THREE.RGBAFormat
 		screenGeo = new THREE.PlaneGeometry 0.2, 0.2
@@ -269,5 +266,7 @@ $ ->
 				scene.logger = logger
 				run(scene).then accept
 	.then (scene) ->
+		moneyPerHour = scene.scoring.moneyGathered/scene.scoring.scoreTime*60*60
+		$('#finalScore').text moneyPerHour.toFixed 1
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
