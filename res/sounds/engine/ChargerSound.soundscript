@@ -1,0 +1,15 @@
+//AGORA SOUND SCRIPTS
+
+MagnumV8
+{
+	trigger_source	engine
+	pitch_source	engine_rpm
+	pitch_factors   0 0.8
+	gain_source	injector_ratio
+	gain_factors	0.5 0.75
+	sound	400.0	idle.wav
+	sound	900.0	low.wav
+	sound	1300.0	medium.wav
+	sound	1500.0	high.wav
+}
+
