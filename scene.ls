@@ -12,7 +12,7 @@ export class Scene
 		@physics = new Cannon.World
 			..gravity.set 0, -9.81, 0
 			..defaultContactMaterial
-				..friction = 10
+				..friction = 0.7
 				..restitution = 0.3
 			..solver.iterations = 100
 			..broadphase = new Cannon.SAPBroadphase @physics
