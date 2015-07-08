@@ -1,5 +1,8 @@
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
+jStat = require 'jstat'
+
+{perlin=noise} = require './vendor/perlin.js'
 
 # Todo: ugly
 window.THREE = THREE = require 'three'
@@ -67,11 +70,30 @@ export addSky = (scene) ->
 	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.1
 		..position.set 0, 4500, 0
 	scene.visual.add hemiLight
-	scene.visual.add new THREE.AmbientLight 0x404040
+	scene.visual.add new THREE.AmbientLight 0x606060
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		sky.mesh.position.z = position.z
+
+
+generateRock = (seed=Math.random()) ->
+	perlin.seed seed
+	radius = 1
+	scale = radius
+	noiseScale = 100
+	geo = new THREE.IcosahedronGeometry radius, 1
+	dir = new THREE.Vector3
+	for vert in geo.vertices
+		dir.copy vert
+		dir.normalize()
+		rnd = perlin.simplex3(vert.x*noiseScale, vert.y*noiseScale, vert.z*noiseScale)*scale
+		dir.multiplyScalar Math.abs(rnd)*scale
+		vert.add dir
+	geo.verticesNeedUpdate = true
+	geo.computeVertexNormals()
+	geo.computeFaceNormals()
+	return new THREE.Mesh geo, new THREE.MeshLambertMaterial color: 0xd3ab6d
 
 export addGround = (scene) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
@@ -121,6 +143,24 @@ export addGround = (scene) ->
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = 0
 	terrain.add road
+
+	nRocks = Math.round(terrainSize*(2*200)/500)
+	sizeDist = jStat.uniform(0.1, 0.6)
+	zDist = jStat.uniform(-terrainSize/2, terrainSize/2)
+	xDist = jStat.uniform(-200, 200)
+	for i from 0 til nRocks
+		x = xDist.sample()
+		size = sizeDist.sample()
+		if Math.abs(x) - Math.abs(size) < roadWidth
+			continue
+		z = zDist.sample()
+		rock = generateRock()
+		rock.position.x = x
+		rock.position.z = z
+		rock.scale.multiplyScalar size
+		rock.scale.y *= 0.8
+		terrain.add rock
+
 
 	scene.visual.add terrain
 	doubler = terrain.clone()
