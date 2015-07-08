@@ -6,8 +6,13 @@ THREE = require 'three'
 
 {Scene, addGround, addSky} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
+{DefaultEngineSound} = require './sounds.ls'
 {WsController, KeyboardController} = require './controls.ls'
 {IdmVehicle, LoopMicrosim, LoopPlotter} = require './microsim.ls'
+
+#window.THREE = THREE
+#window.CANNON = require 'cannon'
+#require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
 
 Keypress = require 'keypress'
 dbjs = require 'db.js'
@@ -98,11 +103,11 @@ loadScene = (opts) ->
 
 	scoreElement = $('#fuelConsumption')
 	els =
-		instantValue: $ '#instantMoneyValue'
-		instantBar: $ '#instantMoneyBar' .prop min: 0, max: 40
-		meanValue: $ '#meanMoneyValue'
-		meanBar: $ '#meanMoneyBar' .prop min: 0, max: 40
-	
+		instantValue: $ '#instantScoreValue'
+		instantBar: $ '#instantScoreBar' .prop min: 0, max: 40
+		meanValue: $ '#meanScoreValue'
+		meanBar: $ '#meanScoreBar' .prop min: 0, max: 40
+
 	scene.beforeRender.add ->
 		s = scene.scoring
 		metersPerLiter = scene.scoring.distanceTraveled/scene.scoring.fuelConsumed
@@ -115,12 +120,19 @@ loadScene = (opts) ->
 		moneyPerMeter = scene.scoring.moneyGathered/scene.scoring.distanceTraveled
 		moneyPerHour = scene.scoring.moneyGathered/scene.scoring.scoreTime*60*60
 		#scoreElement.text moneyPerHour
-		
+
 		instMoneyPerHour = s.moneyRate*60*60
-		els.instantBar.val instMoneyPerHour
-		els.instantValue.text Math.round instMoneyPerHour
-		els.meanBar.val moneyPerHour
-		els.meanValue.text moneyPerHour.toFixed 1
+
+		if isFinite instLitersPer100km
+			els.instantBar.val instLitersPer100km
+			els.instantValue.text Math.round instLitersPer100km
+		else
+			els.instantBar.val undefined
+			els.instantValue.text "-"
+
+		if isFinite litersPer100km
+			els.meanBar.val litersPer100km
+			els.meanValue.text litersPer100km.toFixed 1
 		#scoreElement.text "#{Math.round s.moneyRate*60*60*8} / #{Math.round moneyPerHour}"
 		#scoreElement.text instLitersPer100km
 		#scoreElement.text moneyPerMeter * 100*1000
@@ -175,7 +187,14 @@ loadScene = (opts) ->
 			score.distanceTraveled = scene.playerVehicle.position
 			score.moneyRate = scene.playerVehicle.velocity*meterCompensation - score.instantConsumption*fuelPrice
 			score.moneyGathered = score.distanceTraveled*meterCompensation - score.fuelConsumed*fuelPrice
-
+	.then ->
+		ctx = new AudioContext
+		DefaultEngineSound ctx
+		.then (engineSounds) ->
+			engineSounds.connect ctx.destination
+			engineSounds.start()
+			scene.afterPhysics.add ->
+				engineSounds.setPitch (scene.playerControls.throttle + 0.1)*2000
 
 	.then -> addVehicle scene
 	.then (leader) ->
@@ -266,7 +285,9 @@ $ ->
 				scene.logger = logger
 				run(scene).then accept
 	.then (scene) ->
-		moneyPerHour = scene.scoring.moneyGathered/scene.scoring.scoreTime*60*60
-		$('#finalScore').text moneyPerHour.toFixed 1
+		metersPerLiter = scene.scoring.distanceTraveled/scene.scoring.fuelConsumed
+		litersPerMeter = 1.0/metersPerLiter
+		litersPer100km = litersPerMeter*1000*100
+		$('#finalScore').text litersPer100km.toFixed 1
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
