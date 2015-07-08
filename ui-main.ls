@@ -191,10 +191,17 @@ loadScene = (opts) ->
 		ctx = new AudioContext
 		DefaultEngineSound ctx
 		.then (engineSounds) ->
-			engineSounds.connect ctx.destination
+			gainNode = ctx.createGain()
+			gainNode.connect ctx.destination
+			engineSounds.connect gainNode
 			engineSounds.start()
 			scene.afterPhysics.add ->
-				engineSounds.setPitch (scene.playerControls.throttle + 0.1)*2000
+				rev = scene.playerVehicle.velocity/(200/3.6)
+				rev = (rev + 0.1)/1.1
+				gain = scene.playerControls.throttle
+				gain = (gain + 0.5)/1.5
+				gainNode.gain.value = gain
+				engineSounds.setPitch rev*3000
 
 	.then -> addVehicle scene
 	.then (leader) ->
