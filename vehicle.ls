@@ -26,7 +26,8 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		[w, wm] = wheel
 
 		syncModels = new Signal
-
+		
+		cogY = 0.5
 		w.computeBoundingBox()
 		wRadius = w.boundingBox.max.z
 		wWidth = w.boundingBox.max.x*2
@@ -37,6 +38,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		scene.visual.add body
 
 		offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
+		offOrigin.y -= cogY
 
 		bodyPhys = new Cannon.Body mass: 2000
 			..addShape (new Cannon.Box halfbox), offOrigin
@@ -112,6 +114,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 
 		syncModels.add ->
 			body.position.copy bodyPhys.position
+			body.position.y -= cogY
 			# TODO: This may be wrong way around!
 			body.quaternion.copy bodyPhys.quaternion
 

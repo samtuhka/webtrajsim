@@ -10,9 +10,9 @@ THREE = require 'three'
 {WsController, KeyboardController} = require './controls.ls'
 {IdmVehicle, LoopMicrosim, LoopPlotter} = require './microsim.ls'
 
-#window.THREE = THREE
-#window.CANNON = require 'cannon'
-#require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
+window.THREE = THREE
+window.CANNON = require 'cannon'
+require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
 
 Keypress = require 'keypress'
 dbjs = require 'db.js'
@@ -57,6 +57,10 @@ loadScene = (opts) ->
 
 	#plotter = new LoopPlotter opts.loopContainer, traffic
 	#scene.onRender.add plotter~render
+	
+	#physDebug = new THREE.CannonDebugRenderer scene.visual, scene.physics
+	#scene.beforeRender.add ->
+	#	physDebug.update()
 
 	onSizeSignal = new Signal()
 	onSizeSignal.size = [opts.container.width(), opts.container.height()]
