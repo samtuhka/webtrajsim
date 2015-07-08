@@ -1,0 +1,24 @@
+Corolla-Engine
+{
+	trigger_source		engine
+	pitch_source		engine_rpm
+	sound			780.0			idle.wav
+	sound			1000.0			1000rpm.wav
+	sound			1700.0			1700rpm.wav
+	sound			2350.0			2350rpm.wav
+	sound			2600.0			2600rpm.wav
+	sound			3000.0			3000rpm.wav
+}
+Corolla-starter
+{
+	trigger_source starter
+	start_sound unpitched starter1.wav
+	sound	    unpitched starter2.wav
+	stop_sound  unpitched starter3.wav
+}
+Corolla-horn
+{
+	trigger_source	horn
+	sound		unpitched meep.wav
+	
+}

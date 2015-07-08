@@ -27,7 +27,7 @@ export SoundInterpolator = (ctx, sampleTbl) -> new Promise (accept, reject) ->
 	sources = []
 	master = ctx.createBiquadFilter()
 	master.type = 'lowpass'
-	master.frequency.value = 500
+	master.frequency.value = 300
 	for value, sample of sampleTbl
 		sample.loop = 1
 		source = ctx.createGain()
@@ -59,9 +59,11 @@ export SoundInterpolator = (ctx, sampleTbl) -> new Promise (accept, reject) ->
 export DefaultEngineSound = (ctx) ->
 	f = (name) -> loadAudio ctx, "./res/sounds/engine/#name.wav"
 	P.props do
-		400: f 'idle'
-		900: f 'low'
-		1300: f 'medium'
-		1500: f 'high'
+		780: f 'idle'
+		1000: f '1000rpm'
+		1700: f '1700rpm'
+		2350: f '2350rpm'
+		2600: f '2600rpm'
+		3000: f '3000rpm'
 	.then (samples) -> SoundInterpolator ctx, samples
 

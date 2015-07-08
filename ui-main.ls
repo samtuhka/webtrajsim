@@ -201,7 +201,7 @@ loadScene = (opts) ->
 				gain = scene.playerControls.throttle
 				gain = (gain + 0.5)/1.5
 				gainNode.gain.value = gain
-				engineSounds.setPitch rev*3000
+				engineSounds.setPitch rev*2000
 			scene.onExit.add ->
 				engineSounds.stop()
 
