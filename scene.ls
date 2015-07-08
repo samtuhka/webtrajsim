@@ -49,6 +49,8 @@ export class Scene
 
 	onTickHandled: new Signal
 
+	onExit: new Signal
+
 	bindPhys: (physical, visual) ->
 		@afterPhysics.add ->
 			visual.position.copy physical.position

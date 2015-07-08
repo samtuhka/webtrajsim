@@ -202,6 +202,8 @@ loadScene = (opts) ->
 				gain = (gain + 0.5)/1.5
 				gainNode.gain.value = gain
 				engineSounds.setPitch rev*3000
+			scene.onExit.add ->
+				engineSounds.stop()
 
 	.then -> addVehicle scene
 	.then (leader) ->
@@ -298,3 +300,4 @@ $ ->
 		$('#finalScore').text litersPer100km.toFixed 1
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
+		scene.onExit.dispatch()
