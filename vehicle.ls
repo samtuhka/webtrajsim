@@ -54,7 +54,8 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		#controls = new MouseController $ 'body'
 
 		enginePower = 6000
-		brakePower = enginePower*10
+		brakePower = 1000
+		brakeResponse = (pedal) -> (100**pedal - 1)/100*brakePower
 		maxSteer = 0.8
 		maxCentering = 0.4
 		maxCenteringSpeed = 10
@@ -106,7 +107,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 				steering = mag*dir*maxSteer
 				if z > 0
 					# Front wheels
-					wi.brake = brakePower*(controls.brake**2)
+					wi.brake = brakeResponse controls.brake
 					wi.steering = maxSteer*steering
 				else
 					# Back wheels
