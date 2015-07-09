@@ -26,7 +26,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		[w, wm] = wheel
 
 		syncModels = new Signal
-		
+
 		cogY = 0.5
 		w.computeBoundingBox()
 		wRadius = w.boundingBox.max.z
@@ -54,7 +54,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		#controls = new MouseController $ 'body'
 
 		enginePower = 6000
-		brakePower = 100
+		brakePower = enginePower*10
 		maxSteer = 0.8
 		maxCentering = 0.4
 		maxCenteringSpeed = 10
@@ -82,7 +82,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 				chassisConnectionPointLocal: new Cannon.Vec3(x, y, z).vadd offOrigin
 				suspensionStiffness: 40
 				rollInfluence: 1
-				frictionSlip: 100
+				frictionSlip: 0.8
 			wi = car.wheelInfos[wii]
 			wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 			if x < 0
@@ -106,7 +106,7 @@ export addVehicle = (scene, controls=new DummyControls) ->
 				steering = mag*dir*maxSteer
 				if z > 0
 					# Front wheels
-					wi.brake = brakePower*controls.brake
+					wi.brake = brakePower*(controls.brake**2)
 					wi.steering = maxSteer*steering
 				else
 					# Back wheels
