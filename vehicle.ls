@@ -2,6 +2,8 @@ P = require 'bluebird'
 {PLoader} = require './ThreePromise.ls'
 
 THREE = require 'three'
+window.THREE = THREE
+require './three.js/examples/js/loaders/ColladaLoader.js'
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
 
@@ -14,28 +16,33 @@ class DummyControls
 
 	set: ->
 
-
+loadCollada = (path) -> new P (resolve, reject) ->
+	loader = new THREE.ColladaLoader
+	loader.options.convertUpAxis = true
+	loader.load path, (result) ->
+		# Hack all materials double sided
+		result.scene.traverse (obj) ->
+			return if not obj.material?
+			obj.material.side = THREE.DoubleSide
+		resolve [result]
 
 export addVehicle = (scene, controls=new DummyControls) ->
 	P.props do
-		body: (PLoader THREE.JSONLoader) 'res/camaro/blend/body.json'
-		wheel: (PLoader THREE.JSONLoader) 'res/camaro/blend/wheel.json'
-	.then ({body, wheel}) ->
-		[o, m] = body
-		body = new THREE.Mesh o, (new THREE.MeshFaceMaterial m)
-		[w, wm] = wheel
+		vehicle: loadCollada 'res/corolla/body.dae'
+	.then ({vehicle}) ->
+		vehicle = vehicle[0].scene
+		body = vehicle.getObjectByName "Body"
+		glass = vehicle.getObjectByName "rear-glass"
 
 		syncModels = new Signal
 
 		cogY = 0.5
-		w.computeBoundingBox()
-		wRadius = w.boundingBox.max.z
-		wWidth = w.boundingBox.max.x*2
+
+		scene.visual.add body
 
 		bbox = new THREE.Box3().setFromObject body
 		bbox.min.y += 0.3
 		halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
-		scene.visual.add body
 
 		offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
 		offOrigin.y -= cogY
@@ -68,29 +75,23 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		controls.set autocenter: 0.6
 
 
-		wheelPositions = [
-			[0.83, 0.0, 1.52],
-			[-0.83, 0.0, 1.52],
-			[0.83, 0.0, -1.45],
-			[-0.83, 0.0, -1.45],
-		]
-		for let [x, y, z] in wheelPositions
+		wheels = (vehicle.getObjectByName "Wheels").children
+		for let wheel in wheels
+			wheel = wheel.clone()
+			wbb = (new THREE.Box3).setFromObject wheel
+			wRadius = (wbb.max.z - wbb.min.z)/2.0
+			{x, y, z} = wheel.position
 			wii = car.addWheel do
 				radius: wRadius
 				directionLocal: new Cannon.Vec3 0, -1, 0
 				axleLocal: new Cannon.Vec3 -1, 0, 0
 				suspensionRestLength: wRadius + 0.25
-				chassisConnectionPointLocal: new Cannon.Vec3(x, y, z).vadd offOrigin
+				chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
 				suspensionStiffness: 40
 				rollInfluence: 1
 				frictionSlip: 0.8
 			wi = car.wheelInfos[wii]
-			wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
-			if x < 0
-				tmp = new THREE.Object3D
-				wheel.rotation.y = Math.PI
-				tmp.add wheel
-				wheel = tmp
+			#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 
 			scene.visual.add wheel
 
@@ -116,7 +117,6 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		syncModels.add ->
 			body.position.copy bodyPhys.position
 			body.position.y -= cogY
-			# TODO: This may be wrong way around!
 			body.quaternion.copy bodyPhys.quaternion
 
 		scene.afterPhysics.add ->
@@ -126,11 +126,12 @@ export addVehicle = (scene, controls=new DummyControls) ->
 		bodyPhys.position.y = 1
 
 		eye = new THREE.Object3D
-		eye.position.x = 0.4
-		eye.position.y = 1.25
-		eye.position.z = -0.1
+		#eye.position.x = 0.4
+		eye.position.y = 0.1
+		eye.position.z = 0.3
 		eye.rotation.y = Math.PI
-		body.add eye
+
+		body.getObjectByName("DriverHeadrest").add eye
 
 		eye: eye
 		physical: bodyPhys
