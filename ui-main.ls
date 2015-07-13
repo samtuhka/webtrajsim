@@ -1,6 +1,7 @@
 $ = require 'jquery'
 deparam = require 'jquery-deparam'
 P = require 'bluebird'
+Co = P.coroutine
 THREE = require 'three'
 {Signal} = require './signal.ls'
 
@@ -36,7 +37,7 @@ NonSteeringControl = (orig) ->
 {Catchthething} = require './catchthething.ls'
 {Sessions} = require './datalogger.ls'
 
-loadScene = (opts) ->
+loadScene = Co (opts) ->*
 	renderer = new THREE.WebGLRenderer antialias: true
 	scene = new Scene
 	renderer.autoClear = false
@@ -57,7 +58,7 @@ loadScene = (opts) ->
 
 	#plotter = new LoopPlotter opts.loopContainer, traffic
 	#scene.onRender.add plotter~render
-	
+
 	#physDebug = new THREE.CannonDebugRenderer scene.visual, scene.physics
 	#scene.beforeRender.add ->
 	#	physDebug.update()
@@ -144,80 +145,76 @@ loadScene = (opts) ->
 
 
 	opts.container.append renderer.domElement
-	P.resolve addGround scene
-	.then -> addSky scene
-	.then ->
-		if opts.controller?
-			WsController.Connect opts.controller
+	yield P.resolve addGround scene
+	yield P.resolve addSky scene
+	if opts.controller?
+		controls = yield WsController.Connect opts.controller
+	else
+		controls = new KeyboardController
+	controls = NonSteeringControl controls
+	controls.change.add (type, value) ->
+		return if type != "blinder"
+		if value
+			closeEyes()
 		else
-			new KeyboardController
-	.then (controls) ->
-		controls = NonSteeringControl controls
-		controls.change.add (type, value) ->
-			return if type != "blinder"
-			if value
-				closeEyes()
-			else
-				openEyes()
-		scene.playerControls = controls
-		addVehicle scene, controls
-	.then (player) ->
-		player.eye.add scene.camera
-		player.physical.position.x = -2.2
+			openEyes()
+	scene.playerControls = controls
+	player = yield addVehicle scene, controls
+	player.eye.add scene.camera
+	player.physical.position.x = -2.2
 
-		scene.playerModel = player
-		scene.playerVehicle = new MicrosimWrapper player.physical
-			..higlight = true
-		traffic.addVehicle scene.playerVehicle
-		scene.playerModel.onCrash = new Signal
-		player.physical.addEventListener "collide", (e) ->
-			# TODO: Make sure ground collisions don't happen
-			scene.playerModel.onCrash.dispatch e
+	scene.playerModel = player
+	scene.playerVehicle = new MicrosimWrapper player.physical
+		..higlight = true
+	traffic.addVehicle scene.playerVehicle
+	scene.playerModel.onCrash = new Signal
+	player.physical.addEventListener "collide", (e) ->
+		# TODO: Make sure ground collisions don't happen
+		scene.playerModel.onCrash.dispatch e
 
-		scene.scoring =
-			scoreTime: 0
-			cumulativeThrottle: 0
-			fuelConsumed: 0
-			instantConsumption: 0
-		maximumFuelFlow = 200/60/1000
-		constantConsumption = maximumFuelFlow*0.1
-		fuelPrice = 1.5
-		meterCompensation = 0.44/1000
-		score = scene.scoring
-		scene.afterPhysics.add (dt) ->
-			score.scoreTime += dt
-			score.instantConsumption = scene.playerControls.throttle*maximumFuelFlow + constantConsumption
-			score.fuelConsumed += score.instantConsumption*dt
-			score.distanceTraveled = scene.playerVehicle.position
-			score.moneyRate = scene.playerVehicle.velocity*meterCompensation - score.instantConsumption*fuelPrice
-			score.moneyGathered = score.distanceTraveled*meterCompensation - score.fuelConsumed*fuelPrice
-	.then ->
-		ctx = new AudioContext
-		DefaultEngineSound ctx
-		.then (engineSounds) ->
-			gainNode = ctx.createGain()
-			gainNode.connect ctx.destination
-			engineSounds.connect gainNode
-			engineSounds.start()
-			scene.afterPhysics.add ->
-				rev = scene.playerVehicle.velocity/(200/3.6)
-				rev = (rev + 0.1)/1.1
-				gain = scene.playerControls.throttle
-				gain = (gain + 0.5)/1.5
-				gainNode.gain.value = gain
-				engineSounds.setPitch rev*2000
-			scene.onExit.add ->
-				engineSounds.stop()
+	scene.scoring =
+		scoreTime: 0
+		cumulativeThrottle: 0
+		fuelConsumed: 0
+		instantConsumption: 0
+	maximumFuelFlow = 200/60/1000
+	constantConsumption = maximumFuelFlow*0.1
+	fuelPrice = 1.5
+	meterCompensation = 0.44/1000
+	score = scene.scoring
+	scene.afterPhysics.add (dt) ->
+		score.scoreTime += dt
+		score.instantConsumption = scene.playerControls.throttle*maximumFuelFlow + constantConsumption
+		score.fuelConsumed += score.instantConsumption*dt
+		score.distanceTraveled = scene.playerVehicle.position
+		score.moneyRate = scene.playerVehicle.velocity*meterCompensation - score.instantConsumption*fuelPrice
+		score.moneyGathered = score.distanceTraveled*meterCompensation - score.fuelConsumed*fuelPrice
 
-	.then -> addVehicle scene
-	.then (leader) ->
+	ctx = new AudioContext
+	engineSounds = yield DefaultEngineSound ctx
+	gainNode = ctx.createGain()
+	gainNode.connect ctx.destination
+	engineSounds.connect gainNode
+	engineSounds.start()
+	scene.afterPhysics.add ->
+		rev = scene.playerVehicle.velocity/(200/3.6)
+		rev = (rev + 0.1)/1.1
+		gain = scene.playerControls.throttle
+		gain = (gain + 0.5)/1.5
+		gainNode.gain.value = gain
+		engineSounds.setPitch rev*2000
+	scene.onExit.add ->
+		engineSounds.stop()
+
+	leader = yield addVehicle scene
+	leader.physical.position.z = scene.playerVehicle.leader.position
+	leader.physical.position.x = -2.2
+	scene.beforeRender.add (dt) ->
 		leader.physical.position.z = scene.playerVehicle.leader.position
-		leader.physical.position.x = -2.2
-		scene.beforeRender.add (dt) ->
-			leader.physical.position.z = scene.playerVehicle.leader.position
-			leader.forceModelSync()
-	.then ->
-		/*screenTarget = new THREE.WebGLRenderTarget 1024, 1024, format: THREE.RGBAFormat
+		leader.forceModelSync()
+	
+	return scene
+	/*screenTarget = new THREE.WebGLRenderTarget 1024, 1024, format: THREE.RGBAFormat
 		screenGeo = new THREE.PlaneGeometry 0.2, 0.2
 		screenMat = new THREE.MeshBasicMaterial do
 			map: screenTarget
@@ -234,15 +231,43 @@ loadScene = (opts) ->
 		scene.beforeRender.add ->
 			renderer.render catchthething.scene, catchthething.camera, screenTarget
 			renderer.clear()
-		*/
-		return scene
-$ ->
+		return scene*/
+
+eachFrame = (f) -> new P (accept, reject) ->
+	clock = new THREE.Clock
+	tick = ->
+		dt = clock.getDelta()
+		result = f dt
+		if result?
+			accept result
+		else
+			requestAnimationFrame tick
+	tick()
+
+$ Co ->*
 	opts =
 		container: $('#drivesim')
 		loopContainer: $('#loopviz')
 	opts <<< deparam window.location.search.substring 1
 
-	run = (scene) -> new P (accept, reject) ->
+	scene = yield loadScene opts
+
+	# Wait for the traffic to queue up
+	while not scene.traffic.isInStandstill()
+		scene.traffic.step 1/60
+	# Tick couple of times for a smoother
+	# start
+	for [0 to 10]
+		scene.tick 1/60
+
+	run = Co (name) ->*
+		startTime = (new Date).toISOString()
+		$('#drivesim').fadeIn(1000)
+		$('#intro').fadeOut(1000)
+		sessions = yield Sessions("tbtSessions")
+		logger = yield sessions.create do
+					date: startTime
+					name: name
 		# WOW, really doesn't belong here!
 		pluck = (obj, ...keys) ->
 			dump = {}
@@ -254,7 +279,7 @@ $ ->
 			pluck v, \position, \velocity, \acceleration
 
 		addEntry = (scene) ->
-			scene.logger.write do
+			logger.write do
 				scene: pluck scene, \time, \eyesOpen
 				player: dumpVehicle scene.playerVehicle
 				leader: dumpVehicle scene.playerVehicle.leader
@@ -262,42 +287,12 @@ $ ->
 				scoring: scene.scoring
 
 
-		clock = new THREE.Clock
-		tick = ->
+		yield eachFrame (dt) ->
 			addEntry scene
-			dt = clock.getDelta()
 			scene.tick dt
 			if scene.time > 3*60
-				accept scene
-				return
-			requestAnimationFrame tick
-		tick!
+				return scene
 
-	loadScene opts
-	.then (scene) -> new P (accept, reject) ->
-		# Wait for the traffic to queue up
-		while not scene.traffic.isInStandstill()
-			scene.traffic.step 1/60
-		# Tick couple of times for a smoother
-		# start
-		for [0 to 10]
-			scene.tick 1/60
-		$('#startbutton')
-		.prop "disabled", false
-		.text "Start!"
-		.click ->
-			startTime = (new Date).toISOString()
-			name = $('#sessionName').val()
-			$('#drivesim').fadeIn(1000)
-			$('#intro').fadeOut(1000)
-			Sessions("tbtSessions").then (sessions) ->
-				sessions.create do
-						date: startTime
-						name: name
-			.then (logger) ->
-				scene.logger = logger
-				run(scene).then accept
-	.then (scene) ->
 		metersPerLiter = scene.scoring.distanceTraveled/scene.scoring.fuelConsumed
 		litersPerMeter = 1.0/metersPerLiter
 		litersPer100km = litersPerMeter*1000*100
@@ -305,3 +300,9 @@ $ ->
 		opts.container.fadeOut()
 		$('#outro').fadeIn()
 		scene.onExit.dispatch()
+
+	$('#startbutton')
+	.prop "disabled", false
+	.text "Start!"
+	.click -> run $('#sessionName').val()
+

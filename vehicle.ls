@@ -26,116 +26,114 @@ loadCollada = (path) -> new P (resolve, reject) ->
 			obj.material.side = THREE.DoubleSide
 		resolve [result]
 
-export addVehicle = (scene, controls=new DummyControls) ->
-	P.props do
-		vehicle: loadCollada 'res/corolla/body.dae'
-	.then ({vehicle}) ->
-		vehicle = vehicle[0].scene
-		body = vehicle.getObjectByName "Body"
-		glass = vehicle.getObjectByName "rear-glass"
+export addVehicle = P.coroutine (scene, controls=new DummyControls) ->*
+	[vehicle] = yield loadCollada 'res/corolla/body.dae'
+	vehicle = vehicle.scene
+	body = vehicle.getObjectByName "Body"
+	glass = vehicle.getObjectByName "rear-glass"
 
-		syncModels = new Signal
+	syncModels = new Signal
 
-		cogY = 0.5
+	cogY = 0.5
 
-		scene.visual.add body
+	scene.visual.add body
 
-		bbox = new THREE.Box3().setFromObject body
-		bbox.min.y += 0.3
-		halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
+	bbox = new THREE.Box3().setFromObject body
+	bbox.min.y += 0.3
+	halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
 
-		offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
-		offOrigin.y -= cogY
+	offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
+	offOrigin.y -= cogY
 
-		bodyPhys = new Cannon.Body mass: 2000
-			..addShape (new Cannon.Box halfbox), offOrigin
-			..linearDamping = 0.1
-			..angularDamping = 0.1
+	bodyPhys = new Cannon.Body mass: 2000
+		..addShape (new Cannon.Box halfbox), offOrigin
+		..linearDamping = 0.1
+		..angularDamping = 0.1
 
-		car = new Cannon.RaycastVehicle do
-			chassisBody: bodyPhys
-			indexRightAxis: 0
-			indexForwardAxis: 2
-			indexUpAxis: 1
+	car = new Cannon.RaycastVehicle do
+		chassisBody: bodyPhys
+		indexRightAxis: 0
+		indexForwardAxis: 2
+		indexUpAxis: 1
 
-		#controls = new MouseController $ 'body'
+	#controls = new MouseController $ 'body'
 
-		enginePower = 6000
-		brakePower = 1000
-		brakeResponse = (pedal) -> (100**pedal - 1)/100*brakePower
-		maxSteer = 0.8
-		maxCentering = 0.4
-		maxCenteringSpeed = 10
-		steeringDeadzone = 0.005
+	enginePower = 6000
+	brakePower = 1000
+	brakeResponse = (pedal) -> (100**pedal - 1)/100*brakePower
+	maxSteer = 0.8
+	maxCentering = 0.4
+	maxCenteringSpeed = 10
+	steeringDeadzone = 0.005
 
-		#ctrl.afterPhysics.add ->
-		#	centering = (bodyPhys.velocity.norm()/maxCenteringSpeed)*maxCentering
-		#	centering = Math.min centering, maxCentering
-		#	controls.set autocenter: centering
-		controls.set autocenter: 0.6
+	#ctrl.afterPhysics.add ->
+	#	centering = (bodyPhys.velocity.norm()/maxCenteringSpeed)*maxCentering
+	#	centering = Math.min centering, maxCentering
+	#	controls.set autocenter: centering
+	controls.set autocenter: 0.6
 
 
-		wheels = (vehicle.getObjectByName "Wheels").children
-		for let wheel in wheels
-			wheel = wheel.clone()
-			wbb = (new THREE.Box3).setFromObject wheel
-			wRadius = (wbb.max.z - wbb.min.z)/2.0
-			{x, y, z} = wheel.position
-			wii = car.addWheel do
-				radius: wRadius
-				directionLocal: new Cannon.Vec3 0, -1, 0
-				axleLocal: new Cannon.Vec3 -1, 0, 0
-				suspensionRestLength: wRadius + 0.25
-				chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
-				suspensionStiffness: 40
-				rollInfluence: 1
-				frictionSlip: 0.8
-			wi = car.wheelInfos[wii]
-			#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
+	wheels = (vehicle.getObjectByName "Wheels").children
+	for let wheel in wheels
+		wheel = wheel.clone()
+		wbb = (new THREE.Box3).setFromObject wheel
+		wRadius = (wbb.max.z - wbb.min.z)/2.0
+		{x, y, z} = wheel.position
+		wii = car.addWheel do
+			radius: wRadius
+			directionLocal: new Cannon.Vec3 0, -1, 0
+			axleLocal: new Cannon.Vec3 -1, 0, 0
+			suspensionRestLength: wRadius + 0.25
+			chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
+			suspensionStiffness: 40
+			rollInfluence: 1
+			frictionSlip: 0.8
+		wi = car.wheelInfos[wii]
+		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 
-			scene.visual.add wheel
-
-			syncModels.add ->
-				car.updateWheelTransform wii
-				wheel.position.copy wi.worldTransform.position
-				wheel.quaternion.copy wi.worldTransform.quaternion
-
-			scene.beforePhysics.add ->
-				mag = Math.abs controls.steering
-				dir = Math.sign controls.steering
-				mag -= steeringDeadzone
-				mag = Math.max mag, 0
-				steering = mag*dir*maxSteer
-				if z > 0
-					# Front wheels
-					wi.brake = brakeResponse controls.brake
-					wi.steering = maxSteer*steering
-				else
-					# Back wheels
-					wi.engineForce = -enginePower*controls.throttle*controls.direction
+		scene.visual.add wheel
 
 		syncModels.add ->
-			body.position.copy bodyPhys.position
-			body.position.y -= cogY
-			body.quaternion.copy bodyPhys.quaternion
+			car.updateWheelTransform wii
+			wheel.position.copy wi.worldTransform.position
+			wheel.quaternion.copy wi.worldTransform.quaternion
 
-		scene.afterPhysics.add ->
-			syncModels.dispatch()
+		scene.beforePhysics.add ->
+			mag = Math.abs controls.steering
+			dir = Math.sign controls.steering
+			mag -= steeringDeadzone
+			mag = Math.max mag, 0
+			steering = mag*dir*maxSteer
+			if z > 0
+				# Front wheels
+				wi.brake = brakeResponse controls.brake
+				wi.steering = maxSteer*steering
+			else
+				# Back wheels
+				wi.engineForce = -enginePower*controls.throttle*controls.direction
 
-		car.addToWorld scene.physics
-		bodyPhys.position.y = 1
+	syncModels.add ->
+		body.position.copy bodyPhys.position
+		body.position.y -= cogY
+		body.quaternion.copy bodyPhys.quaternion
 
-		eye = new THREE.Object3D
-		#eye.position.x = 0.4
-		eye.position.y = 0.1
-		eye.position.z = 0.3
-		eye.rotation.y = Math.PI
+	scene.afterPhysics.add ->
+		syncModels.dispatch()
 
-		body.getObjectByName("DriverHeadrest").add eye
+	car.addToWorld scene.physics
+	bodyPhys.position.y = 1
 
-		eye: eye
-		physical: bodyPhys
-		body: body
-		forceModelSync: -> syncModels.dispatch()
+	eye = new THREE.Object3D
+	#eye.position.x = 0.4
+	eye.position.y = 0.1
+	eye.position.z = 0.3
+	eye.rotation.y = Math.PI
+
+	body.getObjectByName("DriverHeadrest").add eye
+
+	eye: eye
+	physical: bodyPhys
+	body: body
+	forceModelSync: -> syncModels.dispatch()
 
 
