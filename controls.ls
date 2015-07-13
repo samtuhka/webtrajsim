@@ -29,7 +29,22 @@ export class KeyboardController
 		@brake = 0
 		@steering = 0
 		@direction = 1
-		
+
+		@throttleTarget = 0
+		@brakeTarget = 0
+		@steeringTarget = 0
+
+		prevTime = undefined
+		tick = ~>
+			time = Date.now()
+			dt = (time - prevTime)/1000
+			prevTime := time
+			# TODO: Should depend on dt
+			@throttle = @throttle*0.9 + @throttleTarget*0.1
+			@brake = @brake*0.9 + @brakeTarget*0.1
+			@steering = @steering*0.9 + @steeringTarget*0.1
+			requestAnimationFrame tick
+		tick()
 		@change = new Signal
 
 		UP = 38
@@ -39,15 +54,17 @@ export class KeyboardController
 		$("body")
 		.keydown (e) ~>
 			switch e.which
-			| UP => @_update \throttle, 1
-			| DOWN => @_update \brake, 1
+			| UP => @_update \throttleTarget, 1
+			| DOWN => @_update \brakeTarget, 1
 			| SPACE => @_update \blinder, true
 		.keyup (e) ~>
 			switch e.which
-			| UP => @_update \throttle, 0
-			| DOWN => @_update \brake, 0
+			| UP => @_update \throttleTarget, 0
+			| DOWN => @_update \brakeTarget, 0
 			| SPACE => @_update \blinder, false
-	
+
+
+
 	_update: (key, value) ->
 		@change.dispatch key, value
 		@[key] = value
