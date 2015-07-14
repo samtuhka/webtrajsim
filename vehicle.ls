@@ -39,8 +39,82 @@ loadCorolla = Co ->*
 	wheels: scene.getObjectByName "Wheels"
 	eye: eye
 
+loadViva = Co ->*
+	vehicle = yield loadCollada "res/viva/2006-VIVA-VT3-Sedan-SE.dae"
+	scene = vehicle.scene
+	car = scene.getObjectByName "Car"
+
+	centerXz = (obj) ->
+		obj.updateMatrixWorld(true)
+		bbox = (new THREE.Box3).setFromObject obj
+		offcenter = bbox.max.add(bbox.min).divideScalar 2
+		shift = offcenter.sub obj.position
+		shift.y = 0
+		obj.position.x = 0
+		obj.position.z = 0
+		for child in obj.children
+			child.position.sub shift
+		obj.updateMatrixWorld(true)
+
+	originToGeometry = (obj) ->
+		if obj.parent?
+			obj.parent.updateMatrixWorld true
+			obj.applyMatrix obj.parent.matrixWorld
+			obj.parent = void
+		obj.updateMatrixWorld(true)
+		for child in obj.children
+			child.applyMatrix obj.matrix
+		obj.position.set 0, 0, 0
+		obj.rotation.set 0, 0, 0
+		obj.scale.set 1, 1, 1
+		obj.updateMatrix()
+		obj.updateMatrixWorld(true)
+
+		bbox = (new THREE.Box3).setFromObject obj
+
+		#w2l = (new THREE.Matrix4).getInverse(obj.matrixWorld)
+		#bbox.min.applyMatrix4 w2l
+		#bbox.max.applyMatrix4 w2l
+		newOrigin = bbox.max.add(bbox.min).divideScalar 2
+		currentPos = obj.position
+		shift = newOrigin.clone().sub(currentPos)
+		obj.position.copy newOrigin
+		for child in obj.children
+			child.position.sub shift
+		obj.updateMatrixWorld(true)
+
+	applyPosition = (obj) ->
+		obj.updateMatrixWorld(true)
+		pos = obj.position.clone()
+		obj.position.set 0, 0, 0
+		for child in obj.children
+			child.position.add pos
+		obj.updateMatrixWorld(true)
+
+	centerXz car
+	applyPosition car
+	body = car.getObjectByName "Body"
+	applyPosition body
+	eye = new THREE.Object3D
+	eye.position.y = 1.25
+	eye.position.z = 0.1
+	eye.position.x = 0.37
+	eye.rotation.y = Math.PI
+
+	#eye.position.y = 10
+	#eye.rotation.x = Math.PI/2
+	body.add eye
+	wheels = scene.getObjectByName "Wheels"
+	#applyPosition wheels
+	for let wheel in wheels.children
+		originToGeometry wheel
+		wheel.position.y += 0.1
+	body: body
+	wheels: wheels
+	eye: eye
+
 export addVehicle = Co (scene, controls=new DummyControls) ->*
-	{body, wheels, eye} = yield loadCorolla()
+	{body, wheels, eye} = yield loadViva()
 
 	syncModels = new Signal
 
