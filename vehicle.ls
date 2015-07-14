@@ -1,4 +1,5 @@
 P = require 'bluebird'
+Co = P.coroutine
 {PLoader} = require './ThreePromise.ls'
 
 THREE = require 'three'
@@ -19,18 +20,27 @@ class DummyControls
 loadCollada = (path) -> new P (resolve, reject) ->
 	loader = new THREE.ColladaLoader
 	loader.options.convertUpAxis = true
-	loader.load path, (result) ->
-		# Hack all materials double sided
-		result.scene.traverse (obj) ->
-			return if not obj.material?
-			obj.material.side = THREE.DoubleSide
-		resolve [result]
+	loader.load path, resolve
 
-export addVehicle = P.coroutine (scene, controls=new DummyControls) ->*
-	[vehicle] = yield loadCollada 'res/corolla/body.dae'
-	vehicle = vehicle.scene
-	body = vehicle.getObjectByName "Body"
-	glass = vehicle.getObjectByName "rear-glass"
+loadCorolla = Co ->*
+	vehicle = yield loadCollada 'res/corolla/body.dae'
+	scene = vehicle.scene
+	# Hack all materials double sided
+	scene.traverse (obj) ->
+		return if not obj.material?
+		obj.material.side = THREE.DoubleSide
+	body = scene.getObjectByName "Body"
+	eye = new THREE.Object3D
+	eye.position.y = 0.1
+	eye.position.z = 0.3
+	eye.rotation.y = Math.PI
+	body.getObjectByName("DriverHeadrest").add eye
+	body: body
+	wheels: scene.getObjectByName "Wheels"
+	eye: eye
+
+export addVehicle = Co (scene, controls=new DummyControls) ->*
+	{body, wheels, eye} = yield loadCorolla()
 
 	syncModels = new Signal
 
@@ -73,7 +83,7 @@ export addVehicle = P.coroutine (scene, controls=new DummyControls) ->*
 	controls.set autocenter: 0.6
 
 
-	wheels = (vehicle.getObjectByName "Wheels").children
+	wheels = wheels.children
 	for let wheel in wheels
 		wheel = wheel.clone()
 		wbb = (new THREE.Box3).setFromObject wheel
@@ -121,15 +131,7 @@ export addVehicle = P.coroutine (scene, controls=new DummyControls) ->*
 		syncModels.dispatch()
 
 	car.addToWorld scene.physics
-	bodyPhys.position.y = 1
-
-	eye = new THREE.Object3D
-	#eye.position.x = 0.4
-	eye.position.y = 0.1
-	eye.position.z = 0.3
-	eye.rotation.y = Math.PI
-
-	body.getObjectByName("DriverHeadrest").add eye
+	bodyPhys.position.y = 2
 
 	eye: eye
 	physical: bodyPhys
