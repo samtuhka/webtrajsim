@@ -96,8 +96,8 @@ loadViva = Co ->*
 	body = car.getObjectByName "Body"
 	applyPosition body
 	eye = new THREE.Object3D
-	eye.position.y = 1.25
-	eye.position.z = 0.1
+	eye.position.y = 1.23
+	eye.position.z = 0.05
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
 
