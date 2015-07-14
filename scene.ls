@@ -124,7 +124,7 @@ export addGround = (scene) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 10
+	roadWidth = 7
 	roadGeo = new THREE.PlaneGeometry terrainSize, roadWidth, 0, 0
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'

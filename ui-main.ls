@@ -161,7 +161,7 @@ loadScene = Co (opts) ->*
 	scene.playerControls = controls
 	player = yield addVehicle scene, controls
 	player.eye.add scene.camera
-	player.physical.position.x = -2.2
+	player.physical.position.x = -1.75
 
 	scene.playerModel = player
 	scene.playerVehicle = new MicrosimWrapper player.physical
@@ -208,7 +208,7 @@ loadScene = Co (opts) ->*
 
 	leader = yield addVehicle scene
 	leader.physical.position.z = scene.playerVehicle.leader.position
-	leader.physical.position.x = -2.2
+	leader.physical.position.x = -1.75
 	scene.beforeRender.add (dt) ->
 		leader.physical.position.z = scene.playerVehicle.leader.position
 		leader.forceModelSync()
