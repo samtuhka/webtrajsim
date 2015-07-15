@@ -8,7 +8,7 @@ require './three.js/examples/js/loaders/ColladaLoader.js'
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
 
-{loadCollada} = require './utils.ls'
+{loadCollada, mergeObject} = require './utils.ls'
 
 class DummyControls
 	->
@@ -94,6 +94,7 @@ loadViva = Co ->*
 	applyPosition car
 	body = car.getObjectByName "Body"
 	applyPosition body
+	body = mergeObject body
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.05

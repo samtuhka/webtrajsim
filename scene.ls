@@ -3,7 +3,7 @@ Cannon = require 'cannon'
 jStat = require 'jstat'
 P = require 'bluebird'
 Co = P.coroutine
-{loadCollada} = require './utils.ls'
+{loadCollada, mergeObject} = require './utils.ls'
 
 {perlin=noise} = require './vendor/perlin.js'
 
@@ -186,7 +186,7 @@ export addGround = (scene) ->
 	road.position.y = 0
 	terrain.add road
 
-	rockField = new THREE.Geometry()
+	rocks = new THREE.Object3D()
 	nRockTypes = 10
 	rockPool = for i from 0 til nRockTypes
 		generateRock()
@@ -210,9 +210,9 @@ export addGround = (scene) ->
 		rock.scale.y *= 0.8
 		rock.updateMatrix()
 		rock.matrixAutoUpdate = false
-		rockField.merge rock.geometry, rock.matrix
+		rocks.add rock
 
-	terrain.add new THREE.Mesh rockField, rock.material
+	terrain.add mergeObject rocks
 
 	scene.visual.add terrain
 	doubler = terrain.clone()
