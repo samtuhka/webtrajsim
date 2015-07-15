@@ -186,6 +186,13 @@ export addGround = (scene) ->
 	road.position.y = 0
 	terrain.add road
 
+	rockField = new THREE.Geometry()
+	nRockTypes = 10
+	rockPool = for i from 0 til nRockTypes
+		generateRock()
+	randomRock = ->
+		rock = rockPool[Math.floor(Math.random()*rockPool.length)]
+		return new THREE.Mesh rock.geometry, rock.material
 	nRocks = Math.round(terrainSize*(2*200)/500)
 	sizeDist = jStat.uniform(0.1, 0.6)
 	zDist = jStat.uniform(-terrainSize/2, terrainSize/2)
@@ -196,15 +203,16 @@ export addGround = (scene) ->
 		if Math.abs(x) - Math.abs(size) < roadWidth
 			continue
 		z = zDist.sample()
-		rock = generateRock()
+		rock = randomRock()
 		rock.position.x = x
 		rock.position.z = z
 		rock.scale.multiplyScalar size
 		rock.scale.y *= 0.8
 		rock.updateMatrix()
 		rock.matrixAutoUpdate = false
-		terrain.add rock
+		rockField.merge rock.geometry, rock.matrix
 
+	terrain.add new THREE.Mesh rockField, rock.material
 
 	scene.visual.add terrain
 	doubler = terrain.clone()

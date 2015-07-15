@@ -266,9 +266,9 @@ $ Co ->*
 		scene.traffic.step 1/60
 	# Tick a couple of frames for the physics to settle
 	scene.tick 1/60
-	n = 1000
+	n = 100
 	t = Date.now()
-	for [0 to 100]
+	for [0 to n]
 		scene.tick 1/60
 	console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 
