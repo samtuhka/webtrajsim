@@ -223,24 +223,28 @@ loadScene = Co (opts) ->*
 	leader = yield addVehicle scene
 	leader.physical.position.z = scene.playerVehicle.leader.position
 	leader.physical.position.x = -1.75
-	/*prevSpeed = 0
+	prevSpeed = 0
 	leaderModel = scene.playerVehicle.leader
 	scene.beforePhysics.add (dt) ->
 		return if dt < 0
 		speed = leader.getSpeed()
+		return if speed != speed
 		accel = (speed - prevSpeed)/dt
 		prevSpeed := speed
 		delta = leaderModel.acceleration - accel
-		adjust = delta/5.0
-		adjust = Math.max -1, adjust
-		adjust = Math.min 1, adjust
-		if adjust > 0
-			leader.controls.throttle = adjust
+		#adjust = delta/5.0
+
+		force = leader.controls.throttle - leader.controls.brake
+		newForce = force + (Math.sign delta)*0.1
+		newForce = Math.max -1, newForce
+		newForce = Math.min 1, newForce
+		console.log delta
+		if newForce > 0
+			leader.controls.throttle = newForce
 			leader.controls.brake = 0
 		else
 			leader.controls.throttle = 0
-			leader.controls.brake = adjust*0.2
-	*/
+			leader.controls.brake = -newForce
 
 	scene.beforeRender.add (dt) ->
 		leader.physical.position.z = scene.playerVehicle.leader.position

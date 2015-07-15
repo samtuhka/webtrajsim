@@ -167,7 +167,7 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 			radius: wRadius
 			directionLocal: new Cannon.Vec3 0, -1, 0
 			axleLocal: new Cannon.Vec3 -1, 0, 0
-			suspensionRestLength: wRadius + 0.25
+			suspensionRestLength: wRadius + 0.35
 			chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
 			suspensionStiffness: 40
 			rollInfluence: 1
