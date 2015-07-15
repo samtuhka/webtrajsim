@@ -215,13 +215,16 @@ export addGround = (scene) ->
 	terrain.add mergeObject rocks
 
 	scene.visual.add terrain
-	doubler = terrain.clone()
-	scene.visual.add doubler
+	ahead = terrain.clone()
+	behind = terrain.clone()
+	scene.visual.add ahead
+	scene.visual.add behind
 
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		nTerrains = Math.floor (position.z+terrainSize/2.0)/terrainSize
 		terrain.position.z = nTerrains*terrainSize
-		doubler.position.z = terrain.position.z + terrainSize
+		ahead.position.z = terrain.position.z + terrainSize
+		behind.position.z = terrain.position.z - terrainSize
 
