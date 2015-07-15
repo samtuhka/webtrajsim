@@ -130,14 +130,14 @@ loadScene = Co (opts) ->*
 
 		instMoneyPerHour = s.moneyRate*60*60
 
-		if isFinite instLitersPer100km
+		if isFinite instLitersPer100km and scene.playerVehicle.velocity > 1
 			els.instantBar.val instLitersPer100km
 			els.instantValue.text Math.round instLitersPer100km
 		else
-			els.instantBar.val undefined
+			els.instantBar.removeAttr 'value'
 			els.instantValue.text "-"
 
-		if isFinite litersPer100km
+		if isFinite litersPer100km and s.distanceTraveled > 10
 			els.meanBar.val litersPer100km
 			els.meanValue.text litersPer100km.toFixed 1
 		#scoreElement.text "#{Math.round s.moneyRate*60*60*8} / #{Math.round moneyPerHour}"
