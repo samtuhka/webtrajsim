@@ -32,17 +32,30 @@ export class KeyboardController
 
 		@throttleTarget = 0
 		@brakeTarget = 0
-		@steeringTarget = 0
+		@steeringLeft = 0
+		@steeringRight = 0
+
+		changeSpeed = 2
+
+		nudge = (dt, name, target) ~>
+			return if not isFinite dt
+			diff = target - @[name]
+			console.log @[name], target, diff, dt
+			change = dt*changeSpeed*Math.sign(diff)
+			if diff < 0
+				change = Math.max change, diff
+			else
+				change = Math.min change, diff
+			@[name] += change
 
 		prevTime = undefined
 		tick = ~>
 			time = Date.now()
 			dt = (time - prevTime)/1000
 			prevTime := time
-			# TODO: Should depend on dt
-			@throttle = @throttle*0.9 + @throttleTarget*0.1
-			@brake = @brake*0.9 + @brakeTarget*0.1
-			@steering = @steering*0.9 + @steeringTarget*0.1
+			nudge dt, \throttle, @throttleTarget
+			nudge dt, \brake, @brakeTarget
+			nudge dt, \steering, (@steeringLeft - @steeringRight)
 			requestAnimationFrame tick
 		tick()
 		@change = new Signal
@@ -50,17 +63,23 @@ export class KeyboardController
 		UP = 38
 		DOWN = 40
 		SPACE = 32
+		LEFT = 37
+		RIGHT = 39
 
 		$("body")
 		.keydown (e) ~>
 			switch e.which
-			| UP => @_update \throttleTarget, 1
-			| DOWN => @_update \brakeTarget, 1
+			| UP => @throttleTarget = 1
+			| DOWN => @brakeTarget = 1
+			| LEFT => @steeringLeft = 1
+			| RIGHT => @steeringRight = 1
 			| SPACE => @_update \blinder, true
 		.keyup (e) ~>
 			switch e.which
-			| UP => @_update \throttleTarget, 0
-			| DOWN => @_update \brakeTarget, 0
+			| UP => @throttleTarget = 0
+			| DOWN => @brakeTarget = 0
+			| LEFT => @steeringLeft = 0
+			| RIGHT => @steeringRight = 0
 			| SPACE => @_update \blinder, false
 
 
