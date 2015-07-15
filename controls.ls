@@ -40,7 +40,6 @@ export class KeyboardController
 		nudge = (dt, name, target) ~>
 			return if not isFinite dt
 			diff = target - @[name]
-			console.log @[name], target, diff, dt
 			change = dt*changeSpeed*Math.sign(diff)
 			if diff < 0
 				change = Math.max change, diff
