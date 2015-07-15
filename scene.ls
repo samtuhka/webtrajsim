@@ -1,6 +1,9 @@
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
 jStat = require 'jstat'
+P = require 'bluebird'
+Co = P.coroutine
+{loadCollada} = require './utils.ls'
 
 {perlin=noise} = require './vendor/perlin.js'
 
@@ -93,7 +96,46 @@ generateRock = (seed=Math.random()) ->
 	geo.verticesNeedUpdate = true
 	geo.computeVertexNormals()
 	geo.computeFaceNormals()
-	return new THREE.Mesh geo, new THREE.MeshLambertMaterial color: 0xd3ab6d
+	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial color: 0xd3ab6d
+	return rock
+
+export loadTrafficLight = Co ->*
+	data = yield loadCollada 'res/signs/TrafficLight.dae'
+	model = data.scene.children[0]
+	model.scale.set 0.03, 0.03, 0.03
+
+	lights =
+		red: model.getObjectByName 'Red'
+		yellow: model.getObjectByName 'Yellow'
+		green: model.getObjectByName 'Green'
+
+	for let name, light of lights
+		materials = light.children[0].material.materials
+		materials = for material in materials
+			material = material.clone()
+			hsl = material.color.getHSL()
+			material.color.setHSL hsl.h, hsl.s, 0.1
+			material
+
+		light.children[0].material.materials = materials
+
+		light.on = ->
+			for material in materials
+				hsl = material.color.getHSL()
+				material.emissive.setHSL hsl.h, 0.9, 0.5
+		light.off = ->
+			for material in materials
+				hsl = material.color.getHSL()
+				material.emissive.setHSL hsl.h, 0.0, 0.0
+
+	#lights.red.on()
+	#lights.yellow.on()
+	lights.green.on()
+
+	state: 'green'
+	visual: model
+	addTo: (scene) ->
+		scene.visual.add model
 
 export addGround = (scene) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
@@ -159,6 +201,8 @@ export addGround = (scene) ->
 		rock.position.z = z
 		rock.scale.multiplyScalar size
 		rock.scale.y *= 0.8
+		rock.updateMatrix()
+		rock.matrixAutoUpdate = false
 		terrain.add rock
 
 

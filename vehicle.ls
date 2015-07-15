@@ -8,6 +8,8 @@ require './three.js/examples/js/loaders/ColladaLoader.js'
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
 
+{loadCollada} = require './utils.ls'
+
 class DummyControls
 	->
 		@throttle = 0
@@ -17,10 +19,7 @@ class DummyControls
 
 	set: ->
 
-loadCollada = (path) -> new P (resolve, reject) ->
-	loader = new THREE.ColladaLoader
-	loader.options.convertUpAxis = true
-	loader.load path, resolve
+
 
 loadCorolla = Co ->*
 	vehicle = yield loadCollada 'res/corolla/body.dae'

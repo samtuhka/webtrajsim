@@ -5,7 +5,7 @@ Co = P.coroutine
 THREE = require 'three'
 {Signal} = require './signal.ls'
 
-{Scene, addGround, addSky} = require './scene.ls'
+{Scene, addGround, addSky, loadTrafficLight} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {DefaultEngineSound} = require './sounds.ls'
 {WsController, KeyboardController} = require './controls.ls'
@@ -38,10 +38,12 @@ NonSteeringControl = (orig) ->
 {Sessions} = require './datalogger.ls'
 
 loadScene = Co (opts) ->*
-	renderer = new THREE.WebGLRenderer antialias: true
 	scene = new Scene
+
+	renderer = new THREE.WebGLRenderer antialias: true
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
+	opts.container.append renderer.domElement
 
 	nVehicles = 20
 	spacePerVehicle = 20
@@ -144,9 +146,16 @@ loadScene = Co (opts) ->*
 		#scoreElement.text litersPer100km
 
 
-	opts.container.append renderer.domElement
 	yield P.resolve addGround scene
 	yield P.resolve addSky scene
+
+	light = yield loadTrafficLight()
+	light.visual.position.z = 200
+	light.visual.position.x = -4
+	light.visual.position.y = -1
+	light.visual.rotation.y = Math.PI - 10*(Math.PI/180)
+	light.addTo scene
+
 	if opts.controller?
 		controls = yield WsController.Connect opts.controller
 	else
@@ -212,7 +221,7 @@ loadScene = Co (opts) ->*
 	scene.beforeRender.add (dt) ->
 		leader.physical.position.z = scene.playerVehicle.leader.position
 		leader.forceModelSync()
-	
+
 	return scene
 	/*screenTarget = new THREE.WebGLRenderTarget 1024, 1024, format: THREE.RGBAFormat
 		screenGeo = new THREE.PlaneGeometry 0.2, 0.2
@@ -255,10 +264,13 @@ $ Co ->*
 	# Wait for the traffic to queue up
 	while not scene.traffic.isInStandstill()
 		scene.traffic.step 1/60
-	# Tick couple of times for a smoother
-	# start
-	for [0 to 10]
+	# Tick a couple of frames for the physics to settle
+	scene.tick 1/60
+	n = 1000
+	t = Date.now()
+	for [0 to 100]
 		scene.tick 1/60
+	console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 
 	run = Co (name) ->*
 		startTime = (new Date).toISOString()
@@ -288,7 +300,6 @@ $ Co ->*
 
 
 		yield eachFrame (dt) ->
-			addEntry scene
 			scene.tick dt
 			if scene.time > 3*60
 				return scene
