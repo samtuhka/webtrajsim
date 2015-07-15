@@ -207,6 +207,8 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 	car.addToWorld scene.physics
 	bodyPhys.position.y = 2
 
+	getSpeed: ->
+		car.currentVehicleSpeedKmHour/3.6
 	eye: eye
 	physical: bodyPhys
 	body: body

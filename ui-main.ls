@@ -206,7 +206,8 @@ loadScene = Co (opts) ->*
 	engineSounds.connect gainNode
 	engineSounds.start()
 	scene.afterPhysics.add ->
-		rev = scene.playerVehicle.velocity/(200/3.6)
+		rev = Math.abs(scene.playerModel.getSpeed())/(200/3.6)
+		rev = Math.max 0.1, rev
 		rev = (rev + 0.1)/1.1
 		gain = scene.playerControls.throttle
 		gain = (gain + 0.5)/1.5
