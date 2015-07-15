@@ -170,7 +170,7 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 			chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
 			suspensionStiffness: 40
 			rollInfluence: 1
-			frictionSlip: 0.8
+			frictionSlip: 1
 		wi = car.wheelInfos[wii]
 		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 
