@@ -247,6 +247,7 @@ loadScene = Co (opts) ->*
 			leader.controls.brake = -newForce
 
 	scene.beforeRender.add (dt) ->
+		leader.forceModelSync()
 		leader.physical.position.z = scene.playerVehicle.leader.position
 		leader.forceModelSync()
 
