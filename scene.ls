@@ -55,6 +55,7 @@ export class Scene
 
 	onTickHandled: new Signal
 
+	onStart: new Signal
 	onExit: new Signal
 
 	bindPhys: (physical, visual) ->
@@ -123,16 +124,34 @@ export loadTrafficLight = Co ->*
 			for material in materials
 				hsl = material.color.getHSL()
 				material.emissive.setHSL hsl.h, 0.9, 0.5
+			light.isOn = true
+
 		light.off = ->
 			for material in materials
 				hsl = material.color.getHSL()
 				material.emissive.setHSL hsl.h, 0.0, 0.0
+			light.isOn = false
 
-	#lights.red.on()
+	lights.red.on()
 	#lights.yellow.on()
-	lights.green.on()
+	#lights.green.on()
+	getState: ->
+		red: lights.red.isOn
+		yellow: lights.yellow.isOn
+		green: lights.green.isOn
+	switchToGreen: Co ->*
+		if lights.green.isOn
+			lights.red.off()
+			lights.yellow.off()
+			return
+		lights.red.on()
+		lights.yellow.on()
+		yield P.delay 1*1000
+		lights.red.off()
+		lights.yellow.off()
+		lights.green.on()
 
-	state: 'green'
+
 	visual: model
 	addTo: (scene) ->
 		scene.visual.add model

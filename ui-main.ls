@@ -150,11 +150,15 @@ loadScene = Co (opts) ->*
 	yield P.resolve addSky scene
 
 	light = yield loadTrafficLight()
-	light.visual.position.z = 200
+	light.visual.position.z = 6
 	light.visual.position.x = -4
 	light.visual.position.y = -1
 	light.visual.rotation.y = Math.PI - 10*(Math.PI/180)
 	light.addTo scene
+
+	scene.onStart.add Co ->*
+		yield P.delay 3*1000
+		yield light.switchToGreen()
 
 	if opts.controller?
 		controls = yield WsController.Connect opts.controller
@@ -219,6 +223,25 @@ loadScene = Co (opts) ->*
 	leader = yield addVehicle scene
 	leader.physical.position.z = scene.playerVehicle.leader.position
 	leader.physical.position.x = -1.75
+	/*prevSpeed = 0
+	leaderModel = scene.playerVehicle.leader
+	scene.beforePhysics.add (dt) ->
+		return if dt < 0
+		speed = leader.getSpeed()
+		accel = (speed - prevSpeed)/dt
+		prevSpeed := speed
+		delta = leaderModel.acceleration - accel
+		adjust = delta/5.0
+		adjust = Math.max -1, adjust
+		adjust = Math.min 1, adjust
+		if adjust > 0
+			leader.controls.throttle = adjust
+			leader.controls.brake = 0
+		else
+			leader.controls.throttle = 0
+			leader.controls.brake = adjust*0.2
+	*/
+
 	scene.beforeRender.add (dt) ->
 		leader.physical.position.z = scene.playerVehicle.leader.position
 		leader.forceModelSync()
@@ -276,7 +299,8 @@ $ Co ->*
 	run = Co (name) ->*
 		startTime = (new Date).toISOString()
 		$('#drivesim').fadeIn(1000)
-		$('#intro').fadeOut(1000)
+		$('#intro').fadeOut 1000, ->
+			scene.onStart.dispatch()
 		sessions = yield Sessions("tbtSessions")
 		logger = yield sessions.create do
 					date: startTime

@@ -213,5 +213,6 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 	physical: bodyPhys
 	body: body
 	forceModelSync: -> syncModels.dispatch()
+	controls: controls
 
 
