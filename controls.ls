@@ -89,3 +89,9 @@ export class KeyboardController
 
 	set: ->
 
+export NonSteeringControl = (orig) ->
+	ctrl = ^^orig
+	ctrl.steering = 0
+	return ctrl
+
+
