@@ -4,7 +4,7 @@ trap 'kill -HUP 0' EXIT
 
 #BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files"
 #BROWSER="primusrun ./firefox/firefox/firefox"
-BROWSER="primusrun ./firefox/full-build-linux/chrome --disable-setuid-sandbox --disable-gpu-sandbox --user-data-dir=chromium-data --allow-file-access-from-files"
+BROWSER="./firefox/full-build-linux/chrome --disable-setuid-sandbox --disable-gpu-sandbox --user-data-dir=chromium-data --allow-file-access-from-files"
 
 SHOST=localhost
 SPORT=8000

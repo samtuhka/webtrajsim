@@ -5,7 +5,8 @@ Co = P.coroutine
 
 {Signal} = require './signal.ls'
 {KeyboardController, WsController} = require './controls.ls'
-{baseScenario} = require './scenario.ls'
+scenario = require './scenario.ls'
+ui = require './ui.ls'
 
 eachFrame = (f) -> new P (accept, reject) ->
 	clock = new THREE.Clock
@@ -19,23 +20,39 @@ eachFrame = (f) -> new P (accept, reject) ->
 	tick()
 
 
-runScenario = Co (scene, env) ->*
+ScenarioRunner = Co (sceneLoader, env) ->*
+	scene = yield sceneLoader env
 	renderer = new THREE.WebGLRenderer antialias: true
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
-	scene.onRender.add ->
-		renderer.render scene.visual, scene.camera
+
+	render = -> renderer.render scene.visual, scene.camera
+	scene.onRender.add render
+
 	env.onSize (w, h) ->
 		renderer.setSize w, h
 		scene.camera.aspect = w/h
 		scene.camera.updateProjectionMatrix()
 
-	env.container.empty()
-	env.container.append renderer.domElement
-	return yield eachFrame (dt) ->
-		scene.tick dt
-		if scene.time > 3*60
-			return scene
+	el = $ renderer.domElement
+	env.container.append el
+	render()
+	yield ui.waitFor el~fadeIn
+
+	run: ->
+		stop = false
+		task = eachFrame (dt) ->
+			return true if stop
+			scene.tick dt
+			return
+		quit: Co ->*
+			stop := true
+			yield task
+			yield ui.waitFor el~fadeOut
+			el~remove()
+	scene: scene
+
+
 
 $ Co ->*
 	opts = {}
@@ -55,15 +72,12 @@ $ Co ->*
 		container: container
 		audioContext: new AudioContext
 		onSize: onSize
+		SceneRunner: (scene) -> ScenarioRunner scene, env
 
 	if opts.controller?
 		env.controls = yield WsController.Connect opts.controller
 	else
 		env.controls = new KeyboardController
 
-	scene = yield baseScenario env
-	$('#drivesim').fadeIn(1000)
-	$('#intro').fadeOut 1000, ->
-		scene.onStart.dispatch()
-	yield runScenario scene, env
-	scene.onExit.dispatch()
+	yield scenario.gettingStarted env
+	yield scenario.runTheLight env

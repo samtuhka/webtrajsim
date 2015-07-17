@@ -1,22 +1,28 @@
 P = require 'bluebird'
 Co = P.coroutine
+$ = require 'jquery'
 
 {addGround, addSky, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
 {DefaultEngineSound} = require './sounds.ls'
 
+# Just a placeholder for localization
+L = (s) -> s
+
+ui = require './ui.ls'
+
 export baseScenario = Co ({controls, audioContext}) ->*
 	scene = new Scene
 	yield P.resolve addGround scene
 	yield P.resolve addSky scene
 
-	#controls = NonSteeringControl controls
 	scene.playerControls = controls
 
 	player = yield addVehicle scene, controls
 	player.eye.add scene.camera
 	player.physical.position.x = -1.75
+	scene.player = player
 
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()
@@ -33,4 +39,85 @@ export baseScenario = Co ({controls, audioContext}) ->*
 	scene.onStart.add engineSounds.start
 	scene.onExit.add engineSounds.stop
 
+	# Tick a couple of frames for the physics to settle
+	scene.tick 1/60
+	n = 100
+	t = Date.now()
+	for [0 to n]
+		scene.tick 1/60
+	console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
+
 	return scene
+
+export basePedalScenario = Co (env) ->*
+	env = env with
+		controls: NonSteeringControl env.controls
+	return yield baseScenario env
+
+export gettingStarted = Co (env) ->*
+	loader = env.SceneRunner basePedalScenario
+
+	yield ui.instructionScreen env, ->
+		@ \title .text L "Warm up"
+		@ \content .text L """
+			Let's get started. In this task you'll get to know
+			the basic controls. Just follow the instructions!
+			"""
+		loader
+
+	runner = yield loader
+	scene = runner.scene
+	task = runner.run()
+
+	yield ui.taskDialog env, Co ->*
+		@ \title .text L "Speed up!"
+		@ \content .text L "Use the throttle pedal to accelerate to 80 km/h."
+
+		meter = $ L """<p>Current speed: <strong></strong> km/h</p>"""
+		.appendTo @el
+		.find \strong
+
+		yield new P (accept) ->
+			scene.onTickHandled.add ->
+				speed = scene.player.getSpeed()*3.6
+				meter.text Math.round speed
+				if speed > 80
+					accept()
+		@ \content .text "Good job."
+		yield P.delay 1000*3
+
+	yield P.delay 1000*1
+
+	yield ui.taskDialog env, Co ->*
+		@ \title .text L "Stop!"
+		@ \content .text L "Let's try the brake too. Use the brake pedal to stop the car."
+
+		yield new P (accept) ->
+			scene.onTickHandled.add ->
+				speed = scene.player.getSpeed()*3.6
+				if speed < 0.5
+					accept()
+		@ \content .text L "Good job again. That was the warm-up."
+		yield P.delay 1000*5
+
+	return yield task.quit()
+
+export runTheLight = Co (env) ->*
+	loader = env.SceneRunner basePedalScenario
+
+	yield ui.instructionScreen env, ->
+		@ \title .text L "Run the light"
+		@ \subtitle .text L "(Just this once!)"
+		@ \content .html $ L """
+			<p>From here on you must honor the traffic light.
+			But go ahead and run it once so you know what happens.</p>
+
+			<p>Press enter or click the button below to continue.</p>
+			"""
+		return loader
+
+	runner = yield loader
+	scene = runner.scene
+	task = runner.run()
+
+	runner = yield loader

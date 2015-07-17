@@ -18,6 +18,7 @@
 				padding: 0;
 				height: 100%;
 				overflow: hidden;
+				color: white;
 			}
 			
 			canvas {
@@ -31,7 +32,8 @@
 				height: 100%;
 				left: 0;
 				top: 0;
-				display: none;
+				font-size: 16pt;
+				background-color: black;
 			}
 
 			#loopviz {
@@ -72,41 +74,43 @@
 				width: 500px;
 				margin: auto;
 			}
+
+			.overlay-screen {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.8);
+				z-index: 100;
+				color: white;
+				padding-top: 100px;
+			}
+
+			.overlay-content {
+				margin-left: auto;
+				margin-right: auto;
+				max-width: 15cm;
+			}
+
+			.helper-overlay {
+				position: absolute;
+				top: 20%;
+				left: 20%;
+				max-width: 10cm;
+				background-color: rgba(0, 0, 0, 0.5);
+				border: 2px solid rgba(255, 255, 255, 0.5);
+				padding: 20px;
+				border-radius: 5px;
+				z-index: 50;
+			}
+
+			.helper-overlay h2 {
+				margin: 0;
+			}
 		</style>
 	</head>
 	<body>
-		<div id="intro" class="container">
-			<h1 class="page-header">The Busy Tailgater</h1>
-			<div class="instructions">
-			<h2>Instructions:</h2>
-				<ol>
-					<li>Don&apos;t crash!</li>
-					<li>Tailgate as close as you can</li>
-					<li>Look at the road as little as you can</li>
-				</ol>
-			</div>
-			<input type="text" id="sessionName">
-			<button id="startbutton" type="button" class="btn btn-success btn-lg" disabled="disabled">Loading...</button>
-		</div>
-		<div id="drivesim" class="fillScreen">
-			<div id="loopviz"></div>
-			<div id="blinder" class="fillScreen"></div>
-			<div id="scoreHud">
-				<div>
-					<h4>Average <span id="meanScoreValue"></span></h4>
-					<progress id="meanScoreBar"></progress>
-				</div>
-				<div>
-					<h4>Current <span id="instantScoreValue"></span></h4>
-					<progress id="instantScoreBar"></progress>
-				</div>
-			</div>
-		</div>
-		<div id="outro" class="fillScreen">
-			<div class="centered">
-			<h1>Thanks!</h1>
-			Your score was <span id="finalScore"></span>
-			</div>
-		</div>
+		<div id="drivesim" class="fillScreen"></div>
 	</body>
 </html>

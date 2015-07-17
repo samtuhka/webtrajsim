@@ -4,8 +4,10 @@
     "jquery-elementresize": "^0.2.1",
     "json-loader": "^0.5.2",
     "jstat": "^1.1.5",
+    "lodash": "^3.10.0",
     "system-livescript": "git://github.com/jampekka/system-livescript",
     "system-npmlocator": "git://github.com/jampekka/system-npmlocator",
+    "system-text": "^0.1.0",
     "systemjs": "git://github.com/jampekka/systemjs"
   },
   "devDependencies": {
