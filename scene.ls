@@ -15,6 +15,20 @@ require './three.js/examples/js/SkyShader.js'
 # compromise parameters
 export class Scene
 	({@stepDuration=1/240}={}) ->
+		@ <<<
+			beforePhysics: new Signal
+			onPhysics: new Signal
+			afterPhysics: new Signal
+
+			beforeRender: new Signal
+			onRender: new Signal
+			afterRender: new Signal
+
+			onTickHandled: new Signal
+
+			onStart: new Signal
+			onExit: new Signal
+
 		@physics = new Cannon.World
 			..gravity.set 0, -9.81, 0
 			..defaultContactMaterial
@@ -45,18 +59,6 @@ export class Scene
 		@time += dt
 		@onTickHandled.dispatch dt
 
-	beforePhysics: new Signal
-	onPhysics: new Signal
-	afterPhysics: new Signal
-
-	beforeRender: new Signal
-	onRender: new Signal
-	afterRender: new Signal
-
-	onTickHandled: new Signal
-
-	onStart: new Signal
-	onExit: new Signal
 
 	bindPhys: (physical, visual) ->
 		@afterPhysics.add ->

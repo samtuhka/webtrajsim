@@ -19,16 +19,16 @@ loadAudio = (context, url) ->
 		context.decodeAudioData data, (buffer) ->
 			if not buffer
 				reject "Failed to decode '#url'"
-			source = context.createBufferSource()
-			source.buffer = buffer
-			accept source
+			accept buffer
 
 export SoundInterpolator = (ctx, sampleTbl) -> new Promise (accept, reject) ->
 	sources = []
 	master = ctx.createBiquadFilter()
 	master.type = 'lowpass'
 	master.frequency.value = 300
-	for value, sample of sampleTbl
+	for value, buffer of sampleTbl
+		sample = ctx.createBufferSource()
+		sample.buffer = buffer
 		sample.loop = 1
 		source = ctx.createGain()
 		sample.connect source

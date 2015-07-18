@@ -2,6 +2,7 @@ $ = require 'jquery'
 deparam = require 'jquery-deparam'
 P = require 'bluebird'
 Co = P.coroutine
+seqr = require './seqr.ls'
 
 {Signal} = require './signal.ls'
 {KeyboardController, WsController} = require './controls.ls'
@@ -20,7 +21,7 @@ eachFrame = (f) -> new P (accept, reject) ->
 	tick()
 
 
-ScenarioRunner = Co (sceneLoader, env) ->*
+ScenarioRunner = seqr.bind (sceneLoader, env) ->*
 	scene = yield sceneLoader env
 	renderer = new THREE.WebGLRenderer antialias: true
 	renderer.autoClear = false
@@ -38,21 +39,18 @@ ScenarioRunner = Co (sceneLoader, env) ->*
 	env.container.append el
 	render()
 	yield ui.waitFor el~fadeIn
+	@let \scene, scene
+	yield @get \run
+	quit = @get \quit
+	scene.onStart.dispatch()
 
-	run: ->
-		stop = false
-		task = eachFrame (dt) ->
-			return true if stop
-			scene.tick dt
-			return
-		quit: Co ->*
-			stop := true
-			yield task
-			yield ui.waitFor el~fadeOut
-			el~remove()
-	scene: scene
+	yield eachFrame (dt) !->
+		return true if not quit.isPending()
+		scene.tick dt
 
-
+	yield ui.waitFor el~fadeOut
+	scene.onExit.dispatch()
+	el~remove()
 
 $ Co ->*
 	opts = {}
@@ -79,5 +77,7 @@ $ Co ->*
 	else
 		env.controls = new KeyboardController
 
-	yield scenario.gettingStarted env
-	yield scenario.runTheLight env
+	yield scenario.freeRiding env
+	#yield scenario.gettingStarted env
+	#yield scenario.runTheLight env
+	#yield scenario.runTheLight env

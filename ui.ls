@@ -29,7 +29,7 @@ export instructionScreen = Co ({container, controls}, cb) ->*
 	api \accept .hide()
 
 	yield waitFor background~fadeIn
-	yield P.resolve loader
+	value = yield P.resolve loader
 
 	btn.prop "disabled", false
 	btn.focus()
@@ -39,6 +39,7 @@ export instructionScreen = Co ({container, controls}, cb) ->*
 	yield new P (accept) -> btn.one "click", accept
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
+	return value
 
 export taskDialog = Co ({container}, cb) ->*
 	[api, loader] = configTemplate cb, require './templates/helper.lo.html!text'

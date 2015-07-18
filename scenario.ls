@@ -1,6 +1,7 @@
 P = require 'bluebird'
 Co = P.coroutine
 $ = require 'jquery'
+seqr = require './seqr.ls'
 
 {addGround, addSky, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
@@ -12,7 +13,7 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export baseScenario = Co ({controls, audioContext}) ->*
+export baseScenario = seqr.bind ({controls, audioContext}) ->*
 	scene = new Scene
 	yield P.resolve addGround scene
 	yield P.resolve addSky scene
@@ -49,25 +50,28 @@ export baseScenario = Co ({controls, audioContext}) ->*
 
 	return scene
 
-export basePedalScenario = Co (env) ->*
+export freeRiding = seqr.bind (env) ->*
+	task = env.SceneRunner baseScenario
+	task.let \run
+	yield task
+
+export basePedalScenario = (env) ->
 	env = env with
 		controls: NonSteeringControl env.controls
-	return yield baseScenario env
+	return baseScenario env
 
-export gettingStarted = Co (env) ->*
-	loader = env.SceneRunner basePedalScenario
+export gettingStarted = seqr.bind (env) ->*
+	scenario = env.SceneRunner basePedalScenario
 
-	yield ui.instructionScreen env, ->
+	scene = yield ui.instructionScreen env, ->
 		@ \title .text L "Warm up"
 		@ \content .text L """
 			Let's get started. In this task you'll get to know
 			the basic controls. Just follow the instructions!
 			"""
-		loader
+		scenario.get \scene
 
-	runner = yield loader
-	scene = runner.scene
-	task = runner.run()
+	scenario.let \run
 
 	yield ui.taskDialog env, Co ->*
 		@ \title .text L "Speed up!"
@@ -120,4 +124,4 @@ export runTheLight = Co (env) ->*
 	scene = runner.scene
 	task = runner.run()
 
-	runner = yield loader
+	yield task.quit()
