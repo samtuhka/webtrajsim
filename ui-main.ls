@@ -23,6 +23,8 @@ eachFrame = (f) -> new P (accept, reject) ->
 
 SceneRunner = seqr.bind (scene, env) ->*
 	renderer = new THREE.WebGLRenderer antialias: true
+	#renderer.shadowMapEnabled = true
+	#renderer.shadowMapType = THREE.PCFShadowMap
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
 

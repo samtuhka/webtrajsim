@@ -3,7 +3,7 @@ Co = P.coroutine
 $ = require 'jquery'
 seqr = require './seqr.ls'
 
-{addGround, addSky, Scene} = require './scene.ls'
+{addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
 {DefaultEngineSound} = require './sounds.ls'
@@ -17,7 +17,7 @@ ui = require './ui.ls'
 export baseScenario = seqr.bind ({controls, audioContext}) ->*
 	scene = new Scene
 	yield P.resolve addGround scene
-	yield P.resolve addSky scene
+	sky = yield P.resolve assets.addSky scene
 
 	scene.playerControls = controls
 
@@ -62,7 +62,6 @@ export basePedalScenario = (env) ->
 	return baseScenario env
 
 export gettingStarted = seqr.bind (env) ->*
-	sign = yield assets.SpeedSign 50
 	intro = ui.instructionScreen env, ->
 		@ \title .text L "Warm up"
 		@ \content .text L """
@@ -71,12 +70,18 @@ export gettingStarted = seqr.bind (env) ->*
 			"""
 
 	scene = yield baseScenario env
-	sign = yield assets.SpeedSign 80
-	#sign = yield assets.TrafficLight()
-	sign.position.z = 10
-	sign.position.x = -4
-	#sign.position.y = 1
-	scene.visual.add sign
+	limits = [
+		[10, 50]
+		[200, 30]
+		[300, 80]
+		[500, 60]
+	]
+
+	for [dist, limit] in limits
+		sign = yield assets.SpeedSign limit
+		sign.position.z = dist
+		sign.position.x = -4
+		scene.visual.add sign
 
 	scenario = env.SceneRunner scene
 	yield scenario.get \ready

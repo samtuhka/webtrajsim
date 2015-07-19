@@ -101,8 +101,6 @@ loadViva = Co ->*
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
 
-	#eye.position.y = 10
-	#eye.rotation.x = Math.PI/2
 	body.add eye
 	wheels = scene.getObjectByName "Wheels"
 	#applyPosition wheels

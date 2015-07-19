@@ -65,22 +65,6 @@ export class Scene
 			visual.position.copy physical.position
 			visual.quaternion.copy physical.quaternion
 
-export addSky = (scene) ->
-	sky = new THREE.Sky
-	sky.uniforms.sunPosition.value.y = 4500
-	scene.visual.add sky.mesh
-
-	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
-	sunlight.position.set 0, 4500, 0
-	scene.visual.add sunlight
-	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.5
-		..position.set 0, 4500, 0
-	scene.visual.add hemiLight
-	scene.visual.add new THREE.AmbientLight 0x606060
-	position = new THREE.Vector3
-	scene.beforeRender.add ->
-		position.setFromMatrixPosition scene.camera.matrixWorld
-		sky.mesh.position.z = position.z
 
 
 generateRock = (seed=Math.random()) ->
@@ -99,7 +83,10 @@ generateRock = (seed=Math.random()) ->
 	geo.verticesNeedUpdate = true
 	geo.computeVertexNormals()
 	geo.computeFaceNormals()
-	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial color: 0xd3ab6d
+	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+		color: 0xd3ab6d
+	rock.castShadow = true
+	rock.receiveShadow = true
 	return rock
 
 export addGround = (scene) ->
@@ -117,10 +104,13 @@ export addGround = (scene) ->
 		color: 0xffffff
 		map: groundTex
 		normalMap: groundNorm
+		shininess: 20
 	terrain = new THREE.Object3D
-
+	terrain.receiveShadow = true
 	groundGeometry = new THREE.PlaneGeometry terrainSize, terrainSize, 0, 0
 	ground = new THREE.Mesh groundGeometry, groundMaterial
+	ground.castShadow = false
+	ground.receiveShadow = true
 	ground.rotation.x = -Math.PI/2.0
 	# To avoid z-fighting. Should be handled by
 	# polygon offset, but it gives very weird results
@@ -144,7 +134,8 @@ export addGround = (scene) ->
 	roadNorm.repeat.set textureRep/2.0, 1
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
-		#normalMap: roadNorm
+		shininess: 20
+		normalMap: roadNorm
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0

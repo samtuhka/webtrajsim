@@ -4,6 +4,7 @@ $ = require 'jquery'
 P = require 'bluebird'
 seqr = require './seqr.ls'
 
+
 {loadCollada, mergeObject} = require './utils.ls'
 
 svgToCanvas = seqr.bind (el, width, height) ->*
@@ -32,7 +33,7 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2, texSize=[256,
 		v = v.baseVal
 		v.convertToSpecifiedUnits v.SVG_LENGTHTYPE_CM
 		v.valueInSpecifiedUnits/100
-	img.find '#limit' .text limit
+	(img.find '#limit')[0].textContent = limit
 	faceWidth = meters img.prop 'width'
 	faceHeight = meters img.prop 'height'
 
@@ -56,6 +57,9 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2, texSize=[256,
 		new THREE.MeshLambertMaterial color: 0xdddddd
 	pole.position.y = height/2
 	sign.add pole
+	sign.traverse (o) ->
+		o.castShadow = true
+		o.receiveShadow = false
 	return sign
 
 
@@ -115,4 +119,56 @@ export TrafficLight = seqr.bind ->*
 	addTo: (scene) ->
 		scene.visual.add model
 
+SunCalc = require 'suncalc'
+export addSky = (scene, {location=[60, 0], date}={}) ->
+	if not date?
+		date = new Date 1970, 5, 24, 12
 
+	distance = 4500
+	dome = new THREE.Object3D
+	scene.visual.add dome
+	sky = new THREE.Sky
+	dome.add sky.mesh
+
+	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
+		..castShadow = true
+		..shadowCameraNear = distance/2
+		..shadowCameraFar = distance*2
+		..shadowCameraLeft = -distance
+		..shadowCameraRight = distance
+		..shadowCameraTop = distance
+		..shadowCameraBottom = -distance
+		..shadowMapWidth = 2048
+		..shadowMapHeight = 2048
+		..shadowBias = 0.0001
+		..shadowDarkness = 1.0
+		..target = dome
+		#..shadowCameraVisible = true
+		#
+	dome.add sunlight
+	#hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.5
+	#	..position.set 0, 4500, 0
+	#scene.visual.add hemiLight
+	scene.visual.add new THREE.AmbientLight 0x707070
+	position = new THREE.Vector3
+	scene.beforeRender.add ->
+		#if sunlight.shadowCamera
+		#	scene.camera = sunlight.shadowCamera
+		position.setFromMatrixPosition scene.camera.matrixWorld
+		dome.position.z = position.z
+		dome.position.x = position.x
+
+	updatePosition = ->
+		degs = SunCalc.getPosition date, ...location
+
+		position = new THREE.Vector3 0, 0, distance
+		position.applyEuler new THREE.Euler -degs.altitude, degs.azimuth, 0, "YXZ"
+		#position = new THREE.Vector3 0, distance, 0
+		sky.uniforms.sunPosition.value.copy position
+		sunlight.position.copy position
+
+	updatePosition()
+	setDate: (newDate) ->
+		date := new Date newDate.getTime()
+		updatePosition()
+	getDate: -> new Date date.getTime()
