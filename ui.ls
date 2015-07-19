@@ -2,6 +2,7 @@ $ = require 'jquery'
 P = require 'bluebird'
 Co = P.coroutine
 {template} = require 'lodash'
+seqr = require './seqr.ls'
 
 #NP = (...args) -> new P(...args)
 #
@@ -16,7 +17,7 @@ configTemplate = (config, data) ->
 	return [api, loader]
 
 #instructionTemplate = template require './templates/instruction.lo.html!text'
-export instructionScreen = Co ({container, controls}, cb) ->*
+export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	[api, loader] = configTemplate cb, require './templates/instruction.lo.html!text'
 	el = api.el
 	background = $('<div class="overlay-screen">')
@@ -29,7 +30,7 @@ export instructionScreen = Co ({container, controls}, cb) ->*
 	api \accept .hide()
 
 	yield waitFor background~fadeIn
-	value = yield P.resolve loader
+	yield @get 'ready'
 
 	btn.prop "disabled", false
 	btn.focus()
@@ -39,7 +40,6 @@ export instructionScreen = Co ({container, controls}, cb) ->*
 	yield new P (accept) -> btn.one "click", accept
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
-	return value
 
 export taskDialog = Co ({container}, cb) ->*
 	[api, loader] = configTemplate cb, require './templates/helper.lo.html!text'

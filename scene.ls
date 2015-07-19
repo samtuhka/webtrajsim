@@ -70,10 +70,10 @@ export addSky = (scene) ->
 	sky.uniforms.sunPosition.value.y = 4500
 	scene.visual.add sky.mesh
 
-	sunlight = new THREE.DirectionalLight 0xffffff, 0.6
+	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
 	sunlight.position.set 0, 4500, 0
 	scene.visual.add sunlight
-	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.1
+	hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.5
 		..position.set 0, 4500, 0
 	scene.visual.add hemiLight
 	scene.visual.add new THREE.AmbientLight 0x606060
@@ -101,62 +101,6 @@ generateRock = (seed=Math.random()) ->
 	geo.computeFaceNormals()
 	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial color: 0xd3ab6d
 	return rock
-
-export loadTrafficLight = Co ->*
-	data = yield loadCollada 'res/signs/TrafficLight.dae'
-	model = data.scene.children[0]
-	model.scale.set 0.03, 0.03, 0.03
-
-	lights =
-		red: model.getObjectByName 'Red'
-		yellow: model.getObjectByName 'Yellow'
-		green: model.getObjectByName 'Green'
-
-	for let name, light of lights
-		materials = light.children[0].material.materials
-		materials = for material in materials
-			material = material.clone()
-			hsl = material.color.getHSL()
-			material.color.setHSL hsl.h, hsl.s, 0.1
-			material
-
-		light.children[0].material.materials = materials
-
-		light.on = ->
-			for material in materials
-				hsl = material.color.getHSL()
-				material.emissive.setHSL hsl.h, 0.9, 0.5
-			light.isOn = true
-
-		light.off = ->
-			for material in materials
-				hsl = material.color.getHSL()
-				material.emissive.setHSL hsl.h, 0.0, 0.0
-			light.isOn = false
-
-	lights.red.on()
-	#lights.yellow.on()
-	#lights.green.on()
-	getState: ->
-		red: lights.red.isOn
-		yellow: lights.yellow.isOn
-		green: lights.green.isOn
-	switchToGreen: Co ->*
-		if lights.green.isOn
-			lights.red.off()
-			lights.yellow.off()
-			return
-		lights.red.on()
-		lights.yellow.on()
-		yield P.delay 1*1000
-		lights.red.off()
-		lights.yellow.off()
-		lights.green.on()
-
-
-	visual: model
-	addTo: (scene) ->
-		scene.visual.add model
 
 export addGround = (scene) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'

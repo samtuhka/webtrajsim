@@ -7,6 +7,7 @@ seqr = require './seqr.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
 {DefaultEngineSound} = require './sounds.ls'
+assets = require './assets.ls'
 
 # Just a placeholder for localization
 L = (s) -> s
@@ -61,15 +62,26 @@ export basePedalScenario = (env) ->
 	return baseScenario env
 
 export gettingStarted = seqr.bind (env) ->*
-	scenario = env.SceneRunner basePedalScenario
-
-	scene = yield ui.instructionScreen env, ->
+	sign = yield assets.SpeedSign 50
+	intro = ui.instructionScreen env, ->
 		@ \title .text L "Warm up"
 		@ \content .text L """
 			Let's get started. In this task you'll get to know
 			the basic controls. Just follow the instructions!
 			"""
-		scenario.get \scene
+
+	scene = yield baseScenario env
+	sign = yield assets.SpeedSign 80
+	#sign = yield assets.TrafficLight()
+	sign.position.z = 10
+	sign.position.x = -4
+	#sign.position.y = 1
+	scene.visual.add sign
+
+	scenario = env.SceneRunner scene
+	yield scenario.get \ready
+	intro.let \ready
+	yield intro
 
 	scenario.let \run
 
@@ -104,7 +116,8 @@ export gettingStarted = seqr.bind (env) ->*
 		@ \content .text L "Good job again. That was the warm-up."
 		yield P.delay 1000*5
 
-	return yield task.quit()
+	scenario.let \quit
+	return scene
 
 export runTheLight = Co (env) ->*
 	loader = env.SceneRunner basePedalScenario

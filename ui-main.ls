@@ -21,8 +21,7 @@ eachFrame = (f) -> new P (accept, reject) ->
 	tick()
 
 
-ScenarioRunner = seqr.bind (sceneLoader, env) ->*
-	scene = yield sceneLoader env
+SceneRunner = seqr.bind (scene, env) ->*
 	renderer = new THREE.WebGLRenderer antialias: true
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
@@ -34,12 +33,13 @@ ScenarioRunner = seqr.bind (sceneLoader, env) ->*
 		renderer.setSize w, h
 		scene.camera.aspect = w/h
 		scene.camera.updateProjectionMatrix()
+		render()
 
 	el = $ renderer.domElement
 	env.container.append el
 	render()
 	yield ui.waitFor el~fadeIn
-	@let \scene, scene
+	@let \ready
 	yield @get \run
 	quit = @get \quit
 	scene.onStart.dispatch()
@@ -50,7 +50,8 @@ ScenarioRunner = seqr.bind (sceneLoader, env) ->*
 
 	yield ui.waitFor el~fadeOut
 	scene.onExit.dispatch()
-	el~remove()
+	el.remove()
+	return scene
 
 $ Co ->*
 	opts = {}
@@ -70,14 +71,14 @@ $ Co ->*
 		container: container
 		audioContext: new AudioContext
 		onSize: onSize
-		SceneRunner: (scene) -> ScenarioRunner scene, env
+		SceneRunner: (scene) -> SceneRunner scene, env
 
 	if opts.controller?
 		env.controls = yield WsController.Connect opts.controller
 	else
 		env.controls = new KeyboardController
 
-	yield scenario.freeRiding env
-	#yield scenario.gettingStarted env
+	#yield scenario.freeRiding env
+	yield scenario.gettingStarted env
 	#yield scenario.runTheLight env
 	#yield scenario.runTheLight env

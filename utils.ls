@@ -11,6 +11,7 @@ export loadCollada = (path) -> new P (resolve, reject) ->
 
 export mergeObject = (root) ->
 	submeshes = new Map
+	merged = new THREE.Object3D()
 
 	getSubmesh = (object) ->
 		key = object.material
@@ -22,6 +23,11 @@ export mergeObject = (root) ->
 
 	merge = (object, matrix=(new THREE.Matrix4)) ->
 		object.updateMatrix()
+		# Don't merge transparent objects, 'cause rasterization
+		# sucks
+		if object?material?transparent
+			merged.add object.clone()
+			return
 		matrix = matrix.clone().multiply object.matrix
 		if object.geometry?
 			getSubmesh(object).geometry.merge object.geometry, matrix
@@ -29,7 +35,6 @@ export mergeObject = (root) ->
 			merge child, matrix
 
 	merge root
-	merged = new THREE.Object3D()
 	submeshes.forEach (sub) ->
 		merged.add sub
 	merged.applyMatrix root.matrix
