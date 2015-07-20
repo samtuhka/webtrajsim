@@ -149,7 +149,7 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 	#hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.5
 	#	..position.set 0, 4500, 0
 	#scene.visual.add hemiLight
-	scene.visual.add new THREE.AmbientLight 0x707070
+	scene.visual.add new THREE.AmbientLight 0xa0a0a0
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		#if sunlight.shadowCamera
