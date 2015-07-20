@@ -16,13 +16,21 @@ configTemplate = (data, config) ->
 	api.result = config.apply api, [el]
 	return api
 
-export gauge = ({notifications, uiUpdate}, {name, unit, range, value}) ->
+export gauge = ({notifications, uiUpdate}, {name, unit='', range, value}) ->
 	result = configTemplate (require './templates/gauge.lo.html!text'), ->
 		@ \name .text name
 		@ \unit .text unit
 	notifications?append result.el
 	uiUpdate ->
-		result \value .text value!
+		result \value
+		.empty()
+		.append value!
+	result <<<
+		normal: ->
+			result.el.css "background-color": ""
+		warning: ->
+			result.el.css "background-color": "rgba(242, 10, 10, 0.8)"
+
 	return result
 
 #instructionTemplate = template require './templates/instruction.lo.html!text'

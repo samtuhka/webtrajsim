@@ -9,6 +9,8 @@ seqr = require './seqr.ls'
 {DefaultEngineSound} = require './sounds.ls'
 assets = require './assets.ls'
 
+{rfind} = require 'prelude-ls'
+
 # Just a placeholder for localization
 L = (s) -> s
 
@@ -27,7 +29,7 @@ export baseScenario = seqr.bind (env) ->*
 	player.physical.position.x = -1.75
 	scene.player = player
 
-	ui.gauge env,
+	scene.player.speedometer = ui.gauge env,
 		name: L "Speed"
 		unit: L "km/h"
 		value: ->
@@ -74,23 +76,63 @@ export gettingStarted = seqr.bind (env) ->*
 	intro = ui.instructionScreen env, ->
 		@ \title .text L "Warm up"
 		@ \content .text L """
-			Let's get started. In this task you'll get to know
-			the basic controls. Just follow the instructions!
+			Let's get started. In this task you should drive as fast
+			as possible, yet honoring the speed limits.
 			"""
 
-	scene = yield baseScenario env
+	scene = yield basePedalScenario env
+	@finally -> scene.onExit.dispatch()
 	limits = [
-		[10, 50]
+		[-Infinity, 50]
+		[20, 50]
 		[200, 30]
-		[300, 80]
+		[250, 80]
 		[500, 60]
 	]
+	goalDistance = 700
 
 	for [dist, limit] in limits
 		sign = yield assets.SpeedSign limit
 		sign.position.z = dist
 		sign.position.x = -4
 		scene.visual.add sign
+	limits.reverse()
+	currentLimit = ->
+		mypos = scene.player.physical.position.z
+		for [distance, limit] in limits
+			break if distance < mypos
+
+		return limit
+
+	limitSign = ui.gauge env,
+		name: L "Speed limit"
+		unit: L "km/h"
+		value: currentLimit
+
+	timeOverSpeedLimit = 0
+	scene.afterPhysics (dt) ->
+		limit = currentLimit!
+		speed = scene.player.getSpeed()*3.6
+		if speed > limit
+			timeOverSpeedLimit += dt
+			limitSign.warning()
+		else
+			limitSign.normal()
+
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = -4
+	startLight.position.z = 6
+	startLight.addTo scene
+
+	endLight = yield assets.TrafficLight()
+	endLight.position.x = -4
+	endLight.position.z = goalDistance + 10
+	endLight.addTo scene
+
+
+	finishSign = yield assets.FinishSign!
+	finishSign.position.z = goalDistance
+	scene.visual.add finishSign
 
 	scenario = env.SceneRunner scene
 	yield scenario.get \ready
@@ -98,39 +140,17 @@ export gettingStarted = seqr.bind (env) ->*
 	yield intro
 
 	scenario.let \run
+	yield P.delay 1000
+	yield startLight.switchToGreen()
 
-	yield ui.taskDialog env, Co ->*
-		@ \title .text L "Speed up!"
-		@ \content .text L "Use the throttle pedal to accelerate to 80 km/h."
+	scene.onTickHandled ~>
+		return if scene.player.getSpeed() > 0.1
+		return if scene.player.physical.position.z < goalDistance
+		@let \done
+		return false
 
-		meter = $ L """<p>Current speed: <strong></strong> km/h</p>"""
-		.appendTo @el
-		.find \strong
-
-		yield new P (accept) ->
-			scene.onTickHandled.add ->
-				speed = scene.player.getSpeed()*3.6
-				meter.text Math.round speed
-				if speed > 80
-					accept()
-		@ \content .text "Good job."
-		yield P.delay 1000*3
-
-	yield P.delay 1000*1
-
-	yield ui.taskDialog env, Co ->*
-		@ \title .text L "Stop!"
-		@ \content .text L "Let's try the brake too. Use the brake pedal to stop the car."
-
-		yield new P (accept) ->
-			scene.onTickHandled.add ->
-				speed = scene.player.getSpeed()*3.6
-				if speed < 0.5
-					accept()
-		@ \content .text L "Good job again. That was the warm-up."
-		yield P.delay 1000*5
-
-	scenario.let \quit
+	result = yield @get \done
+	yield P.delay 1000
 	return scene
 
 export runTheLight = Co (env) ->*

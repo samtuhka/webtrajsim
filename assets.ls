@@ -7,7 +7,7 @@ seqr = require './seqr.ls'
 
 {loadCollada, mergeObject} = require './utils.ls'
 
-svgToCanvas = seqr.bind (el, width, height) ->*
+svgToCanvas = seqr.bind (el, width, height, pw=0, ph=0) ->*
 	img = new Image
 	data = new Blob [el.outerHTML], type: 'image/svg+xml;charset=utf-8'
 	p = new P (accept, reject) ->
@@ -17,36 +17,51 @@ svgToCanvas = seqr.bind (el, width, height) ->*
 	img.src = DOMURL.createObjectURL data
 	yield p
 	canvas = document.createElement 'canvas'
-	canvas.width = width ?= el.width.baseVal.value
-	canvas.height = height ?= el.height.baseVal.value
+	canvas.width = width + pw
+	canvas.height = height + ph
 
 	ctx = canvas.getContext '2d'
 	ctx.drawImage img, 0, 0, width, height
 	DOMURL.revokeObjectURL img.src
 	return canvas
 
-export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2, texSize=[256, 256]}={}) ->*
-	doc = $ yield $.ajax "./res/signs/speedsign.svg"
-	img = $ doc.get -1 # Damn
+svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
+	texSize = (v) ->
+		v = Math.round v*pixelsPerMeter
+		return 0 if v < 1
+		for i from 0 to Infinity
+			pow2 = 2**i
+			break if pow2 > v
+		return [pow2, v - pow2]
 
 	meters = (v) ->
 		v = v.baseVal
 		v.convertToSpecifiedUnits v.SVG_LENGTHTYPE_CM
 		v.valueInSpecifiedUnits/100
-	(img.find '#limit')[0].textContent = limit
 	faceWidth = meters img.prop 'width'
 	faceHeight = meters img.prop 'height'
-
-	raster = yield svgToCanvas img[0], ...texSize
+	[w, pw] = texSize faceWidth
+	[h, ph] = texSize faceHeight
+	raster = yield svgToCanvas img[0], w, h, 0, 0 # TODO
 	texture = new THREE.Texture raster
 	texture.needsUpdate = true
-	sign = new THREE.Object3D
 	face = new THREE.Mesh do
 		new THREE.PlaneGeometry faceWidth, faceHeight
 		new THREE.MeshLambertMaterial do
 			map: texture
 			side: THREE.DoubleSide
 			transparent: true
+	face.width = faceWidth
+	face.height = faceHeight
+	return face
+
+export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
+	doc = $ yield $.ajax "./res/signs/speedsign.svg"
+	img = $ doc.get -1 # Damn
+	(img.find '#limit')[0].textContent = limit
+
+	sign = new THREE.Object3D
+	face = yield svgToSign img, opts
 	face.position.y = height
 	face.position.z = -poleRadius - 0.01
 	face.rotation.y = Math.PI
@@ -62,11 +77,41 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2, texSize=[256,
 		o.receiveShadow = false
 	return sign
 
+export FinishSign = seqr.bind ({height=3, texSize=[256,256], poleRadius=0.07/2}=opts={}) ->*
+	doc = $ yield $.ajax "./res/signs/finish.svg"
+	img = $ doc.get -1 # Damn
+
+	face = yield svgToSign img, opts
+	sign = new THREE.Object3D
+	face.position.y = height
+	face.position.z = -poleRadius - 0.01
+	face.rotation.y = Math.PI
+	sign.add face
+
+	pole = new THREE.Mesh do
+		new THREE.CylinderGeometry poleRadius, poleRadius, height, 32
+		new THREE.MeshLambertMaterial color: 0xdddddd
+	pole.position.y = height/2
+	pole.position.x = face.width/2
+	sign.add pole
+	pole = pole.clone()
+	pole.position.x = -face.width/2
+	sign.add pole
+	sign.traverse (o) ->
+		o.castShadow = true
+		o.receiveShadow = false
+	return sign
+
+
 
 export TrafficLight = seqr.bind ->*
 	data = yield loadCollada 'res/signs/TrafficLight.dae'
-	model = data.scene.children[0]
-	model.scale.set 0.03, 0.03, 0.03
+	mod = data.scene.children[0]
+	mod.scale.set 0.03, 0.03, 0.03
+	mod.rotation.y = Math.PI
+	mod.position.y -= 1.0
+	model = new THREE.Object3D
+		..add mod
 
 	lights =
 		red: model.getObjectByName 'Red'
@@ -116,6 +161,7 @@ export TrafficLight = seqr.bind ->*
 
 
 	visual: model
+	position: model.position
 	addTo: (scene) ->
 		scene.visual.add model
 

@@ -3,6 +3,7 @@ Cannon = require 'cannon'
 jStat = require 'jstat'
 P = require 'bluebird'
 Co = P.coroutine
+seqr = require './seqr.ls'
 {loadCollada, mergeObject} = require './utils.ls'
 
 {perlin=noise} = require './vendor/perlin.js'
@@ -48,22 +49,31 @@ export class Scene
 			@physics.step stepdur, dt
 
 	tick: (dt) ->
-		@beforePhysics.dispatch dt
-		@onPhysics.dispatch dt
-		@afterPhysics.dispatch dt
+		@beforePhysics.dispatch dt, @time
+		@onPhysics.dispatch dt, @time
+		@afterPhysics.dispatch dt, @time
 
-		@beforeRender.dispatch dt
-		@onRender.dispatch dt
-		@afterRender.dispatch dt
+		@beforeRender.dispatch dt, @time
+		@onRender.dispatch dt, @time
+		@afterRender.dispatch dt, @time
 
 		@time += dt
-		@onTickHandled.dispatch dt
+		@onTickHandled.dispatch dt, @time
 
 
 	bindPhys: (physical, visual) ->
 		@afterPhysics.add ->
 			visual.position.copy physical.position
 			visual.quaternion.copy physical.quaternion
+
+	until: (f) ~> new P (accept, reject) ~>
+		@onExit accept
+		@onTickHandled (...args) ->
+			if f ...args
+				accept()
+				return false
+
+	onTickHandled: new Signal
 
 
 
