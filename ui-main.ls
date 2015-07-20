@@ -28,7 +28,8 @@ SceneRunner = seqr.bind (scene, env) ->*
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
 
-	render = -> renderer.render scene.visual, scene.camera
+	render = ->
+		renderer.render scene.visual, scene.camera
 	scene.onRender.add render
 
 	env.onSize (w, h) ->
@@ -55,32 +56,65 @@ SceneRunner = seqr.bind (scene, env) ->*
 	el.remove()
 	return scene
 
-$ Co ->*
+Env = -> new ->
+	onDestroy = Signal()
+	isDestroyed = false
+	@Signal = (...args) ->
+		signal = new Signal ...args
+		onDestroy ->
+			signal.destroy()
+		return signal
+
+	@callback = (f) -> (...args) ->
+		if isDestroyed
+			return false
+		return f ...args
+
+	@destroy = ->
+		onDestroy.dispatch()
+		onDestroy.destroy()
+		isDestroyed = true
+
+withEnv = seqr.bind ->*
+	env = Env!
 	opts = {}
 	opts <<< deparam window.location.search.substring 1
 
-	container = $('#drivesim')
-	onSizeSignal = new Signal()
-	onSizeSignal.size = [container.width(), container.height()]
-	onSize = (handler) ->
-		onSizeSignal.add handler
-		handler ...onSizeSignal.size
-	$(window).resize ->
-		onSizeSignal.size = [container.width(), container.height()]
-		onSizeSignal.dispatch ...onSizeSignal.size
+	container = $('#drivesim').empty()
+	@finally ->
+		$('#drivesim').empty()
 
-	env =
+	onSize = env.Signal onAdd: (cb) ->
+		cb container.width(), container.height()
+	$(window).resize ->
+		onSize.dispatch container.width(), container.height()
+
+	env <<<
 		container: container
 		audioContext: new AudioContext
 		onSize: onSize
-		SceneRunner: (scene) -> SceneRunner scene, env
+		notifications: $ '<div class="notifications">' .appendTo container
 
 	if opts.controller?
 		env.controls = yield WsController.Connect opts.controller
 	else
 		env.controls = new KeyboardController
 
+	env.uiUpdate = env.Signal!
+	setInterval env.uiUpdate.dispatch, 1/60*1000
+	env.SceneRunner = (scene) -> SceneRunner scene, env
+	@let \env, env
+	yield @get \destroy
+	env.destroy()
+
+runScenario = seqr.bind (scenario) ->*
+	scope = withEnv()
+	@finally ->
+		scope.let \destroy
+	return yield scenario yield scope.get \env
+
+$ seqr.bind ->*
 	#yield scenario.freeRiding env
-	yield scenario.gettingStarted env
+	yield runScenario scenario.gettingStarted
 	#yield scenario.runTheLight env
 	#yield scenario.runTheLight env

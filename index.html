@@ -75,6 +75,16 @@
 				margin: auto;
 			}
 
+			.notifications {
+				display: flex;
+				flex-direction: column-reverse;
+				position: absolute;
+				width: 10cm;
+				left: 5%;
+				top: 10%;
+				bottom: 10%;
+			}
+
 			.overlay-screen {
 				position: absolute;
 				top: 0;
@@ -93,11 +103,7 @@
 				max-width: 15cm;
 			}
 
-			.helper-overlay {
-				position: absolute;
-				top: 20%;
-				left: 20%;
-				max-width: 10cm;
+			.notification {
 				background-color: rgba(0, 0, 0, 0.5);
 				border: 2px solid rgba(255, 255, 255, 0.5);
 				padding: 20px;

@@ -14,7 +14,8 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export baseScenario = seqr.bind ({controls, audioContext}) ->*
+export baseScenario = seqr.bind (env) ->*
+	{controls, audioContext} = env
 	scene = new Scene
 	yield P.resolve addGround scene
 	sky = yield P.resolve assets.addSky scene
@@ -25,6 +26,14 @@ export baseScenario = seqr.bind ({controls, audioContext}) ->*
 	player.eye.add scene.camera
 	player.physical.position.x = -1.75
 	scene.player = player
+
+	ui.gauge env,
+		name: L "Speed"
+		unit: L "km/h"
+		value: ->
+			speed = scene.player.getSpeed()*3.6
+			Math.round speed
+
 
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()

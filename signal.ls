@@ -1,11 +1,14 @@
-export class Signal
-	->
-		@listeners = []
+export Signal = ({onAdd=->}={}) ->
+	listeners = []
 
-	add: (cb) ->
-		@listeners.push cb
+	signal = (cb) ->
+		return if onAdd(cb) === false
+		listeners.push cb
 
-	dispatch: (...args) ->
-		for listener in @listeners
-			listener ...args
-
+	signal.add = signal
+	signal.dispatch = (...args) !->
+		listeners := [.. for listeners when (.. ...args) !== false]
+	signal.destroy = ->
+		listeners := []
+		signal.dispatch = -> false
+	return signal

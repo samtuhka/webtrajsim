@@ -9,16 +9,25 @@ seqr = require './seqr.ls'
 #
 export waitFor = (f) -> new P (accept) -> f (accept)
 
-configTemplate = (config, data) ->
+configTemplate = (data, config) ->
 	el = $ data
 	api = (name) -> el.find ".#name"
 	api.el = el
-	loader = config.apply api, [el]
-	return [api, loader]
+	api.result = config.apply api, [el]
+	return api
+
+export gauge = ({notifications, uiUpdate}, {name, unit, range, value}) ->
+	result = configTemplate (require './templates/gauge.lo.html!text'), ->
+		@ \name .text name
+		@ \unit .text unit
+	notifications?append result.el
+	uiUpdate ->
+		result \value .text value!
+	return result
 
 #instructionTemplate = template require './templates/instruction.lo.html!text'
 export instructionScreen = seqr.bind ({container, controls}, cb) ->*
-	[api, loader] = configTemplate cb, require './templates/instruction.lo.html!text'
+	api = configTemplate (require './templates/instruction.lo.html!text'), cb
 	el = api.el
 	background = $('<div class="overlay-screen">')
 	background.append el
@@ -41,12 +50,11 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
 
-export taskDialog = Co ({container}, cb) ->*
-	[api, loader] = configTemplate cb, require './templates/helper.lo.html!text'
-	el = api.el
+export taskDialog = Co ({notifications}, cb) ->*
+	{el, result} = api = configTemplate (require './templates/helper.lo.html!text'), cb
 	el.hide()
-	container.append el
+	notifications?append el
 	yield waitFor el~fadeIn
-	yield P.resolve loader
+	yield P.resolve result
 	yield waitFor el~fadeOut
 	el.remove()

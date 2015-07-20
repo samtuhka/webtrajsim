@@ -15,12 +15,17 @@ seqr = (stepr) -> (...args) ->
 	thunk = (name) ->
 		thunks[name] ? thunks[name] = defer()
 
+	finalizer = defer()
 	ch =
 		get: (name) -> thunk name .promise
 		let: (name, value) -> thunk name .resolve value
 
-	task = (coroutine stepr) ch, ...args
+	fch = ch with
+		finally: (...args) -> finalizer.promise.finally ...args
+
+	task = (coroutine stepr) fch, ...args
 	task.finally ->
+		finalizer.resolve()
 		for name, thunk of thunks
 			if thunk.promise.isPending()
 				thunk.reject "No value for '#name'"
