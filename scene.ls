@@ -66,17 +66,6 @@ export class Scene
 			visual.position.copy physical.position
 			visual.quaternion.copy physical.quaternion
 
-	until: (f) ~> new P (accept, reject) ~>
-		@onExit accept
-		@onTickHandled (...args) ->
-			if f ...args
-				accept()
-				return false
-
-	onTickHandled: new Signal
-
-
-
 generateRock = (seed=Math.random()) ->
 	perlin.seed seed
 	radius = 1
