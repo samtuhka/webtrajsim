@@ -56,27 +56,8 @@ SceneRunner = seqr.bind (scene, env) ->*
 	el.remove()
 	return scene
 
-Env = -> new ->
-	onDestroy = Signal()
-	isDestroyed = false
-	@Signal = (...args) ->
-		signal = new Signal ...args
-		onDestroy ->
-			signal.destroy()
-		return signal
-
-	@callback = (f) -> (...args) ->
-		if isDestroyed
-			return false
-		return f ...args
-
-	@destroy = ->
-		onDestroy.dispatch()
-		onDestroy.destroy()
-		isDestroyed = true
-
 withEnv = seqr.bind ->*
-	env = Env!
+	env = {}
 	opts = {}
 	opts <<< deparam window.location.search.substring 1
 
@@ -84,7 +65,7 @@ withEnv = seqr.bind ->*
 	@finally ->
 		$('#drivesim').empty()
 
-	onSize = env.Signal onAdd: (cb) ->
+	onSize = Signal onAdd: (cb) ->
 		cb container.width(), container.height()
 	$(window).resize ->
 		onSize.dispatch container.width(), container.height()
@@ -100,12 +81,12 @@ withEnv = seqr.bind ->*
 	else
 		env.controls = new KeyboardController
 
-	env.uiUpdate = env.Signal!
-	setInterval env.uiUpdate.dispatch, 1/60*1000
+	env.uiUpdate = Signal()
+	id = setInterval env.uiUpdate.dispatch, 1/60*1000
+	@finally -> clearInterval id
 	env.SceneRunner = (scene) -> SceneRunner scene, env
 	@let \env, env
 	yield @get \destroy
-	env.destroy()
 
 runScenario = seqr.bind (scenario) ->*
 	scope = withEnv()
