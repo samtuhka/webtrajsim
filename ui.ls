@@ -23,10 +23,9 @@ export gauge = ({notifications, uiUpdate}, {name, unit='', range, value}) ->
 		@ \name .text name
 		@ \unit .text unit
 	notifications?append result.el
+	valel = result \value
 	uiUpdate ->
-		result \value
-		.empty()
-		.append value!
+		valel.text value!
 	result <<<
 		normal: ->
 			result.el.css "background-color": ""
