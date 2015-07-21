@@ -9,8 +9,10 @@ seqr = require './seqr.ls'
 #
 export waitFor = (f) -> new P (accept) -> f (accept)
 
-configTemplate = (data, config) ->
+configTemplate = (data, config, parent) ->
 	el = $ data
+	if parent?
+		parent.append el
 	api = (name) -> el.find ".#name"
 	api.el = el
 	api.result = config.apply api, [el]
@@ -33,21 +35,17 @@ export gauge = ({notifications, uiUpdate}, {name, unit='', range, value}) ->
 
 	return result
 
-#instructionTemplate = template require './templates/instruction.lo.html!text'
 export instructionScreen = seqr.bind ({container, controls}, cb) ->*
-	api = configTemplate (require './templates/instruction.lo.html!text'), cb
-	el = api.el
 	background = $('<div class="overlay-screen">')
-	background.append el
 	container.append background
-	background.hide()
+	api = configTemplate (require './templates/instruction.lo.html!text'), cb, background
 
 	btn = api \accept-button
 	btn.prop "disabled", true
 	api \accept .hide()
 
 	yield waitFor background~fadeIn
-	yield @get 'ready'
+	yield P.resolve api.result
 
 	btn.prop "disabled", false
 	btn.focus()
@@ -55,6 +53,26 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	api \accept .show()
 
 	yield new P (accept) -> btn.one "click", accept
+	yield new P (accept) -> background.fadeOut accept
+	background.remove()
+
+export inputDialog = seqr.bind ({container, controls}, cb) ->*
+	api = configTemplate (require './templates/inputDialog.html!text'), cb
+	el = api.el
+	form = el.find "form"
+	form.submit (e) ->
+		e.preventDefault()
+	background = $('<div class="overlay-screen">')
+	background.append el
+	container.append background
+	background.hide()
+
+	btn = api \accept-button
+	yield waitFor background~fadeIn
+
+	yield new P (a) ->
+		btn.one "click", a
+		form.one "submit", a
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
 
