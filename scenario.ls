@@ -329,7 +329,7 @@ export followInTraffic = seqr.bind (env) ->*
 	yield startLight.switchToGreen()
 
 	P.delay 1000*60*1
-	.then ->
+	.then ~>
 		@let \done, passed: true, outro:
 			title: L "Passed!"
 			content: L """
