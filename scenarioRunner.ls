@@ -24,6 +24,7 @@ eachFrame = (f) -> new P (accept, reject) ->
 			requestAnimationFrame tick
 	tick()
 
+audioContext = new AudioContext
 export newEnv = seqr.bind ->*
 	env = {}
 	opts = {}
@@ -38,7 +39,7 @@ export newEnv = seqr.bind ->*
 
 	env <<<
 		container: container
-		audioContext: new AudioContext
+		audioContext: audioContext
 		onSize: onSize
 		opts: opts
 
