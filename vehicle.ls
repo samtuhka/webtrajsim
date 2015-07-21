@@ -19,8 +19,6 @@ class DummyControls
 
 	set: ->
 
-
-
 loadCorolla = Co ->*
 	vehicle = yield loadCollada 'res/corolla/body.dae'
 	scene = vehicle.scene
@@ -205,6 +203,9 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 	car.addToWorld scene.physics
 	bodyPhys.position.y = 2
 
+	onCollision = Signal!
+	bodyPhys.addEventListener "collide", onCollision.dispatch
+
 	getSpeed: ->
 		car.currentVehicleSpeedKmHour/3.6
 	eye: eye
@@ -212,5 +213,5 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 	body: body
 	forceModelSync: -> syncModels.dispatch()
 	controls: controls
-
+	onCollision: onCollision
 

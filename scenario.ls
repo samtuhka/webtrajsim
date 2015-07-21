@@ -36,7 +36,6 @@ export baseScenario = seqr.bind (env) ->*
 			speed = scene.player.getSpeed()*3.6
 			Math.round speed
 
-
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()
 	gainNode.connect audioContext.destination
@@ -52,14 +51,14 @@ export baseScenario = seqr.bind (env) ->*
 	scene.onStart.add engineSounds.start
 	scene.onExit.add engineSounds.stop
 
-	# Tick a couple of frames for the physics to settle
-	scene.tick 1/60
-	n = 100
-	t = Date.now()
-	for [0 to n]
+	scene.preroll = ->
+		# Tick a couple of frames for the physics to settle
 		scene.tick 1/60
-	console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
-
+		n = 100
+		t = Date.now()
+		for [0 to n]
+			scene.tick 1/60
+		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	return scene
 
 export freeRiding = seqr.bind (env) ->*
@@ -73,15 +72,15 @@ export basePedalScenario = (env) ->
 	return baseScenario env
 
 export gettingStarted = seqr.bind (env) ->*
+	name = L "Warm up"
 	intro = ui.instructionScreen env, ->
-		@ \title .text L "Warm up"
+		@ \title .text name
 		@ \content .text L """
 			Let's get started. In this task you should drive as fast
 			as possible, yet honoring the speed limits.
 			"""
 
 	scene = yield basePedalScenario env
-	@finally -> scene.onExit.dispatch()
 	limits = [
 		[-Infinity, 50]
 		[20, 50]
@@ -109,12 +108,12 @@ export gettingStarted = seqr.bind (env) ->*
 		unit: L "km/h"
 		value: currentLimit
 
-	timeOverSpeedLimit = 0
+	illGains = 0
 	scene.afterPhysics (dt) ->
 		limit = currentLimit!
-		speed = scene.player.getSpeed()*3.6
+		speed = Math.abs scene.player.getSpeed()*3.6
 		if speed > limit
-			timeOverSpeedLimit += dt
+			illGains += (speed - limit)*dt
 			limitSign.warning()
 		else
 			limitSign.normal()
@@ -129,6 +128,17 @@ export gettingStarted = seqr.bind (env) ->*
 	endLight.position.z = goalDistance + 10
 	endLight.addTo scene
 
+	scene.player.onCollision (e) ~>
+		screen = ui.instructionScreen env, ->
+			@ \title .text L "Oops!"
+			@ \content .text L """
+			You ran the red light! Let's try that again.
+			"""
+		screen.let \ready
+		@let \done,
+			screen: screen
+			repeat: true
+		return false
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -140,18 +150,27 @@ export gettingStarted = seqr.bind (env) ->*
 	yield intro
 
 	scenario.let \run
-	yield P.delay 1000
-	yield startLight.switchToGreen()
+	P.delay 1000
+	.then ->
+		startLight.switchToGreen()
 
 	scene.onTickHandled ~>
-		return if scene.player.getSpeed() > 0.1
+		return if Math.abs(scene.player.getSpeed()) > 0.1
 		return if scene.player.physical.position.z < goalDistance
-		@let \done
+		screen = ui.instructionScreen env, ->
+			@ \title .text L "Passed!"
+			@ \content .text L """
+			Yeeee!! (TODO)
+			"""
+		screen.let \ready
+
+		@let \done, [screen]
 		return false
 
-	result = yield @get \done
-	yield P.delay 1000
-	return scene
+	{screen, repeat} = yield @get \done
+	scenario.let \quit
+	yield screen
+	return repeat
 
 export runTheLight = Co (env) ->*
 	loader = env.SceneRunner basePedalScenario

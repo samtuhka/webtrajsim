@@ -1,4 +1,5 @@
 THREE = require 'three'
+Cannon = require 'cannon'
 $ = require 'jquery'
 
 P = require 'bluebird'
@@ -118,6 +119,15 @@ export TrafficLight = seqr.bind ->*
 		yellow: model.getObjectByName 'Yellow'
 		green: model.getObjectByName 'Green'
 
+	watcherWidth = 5
+	watcherHeight = 10
+	halfExtent = new Cannon.Vec3 5/2, 10/2, 0.1
+	watcherShape = new Cannon.Box halfExtent
+	watcher = new Cannon.Body mass: 0, type: Cannon.Body.STATIC
+		..addShape watcherShape, halfExtent
+		..objectClass = "traffic-light"
+		..collisionResponse = false
+
 	for let name, light of lights
 		materials = light.children[0].material.materials
 		materials = for material in materials
@@ -139,7 +149,8 @@ export TrafficLight = seqr.bind ->*
 				hsl = material.color.getHSL()
 				material.emissive.setHSL hsl.h, 0.0, 0.0
 			light.isOn = false
-
+	
+	onGreen = Signal!
 	lights.red.on()
 	#lights.yellow.on()
 	#lights.green.on()
@@ -158,12 +169,15 @@ export TrafficLight = seqr.bind ->*
 		lights.red.off()
 		lights.yellow.off()
 		lights.green.on()
-
-
+		onGreen.dispatch()
 	visual: model
-	position: model.position
+	position: watcher.position
 	addTo: (scene) ->
 		scene.visual.add model
+		scene.physics.add watcher
+		scene.bindPhys watcher, model
+		onGreen ->
+			scene.physics.removeBody watcher
 
 SunCalc = require 'suncalc'
 export addSky = (scene, {location=[60, 0], date}={}) ->

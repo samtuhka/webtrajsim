@@ -9,6 +9,10 @@ seqr = require './seqr.ls'
 scenario = require './scenario.ls'
 ui = require './ui.ls'
 
+window.THREE = THREE
+window.CANNON = require 'cannon'
+require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
+
 eachFrame = (f) -> new P (accept, reject) ->
 	clock = new THREE.Clock
 	tick = ->
@@ -28,6 +32,10 @@ SceneRunner = seqr.bind (scene, env) ->*
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
 
+	#physDebug = new THREE.CannonDebugRenderer scene.visual, scene.physics
+	#scene.beforeRender.add ->
+	#	physDebug.update()
+
 	render = ->
 		renderer.render scene.visual, scene.camera
 	scene.onRender.add render
@@ -39,8 +47,9 @@ SceneRunner = seqr.bind (scene, env) ->*
 		render()
 
 	el = $ renderer.domElement
+	el.hide()
 	env.container.append el
-	render()
+	yield P.resolve scene.preroll()
 	yield ui.waitFor el~fadeIn
 	@let \ready
 	yield @get \run
@@ -61,9 +70,7 @@ withEnv = seqr.bind ->*
 	opts = {}
 	opts <<< deparam window.location.search.substring 1
 
-	container = $('#drivesim').empty()
-	@finally ->
-		$('#drivesim').empty()
+	container = $('#drivesim').empty().fadeIn()
 
 	onSize = Signal onAdd: (cb) ->
 		cb container.width(), container.height()
@@ -87,15 +94,21 @@ withEnv = seqr.bind ->*
 	env.SceneRunner = (scene) -> SceneRunner scene, env
 	@let \env, env
 	yield @get \destroy
+	yield ui.waitFor container.fadeOut
+	container.empty()
 
 runScenario = seqr.bind (scenario) ->*
 	scope = withEnv()
 	@finally ->
 		scope.let \destroy
-	return yield scenario yield scope.get \env
+	task = scenario yield scope.get \env
+	yield task.get \done
+	yield task
 
 $ seqr.bind ->*
 	#yield scenario.freeRiding env
-	yield runScenario scenario.gettingStarted
+	while true
+		if not yield runScenario scenario.gettingStarted
+			break
 	#yield scenario.runTheLight env
 	#yield scenario.runTheLight env
