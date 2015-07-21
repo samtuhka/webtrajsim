@@ -165,7 +165,6 @@ export throttleAndBrake = seqr.bind (env) ->*
 	return yield @get \done
 
 export speedControl = seqr.bind (env) ->*
-	name = L "Speed control"
 	@let \intro,
 		title: L "Speed control"
 		content: L """
@@ -253,6 +252,89 @@ export speedControl = seqr.bind (env) ->*
 				"""
 		return false
 
+	return yield @get \done
+
+{IdmVehicle, LoopMicrosim, LoopPlotter} = require './microsim.ls'
+
+class MicrosimWrapper
+	(@phys) ->
+	position:~->
+		@phys.position.z
+	velocity:~->
+		@phys.velocity.z
+
+	acceleration:~-> null
+
+	step: ->
+
+export followInTraffic = seqr.bind (env) ->*
+	@let \intro,
+		title: L "Fuel economy in traffic"
+		content: $ L """
+			<p>Drive in the traffic trying to get as much mileage as you
+			can. Best strategy is to have minimum distance to the leading
+			vehicle, but avoiding abrupt breakings and accelerations.
+
+			<p>There are no speed limits in this task.
+			"""
+
+	scene = yield basePedalScene env
+
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = -4
+	startLight.position.z = 6
+	startLight.addTo scene
+
+	scene.player.onCollision (e) ~>
+		reason = L "You crashed!"
+		console.log e
+		if e.body.objectClass == "traffic-light"
+			reason = L "You ran the red light!"
+		@let \done, passed: false, outro:
+			title: L "Oops!"
+			content: reason
+		return false
+
+	nVehicles = 20
+	spacePerVehicle = 20
+	traffic = new LoopMicrosim nVehicles*spacePerVehicle
+	for i in [1 til nVehicles]
+		v = new IdmVehicle do
+			a: 4.0
+			b: 10.0
+			timeHeadway: 1.0
+		v.position = i*spacePerVehicle
+		traffic.addVehicle v
+	scene.beforePhysics.add traffic~step
+	scene.traffic = traffic
+
+	playerSim = new MicrosimWrapper scene.player.physical
+	traffic.addVehicle playerSim
+
+	leader = yield addVehicle scene
+	leader.physical.position.z = playerSim.leader.position
+	leader.physical.position.x = -1.75
+	scene.beforeRender.add (dt) ->
+		leader.forceModelSync()
+		leader.physical.position.z = playerSim.leader.position
+		leader.forceModelSync()
+
+	# Wait for the traffic to queue up
+	while not traffic.isInStandstill()
+		traffic.step 1/60
+
+	@let \scene, scene
+	yield @get \run
+	yield P.delay 1000
+	yield startLight.switchToGreen()
+
+	P.delay 1000*60*1
+	.then ->
+		@let \done, passed: true, outro:
+			title: L "Passed!"
+			content: L """
+				TODO
+				"""
 	return yield @get \done
 
 export participantInformation = seqr.bind (env) ->*
