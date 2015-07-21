@@ -149,7 +149,7 @@ export TrafficLight = seqr.bind ->*
 				hsl = material.color.getHSL()
 				material.emissive.setHSL hsl.h, 0.0, 0.0
 			light.isOn = false
-	
+
 	onGreen = Signal!
 	lights.red.on()
 	#lights.yellow.on()

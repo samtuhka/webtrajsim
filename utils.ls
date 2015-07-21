@@ -26,7 +26,9 @@ export mergeObject = (root) ->
 		# Don't merge transparent objects, 'cause rasterization
 		# sucks
 		if object?material?transparent
-			merged.add object.clone()
+			clone = object.clone()
+			clone.applyMatrix matrix
+			merged.add clone
 			return
 		matrix = matrix.clone().multiply object.matrix
 		if object.geometry?
