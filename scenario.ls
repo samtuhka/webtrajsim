@@ -233,6 +233,7 @@ export speedControl = seqr.bind (env) ->*
 	scene.visual.add finishSign
 
 	@let \scene, scene
+	yield @get \run
 
 	yield P.delay 1000
 	yield startLight.switchToGreen()
