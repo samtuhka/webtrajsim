@@ -10,6 +10,7 @@ export loadCollada = (path) -> new P (resolve, reject) ->
 	loader.load path, resolve
 
 export mergeObject = (root) ->
+	# TODO: Merge stuff using MeshFaceMaterials
 	submeshes = new Map
 	merged = new THREE.Object3D()
 
@@ -21,11 +22,19 @@ export mergeObject = (root) ->
 		submeshes.set key, submesh
 		return submesh
 
+	isTransparent = (o) ->
+		return false if not o.material
+		return true if o.material.transparent
+		return false if not o.material.materials
+		for material in o.material.materials
+			return true if material.transparent
+		return false
+
 	merge = (object, matrix=(new THREE.Matrix4)) ->
 		object.updateMatrix()
 		# Don't merge transparent objects, 'cause rasterization
 		# sucks
-		if object?material?transparent
+		if isTransparent object
 			clone = object.clone()
 			clone.applyMatrix matrix
 			merged.add clone
