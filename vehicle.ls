@@ -100,7 +100,6 @@ loadViva = Co ->*
 	eye.rotation.y = Math.PI
 
 	body.add eye
-	body.visible = false
 	wheels = scene.getObjectByName "Wheels"
 	#applyPosition wheels
 	for let wheel in wheels.children
