@@ -80,6 +80,9 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 	renderer.autoClear = false
 	scene.beforeRender.add -> renderer.clear()
 
+	if env.opts.enableVr
+		enableVr env, renderer, scene
+
 	#physDebug = new THREE.CannonDebugRenderer scene.visual, scene.physics
 	#scene.beforeRender.add ->
 	#	physDebug.update()
@@ -125,3 +128,24 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 			me.let \done, passed: passed, outro: @
 	scope.let \destroy
 	yield scope
+
+
+require './three.js/examples/js/controls/VRControls.js'
+#require 'script!webvr-boilerplate/js/deps/VREffect.js'
+require './three.js/examples/js/effects/VREffect.js'
+#require './node_modules/webvr-boilerplate/js/deps/webvr-polyfill.js'
+require 'webvr-polyfill'
+WebVRManager = require './node_modules/webvr-boilerplate/src/webvr-manager.js'
+{keypress} = require 'keypress'
+
+enableVr = (env, renderer, scene) ->
+	vrcontrols = new THREE.VRControls scene.camera
+	effect = new THREE.VREffect renderer
+	env.onSize (w, h) ->
+		effect.setSize w, h
+	manager = new WebVRManager renderer, effect
+	#new keypress.Listener().simple_combo 'f', ->
+	#	manager.toggleVRMode()
+	scene.beforeRender.add ->
+		vrcontrols.update()
+
