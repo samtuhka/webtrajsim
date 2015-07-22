@@ -95,11 +95,12 @@ loadViva = Co ->*
 	body = mergeObject body
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
-	eye.position.z = 0.05
+	eye.position.z = 0.1
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
 
 	body.add eye
+	body.visible = false
 	wheels = scene.getObjectByName "Wheels"
 	#applyPosition wheels
 	for let wheel in wheels.children
@@ -196,6 +197,7 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 		body.position.copy bodyPhys.position
 		body.position.y -= cogY
 		body.quaternion.copy bodyPhys.quaternion
+		body.updateMatrixWorld()
 
 	scene.afterPhysics.add ->
 		syncModels.dispatch()
