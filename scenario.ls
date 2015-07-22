@@ -285,6 +285,12 @@ export followInTraffic = seqr.bind (env) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
+	goalDistance = 2000
+	finishSign = yield assets.FinishSign!
+	finishSign.position.z = goalDistance
+	scene.visual.add finishSign
+
+
 	scene.player.onCollision (e) ~>
 		reason = L "You crashed!"
 		console.log e
@@ -294,6 +300,7 @@ export followInTraffic = seqr.bind (env) ->*
 			title: L "Oops!"
 			content: reason
 		return false
+
 
 	nVehicles = 20
 	spacePerVehicle = 20
@@ -323,18 +330,21 @@ export followInTraffic = seqr.bind (env) ->*
 	while not traffic.isInStandstill()
 		traffic.step 1/60
 
+	scene.onTickHandled ~>
+		return if scene.player.physical.position.z < goalDistance
+		@let \done, passed: true, outro:
+			title: L "Passed!"
+			content: L """
+				You drove the course in #{(scene.time - startTime).toFixed 2} seconds.
+				"""
+
+
 	@let \scene, scene
 	yield @get \run
 	yield P.delay 1000
 	yield startLight.switchToGreen()
+	startTime = scene.time
 
-	P.delay 1000*60*1
-	.then ~>
-		@let \done, passed: true, outro:
-			title: L "Passed!"
-			content: L """
-				TODO
-				"""
 	return yield @get \done
 
 export participantInformation = seqr.bind (env) ->*

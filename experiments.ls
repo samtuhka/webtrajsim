@@ -42,6 +42,21 @@ export mulsimco2015 = seqr.bind ->*
 		if not doRetry
 			break
 
+	passesWanted = 2
+	maxRetries = 5
+
+	for retry from 1 til Infinity
+		task = runScenario scenario.followInTraffic
+		result = yield task.get \done
+		passes += result.passed
+
+		doRetry = not (passes >= passesWanted and retry < maxRetries)
+		if doRetry
+			result.outro \content .append $ L "<p>Let's try that again.</p>"
+		yield task
+		if not doRetry
+			break
+
 export defaultExperiment = mulsimco2015
 
 export freeDriving = seqr.bind ->*
