@@ -30,7 +30,7 @@ audioContext = new AudioContext
 _logger = void
 getLogger = seqr.bind ->*
 	if _logger?
-		return accept _logger
+		return _logger
 
 	startTime = (new Date).toISOString()
 	sessions = yield Sessions("wtsSessions")
@@ -96,6 +96,7 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 	intro = P.resolve undefined
 	me = @
 	scenario.get \intro .then (introContent) ->
+		env.logger.write scenarioIntro: introContent
 		intro := ui.instructionScreen env, ->
 			@ \title .append introContent.title
 			@ \subtitle .append introContent.subtitle

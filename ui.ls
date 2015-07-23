@@ -55,7 +55,7 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
 
-export inputDialog = seqr.bind ({container, controls}, cb) ->*
+export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 	api = configTemplate (require './templates/inputDialog.html!text'), cb
 	el = api.el
 	form = el.find "form"
@@ -68,7 +68,8 @@ export inputDialog = seqr.bind ({container, controls}, cb) ->*
 
 	btn = api \accept-button
 	yield waitFor background~fadeIn
-
+	form.on "submit" ->
+		logger.write dialogInput: form.serialize()
 	yield new P (a) ->
 		btn.one "click", a
 		form.one "submit", a
