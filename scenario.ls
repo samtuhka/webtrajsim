@@ -7,6 +7,7 @@ seqr = require './seqr.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
 {DefaultEngineSound} = require './sounds.ls'
+{circleScene} = require './circleScene.ls'
 assets = require './assets.ls'
 
 ui = require './ui.ls'
@@ -98,6 +99,19 @@ export minimalScenario = seqr.bind (env) ->*
 exportScenario \freeDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
+
+	# The scene would be customized here
+
+	# "Return" the scene to the caller, so they know
+	# we are ready
+	@let \scene, scene
+
+	# Run until somebody says "done".
+	yield @get \done
+
+export circleDriving = seqr.bind (env) ->*
+	radius = 100
+	scene = yield circleScene env, radius
 
 	# The scene would be customized here
 
