@@ -6,7 +6,8 @@ trap 'kill -HUP 0' EXIT
 #BROWSER="primusrun ./firefox/firefox/firefox"
 BROWSER="./firefox/full-build-linux/chrome --disable-setuid-sandbox --disable-gpu-sandbox --user-data-dir=chromium-data --allow-file-access-from-files"
 
-SHOST=localhost
+#SHOST=localhost
+SHOST=0.0.0.0
 SPORT=8000
 WHOST=localhost
 WPORT=10101

@@ -25,6 +25,33 @@ eachFrame = (f) -> new P (accept, reject) ->
 	tick()
 
 audioContext = new AudioContext
+
+{Sessions} = require './datalogger.ls'
+_logger = void
+getLogger = seqr.bind ->*
+	if _logger?
+		return accept _logger
+
+	startTime = (new Date).toISOString()
+	sessions = yield Sessions("wtsSessions")
+	_logger := yield sessions.create date: startTime
+	return _logger
+
+dumpPhysics = (world) ->
+	ret = world{time}
+
+	ret.bodies = for body in world.bodies
+		id: body.id
+		index: body.index
+		position: body.position{x, y, z}
+		quaternion: body.quaternion{x, y, z, w}
+		velocity: body.velocity{x, y, z}
+		angularVelocity: body.angularVelocity{x, y, z}
+		objectClass: body.objectClass
+		objectName: body.objectName
+
+	return ret
+
 export newEnv = seqr.bind ->*
 	env = {}
 	opts = {}
@@ -42,6 +69,8 @@ export newEnv = seqr.bind ->*
 		audioContext: audioContext
 		onSize: onSize
 		opts: opts
+
+	env.logger = yield getLogger!
 
 	if opts.controller?
 		env.controls = yield WsController.Connect opts.controller
@@ -62,6 +91,7 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	scenario = scenarioLoader env
+
 
 	intro = P.resolve undefined
 	me = @
@@ -91,6 +121,16 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 
 
 	scene.onRender.add render
+
+	scene.onTickHandled ->
+		dump =
+			sceneTime: scene.time
+			physics: dumpPhysics scene.physics
+			camera:
+				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
+				projectionMatrix: scene.camera.projectionMatrix.toArray()
+			telemetry: env.controls{throttle, brake, steering, direction}
+		env.logger.write dump
 
 	env.onSize (w, h) ->
 		renderer.setSize w, h
