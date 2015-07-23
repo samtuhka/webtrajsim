@@ -42,8 +42,8 @@ export mulsimco2015 = seqr.bind ->*
 		if not doRetry
 			break
 
-	passesWanted = 2
-	maxRetries = 5
+	passesWanted = 5
+	maxRetries = 10
 
 	for retry from 1 til Infinity
 		task = runScenario scenario.followInTraffic
