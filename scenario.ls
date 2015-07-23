@@ -5,7 +5,7 @@ seqr = require './seqr.ls'
 
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
-{NonSteeringControl} = require './controls.ls'
+{NonSteeringControl, NonThrottleControl} = require './controls.ls'
 {DefaultEngineSound} = require './sounds.ls'
 {circleScene} = require './circleScene.ls'
 assets = require './assets.ls'
@@ -110,16 +110,22 @@ exportScenario \freeDriving, (env) ->*
 	yield @get \done
 
 export circleDriving = seqr.bind (env) ->*
-	radius = 100
+	radius = 400
+	env = env with
+		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, radius
 
-	# The scene would be customized here
-
-	# "Return" the scene to the caller, so they know
-	# we are ready
 	@let \scene, scene
 
-	# Run until somebody says "done".
+	scene.onTickHandled ~>
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
+			@let \done, passed: true, outro:
+				title: L "You failed"
+				content: L "Try to stay on the road"
+			return false
+
 	yield @get \done
 
 export basePedalScene = (env) ->

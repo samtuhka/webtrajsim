@@ -222,7 +222,7 @@ export addCircleGround = (scene, radius) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 10
+	roadWidth = 7
 	roadLenght = 20
 	rectShape = new THREE.Shape()
 	rectShape.moveTo(0, 0)
@@ -245,7 +245,7 @@ export addCircleGround = (scene, radius) ->
 		return finalCurve
 
 	curve = generateCircle(radius)
-	extrudeSettings = {curveSegments: 1000, steps: 1000, bevelEnabled: false, extrudePath: curve}
+	extrudeSettings = {curveSegments: 2000, steps: 2000, bevelEnabled: false, extrudePath: curve}
 	roadGeo = new THREE.ExtrudeGeometry rectShape, extrudeSettings
 	console.log(roadGeo)
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture.jpg'
@@ -264,11 +264,10 @@ export addCircleGround = (scene, radius) ->
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
+	v1 = roadGeo.vertices[faces[10].a]
+	v2 = roadGeo.vertices[faces[11].c]
+	x = Math.abs(v2.x - v1.x) / (roadWidth*2)
 	for i in [0 til roadGeo.faces.length/2 ]
-		v1 = roadGeo.vertices[faces[i*2].a]
-		v2 = roadGeo.vertices[faces[i*2+1].c]
-		x = Math.abs(v2.x - v1.x) / 20
-		x = 0.05
 		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
 		roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])
 		roadGeo.faceVertexUvs[0].push([t[1], t[2], t[3]])
@@ -290,13 +289,12 @@ export addCircleGround = (scene, radius) ->
 	nRocks = Math.round(terrainSize*(2*200)/500)
 	sizeDist = jStat.uniform(0.1, 0.6)
 	zDist = jStat.uniform(-terrainSize/2, terrainSize/2)
-	xDist = jStat.uniform(-200, 200)
+	xDist = jStat.uniform(-500, 500)
 	for i from 0 til nRocks
 		x = xDist.sample()
 		size = sizeDist.sample()
 		z = zDist.sample()
-		outer = radius + 10
-		if (x ^ 2  + z ^ 2) < (radius + 1.25*roadWidth) ^ 2 && (x ^ 2  + z ^ 2) > (radius) ^ 2
+		if (x ^ 2  + z ^ 2) < (radius + 1.25*roadWidth) ^ 2 && (x ^ 2  + z ^ 2) > (radius - 1) ^ 2
 			continue
 		rock = randomRock()
 		rock.position.x = x

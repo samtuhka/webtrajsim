@@ -110,6 +110,11 @@ export NonSteeringControl = (orig) ->
 	ctrl.steering = 0
 	return ctrl
 
+export NonThrottleControl = (orig) ->
+	ctrl = ^^orig
+	ctrl.brake = 0
+	ctrl.throttle = 0.5
+	return ctrl
 
 export class TargetSpeedController
 	(@target=0) ->
