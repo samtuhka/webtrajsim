@@ -76,6 +76,8 @@ export newEnv = seqr.bind ->*
 		env.controls = yield WsController.Connect opts.controller
 	else
 		env.controls = new KeyboardController
+	env.controls.change (...args) ->
+		logger.write controlsChange: args
 
 	env.uiUpdate = Signal()
 	id = setInterval env.uiUpdate.dispatch, 1/60*1000
