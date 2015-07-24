@@ -109,24 +109,96 @@ exportScenario \freeDriving, (env) ->*
 	# Run until somebody says "done".
 	yield @get \done
 
+#this is quite stupid
+handleProbes = (scene, i) ->
+	if (scene.time - scene.dT) > 1
+		if scene.probes[i].get(0).innerText == 'B'||scene.probes[i].get(0).innerText == ''
+			seed = Math.floor((Math.random() * 4) + 1)
+			if seed == 1
+				scene.probes[i].text "A"
+				scene.maxScore += 1
+			else if seed == 2
+				scene.probes[i].text "B"
+			else if seed == 3
+				scene.probes[i].text ""
+			else
+				scene.probes[i].text ""
+				scene.probeIndx = Math.floor((Math.random() * 6))
+				seed = Math.floor((Math.random() * 3) + 1)
+				i = scene.probeIndx
+				if seed == 1
+					scene.probes[i].text "A"
+					scene.maxScore += 1
+				else if seed == 2
+					scene.probes[i].text "B"
+				else
+					scene.probes[i].text ""
+		else
+				scene.score -= 1
+				seed = Math.floor((Math.random() * 3) + 1)
+				if seed == 1
+					scene.probes[i].text ""
+				if seed == 2
+					scene.probes[i].text "B"
+				else
+					scene.probes[i].text ""
+					scene.probeIndx = Math.floor((Math.random() * 6))
+					i = scene.probeIndx
+					seed = Math.floor((Math.random() * 3) + 1)
+					if seed == 1
+						scene.probes[i].text "A"
+						scene.maxScore += 1
+					else if seed == 2
+						scene.probes[i].text "B"
+					else
+						scene.probes[i].text ""
+		scene.dT = scene.time
+
 export basecircleDriving = seqr.bind (env) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
 	radius = 100
 	scene = yield circleScene env, radius
+	scene.probes = []
+	pos = [[10,25],[10,45],[50,25],[50,45],[90,25], [90,45]]
+	for i from 0 til 6
+		probe = $('<div>').css "font-size": "100%", position: 'absolute', left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
+		scene.probes.push(probe)
+		$('#drivesim').append(scene.probes[i])
 	return scene
 
 export circleDriving = seqr.bind (env) ->*
 	scene = yield basecircleDriving env
 	radius = scene.radius
 	@let \scene, scene
+	scene.dT = 0
+	scene.maxScore = 0
+	startTime = scene.time
+	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
+		i = 	scene.probeIndx
+		if env.controls.probeReact == true
+			scene.dT = scene.time
+			env.controls.probeReact = false
+			if scene.probes[i].get(0).innerText == 'A'
+				scene.probes[i].text ''
+				scene.score +=1
+			else
+				scene.probes[i].text ''
+				scene.score -= 1
+		handleProbes scene, i
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
-			@let \done, passed: true, outro:
+			@let \done, passed: false, outro:
 				title: L "You failed"
 				content: L "Try to stay on the road"
+			return false
+		time = scene.time - startTime
+		if time > 60*3
+			@let \done, passed: true, outro:
+				title: L "Passed"
+				content: L "You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}"
 			return false
 	yield @get \done
 
@@ -135,13 +207,34 @@ export circleDrivingRev = seqr.bind (env) ->*
 	radius = scene.radius
 	scene.player.physical.position.x = -radius - (7-1.75)
 	@let \scene, scene
+	scene.dT = 0
+	scene.maxScore = 0
+	startTime = scene.time
+	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
+		i = 	scene.probeIndx
+		if env.controls.probeReact == true
+			scene.dT = scene.time
+			env.controls.probeReact = false
+			if scene.probes[i].get(0).innerText == 'A'
+				scene.probes[i].text ''
+				scene.score +=1
+			else
+				scene.probes[i].text ''
+				scene.score -= 1
+		handleProbes scene, i
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
-			@let \done, passed: true, outro:
+			@let \done, passed: false, outro:
 				title: L "You failed"
 				content: L "Try to stay on the road"
+			return false
+		time = scene.time - startTime
+		if time > 60*3
+			@let \done, passed: true, outro:
+				title: L "Passed"
+				content: L "You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}"
 			return false
 	yield @get \done
 

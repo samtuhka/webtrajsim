@@ -271,7 +271,7 @@ export addCircleGround = (scene, radius) ->
 		r += x
 	roadGeo.uvsNeedUpdate = true
 	road = new THREE.Mesh roadGeo, roadMat
-	road.rotation.x = -Math.PI/2
+	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = 0
 	terrain.add road

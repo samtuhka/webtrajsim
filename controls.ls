@@ -13,6 +13,7 @@ export class WsController
 		@brake = 0
 		@steering = 0
 		@direction = 1
+		@probeReact = false
 		@change = new Signal
 		@socket.onmessage = (msg) ~>
 			event = JSON.parse msg.data
@@ -38,7 +39,7 @@ export class KeyboardController
 		@brakeTarget = 0
 		@steeringLeft = 0
 		@steeringRight = 0
-
+		@probeReact = false
 		changeSpeed = 2
 
 		nudge = (dt, name, target) ~>
@@ -71,6 +72,7 @@ export class KeyboardController
 		LEFT = 37
 		RIGHT = 39
 		CTRL = 17
+		ENTER = 13
 
 		$("body")
 		.keydown @_keydown = (e) ~>
@@ -90,6 +92,7 @@ export class KeyboardController
 			| RIGHT => @steeringRight = 0
 			| CTRL => @_update \blinder, false
 			| SPACE => @_update \catch, false
+			| ENTER => @probeReact = true
 
 
 
@@ -113,7 +116,7 @@ export NonSteeringControl = (orig) ->
 export NonThrottleControl = (orig) ->
 	ctrl = ^^orig
 	ctrl.brake = 0
-	ctrl.throttle = 1
+	ctrl.throttle = 0.5
 	return ctrl
 
 export class TargetSpeedController
