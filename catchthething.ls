@@ -50,7 +50,7 @@ export class React
 
 		@meanDelay = 0.5
 
-export React = seqr.bind ({meanDelay=1, probeDuration=1, fadeOutDuration=0.2}={}) ->*
+export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}={}) ->*
 	self = {}
 
 	self.camera = camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
@@ -85,6 +85,9 @@ export React = seqr.bind ({meanDelay=1, probeDuration=1, fadeOutDuration=0.2}={}
 		return false if probe.visible
 		Math.random() > Math.exp(-1/meanDelay * dt)
 
+	randcoord = ->
+		(Math.random() - 0.5)*2*0.8
+
 	self.tick = (dt) ->
 		if probe.active
 			probe.timeLeft -= dt
@@ -107,6 +110,8 @@ export React = seqr.bind ({meanDelay=1, probeDuration=1, fadeOutDuration=0.2}={}
 			probe.scale.set 1.0, 1.0, 1.0
 			probe.visible = true
 			probe.active = true
+			probe.position.x = randcoord!
+			probe.position.y = randcoord!
 			probe.timeLeft = probeDuration
 
 	self.catch = ->
