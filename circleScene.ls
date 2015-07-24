@@ -31,7 +31,7 @@ export circleScene = seqr.bind (env, radius) ->*
 	scene.visual.children[8].visible = false
 	scene.visual.children[7].visible = false
 	scene.visual.children[6].visible = false
-
+	scene.radius = radius
 	scene.player.speedometer = ui.gauge env,
 		name: L "Speed"
 		unit: L "km/h"

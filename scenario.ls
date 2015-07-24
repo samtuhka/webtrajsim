@@ -109,14 +109,17 @@ exportScenario \freeDriving, (env) ->*
 	# Run until somebody says "done".
 	yield @get \done
 
-export circleDriving = seqr.bind (env) ->*
-	radius = 400
+export basecircleDriving = seqr.bind (env) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
+	radius = 100
 	scene = yield circleScene env, radius
+	return scene
 
+export circleDriving = seqr.bind (env) ->*
+	scene = yield basecircleDriving env
+	radius = scene.radius
 	@let \scene, scene
-
 	scene.onTickHandled ~>
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
@@ -125,7 +128,21 @@ export circleDriving = seqr.bind (env) ->*
 				title: L "You failed"
 				content: L "Try to stay on the road"
 			return false
+	yield @get \done
 
+export circleDrivingRev = seqr.bind (env) ->*
+	scene = yield basecircleDriving env
+	radius = scene.radius
+	scene.player.physical.position.x = -radius - (7-1.75)
+	@let \scene, scene
+	scene.onTickHandled ~>
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
+			@let \done, passed: true, outro:
+				title: L "You failed"
+				content: L "Try to stay on the road"
+			return false
 	yield @get \done
 
 export basePedalScene = (env) ->
