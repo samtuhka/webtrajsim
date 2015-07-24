@@ -45,10 +45,12 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
         mapping[(ecodes.EV_KEY, code)] = dict(name=name, normer=lambda ev: bool(ev.value))
 
     FRONT_RIGHT_KEY = 294 # Not defined in linux/input.h
+    BACK_LEFT_KEY = 293 # Not defined in linux/input.h
     mapAxis(ecodes.ABS_X, "steering", (1, -1))
     mapAxis(ecodes.ABS_Z, "throttle", (1, 0))
     mapAxis(ecodes.ABS_RZ, "brake", (1, 0), (0, 255))
-    mapKey(FRONT_RIGHT_KEY, "blinder")
+    mapKey(FRONT_RIGHT_KEY, "catch")
+    mapKey(BACK_LEFT_KEY, "blinder")
     
     def handlemsg(msg):
             msg = json.loads(msg)
@@ -66,6 +68,7 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     def sendloop():
         for event in dev.read_loop():
             tc = (event.type, event.code)
+            #logging.warning(tc)
             if tc not in mapping: continue
             axis = mapping[tc]
             msg = {}
