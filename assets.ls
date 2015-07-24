@@ -232,3 +232,16 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 		date := new Date newDate.getTime()
 		updatePosition()
 	getDate: -> new Date date.getTime()
+
+export SceneDisplay = seqr.bind ({width=1024, height=1024}={}) ->*
+	rtTexture = new THREE.WebGLRenderTarget width, height,
+		minFilter: THREE.LinearFilter
+		magFilter: THREE.NearestFilter
+		format: THREE.RGBFormat
+
+	geo = new THREE.PlaneGeometry 1, 1
+	mat = new THREE.MeshBasicMaterial color: 0xffffff, map: rtTexture
+	object = new THREE.Mesh geo, mat
+
+	object: object
+	renderTarget: rtTexture

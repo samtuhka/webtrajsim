@@ -77,7 +77,7 @@ export newEnv = seqr.bind ->*
 	else
 		env.controls = new KeyboardController
 	env.controls.change (...args) ->
-		logger.write controlsChange: args
+		env.logger.write controlsChange: args
 
 	env.uiUpdate = Signal()
 	id = setInterval env.uiUpdate.dispatch, 1/60*1000
@@ -107,7 +107,7 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 
 	scene = yield scenario.get \scene
 
-	renderer = new THREE.WebGLRenderer antialias: true
+	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	#renderer.shadowMapEnabled = true
 	#renderer.shadowMapType = THREE.PCFShadowMap
 	renderer.autoClear = false

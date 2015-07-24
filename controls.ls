@@ -64,6 +64,7 @@ export class KeyboardController
 		SPACE = 32
 		LEFT = 37
 		RIGHT = 39
+		CTRL = 17
 
 		$("body")
 		.keydown (e) ~>
@@ -72,14 +73,16 @@ export class KeyboardController
 			| DOWN => @brakeTarget = 1
 			| LEFT => @steeringLeft = 1
 			| RIGHT => @steeringRight = 1
-			| SPACE => @_update \blinder, true
+			| CTRL => @_update \blinder, true
+			| SPACE => @_update \catch, true
 		.keyup (e) ~>
 			switch e.which
 			| UP => @throttleTarget = 0
 			| DOWN => @brakeTarget = 0
 			| LEFT => @steeringLeft = 0
 			| RIGHT => @steeringRight = 0
-			| SPACE => @_update \blinder, false
+			| CTRL => @_update \blinder, false
+			| SPACE => @_update \catch, false
 
 
 

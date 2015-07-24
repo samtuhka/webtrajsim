@@ -77,6 +77,36 @@ export basePedalScene = (env) ->
 		controls: NonSteeringControl env.controls
 	return baseScene env
 
+catchthething = require './catchthething.ls'
+export reactionTest = seqr.bind (env) ->*
+	scene = yield basePedalScene env
+
+	react = yield catchthething.React()
+	screen = yield assets.SceneDisplay()
+
+	screen.object.position.z = -0.3
+	screen.object.scale.set 0.2, 0.2, 0.2
+	screen.object.visible = false
+	#screen.object.position.y = 2
+	#screen.object.rotation.y = Math.PI
+	scene.camera.add screen.object
+
+	env.controls.change (btn, isOn) !->
+		if btn == "catch" and isOn and screen.object.visible
+			react.catch()
+		else if btn == "blinder"
+			screen.object.visible = isOn
+
+	scene.onRender.add (dt) ->
+		react.tick dt
+		env.renderer.render react.scene, react.camera, screen.renderTarget, true
+		#env.renderer.render react.scene, react.camera
+
+	@let \scene, scene
+
+	yield @get \done
+
+
 export runTheLight = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Run the light"
@@ -293,7 +323,6 @@ export followInTraffic = seqr.bind (env) ->*
 
 	scene.player.onCollision (e) ~>
 		reason = L "You crashed!"
-		console.log e
 		if e.body.objectClass == "traffic-light"
 			reason = L "You ran the red light!"
 		@let \done, passed: false, outro:
