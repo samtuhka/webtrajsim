@@ -78,9 +78,7 @@ export basePedalScene = (env) ->
 	return baseScene env
 
 catchthething = require './catchthething.ls'
-export reactionTest = seqr.bind (env) ->*
-	scene = yield basePedalScene env
-
+addReactionTest = seqr.bind (scene, env) ->*
 	react = yield catchthething.React()
 	screen = yield assets.SceneDisplay()
 
@@ -102,10 +100,7 @@ export reactionTest = seqr.bind (env) ->*
 		env.renderer.render react.scene, react.camera, screen.renderTarget, true
 		#env.renderer.render react.scene, react.camera
 
-	@let \scene, scene
-
-	yield @get \done
-
+	return react
 
 export runTheLight = seqr.bind (env) ->*
 	@let \intro,
@@ -309,6 +304,7 @@ export followInTraffic = seqr.bind (env) ->*
 			"""
 
 	scene = yield basePedalScene env
+	addReactionTest scene, env	
 
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4
