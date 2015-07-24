@@ -85,7 +85,7 @@ export reactionTest = seqr.bind (env) ->*
 	screen = yield assets.SceneDisplay()
 
 	screen.object.position.z = -0.3
-	screen.object.scale.set 0.2, 0.2, 0.2
+	screen.object.scale.set 0.12, 0.12, 0.12
 	screen.object.visible = false
 	#screen.object.position.y = 2
 	#screen.object.rotation.y = Math.PI
