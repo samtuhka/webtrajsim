@@ -157,7 +157,7 @@ handleProbes = (scene, i) ->
 export basecircleDriving = seqr.bind (env) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
-	radius = 100
+	radius = 200
 	scene = yield circleScene env, radius
 	scene.probes = []
 	pos = [[10,25],[10,45],[50,25],[50,45],[90,25], [90,45]]
@@ -173,7 +173,8 @@ export circleDriving = seqr.bind (env) ->*
 	scene.playerControls.throttle = 0
 
 	startLight = yield assets.TrafficLight()
-	startLight.position.x = scene.player.physical.position.x - 2.4
+	lightX = (radius ^ 2 - 5 ^ 2)^0.5 - 0.1
+	startLight.position.x = lightX
 	startLight.position.z = 5
 	startLight.addTo scene
 
@@ -219,7 +220,8 @@ export circleDrivingRev = seqr.bind (env) ->*
 	scene.playerControls.throttle = 0
 
 	startLight = yield assets.TrafficLight()
-	startLight.position.x = scene.player.physical.position.x - 1.8
+	lightX = ((radius + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
+	startLight.position.x = -lightX
 	startLight.position.z = 5
 	startLight.addTo scene
 
