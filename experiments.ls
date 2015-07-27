@@ -6,56 +6,34 @@ scenario = require './scenario.ls'
 
 L = (s) -> s
 
+runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
+	currentPasses = 0
+	for retry from 1 til Infinity
+		task = runScenario scenarioLoader
+		result = yield task.get \done
+		currentPasses += result.passed
+
+		doQuit = currentPasses >= passes or retry > maxRetries
+		if not doQuit
+			result.outro \content .append $ L "<p>Let's try that again.</p>"
+		yield task
+		if doQuit
+			break
+
+
+
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
+
 	yield runScenario scenario.runTheLight
 
-	passesWanted = 2
-	maxRetries = 5
+	yield runUntilPassed scenario.throttleAndBrake
+	yield runUntilPassed scenario.speedControl
 
-	passes = 0
-	for retry from 1 til Infinity
-		task = runScenario scenario.throttleAndBrake
-		result = yield task.get \done
-		passes += result.passed
-
-		doRetry = not (passes >= passesWanted and retry < maxRetries)
-		if doRetry
-			result.outro \content .append $ L "<p>Let's try that again.</p>"
-		yield task
-		if not doRetry
-			break
-
-	passes = 0
-	for retry from 1 til Infinity
-		task = runScenario scenario.speedControl
-		result = yield task.get \done
-		passes += result.passed
-
-		doRetry = not (passes >= passesWanted and retry < maxRetries)
-		if doRetry
-			result.outro \content .append $ L "<p>Let's try that again.</p>"
-		yield task
-		if not doRetry
-			break
-
-	passesWanted = 5
-	maxRetries = 10
-
-	for retry from 1 til Infinity
-		task = runScenario scenario.followInTraffic
-		result = yield task.get \done
-		passes += result.passed
-
-		doRetry = not (passes >= passesWanted and retry < maxRetries)
-		if doRetry
-			result.outro \content .append $ L "<p>Let's try that again.</p>"
-		yield task
-		if not doRetry
-			break
+	yield runUntilPassed scenario.followInTraffic, passes: 5, maxRetries: 10
 
 export defaultExperiment = mulsimco2015
 
