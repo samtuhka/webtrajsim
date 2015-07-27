@@ -14,7 +14,12 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export circleScene = seqr.bind (env, radius) ->*
+deparam = require 'jquery-deparam'
+opts = deparam window.location.search.substring 1
+radius = Math.floor(opts.radius)
+if radius === NaN
+		radius = 100
+export circleScene = seqr.bind (env) ->*
 	{controls, audioContext} = env
 	scene = new Scene
 	yield P.resolve addCircleGround scene, radius

@@ -157,8 +157,7 @@ handleProbes = (scene, i) ->
 export basecircleDriving = seqr.bind (env) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
-	radius = 200
-	scene = yield circleScene env, radius
+	scene = yield circleScene env
 	scene.probes = []
 	pos = [[10,25],[10,45],[50,25],[50,45],[90,25], [90,45]]
 	for i from 0 til 6
@@ -168,6 +167,13 @@ export basecircleDriving = seqr.bind (env) ->*
 	return scene
 
 export circleDriving = seqr.bind (env) ->*
+	@let \intro,
+		title: L "Stay on your lane"
+		content: $ L """
+			<p>Here be instructions.</p>
+			<p>Press enter or click the button below to continue.</p>
+			"""
+
 	scene = yield basecircleDriving env
 	radius = scene.radius
 	scene.playerControls.throttle = 0
@@ -188,7 +194,7 @@ export circleDriving = seqr.bind (env) ->*
 	startTime = scene.time
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
-		i = 	scene.probeIndx
+		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
 			env.controls.probeReact = false
@@ -208,17 +214,25 @@ export circleDriving = seqr.bind (env) ->*
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"
-				content: L "You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}"
+				content: L  """
+				<p>You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
+				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
+				 """
 			return false
 		handleProbes scene, i
 	yield @get \done
 
 export circleDrivingRev = seqr.bind (env) ->*
-	scene = yield basecircleDriving env
+	@let \intro,
+		title: L "Stay on your lane"
+		content: $ L """
+			<p>Here be instructions.</p>
+			<p>Press enter or click the button below to continue.</p>
+			"""
+	scene = yield basecircleDriving env, radius
 	radius = scene.radius
 	scene.player.physical.position.x = -radius - (7-1.75)
 	scene.playerControls.throttle = 0
-
 	startLight = yield assets.TrafficLight()
 	lightX = ((radius + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
 	startLight.position.x = -lightX
@@ -235,7 +249,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 	startTime = scene.time
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
-		i = 	scene.probeIndx
+		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
 			env.controls.probeReact = false
@@ -255,7 +269,10 @@ export circleDrivingRev = seqr.bind (env) ->*
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"
-				content: L "You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}"
+				content: L  """
+				<p>You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
+				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
+				 """
 			return false
 		handleProbes scene, i
 	yield @get \done
