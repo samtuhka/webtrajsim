@@ -186,20 +186,19 @@ export circleDriving = seqr.bind (env) ->*
 			else
 				scene.probes[i].text ''
 				scene.score -= 1
-		handleProbes scene, i
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
+		if (x ^ 2  + z ^ 2) > (radius + 3.5 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
 			@let \done, passed: false, outro:
 				title: L "You failed"
-				content: L "Try to stay on the road"
+				content: L "You left your lane."
 			return false
-		time = scene.time - startTime
-		if time > 60*3
+		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"
 				content: L "You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}"
 			return false
+		handleProbes scene, i
 	yield @get \done
 
 export circleDrivingRev = seqr.bind (env) ->*
@@ -222,20 +221,19 @@ export circleDrivingRev = seqr.bind (env) ->*
 			else
 				scene.probes[i].text ''
 				scene.score -= 1
-		handleProbes scene, i
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
+		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius + 3.5) ^ 2
 			@let \done, passed: false, outro:
 				title: L "You failed"
-				content: L "Try to stay on the road"
+				content: L "You left your lane."
 			return false
-		time = scene.time - startTime
-		if time > 60*3
+		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"
 				content: L "You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}"
 			return false
+		handleProbes scene, i
 	yield @get \done
 
 export basePedalScene = (env) ->
