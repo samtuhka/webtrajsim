@@ -95,6 +95,9 @@ addReactionTest = seqr.bind (scene, env) ->*
 		else if btn == "blinder"
 			screen.object.visible = isOn
 
+	react.event (type) ->
+		logger.write reactionGameEvent: type
+
 	scene.onRender.add (dt) ->
 		react.tick dt
 		env.renderer.render react.scene, react.camera, screen.renderTarget, true
@@ -304,7 +307,7 @@ export followInTraffic = seqr.bind (env) ->*
 			"""
 
 	scene = yield basePedalScene env
-	addReactionTest scene, env	
+	addReactionTest scene, env
 
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4

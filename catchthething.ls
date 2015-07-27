@@ -2,6 +2,7 @@ THREE = require "three"
 $ = require 'jquery'
 {jStat} = require 'jstat'
 seqr = require './seqr.ls'
+{Signal} = require './signal.ls'
 
 class TheThing
 	->
@@ -16,43 +17,10 @@ class TheThing
 		step = @velocity.clone().multiplyScalar dt
 		@mesh.position.add step
 
-export class React
-	->
-		@camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
-			..position.z = 5
-
-		@camera.updateProjectionMatrix!
-		@camera.updateMatrixWorld!
-		@camera.matrixWorldInverse.getInverse @camera.matrixWorld
-		@frustum = new THREE.Frustum
-		@frustum.setFromMatrix(
-			new THREE.Matrix4().multiplyMatrices @camera.projectionMatrix, @camera.matrixWorldInverse
-		)
-
-		@scene = new THREE.Scene
-
-		probe = new THREE.Mesh do
-			new THREE.SphereGeometry 0.01, 32, 32
-			new THREE.MeshBasicMaterial color: 0xffffff
-
-		radius = 0.1
-		@target = new THREE.Sphere (new THREE.Vector3 -1+2*radius, 0, 0), radius
-
-		#@objects = []
-
-		targetGeo = new THREE.SphereGeometry @target.radius, 32, 32
-		targetMaterial = new THREE.MeshBasicMaterial do
-			color: 0xffffff
-			wireframe: true
-		targetMesh = new THREE.Mesh targetGeo, targetMaterial
-			..position.copy @target.center
-		@scene.add targetMesh
-
-		@meanDelay = 0.5
-
 export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}={}) ->*
 	self = {}
 
+	self.event = Signal!
 	self.camera = camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 
@@ -93,6 +61,7 @@ export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}=
 			probe.timeLeft -= dt
 			if probe.timeLeft <= 0
 				self.score.missed += 1
+				self.event.dispatch "missed"
 				probe.visible = false
 				probe.active = false
 		else if probe.visible
@@ -106,6 +75,7 @@ export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}=
 				probe.scale.set scale, scale, scale
 
 		if _readyForNew dt
+			self.event.dispatch "show"
 			probe.material.opacity = 1.0
 			probe.scale.set 1.0, 1.0, 1.0
 			probe.visible = true
@@ -116,8 +86,10 @@ export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}=
 
 	self.catch = ->
 		if not probe.active
+			self.event.dispatch "fumbled"
 			self.score.fumbled += 1
 			return
+		self.event.dispatch "caught"
 		self.score.catched += 1
 		probe.active = false
 		probe.fadeLeft = fadeOutDuration
