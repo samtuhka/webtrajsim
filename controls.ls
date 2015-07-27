@@ -23,6 +23,9 @@ export class WsController
 	set: (obj) ->
 		@socket.send JSON.stringify obj
 
+	close: ->
+		@socket.close()
+
 export class KeyboardController
 	->
 		@throttle = 0

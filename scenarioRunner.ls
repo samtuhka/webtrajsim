@@ -73,7 +73,9 @@ export newEnv = seqr.bind ->*
 	env.logger = yield getLogger!
 
 	if opts.controller?
-		env.controls = yield WsController.Connect opts.controller
+		env.controls = controls = yield WsController.Connect opts.controller
+		@finally ->
+			controls.close()
 	else
 		env.controls = new KeyboardController
 	env.controls.change (...args) ->
@@ -98,11 +100,12 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 	intro = P.resolve undefined
 	me = @
 	scenario.get \intro .then (introContent) ->
-		env.logger.write scenarioIntro: introContent
 		intro := ui.instructionScreen env, ->
 			@ \title .append introContent.title
 			@ \subtitle .append introContent.subtitle
 			@ \content .append introContent.content
+			# HACK!
+			env.logger.write scenarioIntro: @el.html()
 			me.get \ready
 
 	scene = yield scenario.get \scene
