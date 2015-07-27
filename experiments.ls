@@ -69,7 +69,6 @@ export singleScenario = seqr.bind ->*
 		yield runScenario scn
 
 
-
 export memkiller = seqr.bind !->*
 	#loader = scenario.minimalScenario
 	loader = scenario.blindFollowInTraffic
