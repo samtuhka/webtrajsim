@@ -96,7 +96,7 @@ addReactionTest = seqr.bind (scene, env) ->*
 			screen.object.visible = isOn
 
 	react.event (type) ->
-		logger.write reactionGameEvent: type
+		env.logger.write reactionGameEvent: type
 
 	scene.onRender.add (dt) ->
 		react.tick dt
