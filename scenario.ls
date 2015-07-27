@@ -170,7 +170,18 @@ export basecircleDriving = seqr.bind (env) ->*
 export circleDriving = seqr.bind (env) ->*
 	scene = yield basecircleDriving env
 	radius = scene.radius
+	scene.playerControls.throttle = 0
+
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = scene.player.physical.position.x - 2.4
+	startLight.position.z = 5
+	startLight.addTo scene
+
 	@let \scene, scene
+	yield @get \run
+	yield P.delay 3000
+	yield startLight.switchToGreen()
+	scene.playerControls.throttle = 0.75
 	scene.dT = 0
 	scene.maxScore = 0
 	startTime = scene.time
@@ -205,7 +216,18 @@ export circleDrivingRev = seqr.bind (env) ->*
 	scene = yield basecircleDriving env
 	radius = scene.radius
 	scene.player.physical.position.x = -radius - (7-1.75)
+	scene.playerControls.throttle = 0
+
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = scene.player.physical.position.x - 1.8
+	startLight.position.z = 5
+	startLight.addTo scene
+
 	@let \scene, scene
+	yield @get \run
+	yield P.delay 3000
+	yield startLight.switchToGreen()
+	scene.playerControls.throttle = 0.75
 	scene.dT = 0
 	scene.maxScore = 0
 	startTime = scene.time
