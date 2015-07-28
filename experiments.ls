@@ -116,3 +116,11 @@ export logkiller = seqr.bind !->*
 	yield scope
 	console.log "Done"
 
+export circleDriving = seqr.bind ->*
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
+	yield runUntilPassed scenario.circleDriving, passes: 1, maxRetries: 1
+	yield runUntilPassed scenario.circleDrivingRev, passes: 1, maxRetries: 1
+
