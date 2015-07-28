@@ -154,10 +154,10 @@ handleProbes = (scene, i) ->
 						scene.probes[i].text ""
 		scene.dT = scene.time
 
-export basecircleDriving = seqr.bind (env) ->*
+export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
-	scene = yield circleScene env
+	scene = yield circleScene env, rx, ry, l
 	scene.probes = []
 	pos = [[10,25],[10,45],[50,25],[50,45],[90,25], [90,45]]
 	for i from 0 til 6
@@ -166,6 +166,43 @@ export basecircleDriving = seqr.bind (env) ->*
 		$('#drivesim').append(scene.probes[i])
 	return scene
 
+deparam = require 'jquery-deparam'
+opts = deparam window.location.search.substring 1
+rx = Math.floor(opts.rx)
+ry = Math.floor(opts.ry)
+length = Math.floor(opts.length)
+if rx === NaN
+		rx = 100
+if ry === NaN
+		ry = rx
+if length === NaN
+		length = 100
+
+onInnerLane = (x, z, rX, rY, rW, l) ->
+	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + (z ^ 2 / (rY ^ 2))) > 1) && z >= 0)
+			return true
+	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + ((z+l) ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + ((z+l) ^ 2 / (rY ^ 2))) > 1) && z <= -l)
+			return true
+	if z <= 0 && z >= -l && x > rX && x < rX + 0.5* rW
+			return true
+	if z <= 0 && z >= -l && x < -rX && x > -rX - 0.5* rW
+			return true
+	else
+		return false
+
+onOuterLane = (x, z, rX, rY, rW, l) ->
+	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) > 1)  && ((x ^ 2 / ((rX+rW) ^ 2)  + (z ^ 2 / ((rY+rW) ^ 2))) <= 1) && z >= 0)
+			return true
+	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + ((z+l) ^ 2 / ((rY + 0.5*rW) ^ 2))) > 1)  && ((x ^ 2 / ((rX+rW) ^ 2)  + ((z+l) ^ 2 / ((rY+rW) ^ 2))) <= 1) && z <= -l)
+			return true
+	if z <= 0 && z >= -l && x > rX + 0.5*rW && x < rX + rW
+			return true
+	if z <= 0 && z >= -l && x < -rX - 0.5*rW && x > -rX - rW
+			return true
+	else
+		return false
+
+
 export circleDriving = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Stay on your lane"
@@ -173,14 +210,11 @@ export circleDriving = seqr.bind (env) ->*
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
-
-	scene = yield basecircleDriving env
+	scene = yield basecircleDriving env, rx, ry, length
 	throttle = scene.playerControls.throttle
-	radius = scene.radius
 	scene.playerControls.throttle = 0
-
 	startLight = yield assets.TrafficLight()
-	lightX = (radius ^ 2 - 5 ^ 2)^0.5 - 0.1
+	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = lightX
 	startLight.position.z = 5
 	startLight.addTo scene
@@ -207,7 +241,8 @@ export circleDriving = seqr.bind (env) ->*
 				scene.score -= 1
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		if (x ^ 2  + z ^ 2) > (radius + 3.5 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius) ^ 2
+		cnt = onInnerLane(x, z, rx, ry, 7, length)
+		if cnt == false
 			@let \done, passed: false, outro:
 				title: L "You failed"
 				content: L "You left your lane."
@@ -230,14 +265,12 @@ export circleDrivingRev = seqr.bind (env) ->*
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
-
-	scene = yield basecircleDriving env, radius
-	radius = scene.radius
-	scene.player.physical.position.x = -radius - (7-1.75)
+	scene = yield basecircleDriving env, rx, ry, length
+	scene.player.physical.position.x = -rx - (7-1.75)
 	throttle = scene.playerControls.throttle
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
-	lightX = ((radius + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
+	lightX = ((rx + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
 	startLight.position.x = -lightX
 	startLight.position.z = 5
 	startLight.addTo scene
@@ -264,7 +297,8 @@ export circleDrivingRev = seqr.bind (env) ->*
 				scene.score -= 1
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		if (x ^ 2  + z ^ 2) > (radius + 7 ) ^ 2 || (x ^ 2  + z ^ 2) < (radius + 3.5) ^ 2
+		cnt = onOuterLane(x, z, rx, ry, 7, length)
+		if cnt == false
 			@let \done, passed: false, outro:
 				title: L "You failed"
 				content: L "You left your lane."

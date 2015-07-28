@@ -14,29 +14,23 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-deparam = require 'jquery-deparam'
-opts = deparam window.location.search.substring 1
-radius = Math.floor(opts.radius)
-if radius === NaN
-		radius = 100
-export circleScene = seqr.bind (env) ->*
+export circleScene = seqr.bind (env, rx, ry, length) ->*
 	{controls, audioContext} = env
 	scene = new Scene
-	yield P.resolve addCircleGround scene, radius
+	yield P.resolve addCircleGround scene, rx, ry, length
 	sky = yield P.resolve assets.addSky scene
 
 	scene.playerControls = controls
 
 	player = yield addVehicle scene, controls
 	player.eye.add scene.camera
-	player.physical.position.x = radius + 1.75
+	player.physical.position.x = rx + 1.75
 	player.body.visible = false
 	scene.player = player
 	scene.visual.children[9].visible = false
 	scene.visual.children[8].visible = false
 	scene.visual.children[7].visible = false
 	scene.visual.children[6].visible = false
-	scene.radius = radius
 	scene.score = 0
 	scene.player.speedometer = ui.gauge env,
 		name: L "Score"
