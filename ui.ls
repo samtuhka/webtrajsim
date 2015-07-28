@@ -51,12 +51,12 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	api \loading .hide()
 	api \accept .show()
 
-	yield new P (accept) ->
-		btn.one "click", accept
-		controls.change (btn, isOn) !->
-			if btn == 'catch' and isOn
-				accept()
-				return false
+	btn.one "click", ~> @let \accept
+	controls.change (btn, isOn) !~>
+		if btn == 'catch' and isOn
+			@let \accept
+			return false
+	yield @get \accept
 
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
