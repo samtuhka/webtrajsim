@@ -15,7 +15,7 @@ require './three.js/examples/js/SkyShader.js'
 # TODO: Find a good fidelity/performance
 # compromise parameters
 export class Scene
-	({@stepDuration=1/240}={}) ->
+	({@minStepDuration=1/60}={}) ->
 		@ <<<
 			beforePhysics: new Signal
 			onPhysics: new Signal
@@ -45,8 +45,9 @@ export class Scene
 		@time = 0
 
 		@onPhysics.add (dt) ~>
-			stepdur = Math.min dt, @stepDuration
-			@physics.step stepdur, dt
+			nSteps = Math.ceil dt/@minStepDuration
+			stepdur = dt/nSteps
+			@physics.step stepdur, dt, nSteps
 
 	tick: (dt) ->
 		@beforePhysics.dispatch dt, @time
