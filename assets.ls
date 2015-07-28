@@ -57,8 +57,8 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
 	return face
 
 export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
-	doc = $ yield $.ajax "./res/signs/speedsign.svg"
-	img = $ doc.get -1 # Damn
+	doc = $ yield $.ajax "./res/signs/speedsign.svg", dataType: 'xml'
+	img = $ doc.find "svg"
 	(img.find '#limit')[0].textContent = limit
 
 	sign = new THREE.Object3D
@@ -79,8 +79,8 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 	return sign
 
 export FinishSign = seqr.bind ({height=3, texSize=[256,256], poleRadius=0.07/2}=opts={}) ->*
-	doc = $ yield $.ajax "./res/signs/finish.svg"
-	img = $ doc.get -1 # Damn
+	doc = $ yield $.ajax "./res/signs/finish.svg", dataType: 'xml'
+	img = $ doc.find "svg"
 
 	face = yield svgToSign img, opts
 	sign = new THREE.Object3D
