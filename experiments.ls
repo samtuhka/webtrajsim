@@ -47,3 +47,37 @@ export singleScenario = seqr.bind ->*
 	scn = scenario[opts.singleScenario]
 	while true
 		yield runScenario scn
+
+/*dummyScenario = seqr.bind (env) !->*
+	#@let \scene,
+	#	beforeRender: Signal!
+	#	onRender: Signal!
+	#	onStart: Signal!
+	#	onExit: Signal!
+	#	onTickHandled: Signal!
+	#	camera: new THREE.PerspectiveCamera!
+	#	visual: new THREE.Scene!
+	#	preroll: ->
+	#	tick: ->
+	@let \scene, yield scenario.minimalScene env
+	yield @get \run
+
+	return passed: true, outro: {}
+
+export memkiller = seqr.bind !->*
+	for i from 1 to 100
+		console.log i
+		runner = runScenario scenario.followInTraffic
+		[scn] = yield runner.get 'ready'
+		console.log "Got scenario"
+		[intro] = yield runner.get 'intro'
+		if intro.let
+			intro.let \accept
+		scn.let 'done', passed: false, outro: title: "Yay"
+		runner.let 'done'
+		[outro] = yield runner.get 'outro'
+		outro.let \accept
+		console.log "Running"
+		yield runner
+		console.log "Done"
+	return i*/
