@@ -52,7 +52,7 @@ dumpPhysics = (world) ->
 
 	return ret
 
-export newEnv = seqr.bind ->*
+export newEnv = seqr.bind !->*
 	env = {}
 	opts = {}
 	opts <<< deparam window.location.search.substring 1
@@ -61,8 +61,11 @@ export newEnv = seqr.bind ->*
 
 	onSize = Signal onAdd: (cb) ->
 		cb container.width(), container.height()
-	$(window).resize ->
+	dispatchResize = ->
 		onSize.dispatch container.width(), container.height()
+	$(window).on "resize", dispatchResize
+	@finally !->
+		$(window).off "resize", dispatchResize
 
 	env <<<
 		container: container
@@ -74,22 +77,23 @@ export newEnv = seqr.bind ->*
 
 	if opts.controller?
 		env.controls = controls = yield WsController.Connect opts.controller
-		@finally ->
-			controls.close()
 	else
 		env.controls = new KeyboardController
+	@finally ->
+		env.controls.close()
 	env.controls.change (...args) ->
 		env.logger.write controlsChange: args
 
 	env.uiUpdate = Signal()
 	id = setInterval env.uiUpdate.dispatch, 1/60*1000
-	@finally -> clearInterval id
+	@finally !->
+		clearInterval id
 	@let \env, env
 	yield @get \destroy
 	yield ui.waitFor container~fadeOut
 	container.empty()
 
-export runScenario = seqr.bind (scenarioLoader) ->*
+export runScenario = seqr.bind (scenarioLoader) !->*
 	scope = newEnv()
 	env = yield scope.get \env
 	# Setup
@@ -151,7 +155,8 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 	# Run
 	yield P.resolve scene.preroll()
 	yield ui.waitFor el~fadeIn
-	@let \ready
+	@let \ready, [scenario]
+	@let \intro, [intro]
 	yield intro
 	scenario.let \run
 
@@ -168,14 +173,15 @@ export runScenario = seqr.bind (scenarioLoader) ->*
 	{passed, outro} = yield scenario
 	el.remove()
 
-	yield ui.instructionScreen env, ->
+	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title
 			@ \subtitle .append outro.subtitle
 			@ \content .append outro.content
 			me.let \done, passed: passed, outro: @
+	@let \outro, [outro]
+	yield outro
 	scope.let \destroy
 	yield scope
-
 
 #require './three.js/examples/js/controls/VRControls.js'
 #require './three.js/examples/js/effects/VREffect.js'
