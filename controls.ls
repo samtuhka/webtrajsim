@@ -50,8 +50,10 @@ export class KeyboardController
 				change = Math.min change, diff
 			@[name] += change
 
+		@_closed = false
 		prevTime = undefined
 		tick = ~>
+			return if @_closed
 			time = Date.now()
 			dt = (time - prevTime)/1000
 			prevTime := time
@@ -70,7 +72,7 @@ export class KeyboardController
 		CTRL = 17
 
 		$("body")
-		.keydown (e) ~>
+		.keydown @_keydown = (e) ~>
 			switch e.which
 			| UP => @throttleTarget = 1
 			| DOWN => @brakeTarget = 1
@@ -78,7 +80,8 @@ export class KeyboardController
 			| RIGHT => @steeringRight = 1
 			| CTRL => @_update \blinder, true
 			| SPACE => @_update \catch, true
-		.keyup (e) ~>
+
+		.keyup @_keyup = (e) ~>
 			switch e.which
 			| UP => @throttleTarget = 0
 			| DOWN => @brakeTarget = 0
@@ -94,6 +97,12 @@ export class KeyboardController
 		@[key] = value
 
 	set: ->
+
+	close: ->
+		@_closed = true
+		$("body")
+		.off "keydown", @_keydown
+		.off "keyup", @_keyup
 
 export NonSteeringControl = (orig) ->
 	ctrl = ^^orig
