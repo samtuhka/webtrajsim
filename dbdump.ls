@@ -10,7 +10,7 @@ dump = (db, session) ->
 
 $ ->
 	db = undefined
-	Sessions("tbtSessions").then (sessions) ->
+	Sessions("wtsSessions").then (sessions) ->
 		db := sessions.db
 		db.sessions.query().all().execute()
 	.then (listing) ->
