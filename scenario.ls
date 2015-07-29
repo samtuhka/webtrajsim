@@ -171,12 +171,15 @@ opts = deparam window.location.search.substring 1
 rx = Math.floor(opts.rx)
 ry = Math.floor(opts.ry)
 l = Math.floor(opts.l)
+s = Math.floor(opts.s)
 if rx === NaN
 		rx = 200
 if ry === NaN
 		ry = rx
 if l === NaN
 		l = 0
+if s === NaN
+		s = 80
 
 onInnerLane = (x, z, rX, rY, rW, l) ->
 	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + (z ^ 2 / (rY ^ 2))) > 1) && z >= 0)
@@ -208,10 +211,17 @@ handleSound = (sound, scene, cnt) ->
 		sound.play()
 		scene.soundPlay = true
 		scene.soundTs = scene.time
+		scene.score -= 1
 	else if scene.soundPlay == true && cnt == true
 		sound.stop()
 		scene.soundPlay = false
 
+handleSpeed = (scene, target) ->
+	speed = scene.player.getSpeed()*3.6
+	if speed < target
+		scene.playerControls.throttle = 1
+	else
+		scene.playerControls.throttle = 0
 
 export circleDriving = seqr.bind (env) ->*
 	@let \intro,
@@ -221,7 +231,6 @@ export circleDriving = seqr.bind (env) ->*
 			<p>Press enter or click the button below to continue.</p>
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
-	throttle = scene.playerControls.throttle
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
@@ -235,14 +244,12 @@ export circleDriving = seqr.bind (env) ->*
 	yield @get \run
 	yield P.delay 3000
 	yield startLight.switchToGreen()
-	scene.playerControls.throttle = throttle
 	scene.dT = 0
 	scene.maxScore = 0
 	startTime = scene.time
-	scene.soundPlay = false
-	scene.soundTs = 0
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
+		handleSpeed scene, s
 		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -258,10 +265,10 @@ export circleDriving = seqr.bind (env) ->*
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
 		#if cnt == false
-			#@let \done, passed: false, outro:
-				#title: L "You failed"
-				#content: L "You left your lane."
-			#return false
+		#	@let \done, passed: false, outro:
+		#		title: L "You failed"
+		#		content: L "You left your lane."
+		#	return false
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"
@@ -282,24 +289,25 @@ export circleDrivingRev = seqr.bind (env) ->*
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
 	scene.player.physical.position.x = -rx - (7-1.75)
-	throttle = scene.playerControls.throttle
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = ((rx + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
 	startLight.position.x = -lightX
 	startLight.position.z = 5
 	startLight.addTo scene
-
+	listener = new THREE.AudioListener()
+	annoyingSound = new THREE.Audio(listener)
+	annoyingSound.load('res/sounds/beep-01a.wav')
 	@let \scene, scene
 	yield @get \run
 	yield P.delay 3000
 	yield startLight.switchToGreen()
-	scene.playerControls.throttle = throttle
 	scene.dT = 0
 	scene.maxScore = 0
 	startTime = scene.time
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
+		handleSpeed scene, s
 		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -313,11 +321,12 @@ export circleDrivingRev = seqr.bind (env) ->*
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onOuterLane(x, z, rx, ry, 7, l)
-		if cnt == false
-			@let \done, passed: false, outro:
-				title: L "You failed"
-				content: L "You left your lane."
-			return false
+		handleSound annoyingSound, scene, cnt
+		#if cnt == false
+		#	@let \done, passed: false, outro:
+		#		title: L "You failed"
+		#		content: L "You left your lane."
+		#	return false
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"

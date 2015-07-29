@@ -32,6 +32,8 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.visual.children[7].visible = false
 	scene.visual.children[6].visible = false
 	scene.score = 0
+	scene.soundPlay = false
+	scene.soundTs = 0
 	scene.player.speedometer = ui.gauge env,
 		name: L "Score"
 		unit: L "points"
