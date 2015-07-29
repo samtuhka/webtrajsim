@@ -138,6 +138,8 @@ addReactionTest = seqr.bind (scene, env) ->*
 
 	return react
 
+
+
 export runTheLight = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Run the light"
@@ -221,7 +223,7 @@ export throttleAndBrake = seqr.bind (env) ->*
 		time = scene.time - startTime
 		@let \done, passed: true, outro:
 			title: L "Passed!"
-			content: L "You ran the course in #{time.toFixed 2} seconds."
+			content: L "Your time was <strong>#{time.toFixed 2}</strong> seconds."
 		return false
 
 	return yield @get \done
@@ -329,6 +331,25 @@ class MicrosimWrapper
 
 	step: ->
 
+addBlinderTask = (scene, env) ->
+	mask = new THREE.Mesh do
+		new THREE.PlaneGeometry 0.12, 0.12
+		new THREE.MeshBasicMaterial color: 0x000000
+	mask.position.z = -0.3
+	scene.camera.add mask
+
+	me =
+		isBlind: true
+
+	env.controls.change (btn, isOn) ->
+		return if btn != 'blinder'
+		return if isOn != true
+		return if not mask.visible
+		mask.visible = false
+		# TODO: Get rid of this!
+		setTimeout (-> mask.visible = true), 300
+
+
 export followInTraffic = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Fuel economy in traffic"
@@ -341,7 +362,8 @@ export followInTraffic = seqr.bind (env) ->*
 			"""
 
 	scene = yield basePedalScene env
-	addReactionTest scene, env
+	#addReactionTest scene, env
+	addBlinderTask scene, env
 
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4

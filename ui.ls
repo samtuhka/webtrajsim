@@ -104,3 +104,6 @@ export taskDialog = Co ({notifications}, cb) ->*
 	yield P.resolve result
 	yield waitFor el~fadeOut
 	el.remove()
+
+
+
