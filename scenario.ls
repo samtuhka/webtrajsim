@@ -14,6 +14,32 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
+DummyScene = ->
+	beforePhysics: Signal!
+	afterPhysics: Signal!
+	beforeRender: Signal!
+	onRender: Signal!
+	onStart: Signal!
+	onExit: Signal!
+	onTickHandled: Signal!
+	#camera: new THREE.PerspectiveCamera!
+	camera:
+		updateProjectionMatrix: ->
+		add: ->
+	#visual: new THREE.Scene!
+	visual:
+		add: ->
+		traverse: ->
+		addEventListener: ->
+	physics:
+		add: ->
+		addEventListener: ->
+		removeBody: ->
+	preroll: ->
+	tick: ->
+	bindPhys: ->
+#Scene = DummyScene
+
 export baseScene = seqr.bind (env) ->*
 	{controls, audioContext} = env
 	scene = new Scene
@@ -58,6 +84,13 @@ export baseScene = seqr.bind (env) ->*
 			scene.tick 1/60
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	return scene
+
+export minimalScenario = seqr.bind (env) ->*
+	scene = new Scene
+	addGround scene
+	scene.preroll = ->
+	@let \scene, scene
+	yield @get \done
 
 export freeDriving = seqr.bind (env) ->*
 	# Load the base scene
@@ -172,6 +205,21 @@ export throttleAndBrake = seqr.bind (env) ->*
 			if not startTime?
 				return 0.toFixed 2
 			(scene.time - startTime).toFixed 2
+
+
+	/*maximumFuelFlow = 200/60/1000
+	consumption =
+		time: 0
+		distance: 0
+		instant: void
+		total: 0
+
+	scene.afterPhysics.add (dt) !->
+		return if not startTime?
+		time += dt
+		consumption.distance += dt*scene.player.getSpeed()
+		consumption.instant = env.controls.throttle*maximumFuelFlow + constantConsumption
+		consumption.total += consumption.instant*dt*/
 
 	@let \scene, scene
 	yield @get \run

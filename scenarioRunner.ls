@@ -115,6 +115,10 @@ export runScenario = seqr.bind (scenarioLoader) !->*
 	scene = yield scenario.get \scene
 
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
+	@finally ->
+		THREE.Cache.clear()
+		# A hack to clear some caches in Cannon
+		(new CANNON.World).step(1/60)
 	#renderer.shadowMapEnabled = true
 	#renderer.shadowMapType = THREE.PCFShadowMap
 	renderer.autoClear = false

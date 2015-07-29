@@ -37,6 +37,12 @@ export class Scene
 				..restitution = 0.3
 			..solver.iterations = 100
 			..broadphase = new Cannon.SAPBroadphase @physics
+		/*@physics =
+			add: ->
+			removeBody: ->
+			addEventListener: ->
+			step: ->
+			bodies: []*/
 
 		@visual = new THREE.Scene
 

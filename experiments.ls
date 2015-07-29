@@ -22,6 +22,7 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 
 
 
+
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
@@ -48,26 +49,23 @@ export singleScenario = seqr.bind ->*
 	while true
 		yield runScenario scn
 
-/*dummyScenario = seqr.bind (env) !->*
-	#@let \scene,
-	#	beforeRender: Signal!
-	#	onRender: Signal!
-	#	onStart: Signal!
-	#	onExit: Signal!
-	#	onTickHandled: Signal!
-	#	camera: new THREE.PerspectiveCamera!
-	#	visual: new THREE.Scene!
-	#	preroll: ->
-	#	tick: ->
-	@let \scene, yield scenario.minimalScene env
-	yield @get \run
 
-	return passed: true, outro: {}
 
 export memkiller = seqr.bind !->*
-	for i from 1 to 100
+	#loader = scenario.minimalScenario
+	loader = scenario.followInTraffic
+	#for i from 1 to 1
+	#	console.log i
+	#	scn = loader()
+	#	yield scn.get \scene
+	#	scn.let \run
+	#	scn.let \done
+	#	yield scn
+	#	void
+
+	for i from 1 to 10
 		console.log i
-		runner = runScenario scenario.followInTraffic
+		runner = runScenario loader
 		[scn] = yield runner.get 'ready'
 		console.log "Got scenario"
 		[intro] = yield runner.get 'intro'
@@ -80,4 +78,4 @@ export memkiller = seqr.bind !->*
 		console.log "Running"
 		yield runner
 		console.log "Done"
-	return i*/
+	return i

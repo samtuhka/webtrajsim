@@ -202,12 +202,15 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 		syncModels.dispatch()
 
 	car.addToWorld scene.physics
+	scene.onExit ->
+		car.removeFromWorld scene.physics
 	bodyPhys.position.y = 2
 
 	onCollision = Signal!
 	bodyPhys.addEventListener "collide", onCollision.dispatch
 
 	getSpeed: ->
+		return 0 if not car.currentVehicleSpeedKmHour?
 		car.currentVehicleSpeedKmHour/3.6
 	eye: eye
 	physical: bodyPhys
