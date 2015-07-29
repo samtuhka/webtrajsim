@@ -92,6 +92,9 @@ export newEnv = seqr.bind !->*
 	yield @get \destroy
 	yield ui.waitFor container~fadeOut
 	container.empty()
+	# Hint cg run
+	if window.gc?
+		window.gc()
 
 export runScenario = seqr.bind (scenarioLoader) !->*
 	scope = newEnv()
