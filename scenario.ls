@@ -199,27 +199,13 @@ export throttleAndBrake = seqr.bind (env) ->*
 	finishSign.position.z = goalDistance
 	scene.visual.add finishSign
 	ui.gauge env,
-		name: "Time"
+		name: L "Time"
 		unit: "s"
 		value: ->
 			if not startTime?
 				return 0.toFixed 2
 			(scene.time - startTime).toFixed 2
 
-
-	/*maximumFuelFlow = 200/60/1000
-	consumption =
-		time: 0
-		distance: 0
-		instant: void
-		total: 0
-
-	scene.afterPhysics.add (dt) !->
-		return if not startTime?
-		time += dt
-		consumption.distance += dt*scene.player.getSpeed()
-		consumption.instant = env.controls.throttle*maximumFuelFlow + constantConsumption
-		consumption.total += consumption.instant*dt*/
 
 	@let \scene, scene
 	yield @get \run
@@ -349,7 +335,7 @@ export followInTraffic = seqr.bind (env) ->*
 		content: $ L """
 			<p>Drive in the traffic trying to get as much mileage as you
 			can. Best strategy is to have minimum distance to the leading
-			vehicle, but avoiding abrupt breakings and accelerations.
+			vehicle, but avoiding abrupt brakings and accelerations.
 
 			<p>There are no speed limits in this task.
 			"""
@@ -376,6 +362,49 @@ export followInTraffic = seqr.bind (env) ->*
 			title: L "Oops!"
 			content: reason
 		return false
+
+	maximumFuelFlow = 200/60/1000
+	constantConsumption = maximumFuelFlow*0.1
+	consumption =
+		time: 0
+		distance: 0
+		instant: 0
+		total: 0
+		avgLitersPer100km: ->
+			metersPerLiter = @distance/@total
+			1.0/metersPerLiter*1000*100
+		instLitersPer100km: ->
+			metersPerLiter = Math.abs(scene.player.getSpeed())/@instant
+			1.0/metersPerLiter*1000*100
+
+	scene.afterPhysics.add (dt) !->
+		return if not startTime?
+		consumption.time += dt
+		consumption.distance += dt*Math.abs(scene.player.getSpeed())
+		consumption.instant = env.controls.throttle*maximumFuelFlow + constantConsumption
+		consumption.total += consumption.instant*dt
+
+	ui.gauge env,
+		name: L "Current consumption"
+		unit: "l/100km"
+		range: [0, 30]
+		format: (v) ->
+			if Math.abs(scene.player.getSpeed()) < 1.0
+				return null
+			return v.toFixed 2
+		value: ->
+			c = consumption.instLitersPer100km!
+			return c
+
+	ui.gauge env,
+		name: L "Average consumption"
+		unit: "l/100km"
+		range: [0, 30]
+		format: (v) ->
+			return null if consumption.distance < 1
+			return v.toFixed 2
+		value: ->
+			return consumption.avgLitersPer100km!
 
 
 	nVehicles = 20
@@ -411,7 +440,7 @@ export followInTraffic = seqr.bind (env) ->*
 		@let \done, passed: true, outro:
 			title: L "Passed!"
 			content: L """
-				You drove the course in #{(scene.time - startTime).toFixed 2} seconds.
+				Your consumption was #{consumption.avgLitersPer100km!.toFixed 2} l/100km.
 				"""
 
 

@@ -21,8 +21,6 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 			break
 
 
-
-
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
@@ -80,4 +78,10 @@ export memkiller = seqr.bind !->*
 			yield runner
 			console.log "Done"
 		yield P.delay 1000
+
+		console.log "Memory usage: ", window.performance.memory.totalJSHeapSize/1024/1024
+		if window.gc
+			for i from 0 til 10
+				window.gc()
+			console.log "Memory usage (after gc): ", window.performance.memory.totalJSHeapSize/1024/1024
 	return i

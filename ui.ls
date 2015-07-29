@@ -18,14 +18,28 @@ configTemplate = (data, config, parent) ->
 	api.result = config.apply api, [el]
 	return api
 
-export gauge = ({notifications, uiUpdate}, {name, unit='', range, value}) ->
+export gauge = ({notifications, uiUpdate}, {name, unit='', range, value, format=(v) -> v}) ->
 	result = configTemplate (require './templates/gauge.lo.html!text'), ->
 		@ \name .text name
 		@ \unit .text unit
 	notifications?append result.el
 	valel = result \value
 	uiUpdate ->
-		valel.text value!
+		valel.text format value!
+	if range
+		bar = result \value-bar
+		.show()
+		.find('progress')
+		.attr(min: range[0], max: range[1])
+		uiUpdate ->
+			val = value!
+			if val? and isFinite val
+				bar.val val
+			else
+				bar.val ""
+
+
+
 	result <<<
 		normal: ->
 			result.el.css "background-color": ""

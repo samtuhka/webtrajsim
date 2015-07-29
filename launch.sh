@@ -10,7 +10,8 @@ BROWSER="primusrun ./firefox/full-build-linux/chrome \
 	--disable-setuid-sandbox \
 	--disable-gpu-sandbox --user-data-dir=chromium-data \
 	--allow-file-access-from-files \
-	--js-flags=--expose-gc"
+	--js-flags=--expose-gc \
+	--enable-precise-memory-info"
 #BROWSER="primusrun chromium --test-type --ignore-gpu-blacklist --disable-setuid-sandbox --disable-gpu-sandbox --user-data-dir=chromium-data --allow-file-access-from-files"
 
 #SHOST=localhost
