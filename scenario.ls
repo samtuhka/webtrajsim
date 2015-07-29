@@ -170,13 +170,13 @@ deparam = require 'jquery-deparam'
 opts = deparam window.location.search.substring 1
 rx = Math.floor(opts.rx)
 ry = Math.floor(opts.ry)
-length = Math.floor(opts.length)
+l = Math.floor(opts.l)
 if rx === NaN
-		rx = 100
+		rx = 200
 if ry === NaN
 		ry = rx
-if length === NaN
-		length = 100
+if l === NaN
+		l = 0
 
 onInnerLane = (x, z, rX, rY, rW, l) ->
 	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + (z ^ 2 / (rY ^ 2))) > 1) && z >= 0)
@@ -202,6 +202,15 @@ onOuterLane = (x, z, rX, rY, rW, l) ->
 	else
 		return false
 
+handleSound = (sound, scene, cnt) ->
+	if cnt == false and scene.time - scene.soundTs >= 1
+		sound.play()
+		scene.soundPlay = true
+		scene.soundTs = scene.time
+	else if scene.soundPlay == true && cnt == true
+		sound.stop()
+		scene.soundPlay = false
+
 
 export circleDriving = seqr.bind (env) ->*
 	@let \intro,
@@ -210,7 +219,7 @@ export circleDriving = seqr.bind (env) ->*
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
-	scene = yield basecircleDriving env, rx, ry, length
+	scene = yield basecircleDriving env, rx, ry, l
 	throttle = scene.playerControls.throttle
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
@@ -218,7 +227,9 @@ export circleDriving = seqr.bind (env) ->*
 	startLight.position.x = lightX
 	startLight.position.z = 5
 	startLight.addTo scene
-
+	listener = new THREE.AudioListener()
+	annoyingSound = new THREE.Audio(listener)
+	annoyingSound.load('res/sounds/beep-01a.wav')
 	@let \scene, scene
 	yield @get \run
 	yield P.delay 3000
@@ -241,12 +252,13 @@ export circleDriving = seqr.bind (env) ->*
 				scene.score -= 1
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, 7, length)
-		if cnt == false
-			@let \done, passed: false, outro:
-				title: L "You failed"
-				content: L "You left your lane."
-			return false
+		cnt = onInnerLane(x, z, rx, ry, 7, l)
+		handleSound annoyingSound, scene, cnt
+		#if cnt == false
+			#@let \done, passed: false, outro:
+				#title: L "You failed"
+				#content: L "You left your lane."
+			#return false
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
 			@let \done, passed: true, outro:
 				title: L "Passed"
@@ -265,7 +277,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
-	scene = yield basecircleDriving env, rx, ry, length
+	scene = yield basecircleDriving env, rx, ry, l
 	scene.player.physical.position.x = -rx - (7-1.75)
 	throttle = scene.playerControls.throttle
 	scene.playerControls.throttle = 0
@@ -297,7 +309,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 				scene.score -= 1
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onOuterLane(x, z, rx, ry, 7, length)
+		cnt = onOuterLane(x, z, rx, ry, 7, l)
 		if cnt == false
 			@let \done, passed: false, outro:
 				title: L "You failed"
