@@ -204,6 +204,7 @@ onOuterLane = (x, z, rX, rY, rW, l) ->
 
 handleSound = (sound, scene, cnt) ->
 	if cnt == false and scene.time - scene.soundTs >= 1
+		console.log("aaa")
 		sound.play()
 		scene.soundPlay = true
 		scene.soundTs = scene.time
@@ -238,6 +239,8 @@ export circleDriving = seqr.bind (env) ->*
 	scene.dT = 0
 	scene.maxScore = 0
 	startTime = scene.time
+	scene.soundPlay = false
+	scene.soundTs = 0
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		i = scene.probeIndx
