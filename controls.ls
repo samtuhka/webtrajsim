@@ -24,6 +24,7 @@ export class WsController
 		@socket.send JSON.stringify obj
 
 	close: ->
+		@socket.onmessage = null
 		@socket.close()
 
 export class KeyboardController
