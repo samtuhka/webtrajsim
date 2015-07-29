@@ -78,7 +78,7 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 		o.receiveShadow = false
 	return sign
 
-export FinishSign = seqr.bind ({height=3, texSize=[256,256], poleRadius=0.07/2}=opts={}) ->*
+export FinishSign = seqr.bind ({height=4, texSize=[256,256], poleRadius=0.07/2}=opts={}) ->*
 	doc = $ yield $.ajax "./res/signs/finish.svg", dataType: 'xml'
 	img = $ doc.find "svg"
 
