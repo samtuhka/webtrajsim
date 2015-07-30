@@ -109,49 +109,20 @@ exportScenario \freeDriving, (env) ->*
 	# Run until somebody says "done".
 	yield @get \done
 
-#this is quite stupid
+#a bit less insane
 handleProbes = (scene, i) ->
 	if (scene.time - scene.dT) > 1
-		if scene.probes[i].get(0).innerText == 'B'||scene.probes[i].get(0).innerText == ''
-			seed = Math.floor((Math.random() * 4) + 1)
-			if seed == 1
-				scene.probes[i].text "A"
-				scene.maxScore += 1
-			else if seed == 2
-				scene.probes[i].text "B"
-			else if seed == 3
-				scene.probes[i].text ""
-			else
-				scene.probes[i].text ""
-				scene.probeIndx = Math.floor((Math.random() * 6))
-				seed = Math.floor((Math.random() * 3) + 1)
-				i = scene.probeIndx
-				if seed == 1
-					scene.probes[i].text "A"
-					scene.maxScore += 1
-				else if seed == 2
-					scene.probes[i].text "B"
-				else
-					scene.probes[i].text ""
+		if  scene.probes[i].get(0).innerText == 'A'
+			scene.score -= 1
+		scene.probes[i].text "B"
+		scene.probeIndx = Math.floor((Math.random() * 6))
+		seed = Math.floor((Math.random() * 3) + 1)
+		i = scene.probeIndx
+		if seed == 1
+			scene.probes[i].text "A"
+			scene.maxScore += 1
 		else
-				scene.score -= 1
-				seed = Math.floor((Math.random() * 3) + 1)
-				if seed == 1
-					scene.probes[i].text ""
-				if seed == 2
-					scene.probes[i].text "B"
-				else
-					scene.probes[i].text ""
-					scene.probeIndx = Math.floor((Math.random() * 6))
-					i = scene.probeIndx
-					seed = Math.floor((Math.random() * 3) + 1)
-					if seed == 1
-						scene.probes[i].text "A"
-						scene.maxScore += 1
-					else if seed == 2
-						scene.probes[i].text "B"
-					else
-						scene.probes[i].text ""
+			scene.probes[i].text "B"
 		scene.dT = scene.time
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
@@ -159,9 +130,10 @@ export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, rx, ry, l
 	scene.probes = []
-	pos = [[10,25],[10,45],[50,25],[50,45],[90,25], [90,45]]
+	pos = [[10,10],[10,45],[50,10],[50,45],[90, 10], [90,45]]
 	for i from 0 til 6
-		probe = $('<div>').css "font-size": "100%", position: 'absolute', left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
+		probe = $('<div>').css "font-size": "250%", position: 'absolute', left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
+		probe.text 'B'
 		scene.probes.push(probe)
 		$('#drivesim').append(scene.probes[i])
 	return scene
@@ -207,7 +179,6 @@ onOuterLane = (x, z, rX, rY, rW, l) ->
 
 handleSound = (sound, scene, cnt) ->
 	if cnt == false and scene.time - scene.soundTs >= 1
-		console.log("aaa")
 		sound.play()
 		scene.soundPlay = true
 		scene.soundTs = scene.time
@@ -256,11 +227,10 @@ export circleDriving = seqr.bind (env) ->*
 			scene.dT = scene.time
 			env.controls.probeReact = false
 			if scene.probes[i].get(0).innerText == 'A'
-				scene.probes[i].text ''
 				scene.score +=1
 			else
-				scene.probes[i].text ''
 				scene.score -= 1
+			scene.probes[i].text 'B'
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
@@ -315,11 +285,10 @@ export circleDrivingRev = seqr.bind (env) ->*
 			scene.dT = scene.time
 			env.controls.probeReact = false
 			if scene.probes[i].get(0).innerText == 'A'
-				scene.probes[i].text ''
 				scene.score +=1
 			else
-				scene.probes[i].text ''
 				scene.score -= 1
+			scene.probes[i].text 'B'
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onOuterLane(x, z, rx, ry, 7, l)
