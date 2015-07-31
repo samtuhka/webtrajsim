@@ -149,7 +149,7 @@ if rx === NaN
 if ry === NaN
 		ry = rx
 if l === NaN
-		l = 0
+		l = 100
 if s === NaN
 		s = 80
 

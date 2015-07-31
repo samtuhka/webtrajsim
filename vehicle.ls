@@ -119,6 +119,10 @@ loadViva = Co ->*
 	eye.position.z = 0.1
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
+	#eye.position.y = 2.00
+	#eye.position.z = -1.1
+	#eye.position.x = 5.7
+	#eye.rotation.y = 2*Math.PI/4
 
 	body.add eye
 	wheels = scene.getObjectByName "Wheels"
@@ -135,7 +139,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 
 	syncModels = new Signal
 
-	cogY = 0.5
+	cogY = 0.6
 
 	scene.visual.add body
 
@@ -189,7 +193,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 			axleLocal: new Cannon.Vec3 -1, 0, 0
 			suspensionRestLength: wRadius + 0.35
 			chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
-			suspensionStiffness: 40
+			suspensionStiffness: 100
 			rollInfluence: 1
 			frictionSlip: 1									# Wheel friction
 		wi = car.wheelInfos[wii]
