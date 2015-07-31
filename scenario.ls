@@ -227,6 +227,7 @@ export circleDriving = seqr.bind (env) ->*
 	yield @get \run
 	yield P.delay 3000
 	yield startLight.switchToGreen()
+	startTime = scene.time
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
