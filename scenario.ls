@@ -189,10 +189,21 @@ handleSound = (sound, scene, cnt) ->
 
 handleSpeed = (scene, target) ->
 	speed = scene.player.getSpeed()*3.6
-	if speed < target
-		scene.playerControls.throttle = 1
+	force = scene.playerControls.throttle - scene.playerControls.brake
+	dt = scene.time - scene.prevTime
+	accel = (speed - scene.player.prevSpeed) / dt
+	t = Math.abs(target - speed) ^ 0.5 / 3
+	accelTarget = (target - speed) / t
+	delta = accelTarget - accel
+	newForce = force + delta/50
+	newForce = Math.max -1, newForce
+	newForce = Math.min 1, newForce
+	if newForce > 0
+		scene.playerControls.throttle = newForce
+		scene.playerControls.brake = 0
 	else
 		scene.playerControls.throttle = 0
+		scene.playerControls.brake = -newForce
 
 export circleDriving = seqr.bind (env) ->*
 	@let \intro,
@@ -216,9 +227,6 @@ export circleDriving = seqr.bind (env) ->*
 	yield @get \run
 	yield P.delay 3000
 	yield startLight.switchToGreen()
-	scene.dT = 0
-	scene.maxScore = 0
-	startTime = scene.time
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
@@ -249,6 +257,8 @@ export circleDriving = seqr.bind (env) ->*
 				 """
 			return false
 		handleProbes scene, i
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 	yield @get \done
 
 export circleDrivingRev = seqr.bind (env) ->*
@@ -274,8 +284,6 @@ export circleDrivingRev = seqr.bind (env) ->*
 	yield @get \run
 	yield P.delay 3000
 	yield startLight.switchToGreen()
-	scene.dT = 0
-	scene.maxScore = 0
 	startTime = scene.time
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
@@ -307,6 +315,8 @@ export circleDrivingRev = seqr.bind (env) ->*
 				 """
 			return false
 		handleProbes scene, i
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 	yield @get \done
 
 export basePedalScene = (env) ->
