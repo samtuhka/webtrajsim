@@ -192,7 +192,7 @@ handleSpeed = (scene, target) ->
 	force = scene.playerControls.throttle - scene.playerControls.brake
 	dt = scene.time - scene.prevTime
 	accel = (speed - scene.player.prevSpeed) / dt
-	t = Math.abs(target - speed) ^ 0.5 / 3
+	t = 1/(Math.abs(target - speed) ^ 0.5*3)
 	accelTarget = (target - speed) / t
 	delta = accelTarget - accel
 	newForce = force + delta/50
@@ -228,6 +228,7 @@ export circleDriving = seqr.bind (env) ->*
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 	startTime = scene.time
+	scene.start = startTime
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
