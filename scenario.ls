@@ -318,7 +318,7 @@ export speedControl = seqr.bind (env) ->*
 
 	return yield @get \done
 
-{IdmVehicle, LoopMicrosim, LoopPlotter} = require './microsim.ls'
+{IdmVehicle, LoopMicrosim} = require './microsim.ls'
 
 class MicrosimWrapper
 	(@phys) ->
@@ -333,13 +333,10 @@ class MicrosimWrapper
 
 addBlinderTask = (scene, env) ->
 	mask = new THREE.Mesh do
-		new THREE.PlaneGeometry 0.12, 0.12
+		new THREE.PlaneGeometry 0.14*16/9, 0.14
 		new THREE.MeshBasicMaterial color: 0x000000
 	mask.position.z = -0.3
 	scene.camera.add mask
-
-	me =
-		isBlind: true
 
 	env.controls.change (btn, isOn) ->
 		return if btn != 'blinder'
@@ -348,7 +345,6 @@ addBlinderTask = (scene, env) ->
 		mask.visible = false
 		# TODO: Get rid of this!
 		setTimeout (-> mask.visible = true), 300
-
 
 export followInTraffic = seqr.bind (env) ->*
 	@let \intro,
@@ -374,7 +370,6 @@ export followInTraffic = seqr.bind (env) ->*
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
 	scene.visual.add finishSign
-
 
 	scene.player.onCollision (e) ~>
 		reason = L "You crashed!"
