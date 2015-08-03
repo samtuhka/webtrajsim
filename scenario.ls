@@ -139,6 +139,42 @@ addReactionTest = seqr.bind (scene, env) ->*
 	return react
 
 
+addBlinderTask = (scene, env) ->
+	mask = new THREE.Mesh do
+		new THREE.PlaneGeometry 0.14*16/9, 0.14
+		new THREE.MeshBasicMaterial color: 0x000000
+	mask.position.z = -0.3
+	scene.camera.add mask
+
+	self =
+		change: Signal!
+		glances: 0
+
+	showMask = ->
+		mask.visible = true
+		self.change.dispatch true
+		env.logger.write blinder: true
+	showMask()
+
+	ui.gauge env,
+		name: L "Glances"
+		unit: ""
+		value: ->
+			self.glances
+
+
+	env.controls.change (btn, isOn) ->
+		return if btn != 'blinder'
+		return if isOn != true
+		return if not mask.visible
+		mask.visible = false
+		self.glances += 1
+		self.change.dispatch false
+		env.logger.write blinder: false
+		setTimeout showMask, 300
+
+	return self
+
 
 export runTheLight = seqr.bind (env) ->*
 	@let \intro,
@@ -232,8 +268,9 @@ export speedControl = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Speed control"
 		content: L """
-			Drive as fast as possible, yet honoring the speed limits,
-			and of course the red lights.
+			<p>Drive as fast as possible, yet honoring the speed limits,
+			and of course the red lights. More you drive over the speed limit,
+			the more penalty time you get.
 			"""
 
 	scene = yield basePedalScene env
@@ -264,16 +301,30 @@ export speedControl = seqr.bind (env) ->*
 		unit: L "km/h"
 		value: currentLimit
 
+	illGainsMultiplier = 10
 	illGains = 0
+	timePenalty = 0
 	scene.afterPhysics (dt) ->
 		return if not startTime?
 		limit = currentLimit!
 		speed = Math.abs scene.player.getSpeed()*3.6
-		if speed > limit
-			illGains += (speed - limit)/3.6*dt
-			limitSign.warning()
-		else
+		if speed <= limit
 			limitSign.normal()
+			return
+
+		limitSign.warning()
+		traveled = (speed/3.6)*dt
+		legalMinTime = traveled/(limit/3.6)
+		timeGained = legalMinTime - dt
+
+		illGains += timeGained
+		timePenalty := illGains*illGainsMultiplier
+
+	ui.gauge env,
+		name: "Penalty"
+		unit: "s"
+		value: ->
+			timePenalty.toFixed 2
 
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4
@@ -310,13 +361,44 @@ export speedControl = seqr.bind (env) ->*
 		@let \done, passed: true, outro:
 			title: L "Passed!"
 			content: L """
-				You ran the course in #{time.toFixed 2} seconds.
-				But gained #{illGains.toFixed 2} seconds from breaking the
-				limit. The final score is #{(illGains*2 + time).toFixed 2} seconds.
+				You ran the course in #{time.toFixed 2} seconds, but got
+				#{timePenalty.toFixed 2} seconds penalty from breaking the
+				limit. The final score is #{(timePenalty + time).toFixed 2} seconds.
 				"""
 		return false
 
 	return yield @get \done
+
+export blindSpeedControl = seqr.bind (env) ->*
+	base = speedControl env
+
+	intro = yield base.get \intro
+	@let \intro,
+		title: L "Anticipatory speed control"
+		content: L """
+			<p>Drive as fast as possible, yet honoring the speed limits,
+			and of course the red lights.
+
+			<p>In this task also your level of anticipation is measured by
+			the number of glances you have to take. To briefly see the road,
+			press the left lever. Try to accomplish the task as well as you can,
+			while taking as few glances as you can.
+			"""
+
+	scene = yield base.get \scene
+
+	addBlinderTask scene, env
+	@let \scene, scene
+
+	yield @get \run
+	base.let \run
+
+	result = yield base.get \done
+
+	@let \done, result
+
+	return result
+
 
 {IdmVehicle, LoopMicrosim} = require './microsim.ls'
 
@@ -331,25 +413,6 @@ class MicrosimWrapper
 
 	step: ->
 
-addBlinderTask = (scene, env) ->
-	mask = new THREE.Mesh do
-		new THREE.PlaneGeometry 0.14*16/9, 0.14
-		new THREE.MeshBasicMaterial color: 0x000000
-	mask.position.z = -0.3
-	scene.camera.add mask
-
-	showMask = ->
-		mask.visible = true
-		env.logger.write blinder: true
-	showMask()
-
-	env.controls.change (btn, isOn) ->
-		return if btn != 'blinder'
-		return if isOn != true
-		return if not mask.visible
-		mask.visible = false
-		env.logger.write blinder: false
-		setTimeout showMask, 300
 
 export followInTraffic = seqr.bind (env) ->*
 	@let \intro,
