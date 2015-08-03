@@ -427,7 +427,7 @@ export followInTraffic = seqr.bind (env) ->*
 
 	scene = yield basePedalScene env
 	#addReactionTest scene, env
-	addBlinderTask scene, env
+	#addBlinderTask scene, env
 
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4
@@ -536,6 +536,40 @@ export followInTraffic = seqr.bind (env) ->*
 	startTime = scene.time
 
 	return yield @get \done
+
+
+export blindFollowInTraffic = seqr.bind (env) ->*
+	base = followInTraffic env
+
+	intro = yield base.get \intro
+	@let \intro,
+		title: L "Anticipatory fuel economy"
+		content: L """
+			<p>Drive in the traffic trying to get as much mileage as you
+			can. Best strategy is to have minimum distance to the leading
+			vehicle, but avoiding abrupt brakings and accelerations.
+
+			<p>There are no speed limits in this task.
+
+			<p>In this task also your level of anticipation is measured by
+			the number of glances you have to take. To briefly see the road,
+			press the left lever. Try to accomplish the task as well as you can,
+			while taking as few glances as you can.
+			"""
+
+	scene = yield base.get \scene
+
+	addBlinderTask scene, env
+	@let \scene, scene
+
+	yield @get \run
+	base.let \run
+
+	result = yield base.get \done
+
+	@let \done, result
+
+	return result
 
 export participantInformation = seqr.bind (env) ->*
 	yield ui.inputDialog env, ->
