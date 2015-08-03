@@ -338,13 +338,18 @@ addBlinderTask = (scene, env) ->
 	mask.position.z = -0.3
 	scene.camera.add mask
 
+	showMask = ->
+		mask.visible = true
+		env.logger.write blinder: true
+	showMask()
+
 	env.controls.change (btn, isOn) ->
 		return if btn != 'blinder'
 		return if isOn != true
 		return if not mask.visible
 		mask.visible = false
-		# TODO: Get rid of this!
-		setTimeout (-> mask.visible = true), 300
+		env.logger.write blinder: false
+		setTimeout showMask, 300
 
 export followInTraffic = seqr.bind (env) ->*
 	@let \intro,
