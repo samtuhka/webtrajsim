@@ -31,8 +31,13 @@ export mulsimco2015 = seqr.bind ->*
 
 	yield runUntilPassed scenario.throttleAndBrake
 	yield runUntilPassed scenario.speedControl
+	yield runUntilPassed scenario.blindSpeedControl
 
-	yield runUntilPassed scenario.followInTraffic, passes: 5, maxRetries: 10
+	yield runUntilPassed scenario.followInTraffic
+	yield runUntilPassed scenario.blindFollowInTraffic
+
+	#trials = 6
+
 
 export defaultExperiment = mulsimco2015
 
