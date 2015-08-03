@@ -20,6 +20,13 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 		if doQuit
 			break
 
+shuffleArray = (a) ->
+	i = a.length
+	while (--i) > 0
+		j = Math.floor (Math.random()*(i+1))
+		[a[i], a[j]] = [a[j], a[i]]
+	return a
+
 
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
@@ -36,6 +43,14 @@ export mulsimco2015 = seqr.bind ->*
 	yield runUntilPassed scenario.followInTraffic
 	yield runUntilPassed scenario.blindFollowInTraffic
 
+	ntrials = 4
+	scenarios = []
+		.concat([scenario.followInTraffic]*ntrials)
+		.concat([scenario.blindFollowInTraffic]*ntrials)
+	scenarios = shuffleArray scenarios
+
+	for scn in scenarios
+		yield runScenario scn
 	#trials = 6
 
 
