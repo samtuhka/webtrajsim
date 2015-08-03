@@ -416,11 +416,15 @@ class MicrosimWrapper
 
 export followInTraffic = seqr.bind (env) ->*
 	@let \intro,
-		title: L "Fuel economy in traffic"
+		title: L "Supermiler"
 		content: $ L """
 			<p>Drive in the traffic trying to get as much mileage as you
-			can. Best strategy is to have minimum distance to the leading
-			vehicle, but avoiding abrupt brakings and accelerations.
+			can.
+			
+			<p>Note that closer you drive to vehicle before you, the less fuel
+			you consume due to the lesser air resistance. But you waste good momentum
+			by braking, so try to find a balance where you can keep a short
+			headway without having to brake too much.
 
 			<p>There are no speed limits in this task.
 			"""
@@ -450,13 +454,18 @@ export followInTraffic = seqr.bind (env) ->*
 
 	maximumFuelFlow = 200/60/1000
 	constantConsumption = maximumFuelFlow*0.1
+	draftingCoeff = (d) ->
+		# Estimated from Mythbusters!
+		Math.exp(0) - Math.exp(-(d + 5.6)*0.1)
+
 	consumption =
 		time: 0
 		distance: 0
 		instant: 0
 		total: 0
-		avgLitersPer100km: ->
-			metersPerLiter = @distance/@total
+		noDraftTotal: 0
+		avgLitersPer100km: (consumption=@total) ->
+			metersPerLiter = @distance/consumption
 			1.0/metersPerLiter*1000*100
 		instLitersPer100km: ->
 			metersPerLiter = Math.abs(scene.player.getSpeed())/@instant
@@ -466,8 +475,10 @@ export followInTraffic = seqr.bind (env) ->*
 		return if not startTime?
 		consumption.time += dt
 		consumption.distance += dt*Math.abs(scene.player.getSpeed())
-		consumption.instant = env.controls.throttle*maximumFuelFlow + constantConsumption
+		instant = env.controls.throttle*maximumFuelFlow + constantConsumption
+		consumption.instant = instant * draftingCoeff(distanceToLeader!)
 		consumption.total += consumption.instant*dt
+		consumption.noDraftTotal += instant*dt
 
 	ui.gauge env,
 		name: L "Current consumption"
@@ -490,7 +501,6 @@ export followInTraffic = seqr.bind (env) ->*
 			return v.toFixed 2
 		value: ->
 			return consumption.avgLitersPer100km!
-
 
 	nVehicles = 20
 	spacePerVehicle = 20
@@ -515,6 +525,34 @@ export followInTraffic = seqr.bind (env) ->*
 		leader.forceModelSync()
 		leader.physical.position.z = playerSim.leader.position
 		leader.forceModelSync()
+
+	headway =
+		cumulative: 0
+		time: 0
+		average: ->
+			@cumulative/@time
+	cumHeadway = 0
+	averageHeadway = 0
+	scene.afterPhysics (dt) ->
+		return if not startTime?
+		headway.cumulative += dt*distanceToLeader!
+		headway.time += dt
+
+
+	distanceToLeader = ->
+		rawDist = scene.player.physical.position.distanceTo leader.physical.position
+		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
+
+	scene.draftIndicator = ui.gauge env,
+		name: L "Draft saving"
+		unit: "%"
+		#range: [0, 30]
+		#format: (v) ->
+		#	return null if consumption.distance < 1
+		#	return v.toFixed 2
+		value: ->
+			c = draftingCoeff distanceToLeader!
+			((1 - c)*100).toFixed 1
 
 	# Wait for the traffic to queue up
 	while not traffic.isInStandstill()
@@ -543,8 +581,16 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 
 	intro = yield base.get \intro
 	@let \intro,
-		title: L "Anticipatory fuel economy"
+		title: L "Anticipating supermiler"
 		content: L """
+			<p>Drive in the traffic trying to get as much mileage as you
+			can.
+			
+			<p>Note that closer you drive to vehicle before you, the less fuel
+			you consume due to the lesser air resistance. But you waste good momentum
+			by braking, so try to find a balance where you can keep a short
+			headway without having to brake too much.
+
 			<p>Drive in the traffic trying to get as much mileage as you
 			can. Best strategy is to have minimum distance to the leading
 			vehicle, but avoiding abrupt brakings and accelerations.
@@ -558,7 +604,7 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 			"""
 
 	scene = yield base.get \scene
-
+	scene.draftIndicator.el.hide()
 	addBlinderTask scene, env
 	@let \scene, scene
 
