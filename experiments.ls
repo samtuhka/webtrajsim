@@ -71,7 +71,7 @@ export singleScenario = seqr.bind ->*
 
 export memkiller = seqr.bind !->*
 	#loader = scenario.minimalScenario
-	loader = scenario.followInTraffic
+	loader = scenario.blindFollowInTraffic
 	#for i from 1 to 1
 	#	console.log i
 	#	scn = loader()
@@ -90,6 +90,7 @@ export memkiller = seqr.bind !->*
 			[intro] = yield runner.get 'intro'
 			if intro.let
 				intro.let \accept
+			yield P.delay 1000
 			scn.let 'done', passed: false, outro: title: "Yay"
 			runner.let 'done'
 			[outro] = yield runner.get 'outro'
@@ -97,7 +98,6 @@ export memkiller = seqr.bind !->*
 			console.log "Running"
 			yield runner
 			console.log "Done"
-		yield P.delay 1000
 
 		console.log "Memory usage: ", window.performance.memory.totalJSHeapSize/1024/1024
 		if window.gc
@@ -105,3 +105,14 @@ export memkiller = seqr.bind !->*
 				window.gc()
 			console.log "Memory usage (after gc): ", window.performance.memory.totalJSHeapSize/1024/1024
 	return i
+
+export logkiller = seqr.bind !->*
+	scope = newEnv!
+	env = yield scope.get \env
+	for i from 0 to 1000
+		env.logger.write foo: "bar"
+
+	scope.let \destroy
+	yield scope
+	console.log "Done"
+
