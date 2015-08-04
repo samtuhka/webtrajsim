@@ -585,15 +585,11 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 		content: L """
 			<p>Drive in the traffic trying to get as much mileage as you
 			can.
-			
+
 			<p>Note that closer you drive to vehicle before you, the less fuel
 			you consume due to the lesser air resistance. But you waste good momentum
 			by braking, so try to find a balance where you can keep a short
 			headway without having to brake too much.
-
-			<p>Drive in the traffic trying to get as much mileage as you
-			can. Best strategy is to have minimum distance to the leading
-			vehicle, but avoiding abrupt brakings and accelerations.
 
 			<p>There are no speed limits in this task.
 
@@ -610,6 +606,9 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 
 	yield @get \run
 	base.let \run
+	
+	@get \done .then (result) ->
+		base.let \done, result
 
 	result = yield base.get \done
 
