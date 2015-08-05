@@ -134,6 +134,42 @@ export FinishSign = seqr.bind ({height=4, texSize=[256,256], poleRadius=0.07/2}=
 
 	return self
 
+export StopSign = seqr.bind ({height=2, poleRadius=0.07/2}=opts={}) ->*
+	doc = $ yield $.ajax "./res/signs/stopsign.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+
+	sign = new THREE.Object3D
+	face = yield svgToSign img, opts
+	face.position.y = height
+	face.position.z = -poleRadius - 0.01
+	face.rotation.y = Math.PI
+	sign.add face
+
+	pole = new THREE.Mesh do
+		new THREE.CylinderGeometry poleRadius, poleRadius, height, 32
+		new THREE.MeshLambertMaterial color: 0xdddddd
+	pole.position.y = height/2
+	sign.add pole
+
+	watcherWidth = 5
+	watcherHeight = 10
+	halfExtent = new Cannon.Vec3 watcherWidth/2, watcherHeight/2, 0.1
+	watcherShape = new Cannon.Box halfExtent
+	watcher = new Cannon.Body mass: 0, type: Cannon.Body.STATIC
+		..addShape watcherShape, halfExtent
+		..objectClass = "stop-sign"
+		..collisionResponse = false
+
+	self =
+		visual: sign
+		position: watcher.position
+		addTo: (scene) ->
+			scene.visual.add sign
+			scene.physics.add watcher
+			scene.bindPhys watcher, sign
+
+	return self
+
 
 
 export TrafficLight = seqr.bind ->*

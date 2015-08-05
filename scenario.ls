@@ -206,12 +206,26 @@ export runTheLight = seqr.bind (env) ->*
 
 	return yield @get \done
 
+collisionReason = (e) ->
+	switch (e.body.objectClass)
+	| 'traffic-light' => L "You ran the red light!"
+	| 'stop-sign' => L "You ran the stop sign!"
+	| otherwise => L "You crashed!"
+
+failOnCollision = (scn, scene) ->
+	scene.player.onCollision (e) ->
+		reason = collisionReason e
+		scn.let \done, passed: false, outro:
+			title: L "Oops!"
+			content: reason
+		return false
+
 export throttleAndBrake = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Throttle and brake"
 		content: L """
 			Let's get familiar with the car. Get across the finish line
-			as soon as possible, but without running any red lights.
+			as soon as possible, but without running any red lights or stop signs.
 			"""
 
 	scene = yield basePedalScene env
@@ -222,16 +236,12 @@ export throttleAndBrake = seqr.bind (env) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-	endLight = yield assets.TrafficLight()
-	endLight.position.x = -4
-	endLight.position.z = goalDistance + 10
-	endLight.addTo scene
+	stopSign = yield assets.StopSign!
+		..position.x = -4
+		..position.z = goalDistance + 10
+		..addTo scene
 
-	scene.player.onCollision (e) ~>
-		@let \done, passed: false, outro:
-			title: L "Oops!"
-			content: L "You ran the red light!"
-		return false
+	failOnCollision @, scene
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -267,7 +277,7 @@ export speedControl = seqr.bind (env) ->*
 		title: L "Speed control"
 		content: L """
 			<p>Drive as fast as possible, yet honoring the speed limits,
-			and of course the red lights. More you drive over the speed limit,
+			and of course the red lights and stop signs. More you drive over the speed limit,
 			the more penalty time you get.
 			"""
 
@@ -329,10 +339,12 @@ export speedControl = seqr.bind (env) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-	endLight = yield assets.TrafficLight()
-	endLight.position.x = -4
-	endLight.position.z = goalDistance + 10
-	endLight.addTo scene
+	stopSign = yield assets.StopSign!
+		..position.x = -4
+		..position.z = goalDistance + 10
+		..addTo scene
+
+	failOnCollision @, scene
 
 	scene.player.onCollision (e) ~>
 		@let \done, passed: false, outro:
@@ -374,7 +386,7 @@ export blindSpeedControl = seqr.bind (env) ->*
 		title: L "Anticipatory speed control"
 		content: L """
 			<p>Drive as fast as possible, yet honoring the speed limits,
-			and of course the red lights.
+			and of course the red lights and stop signs.
 
 			<p>In this task also your level of anticipation is measured by
 			the number of glances you have to take. To briefly see the road,
@@ -561,7 +573,6 @@ export followInTraffic = seqr.bind (env) ->*
 			content: L """
 				Your consumption was #{consumption.avgLitersPer100km!.toFixed 2} l/100km.
 				"""
-
 
 	@let \scene, scene
 	yield @get \run
