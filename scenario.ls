@@ -235,7 +235,7 @@ export throttleAndBrake = seqr.bind (env) ->*
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
-	scene.visual.add finishSign
+	finishSign.addTo scene
 	ui.gauge env,
 		name: L "Time"
 		unit: "s"
@@ -252,10 +252,8 @@ export throttleAndBrake = seqr.bind (env) ->*
 	yield startLight.switchToGreen()
 	startTime = scene.time
 
-	scene.onTickHandled ~>
+	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
 		return if Math.abs(scene.player.getSpeed()) > 0.1
-		return if scene.player.physical.position.z < goalDistance
-
 		time = scene.time - startTime
 		@let \done, passed: true, outro:
 			title: L "Passed!"
@@ -344,7 +342,7 @@ export speedControl = seqr.bind (env) ->*
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
-	scene.visual.add finishSign
+	finishSign.addTo scene
 
 	@let \scene, scene
 	yield @get \run
@@ -353,9 +351,8 @@ export speedControl = seqr.bind (env) ->*
 	yield startLight.switchToGreen()
 	startTime = scene.time
 
-	scene.onTickHandled ~>
+	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
 		return if Math.abs(scene.player.getSpeed()) > 0.1
-		return if scene.player.physical.position.z < goalDistance
 
 		time = scene.time - startTime
 		@let \done, passed: true, outro:
@@ -441,7 +438,7 @@ export followInTraffic = seqr.bind (env) ->*
 	goalDistance = 2000
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
-	scene.visual.add finishSign
+	finishSign.addTo scene
 
 	scene.player.onCollision (e) ~>
 		reason = L "You crashed!"
@@ -558,8 +555,7 @@ export followInTraffic = seqr.bind (env) ->*
 	while not traffic.isInStandstill()
 		traffic.step 1/60
 
-	scene.onTickHandled ~>
-		return if scene.player.physical.position.z < goalDistance
+	finishSign.bodyPassed(scene.player.physical).then ~>
 		@let \done, passed: true, outro:
 			title: L "Passed!"
 			content: L """
@@ -606,7 +602,7 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 
 	yield @get \run
 	base.let \run
-	
+
 	@get \done .then (result) ->
 		base.let \done, result
 

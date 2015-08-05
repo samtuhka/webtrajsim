@@ -207,7 +207,9 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 	bodyPhys.position.y = 2
 
 	onCollision = Signal!
-	bodyPhys.addEventListener "collide", onCollision.dispatch
+	bodyPhys.addEventListener "collide", (e) ->
+		return if e.body.preventCollisionEvent? e
+		onCollision.dispatch e
 
 	getSpeed: ->
 		return 0 if not car.currentVehicleSpeedKmHour?

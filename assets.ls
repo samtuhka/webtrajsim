@@ -101,7 +101,38 @@ export FinishSign = seqr.bind ({height=4, texSize=[256,256], poleRadius=0.07/2}=
 	sign.traverse (o) ->
 		o.castShadow = true
 		o.receiveShadow = false
-	return sign
+
+	watcherWidth = face.width
+	watcherHeight = height
+	halfExtent = new Cannon.Vec3 watcherWidth/2, watcherHeight/2, 0.1
+	watcherShape = new Cannon.Box halfExtent
+	watcher = new Cannon.Body mass: 0, type: Cannon.Body.STATIC
+		..addShape watcherShape, new Cannon.Vec3 0, watcherHeight/2, 0
+		..objectClass = "finish-line"
+		..collisionResponse = false
+		..preventCollisionEvent = -> true
+
+
+
+	self =
+		onPassed: Signal!
+		bodyPassed: (body) -> new Promise (accept) ->
+			watcher.addEventListener "collide", (e) ->
+				if e.body == body
+					accept(e)
+					return false
+
+		visual: sign
+		position: watcher.position
+		addTo: (scene) ->
+			scene.visual.add sign
+			scene.physics.add watcher
+			scene.bindPhys watcher, sign
+
+	watcher.addEventListener "collide", (e) ->
+		self.onPassed.dispatch e
+
+	return self
 
 
 
