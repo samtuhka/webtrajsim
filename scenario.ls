@@ -242,6 +242,20 @@ handleSpeed = (scene, target) ->
 		scene.playerControls.throttle = 0
 		scene.playerControls.brake = -newForce
 
+addMarkerScreen = (scene, env) ->
+	aspect = screen.width / screen.height
+	vFOV = scene.camera.fov
+	angle = (vFOV/2) * Math.PI/180
+	heigth = Math.tan(angle) * 0.3 * 2
+	texture = THREE.ImageUtils.loadTexture 'res/markers/markerscreen.png'
+	markerscreen = new THREE.Mesh do
+		new THREE.PlaneGeometry heigth*aspect, heigth
+		new THREE.MeshBasicMaterial map:texture, transparent: true
+	markerscreen.position.z = -0.30
+	scene.camera.add markerscreen
+	markerscreen.visible = true
+
+
 export circleDriving = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Stay on your lane"
@@ -250,6 +264,7 @@ export circleDriving = seqr.bind (env) ->*
 			<p>Press enter or click the button below to continue.</p>
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
+	addMarkerScreen scene, env
 	scene.player.physical.position.z = -l/2 - 5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
@@ -308,6 +323,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 			<p>Press enter or click the button below to continue.</p>
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
+	addMarkerScreen scene, env
 	scene.player.physical.position.x = -rx - (7-1.75)
 	scene.player.physical.position.z = -l/2 - 5
 	scene.playerControls.throttle = 0
