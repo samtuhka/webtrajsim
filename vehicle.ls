@@ -92,7 +92,28 @@ loadViva = Co ->*
 	applyPosition car
 	body = car.getObjectByName "Body"
 	applyPosition body
+
+	lights = []
+	body.traverse (obj) ->
+		return if obj.name != "Headlight"
+		light = new THREE.SpotLight()
+			..intensity = 0.5
+			..angle = 40*(Math.PI/180)
+			..distance = 10
+			..exponent = 100
+		target = new THREE.Object3D!
+		position = (new THREE.Vector3).setFromMatrixPosition obj.matrixWorld
+		console.log position
+		target.position.z = 10
+		target.position.y = -position.y
+		target.position.x = 0
+		light.add target
+		light.target = target
+		light.position.copy position
+		lights.push light
+
 	body = mergeObject body
+	body.add ...lights
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1
