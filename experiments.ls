@@ -34,7 +34,8 @@ export mulsimco2015 = seqr.bind ->*
 	env.let \destroy
 	yield env
 
-	yield runScenario scenario.runTheLight
+	#yield runScenario scenario.runTheLight
+	yield runUntilPassed scenario.closeTheGap, passes: 3
 
 	yield runUntilPassed scenario.throttleAndBrake
 	yield runUntilPassed scenario.speedControl

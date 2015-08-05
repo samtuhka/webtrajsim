@@ -220,6 +220,40 @@ failOnCollision = (scn, scene) ->
 			content: reason
 		return false
 
+export closeTheGap = seqr.bind (env) ->*
+	@let \intro,
+		title: L "Close the gap"
+		content: L """
+			Let's get familiar with the car's dimensions. Drive as close as you
+			to the car before you without colliding. When you're done, press the
+			red button on the right side of the wheel.
+			"""
+
+	scene = yield basePedalScene env
+	leader = yield addVehicle scene
+	leader.physical.position.x = scene.player.physical.position.x
+	leader.physical.position.z = 100
+
+	failOnCollision @, scene
+
+	@let \scene, scene
+
+	distanceToLeader = ->
+		rawDist = scene.player.physical.position.distanceTo leader.physical.position
+		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
+
+	env.controls.change (btn, isOn) !~>
+		return unless btn == 'catch' and isOn
+		distance = distanceToLeader!
+		distance += 1.47 # HACK!
+		@let \done, passed: true, outro:
+			title: L "Passed!"
+			content: L "Left a gap of <strong>#{(distance*100).toFixed 1}</strong> cm."
+		return false
+
+	return yield @get \done
+
+
 export throttleAndBrake = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Throttle and brake"
