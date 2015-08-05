@@ -25,7 +25,8 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	player = yield addVehicle scene, controls
 	player.eye.add scene.camera
 	player.physical.position.x = rx + 1.75
-	player.body.visible = false
+	for i from 0 til player.body.children.length - 1
+		player.body.children[i].visible = false
 	scene.player = player
 	scene.visual.children[9].visible = false
 	scene.visual.children[8].visible = false
@@ -38,12 +39,12 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.player.prevSpeed = 0
 	scene.dT = 0
 	scene.maxScore = 0
-	scene.player.speedometer = ui.gauge env,
+	scene.player.scoremeter = ui.gauge env,
 		name: L "Score"
 		unit: L "points"
 		value: ->
 			score = scene.score
-	scene.player.speedometer2 = ui.gauge env,
+	scene.player.speedometer = ui.gauge env,
 		name: L "Speed"
 		unit: L "km/h"
 		value: ->

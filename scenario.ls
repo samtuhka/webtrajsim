@@ -125,10 +125,47 @@ handleProbes = (scene, i) ->
 			scene.probes[i].text "B"
 		scene.dT = scene.time
 
+#doesn't quite work as it should
+futurePoint = (x, z, rx, ry, l, scene) ->
+	speed = scene.player.getSpeed()
+	dist = speed*1
+	if x < 0 && z > 0 || x >= 0 && z < 0
+		dist = -dist
+	a = rx + 3.5
+	b = ry + 3.5
+	h = ((a - b) ^ 2) / ((a + b) 	^ 2)
+	circum = Math.PI*(a + b)*(1+(3*h/(10+(4-3*h) ^ 0.5)))
+	t1 = (Math.asin(Math.abs(z) / b))
+	t2 = t1 + (dist/circum)*2*Math.PI
+	x2 = Math.cos(t2)*a
+	y2 = Math.sin(t2)*b
+	if x < 0 && z >=0
+		x2 = -x2
+		y2 = y2
+		console.log("aa")
+	if x < 0 && z < 0
+		x2 = -x2
+		y2 = -y2
+	if x >= 0 && z < 0
+		x2 = x2
+		y2 = -y2
+	#test = scene.test
+	#v1 = new THREE.Vector3(x2, 0.1, y2)
+	#v1.project(scene.camera)
+	#x1 = (v1.x+1)*0.5
+	#y1 =(v1.y+1)*0.5
+	#test.0.style.left = x1*100.0 + '%'
+	#test.0.style.bottom = y1*100.0 + '%'
+
+
+
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, rx, ry, l
+	#testElement1 = $('<div>').css width: '30px', height: '30px', position: 'fixed', bottom: '100%', right: '100%', "background-color": "red"
+	#scene.test = testElement1
+	#$('#drivesim').append(testElement1)
 	scene.probes = []
 	pos = [[10,10],[10,45],[50,10],[50,45],[90, 10], [90,45]]
 	for i from 0 til 6
@@ -228,7 +265,6 @@ export circleDriving = seqr.bind (env) ->*
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 	startTime = scene.time
-	scene.start = startTime
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
@@ -243,6 +279,7 @@ export circleDriving = seqr.bind (env) ->*
 			scene.probes[i].text 'B'
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
+		futurePoint x, z, rx, ry, l, scene
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
 		#if cnt == false
