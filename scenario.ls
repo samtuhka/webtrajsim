@@ -246,12 +246,12 @@ addMarkerScreen = (scene, env) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
-	heigth = Math.tan(angle) * 0.1 * 2
+	heigth = Math.tan(angle) * 0.2 * 2
 	texture = THREE.ImageUtils.loadTexture 'res/markers/markerscreen.png'
 	markerscreen = new THREE.Mesh do
 		new THREE.PlaneGeometry heigth*aspect, heigth
 		new THREE.MeshBasicMaterial map:texture, transparent: true
-	markerscreen.position.z = -0.1
+	markerscreen.position.z = -0.2
 	scene.camera.add markerscreen
 	markerscreen.visible = true
 
