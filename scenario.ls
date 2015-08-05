@@ -246,14 +246,22 @@ addMarkerScreen = (scene, env) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
-	heigth = Math.tan(angle) * 0.25 * 2
-	texture = THREE.ImageUtils.loadTexture 'res/markers/markerscreen.png'
-	markerscreen = new THREE.Mesh do
-		new THREE.PlaneGeometry heigth*aspect, heigth
-		new THREE.MeshBasicMaterial map:texture, transparent: true
-	markerscreen.position.z = -0.25
-	scene.camera.add markerscreen
-	markerscreen.visible = true
+	ratio = 0.1
+	heigth = (Math.tan(angle) * 1000 * 2) * ratio
+	pos = [[0.05, 0.95], [0.95, 0.95], [0.95, 0.0], [0.05, 0.0]]
+	for i from 0 til 4
+		path = 'res/markers/' + i + '_marker.png'
+		texture = THREE.ImageUtils.loadTexture path
+		marker = new THREE.Mesh do
+			new THREE.PlaneGeometry heigth, heigth
+			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: false, depthWrite: false
+		marker.position.z = -1000
+		w = aspect/ratio - 1
+		h = (1/aspect) * (w+1) - 1
+		marker.position.x = (w*pos[i][0] - w/2) * heigth
+		marker.position.y = (h*pos[i][1] - h/2) * heigth
+		scene.camera.add marker
+		marker.visible = true
 
 
 export circleDriving = seqr.bind (env) ->*
