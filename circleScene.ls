@@ -39,11 +39,24 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.player.prevSpeed = 0
 	scene.dT = 0
 	scene.maxScore = 0
+	scene.missed = 0
+	scene.outside = 0
 	scene.player.scoremeter = ui.gauge env,
 		name: L "Score"
 		unit: L "points"
 		value: ->
 			score = scene.score
+	scene.player.missed = ui.gauge env,
+		name: L "Missed"
+		unit: L "points"
+		value: ->
+			score = scene.missed
+	scene.player.outside = ui.gauge env,
+		name: L "Outside your lane"
+		unit: L "seconds"
+		value: ->
+			score = scene.outside
+			score.toFixed(2)
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()
 	gainNode.connect audioContext.destination

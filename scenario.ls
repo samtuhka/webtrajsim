@@ -113,7 +113,7 @@ exportScenario \freeDriving, (env) ->*
 handleProbes = (scene, i) ->
 	if (scene.time - scene.dT) > 1
 		if  scene.probes[i].get(0).innerText == 'A'
-			scene.score -= 1
+			scene.missed += 1
 		scene.probes[i].text "B"
 		scene.probeIndx = Math.floor((Math.random() * 6))
 		seed = Math.floor((Math.random() * 3) + 1)
@@ -225,11 +225,12 @@ onOuterLane = (x, z, rX, rY, rW, l) ->
 		return false
 
 handleSound = (sound, scene, cnt) ->
+	if cnt == false
+		scene.outside += scene.time - scene.prevTime
 	if cnt == false and scene.time - scene.soundTs >= 1
 		sound.play()
 		scene.soundPlay = true
 		scene.soundTs = scene.time
-		scene.score -= 1
 	else if scene.soundPlay == true && cnt == true
 		sound.stop()
 		scene.soundPlay = false
