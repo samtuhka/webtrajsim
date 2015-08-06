@@ -125,9 +125,9 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 	offOrigin = new Cannon.Vec3().copy bbox.min.clone().add(bbox.max).divideScalar 2
 	offOrigin.y -= cogY
 
-	bodyPhys = new Cannon.Body mass: 2000
+	bodyPhys = new Cannon.Body mass: 2000								# Vehicle mass
 		..addShape (new Cannon.Box halfbox), offOrigin
-		..linearDamping = 0.1
+		..linearDamping = 0.1									# "Air resistance"
 		..angularDamping = 0.1
 
 	car = new Cannon.RaycastVehicle do
@@ -138,9 +138,10 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 
 	#controls = new MouseController $ 'body'
 
-	enginePower = 6000
-	brakePower = 1000
-	brakeResponse = (pedal) -> (100**pedal - 1)/100*brakePower
+	enginePower = 6000										# Engine power
+	brakePower = 1000										# Brake power
+	brakeExponent = 2000										# Brake response
+	brakeResponse = (pedal) -> (brakeExponent**pedal - 1)/brakeExponent*brakePower
 	maxSteer = 0.8
 	maxCentering = 0.4
 	maxCenteringSpeed = 10
@@ -167,7 +168,7 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 			chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
 			suspensionStiffness: 40
 			rollInfluence: 1
-			frictionSlip: 1
+			frictionSlip: 1									# Wheel friction
 		wi = car.wheelInfos[wii]
 		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 
