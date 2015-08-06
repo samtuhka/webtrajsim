@@ -52,7 +52,7 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 		value: ->
 			score = scene.missed
 	scene.player.outside = ui.gauge env,
-		name: L "Outside your lane"
+		name: L "Outside"
 		unit: L "seconds"
 		value: ->
 			score = scene.outside

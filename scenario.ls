@@ -114,6 +114,7 @@ handleProbes = (scene, i) ->
 	if (scene.time - scene.dT) > 1
 		if  scene.probes[i].get(0).innerText == 'A'
 			scene.missed += 1
+			scene.probes[i].missed += 1
 		scene.probes[i].text "B"
 		scene.probeIndx = Math.floor((Math.random() * 6))
 		seed = Math.floor((Math.random() * 3) + 1)
@@ -171,7 +172,8 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 	for i from 0 til 6
 		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute',   display: "inline-block", left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
 		probe.text 'B'
-		console.log(probe)
+		probe.score = 0
+		probe.missed = 0
 		scene.probes.push(probe)
 		$('#drivesim').append(scene.probes[i])
 
@@ -308,6 +310,7 @@ export circleDriving = seqr.bind (env) ->*
 			env.controls.probeReact = false
 			if scene.probes[i].get(0).innerText == 'A'
 				scene.score +=1
+				scene.probes[i].score += 1
 			else
 				scene.score -= 1
 			scene.probes[i].text 'B'
@@ -321,6 +324,7 @@ export circleDriving = seqr.bind (env) ->*
 		#		content: L "You left your lane."
 		#	return false
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
+			console.log(scene)
 			@let \done, passed: true, outro:
 				title: L "Passed"
 				content: L  """
@@ -367,6 +371,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 			env.controls.probeReact = false
 			if scene.probes[i].get(0).innerText == 'A'
 				scene.score +=1
+				scene.probes[i].score += 1
 			else
 				scene.score -= 1
 			scene.probes[i].text 'B'
@@ -380,6 +385,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 		#		content: L "You left your lane."
 		#	return false
 		if scene.maxScore == 50 && scene.time - scene.dT > 1
+			console.log(scene)
 			@let \done, passed: true, outro:
 				title: L "Passed"
 				content: L  """
