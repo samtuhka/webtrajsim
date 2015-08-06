@@ -284,12 +284,11 @@ export circleDriving = seqr.bind (env) ->*
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
 	addMarkerScreen scene, env
-	scene.player.physical.position.z = -l/2 - 5
+	scene.player.physical.position.z = - 5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = lightX
-	startLight.position.z = -l/2
 	startLight.addTo scene
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
@@ -344,12 +343,11 @@ export circleDrivingRev = seqr.bind (env) ->*
 	scene = yield basecircleDriving env, rx, ry, l
 	addMarkerScreen scene, env
 	scene.player.physical.position.x = -rx - (7-1.75)
-	scene.player.physical.position.z = -l/2 - 5
+	scene.player.physical.position.z = - 5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = ((rx + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
 	startLight.position.x = -lightX
-	startLight.position.z = -l/2
 	startLight.addTo scene
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
