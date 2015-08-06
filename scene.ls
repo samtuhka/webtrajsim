@@ -272,7 +272,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	a = rx + 0.5 * roadWidth
 	b = ry + 0.5 * roadWidth
 	h = ((a - b) ^ 2) / ((a + b) 	^ 2)
-	circum = Math.PI*(a + b)*(1+(3*h/(10+(4-3*h) ^ 0.5))) + 2*length
+	circum = Math.round(Math.PI*(a + b)*(1+(3*h/(10+(4-3*h) ^ 0.5))) + 2*length)
 	x = circum / (roadGeo.faces.length)
 	for i in [0 til roadGeo.faces.length/2 ]
 		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]

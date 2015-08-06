@@ -119,7 +119,7 @@ handleProbes = (scene, i) ->
 		scene.probeIndx = Math.floor((Math.random() * 6))
 		seed = Math.floor((Math.random() * 3) + 1)
 		i = scene.probeIndx
-		if seed == 1
+		if seed == 1 && scene.maxScore < 50
 			scene.probes[i].text "A"
 			scene.maxScore += 1
 		else
@@ -318,6 +318,7 @@ export circleDriving = seqr.bind (env) ->*
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
+		handleProbes scene, i
 		#if cnt == false
 		#	@let \done, passed: false, outro:
 		#		title: L "You failed"
@@ -332,7 +333,6 @@ export circleDriving = seqr.bind (env) ->*
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
 			return false
-		handleProbes scene, i
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 	yield @get \done
@@ -379,6 +379,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 		x = scene.player.physical.position.x
 		cnt = onOuterLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
+		handleProbes scene, i
 		#if cnt == false
 		#	@let \done, passed: false, outro:
 		#		title: L "You failed"
@@ -393,7 +394,6 @@ export circleDrivingRev = seqr.bind (env) ->*
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
 			return false
-		handleProbes scene, i
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 	yield @get \done
