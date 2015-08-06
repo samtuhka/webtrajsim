@@ -167,7 +167,7 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
 	hFOV = aspect*vFOV/100
-	pos = [[p1[0],p1[1]],[p2[0],p2[1]],[p1[0] + 20/hFOV,p1[1]],[p2[0] + 20/hFOV,p2[1]], [p1[0] - 20/hFOV,p1[1]], [p2[0] - 20/hFOV,p2[1]]]
+	pos = [[p1[0],p1[1]],[p2[0],p2[1]],[p1[0] + 15/hFOV,p1[1]],[p2[0] + 15/hFOV,p2[1]], [p1[0] - 15/hFOV,p1[1]], [p2[0] - 15/hFOV,p2[1]]]
 	for i from 0 til 6
 		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute',   display: "inline-block", left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
 		probe.text 'B'
