@@ -126,11 +126,10 @@ handleProbes = (scene, i) ->
 		scene.dT = scene.time
 
 #doesn't quite work as it should
-futurePoint = (x, z, rx, ry, l, scene) ->
-	speed = scene.player.getSpeed()
-	dist = speed*1
+futurePoint = (x, z, rx, ry, l, scene, speed, future, rev) ->
+	dist = speed/3.6 * future
 	if x < 0 && z > 0 || x >= 0 && z < 0
-		dist = -dist
+		dist = -dist * rev
 	a = rx + 3.5
 	b = ry + 3.5
 	h = ((a - b) ^ 2) / ((a + b) 	^ 2)
@@ -139,25 +138,42 @@ futurePoint = (x, z, rx, ry, l, scene) ->
 	t2 = t1 + (dist/circum)*2*Math.PI
 	x2 = Math.cos(t2)*a
 	y2 = Math.sin(t2)*b
-	if x < 0 && z >=0
+	if rev == -1
 		x2 = -x2
 		y2 = y2
-	if x < 0 && z < 0
-		x2 = -x2
-		y2 = -y2
-	if x >= 0 && z < 0
+	#if x < 0 && z < 0
+		#x2 = -x2
+		#y2 = -y2
+	if rev == 1
 		x2 = x2
 		y2 = -y2
-	console.log(x2, y2)
-	debugger
-	test = scene.test
-	#v1 = new THREE.Vector3(x2, 0.1, y2)
-	#v1.project(scene.camera)
-	#x1 = (v1.x+1)*0.5
-	#y1 =(v1.y+1)*0.5
-	#test.0.style.left = x1*100.0 + '%'
-	#test.0.style.bottom = y1*100.0 + '%'
+	#console.log(x2, y2, t2)
+	#debugger
+	#test = scene.test
+	v1 = new THREE.Vector3(x2, 0.1, y2)
+	v1.project(scene.camera)
+	x1 = (v1.x+1)*0.5*100
+	y1 =(v1.y+1)*0.5*100
+	#test.0.style.left = x1 + '%'
+	#test.0.style.bottom = y1 + '%'
+	return [x1, y1]
 
+createProbes = (scene, rx, ry, l, s, rev) ->
+	scene.probes = []
+	x = scene.player.physical.position.x
+	z = scene.player.physical.position.z
+	p1 = futurePoint(x, z, rx, ry, l, scene, s, 1, rev)
+	p2 = futurePoint(x, z, rx, ry, l, scene, s, 2, rev)
+	aspect = screen.width / screen.height
+	vFOV = scene.camera.fov
+	hFOV = aspect*vFOV/100
+	pos = [[p1[0],p1[1]],[p2[0],p2[1]],[p1[0] + 20/hFOV,p1[1]],[p2[0] + 20/hFOV,p2[1]], [p1[0] - 20/hFOV,p1[1]], [p2[0] - 20/hFOV,p2[1]]]
+	for i from 0 til 6
+		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute',   display: "inline-block", left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
+		probe.text 'B'
+		console.log(probe)
+		scene.probes.push(probe)
+		$('#drivesim').append(scene.probes[i])
 
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
@@ -167,13 +183,6 @@ export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	testElement1 = $('<div>').css width: '30px', height: '30px', position: 'fixed', bottom: '100%', right: '100%', "background-color": "red"
 	scene.test = testElement1
 	$('#drivesim').append(testElement1)
-	scene.probes = []
-	pos = [[10,10],[10,45],[50,10],[50,45],[90, 10], [90,45]]
-	for i from 0 til 6
-		probe = $('<div>').css "font-size": "250%", position: 'absolute', left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
-		probe.text 'B'
-		scene.probes.push(probe)
-		$('#drivesim').append(scene.probes[i])
 	return scene
 
 deparam = require 'jquery-deparam'
@@ -286,6 +295,7 @@ export circleDriving = seqr.bind (env) ->*
 	annoyingSound.load('res/sounds/beep-01a.wav')
 	@let \scene, scene
 	yield @get \run
+	createProbes scene, rx, ry, l, s, 1
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 	startTime = scene.time
@@ -303,7 +313,6 @@ export circleDriving = seqr.bind (env) ->*
 			scene.probes[i].text 'B'
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		futurePoint x, z, rx, ry, l, scene
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
 		#if cnt == false
@@ -346,6 +355,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 	annoyingSound.load('res/sounds/beep-01a.wav')
 	@let \scene, scene
 	yield @get \run
+	createProbes scene, rx, ry, l, s, -1
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 	startTime = scene.time
