@@ -163,12 +163,12 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 	scene.probes = []
 	x = scene.player.physical.position.x
 	z = scene.player.physical.position.z
-	p1 = futurePoint(x, z, rx, ry, l, scene, s, 1, rev)
+	p1 = futurePoint(x, z, rx, ry, l, scene, s, 0.5, rev)
 	p2 = futurePoint(x, z, rx, ry, l, scene, s, 2, rev)
 	aspect = screen.width / screen.height
-	vFOV = scene.camera.fov
-	hFOV = aspect*vFOV/100
-	pos = [[p1[0],p1[1]],[p2[0],p2[1]],[p1[0] + 15/hFOV,p1[1]],[p2[0] + 15/hFOV,p2[1]], [p1[0] - 15/hFOV,p1[1]], [p2[0] - 15/hFOV,p2[1]]]
+	vFOV = scene.camera.fov/100
+	hFOV = aspect*vFOV
+	pos = [[p1[0],p1[1]],[p2[0],p2[1]],[p1[0] + 20/hFOV,p1[1]],[p2[0] + 20/hFOV,p2[1]], [p1[0] - 20/hFOV,p1[1]], [p2[0] - 20/hFOV,p2[1]]]
 	for i from 0 til 6
 		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute',   display: "inline-block", left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
 		probe.text 'B'
