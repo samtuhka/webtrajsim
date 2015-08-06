@@ -142,14 +142,15 @@ futurePoint = (x, z, rx, ry, l, scene) ->
 	if x < 0 && z >=0
 		x2 = -x2
 		y2 = y2
-		console.log("aa")
 	if x < 0 && z < 0
 		x2 = -x2
 		y2 = -y2
 	if x >= 0 && z < 0
 		x2 = x2
 		y2 = -y2
-	#test = scene.test
+	console.log(x2, y2)
+	debugger
+	test = scene.test
 	#v1 = new THREE.Vector3(x2, 0.1, y2)
 	#v1.project(scene.camera)
 	#x1 = (v1.x+1)*0.5
@@ -163,9 +164,9 @@ export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, rx, ry, l
-	#testElement1 = $('<div>').css width: '30px', height: '30px', position: 'fixed', bottom: '100%', right: '100%', "background-color": "red"
-	#scene.test = testElement1
-	#$('#drivesim').append(testElement1)
+	testElement1 = $('<div>').css width: '30px', height: '30px', position: 'fixed', bottom: '100%', right: '100%', "background-color": "red"
+	scene.test = testElement1
+	$('#drivesim').append(testElement1)
 	scene.probes = []
 	pos = [[10,10],[10,45],[50,10],[50,45],[90, 10], [90,45]]
 	for i from 0 til 6
@@ -248,7 +249,7 @@ addMarkerScreen = (scene, env) ->
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	pos = [[0.05, 0.95], [0.95, 0.95], [0.95, 0.0], [0.05, 0.0]]
+	pos = [[0.0625, 0.9], [1 - 0.0625, 0.9], [0.0625, 0.1], [1 - 0.0625, 0.1]]
 	for i from 0 til 4
 		path = 'res/markers/' + i + '_marker.png'
 		texture = THREE.ImageUtils.loadTexture path
@@ -256,8 +257,8 @@ addMarkerScreen = (scene, env) ->
 			new THREE.PlaneGeometry heigth, heigth
 			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: false, depthWrite: false
 		marker.position.z = -1000
-		w = aspect/ratio - 1
-		h = (1/aspect) * (w+1) - 1
+		w = aspect/ratio
+		h = (1/aspect) * (w)
 		marker.position.x = (w*pos[i][0] - w/2) * heigth
 		marker.position.y = (h*pos[i][1] - h/2) * heigth
 		scene.camera.add marker
