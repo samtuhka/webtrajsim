@@ -456,7 +456,9 @@ class MicrosimWrapper
 
 	step: ->
 
+{knuthShuffle: shuffleArray} = require 'knuth-shuffle'
 
+{TargetSpeedController} = require './controls.ls'
 export followInTraffic = seqr.bind (env) ->*
 	@let \intro,
 		title: L "Supermiler"
@@ -545,7 +547,7 @@ export followInTraffic = seqr.bind (env) ->*
 		value: ->
 			return consumption.avgLitersPer100km!
 
-	nVehicles = 20
+	/*nVehicles = 20
 	spacePerVehicle = 20
 	traffic = new LoopMicrosim nVehicles*spacePerVehicle
 	for i in [1 til nVehicles]
@@ -567,7 +569,27 @@ export followInTraffic = seqr.bind (env) ->*
 	scene.beforeRender.add (dt) ->
 		leader.forceModelSync()
 		leader.physical.position.z = playerSim.leader.position
-		leader.forceModelSync()
+		leader.forceModelSync()*/
+
+	leaderControls = new TargetSpeedController
+	leader = yield addVehicle scene, leaderControls
+	leader.physical.position.x = -1.75
+	leader.physical.position.z = 10
+
+	speeds = [0, 30, 40, 50, 60, 70, 80]*2
+	shuffleArray speeds
+	while speeds[*-1] == 0
+		shuffleArray speeds
+	speedDuration = 10
+
+	sequence = for speed, i in speeds
+		[(i+1)*speedDuration, speed/3.6]
+
+	scene.afterPhysics.add (dt) ->
+		if scene.time > sequence[0][0] and sequence.length > 1
+			sequence := sequence.slice(1)
+		leaderControls.target = sequence[0][1]
+		leaderControls.tick leader.getSpeed(), dt
 
 	headway =
 		cumulative: 0
@@ -598,8 +620,8 @@ export followInTraffic = seqr.bind (env) ->*
 			((1 - c)*100).toFixed 1
 
 	# Wait for the traffic to queue up
-	while not traffic.isInStandstill()
-		traffic.step 1/60
+	#while not traffic.isInStandstill()
+	#	traffic.step 1/60
 
 	finishSign.bodyPassed(scene.player.physical).then ~>
 		@let \done, passed: true, outro:

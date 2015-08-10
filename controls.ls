@@ -111,3 +111,21 @@ export NonSteeringControl = (orig) ->
 	return ctrl
 
 
+export class TargetSpeedController
+	(@target=0) ->
+		@throttle = 0
+		@brake = 0
+		@steering = 0
+		@direction = 1
+
+	tick: (speed, dt) ->
+		delta = @target - speed
+		force = Math.tanh delta
+		if force > 0
+			@throttle = force
+			@brake = 0
+		else
+			@brake = force
+			@throttle = 0
+
+	set: ->
