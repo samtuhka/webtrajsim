@@ -93,7 +93,7 @@ loadViva = Co ->*
 	body = car.getObjectByName "Body"
 	applyPosition body
 
-	lights = []
+	/*lights = []
 	body.traverse (obj) ->
 		return if obj.name != "Headlight"
 		light = new THREE.SpotLight()
@@ -112,8 +112,8 @@ loadViva = Co ->*
 		light.position.copy position
 		lights.push light
 
+	body.add ...lights*/
 	body = mergeObject body
-	body.add ...lights
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1
