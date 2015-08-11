@@ -51,7 +51,7 @@
 
 '%speedControl.outro': ({time, timePenalty}) -> """
 	<p>Ajoit radan #{time.toFixed 2} sekunnissa, mihin lisätään
-	#{timePenalty.toFixed 2} aikasakkoa ylinopeudesta.
+	#{timePenalty.toFixed 2} sekuntia aikasakkoa ylinopeudesta.
 
 	<p>Kokonaisaikasi oli <strong>#{(timePenalty + time).toFixed 2}</strong> sekuntia.
 	"""
@@ -159,7 +159,7 @@ ajokortin kääntöpuolelta."""
 'Past year driving': 'Viimeisen vuoden ajaminen'
 "On average, how frequently have you driven during the <strong>past year</strong>.": """
 Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
-<strong>viime vuoden aikana</strong>.
+<strong>viimeisen vuoden aikana</strong>.
 """
 
 'Most days': 'Useimpina päivinä'
