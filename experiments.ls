@@ -14,8 +14,8 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 		currentPasses += result.passed
 
 		doQuit = currentPasses >= passes or retry > maxRetries
-		if not doQuit
-			result.outro \content .append $ L "<p>Let's try that again.</p>"
+		#if not doQuit
+		#	result.outro \content .append $ L "<p>Let's try that again.</p>"
 		yield task
 		if doQuit
 			break

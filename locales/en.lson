@@ -1,0 +1,60 @@
+'%runTheLight.intro': """<p>From here on you must honor the traffic light.
+			But go ahead and run it once so you know what happens.</p>
+
+			<p>Press enter or click the button below to continue.</p>
+			"""
+
+'%runTheLight.outro': """From here on, the trial will be disqualified if you
+			run any red lights."""
+			
+'%closeTheGap.intro': """
+			Let's get familiar with the car's dimensions. Drive as close as you
+			to the car before you without colliding. When you're done, press the
+			red button on the right side of the wheel."""
+'%closeTheGap.outro': ({distance}) -> "You got within #{(distance*100).toFixed 1} cm."
+
+'%throttleAndBrake.intro': """Let's get familiar with the car. Get across the finish line
+			as soon as possible, but without running any red lights or stop signs.
+			"""
+'%throttleAndBrake.outro': ({time}) -> "Your time was <strong>#{time.toFixed 2}</strong> seconds."
+
+'%speedControl.intro':  """
+	<p>Drive as fast as you can without breaking the speed limit. Going over the limit
+	results in penality time.
+	"""
+
+'%speedControl.outro': ({time, timePenalty}) -> """
+	You ran the course in #{time.toFixed 2} seconds, but got
+	#{timePenalty.toFixed 2} seconds penalty from breaking the
+	limit. The final score is #{(timePenalty + time).toFixed 2} seconds.
+	"""
+
+'%blinderIntro': <p>In this task also your level of anticipation is measured by
+the number of glances you have to take. To briefly see the road,
+press the left lever. Try to accomplish the task as well as you can,
+while taking as few glances as you can.
+
+'%blindSpeedControl.intro': -> """
+	<p>#{@ '%speedControl.intro'}
+	#{@ '%blinderIntro'}
+	"""
+
+'%followInTraffic.intro': """
+	<p>Drive in the traffic trying to get as much mileage as you can.
+
+	<p>Note that closer you drive to vehicle before you, the less fuel
+	you consume due to the lesser air resistance. But you waste good momentum
+	by braking, so try to find a balance where you can keep a short
+	headway without having to brake too much.
+
+	<p>There are no speed limits in this task.
+	"""
+
+'%followInTraffic.outro': {{consumption}) ->
+	"Your consumption was #{consumption.avgLitersPer100km!.toFixed 2} l/100km."
+
+'%blindFollowInTraffic.intro': -> """
+	<p>#{@ '%followInTraffic.intro'}
+	#{@ '%blinderIntro'}
+	"""
+

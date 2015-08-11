@@ -1,0 +1,103 @@
+'Speed': 'Nopeus'
+'km/h': 'km/h'
+'Time': 'Aika'
+'s': 's'
+
+'Glances': 'Katseet'
+
+'Run the light': 'Aja punaista päin'
+'(Just this once)': '(Vain tämän kerran)'
+
+'Passed': 'Hyväksytty suoritus'
+'Passed!': 'Hyväksytty suoritus'
+
+'Oops!': 'Oho!'
+'You ran the red light!': 'Ajoit punaista päin!'
+'You ran the stop sign!': 'Et pysähtynyt ennen stop-merkkiä!'
+'You crashed!': 'Törmäys!'
+
+'%runTheLight.intro': """<p>Tästä eteenpäin sinun tulee noudattaa liikennevaloja,
+			mutta aja tämän kerran punaista päin, jotta tiedät mitä
+			siitä seuraa.</p>
+
+			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.</p>
+			"""
+
+'%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
+
+'Close the gap': 'Ahdas pysäköinti'
+'%closeTheGap.intro': """Tässä tehtävässä tutustutaan auton ulottuvuuksiin. Aja mahdollisimman
+			lähelle edelläolevaa autoa, mutta älä kuitenkaan törmää. Kun olet niin lähellä
+			kuin tunnet törmäämättäsi pääsevän, sammuta auto painamalla ratin oikeanpuoleista
+			punaista nappia.
+			"""
+'%closeTheGap.outro': ({distance}) ->
+	"Pysäköit #{(distance*100).toFixed 1} senttimetrina  päähän."
+
+'Throttle and brake': 'Kiihdytys ja jarrutus'
+'%throttleAndBrake.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
+			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä.
+			"""
+
+'%throttleAndBrake.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
+
+'Speed control': 'Nopeuden hallinta'
+'%speedControl.intro':  """
+	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.
+	Ylinopeuden ajamisesta kerääntyy aikasakkoa.
+	"""
+'Penalty': 'Aikasakko'
+'Speed limit': 'Nopeusrajoitus'
+
+'%speedControl.outro': ({time, timePenalty}) -> """
+	<p>Ajoit radan #{time.toFixed 2} sekunnissa, mihin lisätään
+	#{timePenalty.toFixed 2} aikasakkoa ylinopeudesta.
+
+	<p>Kokonaisaikasi oli <strong>#{(timePenalty + time).toFixed 2}</strong> sekuntia.
+	"""
+
+'%blinderIntro': """
+	<p>Tässä tehtävässä mitataan myös ennakointikykyäsi laskemalla, kuinka usein
+	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasemmanpuoleista
+	liipasinta. Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman
+	vähän katseita.
+	"""
+
+'Anticipatory speed control': 'Ennakointi nopeudenhallinnassa'
+
+'%blindSpeedControl.intro': -> """
+	<p>#{@ '%speedControl.intro'}
+	#{@ '%blinderIntro'}
+	"""
+
+'Supermiler': 'Taloudellinen ajo'
+
+'%followInTraffic.intro': """
+	<p>Aja siten, että polttoaineenkulutuksesi on mahdollisimman pieni.</p>
+
+	<p>Pyri ajotyyliin, joka tasapainottaa seuraavat tekijät:</p>
+	<ul>
+	<li>Edelläolevaa lähellä ajaminen vähentää kulutusta ilmanvastuksen
+	vähenemisen ansiosta.
+	<li>Jarruttaminen lisää kokonaiskulutusta, koska joudut kiihdyttämään
+	menetetyn nopeuden takaisin.
+	<li>Auto käyttää jonkin verran polttoainetta myös muuhun kuin etenemiseen,
+	joten etenemisen kannattaa olla mahdollisimman ripeää.
+	</ul>
+
+	<p>Tässä tehtävässä ei ole nopeusrajoituksia.</p>
+	"""
+
+'Draft saving': 'Ilmanvastussäästö'
+'Average consumption': 'Keskikulutus'
+'Current consumption': 'Hetkellinen kulutus'
+
+'%followInTraffic.outro': ({consumption}) ->
+	"Kulutuksesi oli #{consumption.avgLitersPer100km!.toFixed 2} l/100km."
+
+'Anticipating supermiler': 'Taloudellinen ennakoiva ajo'
+
+'%blindFollowInTraffic.intro': -> """
+	<p>#{@ '%followInTraffic.intro'}
+	#{@ '%blinderIntro'}
+	"""

@@ -9,9 +9,6 @@ seqr = require './seqr.ls'
 {DefaultEngineSound} = require './sounds.ls'
 assets = require './assets.ls'
 
-# Just a placeholder for localization
-L = (s) -> s
-
 ui = require './ui.ls'
 
 DummyScene = ->
@@ -41,7 +38,7 @@ DummyScene = ->
 #Scene = DummyScene
 
 export baseScene = seqr.bind (env) ->*
-	{controls, audioContext} = env
+	{controls, audioContext, L} = env
 	scene = new Scene
 	yield P.resolve addGround scene
 	sky = yield P.resolve assets.addSky scene
@@ -157,7 +154,7 @@ addBlinderTask = (scene, env) ->
 	showMask()
 
 	ui.gauge env,
-		name: L "Glances"
+		name: env.L "Glances"
 		unit: ""
 		value: ->
 			self.glances
@@ -178,14 +175,9 @@ addBlinderTask = (scene, env) ->
 
 export runTheLight = seqr.bind (env) ->*
 	@let \intro,
-		title: L "Run the light"
-		subtitle: L "(Just this once)"
-		content: $ L """
-			<p>From here on you must honor the traffic light.
-			But go ahead and run it once so you know what happens.</p>
-
-			<p>Press enter or click the button below to continue.</p>
-			"""
+		title: env.L "Run the light"
+		subtitle: env.L "(Just this once)"
+		content: $ env.L "%runTheLight.intro"
 
 	scene = yield basePedalScene env
 	startLight = yield assets.TrafficLight()
@@ -198,43 +190,36 @@ export runTheLight = seqr.bind (env) ->*
 
 	scene.player.onCollision (e) ~>
 		@let \done, passed: true, outro:
-			title: L "Passed"
-			content: L """
-				From here on, the trial will be disqualified if you
-				run any red lights.
-				"""
+			title: env.L "Passed"
+			content: env.L '%runTheLight.outro'
 
 	return yield @get \done
 
-collisionReason = (e) ->
+collisionReason = ({L}, e) ->
 	switch (e.body.objectClass)
 	| 'traffic-light' => L "You ran the red light!"
 	| 'stop-sign' => L "You ran the stop sign!"
 	| otherwise => L "You crashed!"
 
-failOnCollision = (scn, scene) ->
+failOnCollision = (env, scn, scene) ->
 	scene.player.onCollision (e) ->
-		reason = collisionReason e
+		reason = collisionReason env, e
 		scn.let \done, passed: false, outro:
-			title: L "Oops!"
+			title: env.L "Oops!"
 			content: reason
 		return false
 
 export closeTheGap = seqr.bind (env) ->*
 	@let \intro,
-		title: L "Close the gap"
-		content: L """
-			Let's get familiar with the car's dimensions. Drive as close as you
-			to the car before you without colliding. When you're done, press the
-			red button on the right side of the wheel.
-			"""
+		title: env.L "Close the gap"
+		content: env.L '%closeTheGap.intro'
 
 	scene = yield basePedalScene env
 	leader = yield addVehicle scene
 	leader.physical.position.x = scene.player.physical.position.x
 	leader.physical.position.z = 100
 
-	failOnCollision @, scene
+	failOnCollision env, @, scene
 
 	@let \scene, scene
 
@@ -247,20 +232,18 @@ export closeTheGap = seqr.bind (env) ->*
 		distance = distanceToLeader!
 		distance += 1.47 # HACK!
 		@let \done, passed: true, outro:
-			title: L "Passed!"
-			content: L "Left a gap of <strong>#{(distance*100).toFixed 1}</strong> cm."
+			title: env.L "Passed"
+			content: env.L "%closeTheGap.outro", distance: distance
 		return false
 
 	return yield @get \done
 
 
 export throttleAndBrake = seqr.bind (env) ->*
+	L = env.L
 	@let \intro,
 		title: L "Throttle and brake"
-		content: L """
-			Let's get familiar with the car. Get across the finish line
-			as soon as possible, but without running any red lights or stop signs.
-			"""
+		content: L '%throttleAndBrake.intro'
 
 	scene = yield basePedalScene env
 
@@ -275,14 +258,14 @@ export throttleAndBrake = seqr.bind (env) ->*
 		..position.z = goalDistance + 10
 		..addTo scene
 
-	failOnCollision @, scene
+	failOnCollision env, @, scene
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
 	finishSign.addTo scene
 	ui.gauge env,
 		name: L "Time"
-		unit: "s"
+		unit: L "s"
 		value: ->
 			if not startTime?
 				return 0.toFixed 2
@@ -292,7 +275,7 @@ export throttleAndBrake = seqr.bind (env) ->*
 	@let \scene, scene
 	yield @get \run
 
-	yield P.delay 1000
+	yield P.delay 2000
 	yield startLight.switchToGreen()
 	startTime = scene.time
 
@@ -300,20 +283,17 @@ export throttleAndBrake = seqr.bind (env) ->*
 		return if Math.abs(scene.player.getSpeed()) > 0.1
 		time = scene.time - startTime
 		@let \done, passed: true, outro:
-			title: L "Passed!"
-			content: L "Your time was <strong>#{time.toFixed 2}</strong> seconds."
+			title: L "Passed"
+			content: L '%throttleAndBrake.outro', time: time
 		return false
 
 	return yield @get \done
 
 export speedControl = seqr.bind (env) ->*
+	L = env.L
 	@let \intro,
 		title: L "Speed control"
-		content: L """
-			<p>Drive as fast as possible, yet honoring the speed limits,
-			and of course the red lights and stop signs. More you drive over the speed limit,
-			the more penalty time you get.
-			"""
+		content: L "%speedControl.intro"
 
 	scene = yield basePedalScene env
 	limits = [
@@ -363,7 +343,7 @@ export speedControl = seqr.bind (env) ->*
 		timePenalty := illGains*illGainsMultiplier
 
 	ui.gauge env,
-		name: "Penalty"
+		name: L "Penalty"
 		unit: "s"
 		value: ->
 			timePenalty.toFixed 2
@@ -378,7 +358,7 @@ export speedControl = seqr.bind (env) ->*
 		..position.z = goalDistance + 10
 		..addTo scene
 
-	failOnCollision @, scene
+	failOnCollision env, @, scene
 
 	scene.player.onCollision (e) ~>
 		@let \done, passed: false, outro:
@@ -402,31 +382,20 @@ export speedControl = seqr.bind (env) ->*
 
 		time = scene.time - startTime
 		@let \done, passed: true, outro:
-			title: L "Passed!"
-			content: L """
-				You ran the course in #{time.toFixed 2} seconds, but got
-				#{timePenalty.toFixed 2} seconds penalty from breaking the
-				limit. The final score is #{(timePenalty + time).toFixed 2} seconds.
-				"""
+			title: L "Passed"
+			content: L '%speedControl.outro', time: time, timePenalty: timePenalty
 		return false
 
 	return yield @get \done
 
 export blindSpeedControl = seqr.bind (env) ->*
+	L = env.L
 	base = speedControl env
 
 	intro = yield base.get \intro
 	@let \intro,
 		title: L "Anticipatory speed control"
-		content: L """
-			<p>Drive as fast as possible, yet honoring the speed limits,
-			and of course the red lights and stop signs.
-
-			<p>In this task also your level of anticipation is measured by
-			the number of glances you have to take. To briefly see the road,
-			press the left lever. Try to accomplish the task as well as you can,
-			while taking as few glances as you can.
-			"""
+		content: L '%blindSpeedControl.intro'
 
 	scene = yield base.get \scene
 
@@ -460,19 +429,10 @@ class MicrosimWrapper
 
 {TargetSpeedController} = require './controls.ls'
 export followInTraffic = seqr.bind (env) ->*
+	L = env.L
 	@let \intro,
 		title: L "Supermiler"
-		content: $ L """
-			<p>Drive in the traffic trying to get as much mileage as you
-			can.
-			
-			<p>Note that closer you drive to vehicle before you, the less fuel
-			you consume due to the lesser air resistance. But you waste good momentum
-			by braking, so try to find a balance where you can keep a short
-			headway without having to brake too much.
-
-			<p>There are no speed limits in this task.
-			"""
+		content: $ L "%followInTraffic.intro"
 
 	scene = yield basePedalScene env
 	#addReactionTest scene, env
@@ -626,10 +586,7 @@ export followInTraffic = seqr.bind (env) ->*
 	finishSign.bodyPassed(scene.player.physical).then ~>
 		@let \done, passed: true, outro:
 			title: L "Passed!"
-			content: L """
-				Your consumption was #{consumption.avgLitersPer100km!.toFixed 2} l/100km.
-				"""
-
+			content: L '%followInTraffic.outro', consumption: consumption
 	@let \scene, scene
 	yield @get \run
 	yield P.delay 1000
@@ -640,27 +597,13 @@ export followInTraffic = seqr.bind (env) ->*
 
 
 export blindFollowInTraffic = seqr.bind (env) ->*
+	L = env.L
 	base = followInTraffic env
 
 	intro = yield base.get \intro
 	@let \intro,
 		title: L "Anticipating supermiler"
-		content: L """
-			<p>Drive in the traffic trying to get as much mileage as you
-			can.
-
-			<p>Note that closer you drive to vehicle before you, the less fuel
-			you consume due to the lesser air resistance. But you waste good momentum
-			by braking, so try to find a balance where you can keep a short
-			headway without having to brake too much.
-
-			<p>There are no speed limits in this task.
-
-			<p>In this task also your level of anticipation is measured by
-			the number of glances you have to take. To briefly see the road,
-			press the left lever. Try to accomplish the task as well as you can,
-			while taking as few glances as you can.
-			"""
+		content: L '%blindFollowInTraffic.intro'
 
 	scene = yield base.get \scene
 	scene.draftIndicator.el.hide()
@@ -680,6 +623,7 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 	return result
 
 export participantInformation = seqr.bind (env) ->*
+	L = env.L
 	yield ui.inputDialog env, ->
 		@ \title .text L "Welcome to the experiment"
 		@ \text .text L "Please type your name."

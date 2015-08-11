@@ -9,6 +9,8 @@ seqr = require './seqr.ls'
 scenario = require './scenario.ls'
 ui = require './ui.ls'
 
+localizer = require './localizer.ls'
+
 window.THREE = THREE
 window.CANNON = require 'cannon'
 require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
@@ -56,6 +58,9 @@ export newEnv = seqr.bind !->*
 	env = {}
 	opts = {}
 	opts <<< deparam window.location.search.substring 1
+
+	env.L = localizer()
+	yield env.L.load 'locales/fi.lson'
 
 	container = $('#drivesim').empty().fadeIn()
 
