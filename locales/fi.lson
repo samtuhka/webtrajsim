@@ -32,7 +32,7 @@
 			punaista nappia.
 			"""
 '%closeTheGap.outro': ({distance}) ->
-	"Pysäköit #{(distance*100).toFixed 1} senttimetrina  päähän."
+	"Pysäköit #{(distance*100).toFixed 1} senttimetrin päähän."
 
 'Throttle and brake': 'Kiihdytys ja jarrutus'
 '%throttleAndBrake.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
@@ -101,3 +101,70 @@
 	<p>#{@ '%followInTraffic.intro'}
 	#{@ '%blinderIntro'}
 	"""
+
+'Next': 'Seuraava'
+'Previous': 'Edellinen'
+'I wish to participate': 'Haluan osallistua kokeeseen'
+
+'Welcome to the experiment': 'Tervetuloa kokeeseen!'
+'%intro.introduction': """
+<p>Tämän kokeen tarkoituksena on tutkia autonkuljettajan nopeudensäätelyä,
+ennakointia ja tarkkaavaisuuden jakamista.
+
+<p>Koe koostuu useasta osatehtävästä,
+jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin tunnin.
+Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
+
+<p>Kokeen vastuullisena tutkijana toimii prof. Heikki Summala ja tutkijoina
+Jami Pekkanen, Teemu Itkonen ja Otto Lappi.
+"""
+
+'Participation is voluntary': 'Osallistuminen on vapaaehtoista'
+'%intro.participantRights': """<p>Kokeeseen osallistuminen on vapaaehtoista.
+Voit halutessasi peruuttaa tai keskeyttää osallistumisesi tai kieltäytyä pyydetystä
+toiminnasta missä vaiheessa tahansa.
+"""
+
+'Collection and use of data': 'Tietojen keräys ja käyttö'
+"%intro.dataUse": """
+<p>Kokeessa kerätään tietoja suorituksestasi. Tietoja ja niistä saatuja
+tutkimustuloksia käytetään tieteelliseen raportointiin (esim. julkaisuihin)
+sellaisessa muodossa, joissa henkilöllisyyttäsi ei voi tunnistaa.
+"""
+'I accept the usage of my data': 'Hyväksyn tietojeni käytön'
+
+'Background information': 'Taustatiedot'
+'%intro.backgroundInfo': """
+<p>Seuraavaksi kysymme joitakin perustietoja sinusta.
+Jos et halua antaa kysymäämme tietoa, voit jättää kyseisen
+kentän tyhjäksi.
+"""
+
+'E-mail address': 'Sähköpostiosoite'
+'%intro.email': """Kysymme sähköpostiosoitettasi, koska saatamme pyytää sinulta lisätietoja
+tai osallistumista jatkokokeeseen. Sähköpostiosoitettasi ei luovuteta ulkopuolisille, eikä
+siihen lähetetä tähän kokeeseen liittymätöntä viestintää."""
+
+'Birth year': 'Syntymävuosi'
+
+'Driving license year': 'Kuljettajatutkinnon suoritus'
+'%intro.license': """Anna vuosi, jona olet saanut B-luokan ajo-oikeuden (henkilöauto).
+Jos sinulla ei ole kyseisen luokan ajo-oikeutta, jätä kenttä tyhjäksi. Tiedot löytyvät
+ajokortin kääntöpuolelta."""
+
+'Past year driving': 'Viimeisen vuoden ajaminen'
+"On average, how frequently have you driven during the <strong>past year</strong>.": """
+Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
+<strong>viime vuoden aikana</strong>.
+"""
+
+'Most days': 'Useimpina päivinä'
+'Most weeks': 'Useimpina viikkoina'
+'Most months': 'Useimpina kuukausina'
+'Few times a year': 'Joitakin kertoja vuodessa'
+'Not at all': 'En lainkaan'
+
+'Lifetime driving': 'Ajohistoria'
+"On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
+<strong>ajokortin saatuasi</strong>."""
+

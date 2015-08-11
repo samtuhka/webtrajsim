@@ -624,9 +624,98 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 
 export participantInformation = seqr.bind (env) ->*
 	L = env.L
-	yield ui.inputDialog env, ->
-		@ \title .text L "Welcome to the experiment"
-		@ \text .text L "Please type your name."
-		textbox = $('<input name="name" type="text" style="color: black">')
-		.appendTo @ \content
-		setTimeout textbox~focus, 0
+	currentYear = (new Date).getFullYear()
+	console.log currentYear
+	radioSelect = (name, ...options) ->
+		for {value, label} in options
+			$ """
+			<div class="radio">
+				<label>
+					<input type="radio" name="#name" value="#value">
+					#label
+				</label>
+			</div>
+			"""
+
+	dialogs =
+		->
+			@ \title .text L "Welcome to the experiment"
+			@ \text .append L "%intro.introduction"
+			@ \accept .text L "Next"
+			@ \cancel-button .hide!
+		->
+			@ \title .text L "Participation is voluntary"
+			@ \text .append L "%intro.participantRights"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "I wish to participate"
+		->
+			@ \title .text L "Collection and use of data"
+			@ \text .append L "%intro.dataUse"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "I accept the usage of my data"
+		->
+			@ \title .text L "Background information"
+			@ \text .append L "%intro.backgroundInfo"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+		->
+			@ \title .text L "E-mail address"
+			@ \text .append L "%intro.email"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			input = $('<input name="email" type="email" style="color: black">')
+			.prop "placeholder", L "E-mail address"
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
+		->
+			@ \title .text L "Birth year"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			input = $("""<input name="birthyear" type="number" min="1900" max="#currentYear" style="color: black">""")
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
+		->
+			@ \title .text L "Driving license year"
+			@ \text .append L "%intro.license"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			input = $("""<input name="drivinglicenseyear" type="number" min="1900" max="#currentYear" style="color: black">""")
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
+		->
+			@ \title .text L "Past year driving"
+			@ \text .append L "On average, how frequently have you driven during the <strong>past year</strong>."
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "drivingFreqPastYear",
+				* value: 'daily', label: L "Most days"
+				* value: 'weekly', label: L "Most weeks"
+				* value: 'monthly', label: L "Most months"
+				* value: 'yearly', label: L "Few times a year"
+				* value: 'none', label: L "Not at all"
+		->
+			@ \title .text L "Lifetime driving"
+			@ \text .append L "On average, how frequently have you driven <strong>since you got your driver's license</strong>."
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "drivingFreqTotal",
+				* value: 'daily', label: L "Most days"
+				* value: 'weekly', label: L "Most weeks"
+				* value: 'monthly', label: L "Most months"
+				* value: 'yearly', label: L "Few times a year"
+				* value: 'none', label: L "Not at all"
+
+	i = 0
+	while i < dialogs.length
+		result = yield ui.inputDialog env, dialogs[i]
+		console.log result
+		if result.canceled
+			i -= 2
+		i += 1
+
+	#yield ui.inputDialog env, ->
+	#	@ \title .text L "Welcome to the experiment"
+	#	@ \text .text L "Please type your name."
+	#	textbox = $('<input name="name" type="text" style="color: black">')
+	#	.appendTo @ \content
+	#	setTimeout textbox~focus, 0

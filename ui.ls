@@ -87,14 +87,23 @@ export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 	background.hide()
 
 	btn = api \accept-button
+
+	canceled = false
+	api(\cancel-button).click ->
+		canceled := true
+
 	yield waitFor background~fadeIn
-	form.on "submit" ->
-		logger.write dialogInput: form.serialize()
-	yield new P (a) ->
-		btn.one "click", a
-		form.one "submit", a
+	form.on "submit" (e) ~>
+		result =
+			canceled: canceled
+			data: form.serialize()
+		logger.write result
+		@let \result, result
+
+	result = yield @get \result
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
+	return result
 
 export taskDialog = Co ({notifications}, cb) ->*
 	{el, result} = api = configTemplate (require './templates/helper.lo.html!text'), cb
