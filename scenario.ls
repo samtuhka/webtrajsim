@@ -231,6 +231,8 @@ exportScenario \closeTheGap, (env) ->*
 
 	@let \scene, scene
 
+	yield @get \run
+
 	distanceToLeader = ->
 		rawDist = scene.player.physical.position.distanceTo leader.physical.position
 		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
