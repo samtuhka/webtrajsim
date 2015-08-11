@@ -147,6 +147,10 @@ siihen lähetetä tähän kokeeseen liittymätöntä viestintää."""
 
 'Birth year': 'Syntymävuosi'
 
+'Gender': 'Sukupuoli'
+'Female': 'Nainen'
+'Male': 'Mies'
+
 'Driving license year': 'Kuljettajatutkinnon suoritus'
 '%intro.license': """Anna vuosi, jona olet saanut B-luokan ajo-oikeuden (henkilöauto).
 Jos sinulla ei ole kyseisen luokan ajo-oikeutta, jätä kenttä tyhjäksi. Tiedot löytyvät

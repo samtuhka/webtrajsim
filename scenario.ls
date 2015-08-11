@@ -675,6 +675,13 @@ export participantInformation = seqr.bind (env) ->*
 			.appendTo @ \inputs
 			setTimeout input~focus, 0
 		->
+			@ \title .text L "Gender"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "gender",
+				* value: 'female', label: L "Female"
+				* value: 'male', label: L "Male"
+		->
 			@ \title .text L "Driving license year"
 			@ \text .append L "%intro.license"
 			@ \accept .text L "Next"
