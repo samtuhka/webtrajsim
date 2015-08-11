@@ -112,6 +112,8 @@ exportScenario \freeDriving, (env) ->*
 #a bit less insane
 handleProbes = (scene, i) ->
 	if (scene.time - scene.dT) > 1
+		if scene.maxScore == 50
+			scene.end = true
 		if  scene.probes[i].get(0).innerText == 'A'
 			scene.missed += 1
 			scene.probes[i].missed += 1
@@ -126,63 +128,95 @@ handleProbes = (scene, i) ->
 			scene.probes[i].text "B"
 		scene.dT = scene.time
 
-#doesn't quite work as it should
-futurePoint = (x, z, rx, ry, l, scene, speed, future, rev) ->
-	dist = speed/3.6 * future
-	if x < 0 && z > 0 || x >= 0 && z < 0
-		dist = -dist * rev
-	a = rx + 3.5
-	b = ry + 3.5
-	h = ((a - b) ^ 2) / ((a + b) 	^ 2)
-	circum = Math.PI*(a + b)*(1+(3*h/(10+(4-3*h) ^ 0.5)))
-	t1 = (Math.asin(Math.abs(z) / b))
-	t2 = t1 + (dist/circum)*2*Math.PI
-	x2 = Math.cos(t2)*a
-	y2 = Math.sin(t2)*b
-	if rev == -1
-		x2 = -x2
-		y2 = y2
-	#if x < 0 && z < 0
-		#x2 = -x2
-		#y2 = -y2
-	if rev == 1
-		x2 = x2
-		y2 = -y2
-	#console.log(x2, y2, t2)
-	#debugger
-	#test = scene.test
-	v1 = new THREE.Vector3(x2, 0.1, y2)
-	v1.project(scene.camera)
-	x1 = (v1.x+1)*0.5*100
-	y1 =(v1.y+1)*0.5*100
-	#test.0.style.left = x1 + '%'
-	#test.0.style.bottom = y1 + '%'
-	return [x1, y1]
-
 createProbes = (scene, rx, ry, l, s, rev) ->
 	scene.probes = []
 	x = scene.player.physical.position.x
 	z = scene.player.physical.position.z
-	p1 = futurePoint(x, z, rx, ry, l, scene, s, 0.5, rev)
-	p2 = futurePoint(x, z, rx, ry, l, scene, s, 2, rev)
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
-	pos = [[p1[0],p1[1]],[p2[0],p2[1]],[p1[0] + 20/hFOV,p1[1]],[p2[0] + 20/hFOV,p2[1]], [p1[0] - 20/hFOV,p1[1]], [p2[0] - 20/hFOV,p2[1]]]
+	pos = []
 	for i from 0 til 6
-		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute',   display: "inline-block", left: pos[i][0] + '%', bottom: pos[i][1] + '%', "color": "black"
+		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'fixed',   display: "inline-block", left: '0%', bottom: '0%', "color": "black"
 		probe.text 'B'
 		probe.score = 0
 		probe.missed = 0
 		scene.probes.push(probe)
 		$('#drivesim').append(scene.probes[i])
 
+#this is awful
+calculateFuture = (scene, rx, ry, s, r) ->
+	z = scene.player.physical.position.z
+	x = scene.player.physical.position.x
+	a = rx
+	b = ry
+	onStraight = false
+	if z > b
+		z = b
+	if z >= 0 || z <= -s
+		if z <= -s
+			z += s
+		if z < -b
+			z = -b
+		x0 = ((1- z^2/b^2)*a^2) ^ 0.5
+		if x0 >= 0 && x < 0 || x0 < 0 && x >= 0
+			x0 = -x0
+		if x > -0.8*a && x < 0.8*a && (z > 0.8 * b||z < -0.8 * b)
+			x0 = x
+		t1 = (Math.acos(x0 / a))
+		z0 = ((1- x0^2/a^2)*b^2) ^ 0.5
+		p0 = new THREE.Vector3(0, b, 0)
+		t2 = Math.acos(p0.x / a)
+		l = (((p0.x - x0)^2+(p0.y - z0)^2) ^ 0.5 / (2*Math.sin((t1 - t2)/2))) * (t1 - t2)
+	else
+		x0 = x
+		z0 = z
+		onStraight = true
+
+	lQ = 0.25 * (scene.centerLine.getLength() - 2*s)
+
+	if z0 >= 0 && z < 0 || z0 < 0 && z >= 0
+			z0 = -z0
+	if x0 >= 0 && z0 >=0
+		l = lQ - l
+	if x0 < 0 && z0 >=0
+		l = l + lQ
+	if x0 < 0 && z0 < 0 && onStraight == true
+		l = Math.abs(z0) + 2*lQ
+	if x0 < 0 && z0 < 0 && onStraight == false
+		l = (lQ - l) + 2*lQ + s
+	if x0 >= 0 && z0 < 0 && onStraight == false
+		l = l + 3*lQ + s
+	if x0 >= 0 && z0 < 0 && onStraight == true
+		l = (s - Math.abs(z0)) + 4*lQ + s
+	t1 = l/scene.centerLine.getLength()
+
+	point = scene.centerLine.getPointAt(t1)
+	dist = scene.player.getSpeed()*2
+	t2 = t1 + dist/scene.centerLine.getLength()*r
+	if t2 >= 1
+		t2 -= 1
+	if t2 < 0
+		t2 = 1 - Math.abs(t2)
+	point2 = scene.centerLine.getPoint(t2)
+	if scene.time - scene.predict >= 2
+		scene.predict = scene.time
+		c = ((point.y - scene.predictPoint.y) ^ 2 + (point.x - scene.predictPoint.x) ^ 2)^0.5
+		scene.predictPoint = point2
+		console.log(c)
+
+	v1 = new THREE.Vector3(point2.y, 0.1, point2.x)
+	v1.project(scene.camera)
+	x1 = (v1.x+1)*0.5*100
+	y1 =(v1.y+1)*0.5*100
+	scene.probes[0].0.style.left = x1 + '%'
+	scene.probes[0].0.style.bottom = y1 + '%'
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, rx, ry, l
-	testElement1 = $('<div>').css width: '30px', height: '30px', position: 'fixed', bottom: '100%', right: '100%', "background-color": "red"
+	testElement1 = $('<div>').css width: '30px', height: '30px', position: 'absolute', bottom: '100%', right: '100%', "background-color": "red"
 	scene.test = testElement1
 	$('#drivesim').append(testElement1)
 	return scene
@@ -292,6 +326,8 @@ export circleDriving = seqr.bind (env) ->*
 	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = lightX
 	startLight.addTo scene
+	scene.predict = 0
+	scene.predictPoint = scene.player.physical.position
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep-01a.wav')
@@ -304,6 +340,7 @@ export circleDriving = seqr.bind (env) ->*
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
+		calculateFuture scene, rx, ry, l, 1
 		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -324,7 +361,7 @@ export circleDriving = seqr.bind (env) ->*
 		#		title: L "You failed"
 		#		content: L "You left your lane."
 		#	return false
-		if scene.maxScore == 50 && scene.time - scene.dT > 1
+		if scene.end == true
 			console.log(scene)
 			@let \done, passed: true, outro:
 				title: L "Passed"
@@ -365,6 +402,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
+		calculateFuture scene, rx, ry, l, -1
 		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -385,7 +423,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 		#		title: L "You failed"
 		#		content: L "You left your lane."
 		#	return false
-		if scene.maxScore == 50 && scene.time - scene.dT > 1
+		if scene.end == true
 			console.log(scene)
 			@let \done, passed: true, outro:
 				title: L "Passed"
