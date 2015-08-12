@@ -166,7 +166,7 @@ handleProbeLocs = (scene) ->
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
-	d = 0.05 / scene.centerLine.getLength()
+	d = 0.01 / scene.centerLine.getLength()
 	minC = 1000
 	maxDist = speed*2/scene.centerLine.getLength()
 	z = scene.player.physical.position.z
@@ -199,7 +199,7 @@ search = (scene) ->
 		else
 			r = rT
 
-calculateFuture = (scene, rx, ry, s, r) ->
+calculateFuture = (scene, r) ->
 	t1 = search(scene)
 	for i from 0 til 2
 		point = scene.centerLine.getPointAt(t1)
@@ -287,6 +287,33 @@ handleSpeed = (scene, target) ->
 		scene.playerControls.throttle = 0
 		scene.playerControls.brake = -newForce
 
+fixationCrossLoc = (scene, x, y) ->
+	aspect = screen.width / screen.height
+	cross = scene.cross
+	ratio = 0.1
+	w = aspect/ratio
+	h = (1/aspect) * (w)
+	heigth = cross.heigth
+	cross.position.x = (w*x - w/2) * heigth
+	cross.position.y = (w*y - w/2) * heigth
+
+addFixationCross = (scene) ->
+	vFOV = scene.camera.fov
+	angle = (vFOV/2) * Math.PI/180
+	ratio = 0.1
+	heigth = (Math.tan(angle) * 1000 * 2) * ratio
+	horCross = new THREE.PlaneGeometry(heigth*0.025, heigth)
+	verCross = new THREE.PlaneGeometry(heigth, heigth*0.025)
+	horCross.merge(verCross)
+	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
+	cross = new THREE.Mesh horCross, material
+	cross.position.z = -1000
+	cross.heigth = heigth
+	scene.camera.add cross
+	scene.cross = cross
+	fixationCrossLoc scene, 0.75, 0.5
+	cross.visible = true
+
 addMarkerScreen = (scene, env) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
@@ -318,6 +345,7 @@ export circleDriving = seqr.bind (env) ->*
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
 	addMarkerScreen scene, env
+	addFixationCross scene
 	scene.player.physical.position.z = - 5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
@@ -338,7 +366,7 @@ export circleDriving = seqr.bind (env) ->*
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
-		calculateFuture scene, rx, ry, l, 1
+		calculateFuture scene, 1
 		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -381,6 +409,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
 	addMarkerScreen scene, env
+	addFixationCross scene
 	scene.player.physical.position.x = -rx - (7-1.75)
 	scene.player.physical.position.z = - 5
 	scene.playerControls.throttle = 0
@@ -400,7 +429,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 	scene.probeIndx = Math.floor((Math.random() * 6))
 	scene.onTickHandled ~>
 		handleSpeed scene, s
-		calculateFuture scene, rx, ry, l, -1
+		calculateFuture scene, -1
 		i = scene.probeIndx
 		if env.controls.probeReact == true
 			scene.dT = scene.time
