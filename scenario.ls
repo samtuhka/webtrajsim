@@ -144,9 +144,11 @@ addReactionTest = seqr.bind (scene, env) ->*
 
 addBlinderTask = (scene, env) ->
 	mask = new THREE.Mesh do
-		new THREE.PlaneGeometry 0.14*16/9, 0.14
+		new THREE.PlaneGeometry 0.1*16/9, 0.1
 		new THREE.MeshBasicMaterial color: 0x000000
 	mask.position.z = -0.3
+	mask.position.x = 0.03
+	mask.position.y = -0.03
 	scene.camera.add mask
 
 	self =
