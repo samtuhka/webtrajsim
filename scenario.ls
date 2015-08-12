@@ -109,6 +109,47 @@ exportScenario \freeDriving, (env) ->*
 	# Run until somebody says "done".
 	yield @get \done
 
+probeOrder = (scene) ->
+	array = []
+	for i from 0 til 6
+		for j from 1 til 31
+			if j % 3 == 0
+				array.push([i, 1])
+			else
+				array.push([i, 0])
+	counter = 180
+	while counter > 0
+		index = Math.floor(Math.random() * counter)
+		counter -= 1
+		temp = array[counter]
+		array[counter] = array[index]
+		array[index] = temp
+	array.push([0,0])
+	array.reverse()
+	scene.order = array
+
+handleProbesAlt = (scene) ->
+	if (scene.time - scene.dT) > 1
+		i = scene.probeIndx
+		if i >= 0
+			probe = scene.order[i][0]
+			seed = scene.order[i][1]
+			if scene.maxScore == 60
+				scene.end = true
+			if scene.probes[probe].get(0).innerText == 'A'
+				scene.missed += 1
+				scene.probes[probe].missed += 1
+			scene.probes[probe].text "B"
+		scene.probeIndx += 1
+		i = scene.probeIndx
+		if scene.end == false && i >=0
+			probe = scene.order[i][0]
+			seed = scene.order[i][1]
+			if seed == 1
+				scene.probes[probe].text "A"
+				scene.maxScore += 1
+		scene.dT = scene.time
+
 #a bit less insane
 handleProbes = (scene, i) ->
 	if (scene.time - scene.dT) > 1
@@ -302,8 +343,9 @@ addFixationCross = (scene) ->
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	horCross = new THREE.PlaneGeometry(heigth*0.025, heigth)
-	verCross = new THREE.PlaneGeometry(heigth, heigth*0.025)
+	size = heigth * 0.75
+	horCross = new THREE.PlaneGeometry(size, size * 0.05)
+	verCross = new THREE.PlaneGeometry(size * 0.05, size)
 	horCross.merge(verCross)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	cross = new THREE.Mesh horCross, material
@@ -359,15 +401,16 @@ export circleDriving = seqr.bind (env) ->*
 	annoyingSound.load('res/sounds/beep-01a.wav')
 	@let \scene, scene
 	yield @get \run
+	probeOrder scene
 	createProbes scene, rx, ry, l, s, 1
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 	startTime = scene.time
-	scene.probeIndx = Math.floor((Math.random() * 6))
+	scene.probeIndx = 0
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, 1
-		i = scene.probeIndx
+		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
 			scene.dT = scene.time
 			env.controls.probeReact = false
@@ -381,7 +424,7 @@ export circleDriving = seqr.bind (env) ->*
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-		handleProbes scene, i
+		handleProbesAlt scene, i
 		#if cnt == false
 		#	@let \done, passed: false, outro:
 		#		title: L "You failed"
@@ -422,15 +465,16 @@ export circleDrivingRev = seqr.bind (env) ->*
 	annoyingSound.load('res/sounds/beep-01a.wav')
 	@let \scene, scene
 	yield @get \run
+	probeOrder scene
 	createProbes scene, rx, ry, l, s, -1
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 	startTime = scene.time
-	scene.probeIndx = Math.floor((Math.random() * 6))
+	scene.probeIndx = 0
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, -1
-		i = scene.probeIndx
+		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
 			scene.dT = scene.time
 			env.controls.probeReact = false
@@ -444,7 +488,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 		x = scene.player.physical.position.x
 		cnt = onOuterLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-		handleProbes scene, i
+		handleProbesAlt scene, i
 		#if cnt == false
 		#	@let \done, passed: false, outro:
 		#		title: L "You failed"
