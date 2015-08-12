@@ -132,93 +132,91 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 	scene.probes = []
 	x = scene.player.physical.position.x
 	z = scene.player.physical.position.z
-	aspect = screen.width / screen.height
-	vFOV = scene.camera.fov/100
-	hFOV = aspect*vFOV
 	pos = []
 	for i from 0 til 6
-		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'fixed',   display: "inline-block", left: '0%', bottom: '0%', "color": "black"
+		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute', display: "inline-block", left: '50%', bottom: '-10%', "color": "black"
 		probe.text 'B'
 		probe.score = 0
 		probe.missed = 0
 		scene.probes.push(probe)
 		$('#drivesim').append(scene.probes[i])
 
-#this is awful
-calculateFuture = (scene, rx, ry, s, r) ->
-	z = scene.player.physical.position.z
-	x = scene.player.physical.position.x
-	a = rx
-	b = ry
-	onStraight = false
-	if z > b
-		z = b
-	if z >= 0 || z <= -s
-		if z <= -s
-			z += s
-		if z < -b
-			z = -b
-		x0 = ((1- z^2/b^2)*a^2) ^ 0.5
-		if x0 >= 0 && x < 0 || x0 < 0 && x >= 0
-			x0 = -x0
-		if x > -0.8*a && x < 0.8*a && (z > 0.8 * b||z < -0.8 * b)
-			x0 = x
-		t1 = (Math.acos(x0 / a))
-		z0 = ((1- x0^2/a^2)*b^2) ^ 0.5
-		p0 = new THREE.Vector3(0, b, 0)
-		t2 = Math.acos(p0.x / a)
-		l = (((p0.x - x0)^2+(p0.y - z0)^2) ^ 0.5 / (2*Math.sin((t1 - t2)/2))) * (t1 - t2)
-	else
-		x0 = x
-		z0 = z
-		onStraight = true
+handleProbeLocs = (scene) ->
+	aspect = screen.width / screen.height
+	vFOV = scene.camera.fov/100
+	hFOV = aspect*vFOV
 
-	lQ = 0.25 * (scene.centerLine.getLength() - 2*s)
+	point1 = scene.predict[0]
+	point2 = scene.predict[1]
 
-	if z0 >= 0 && z < 0 || z0 < 0 && z >= 0
-			z0 = -z0
-	if x0 >= 0 && z0 >=0
-		l = lQ - l
-	if x0 < 0 && z0 >=0
-		l = l + lQ
-	if x0 < 0 && z0 < 0 && onStraight == true
-		l = Math.abs(z0) + 2*lQ
-	if x0 < 0 && z0 < 0 && onStraight == false
-		l = (lQ - l) + 2*lQ + s
-	if x0 >= 0 && z0 < 0 && onStraight == false
-		l = l + 3*lQ + s
-	if x0 >= 0 && z0 < 0 && onStraight == true
-		l = (s - Math.abs(z0)) + 4*lQ + s
-	t1 = l/scene.centerLine.getLength()
-
-	point = scene.centerLine.getPointAt(t1)
-	dist = scene.player.getSpeed()*2
-	t2 = t1 + dist/scene.centerLine.getLength()*r
-	if t2 >= 1
-		t2 -= 1
-	if t2 < 0
-		t2 = 1 - Math.abs(t2)
-	point2 = scene.centerLine.getPoint(t2)
-	if scene.time - scene.predict >= 2
-		scene.predict = scene.time
-		c = ((point.y - scene.predictPoint.y) ^ 2 + (point.x - scene.predictPoint.x) ^ 2)^0.5
-		scene.predictPoint = point2
-		console.log(c)
-
-	v1 = new THREE.Vector3(point2.y, 0.1, point2.x)
+	v1 = new THREE.Vector3(point1.y, 0.1, point1.x)
 	v1.project(scene.camera)
 	x1 = (v1.x+1)*0.5*100
 	y1 =(v1.y+1)*0.5*100
-	scene.probes[0].0.style.left = x1 + '%'
-	scene.probes[0].0.style.bottom = y1 + '%'
+
+	v2 = new THREE.Vector3(point2.y, 0.1, point2.x)
+	v2.project(scene.camera)
+	x2 = (v2.x+1)*0.5*100
+	y2 =(v2.y+1)*0.5*100
+
+	pos = [[x2,y2],[x1,y1],[x2 + 20/hFOV,y2],[x1 + 20/hFOV,y1], [x2 - 20/hFOV,y2], [x1 - 20/hFOV,y1]]
+	for i from 0 til 6
+		scene.probes[i].0.style.left = pos[i][0] + '%'
+		scene.probes[i].0.style.bottom = pos[i][1] + '%'
+
+search = (scene) ->
+	speed = scene.player.getSpeed()
+	d = 0.05 / scene.centerLine.getLength()
+	minC = 1000
+	maxDist = speed*2/scene.centerLine.getLength()
+	z = scene.player.physical.position.z
+	x = scene.player.physical.position.x
+	l = 0
+	r = 1.1
+	t = true
+	while t == true
+		if Math.abs(r - l) <= d
+			pos = ((l + r) / 2)
+			if pos > 1
+				pos -= 1
+			return pos
+		lT = l + (r - l)/3
+		rT =  r - (r - l)/3
+		posLT = lT
+		if posLT > 1
+			posLT -= 1
+		posRT = rT
+		if posRT > 1
+			posRT -= 1
+
+		point = scene.centerLine.getPointAt(posLT)
+		cLT = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
+
+		point = scene.centerLine.getPointAt(posRT)
+		cRT = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
+		if cLT >= cRT
+			l = lT
+		else
+			r = rT
+
+calculateFuture = (scene, rx, ry, s, r) ->
+	t1 = search(scene)
+	for i from 0 til 2
+		point = scene.centerLine.getPointAt(t1)
+		dist = scene.player.getSpeed()*(i+1)
+		t2 = t1 + dist/scene.centerLine.getLength()*r
+		if t2 >= 1
+			t2 -= 1
+		if t2 < 0
+			t2 = 1 - Math.abs(t2)
+		point2 = scene.centerLine.getPoint(t2)
+		scene.predict[i] = point2
+	handleProbeLocs scene
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, rx, ry, l
-	testElement1 = $('<div>').css width: '30px', height: '30px', position: 'absolute', bottom: '100%', right: '100%', "background-color": "red"
-	scene.test = testElement1
-	$('#drivesim').append(testElement1)
 	return scene
 
 deparam = require 'jquery-deparam'
@@ -326,7 +324,7 @@ export circleDriving = seqr.bind (env) ->*
 	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = lightX
 	startLight.addTo scene
-	scene.predict = 0
+	scene.predictTime = 0
 	scene.predictPoint = scene.player.physical.position
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)

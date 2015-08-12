@@ -42,6 +42,9 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.missed = 0
 	scene.outside = 0
 	scene.end = false
+	scene.predict = []
+	scene.predict.push new THREE.Vector3(0,0,0)
+	scene.predict.push new THREE.Vector3(0,0,0)
 	scene.player.scoremeter = ui.gauge env,
 		name: L "Score"
 		unit: L "points"
