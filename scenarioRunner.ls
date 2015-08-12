@@ -202,7 +202,7 @@ export runScenario = seqr.bind (scenarioLoader) !->*
 #require './three.js/examples/js/controls/VRControls.js'
 #require './three.js/examples/js/effects/VREffect.js'
 #require './node_modules/webvr-boilerplate/js/deps/webvr-polyfill.js'
-require 'webvr-polyfill'
+/*require 'webvr-polyfill'
 require './node_modules/webvr-boilerplate/js/deps/VREffect.js'
 require './node_modules/webvr-boilerplate/js/deps/VRControls.js'
 WebVRManager = require './node_modules/webvr-boilerplate/src/webvr-manager.js'
@@ -222,4 +222,4 @@ enableVr = (env, renderer, scene) ->
 	scene.beforeRender.add ->
 		vrcontrols.update()
 	return -> manager.render scene.visual, scene.camera
-
+*/
