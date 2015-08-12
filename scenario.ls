@@ -11,6 +11,12 @@ assets = require './assets.ls'
 
 ui = require './ui.ls'
 
+exportScenario = (name, impl) ->
+	scn = seqr.bind impl
+	scn.scenarioName = name
+	module.exports[name] = scn
+	return scn
+
 DummyScene = ->
 	beforePhysics: Signal!
 	afterPhysics: Signal!
@@ -89,7 +95,7 @@ export minimalScenario = seqr.bind (env) ->*
 	@let \scene, scene
 	yield @get \done
 
-export freeDriving = seqr.bind (env) ->*
+exportScenario \freeDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 
@@ -173,7 +179,7 @@ addBlinderTask = (scene, env) ->
 	return self
 
 
-export runTheLight = seqr.bind (env) ->*
+exportScenario \runTheLight, (env) ->*
 	@let \intro,
 		title: env.L "Run the light"
 		subtitle: env.L "(Just this once)"
@@ -209,7 +215,7 @@ failOnCollision = (env, scn, scene) ->
 			content: reason
 		return false
 
-export closeTheGap = seqr.bind (env) ->*
+exportScenario \closeTheGap, (env) ->*
 	@let \intro,
 		title: env.L "Close the gap"
 		content: env.L '%closeTheGap.intro'
@@ -239,7 +245,7 @@ export closeTheGap = seqr.bind (env) ->*
 	return yield @get \done
 
 
-export throttleAndBrake = seqr.bind (env) ->*
+exportScenario \throttleAndBrake, (env) ->*
 	L = env.L
 	@let \intro,
 		title: L "Throttle and brake"
@@ -289,7 +295,7 @@ export throttleAndBrake = seqr.bind (env) ->*
 
 	return yield @get \done
 
-export speedControl = seqr.bind (env) ->*
+speedControl = exportScenario \speedControl, (env) ->*
 	L = env.L
 	@let \intro,
 		title: L "Speed control"
@@ -388,7 +394,7 @@ export speedControl = seqr.bind (env) ->*
 
 	return yield @get \done
 
-export blindSpeedControl = seqr.bind (env) ->*
+exportScenario \blindSpeedControl, (env) ->*
 	L = env.L
 	base = speedControl env
 
@@ -428,7 +434,7 @@ class MicrosimWrapper
 {knuthShuffle: shuffleArray} = require 'knuth-shuffle'
 
 {TargetSpeedController} = require './controls.ls'
-export followInTraffic = seqr.bind (env) ->*
+followInTraffic = exportScenario \followInTraffic, (env) ->*
 	L = env.L
 	@let \intro,
 		title: L "Supermiler"
@@ -596,7 +602,7 @@ export followInTraffic = seqr.bind (env) ->*
 	return yield @get \done
 
 
-export blindFollowInTraffic = seqr.bind (env) ->*
+exportScenario \blindFollowInTraffic, (env) ->*
 	L = env.L
 	base = followInTraffic env
 
@@ -622,10 +628,9 @@ export blindFollowInTraffic = seqr.bind (env) ->*
 
 	return result
 
-export participantInformation = seqr.bind (env) ->*
+exportScenario \participantInformation, (env) ->*
 	L = env.L
 	currentYear = (new Date).getFullYear()
-	console.log currentYear
 	radioSelect = (name, ...options) ->
 		for {value, label} in options
 			$ """

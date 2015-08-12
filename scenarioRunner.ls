@@ -106,6 +106,7 @@ export runScenario = seqr.bind (scenarioLoader) !->*
 	env = yield scope.get \env
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
+	env.logger.write loadingScenario: scenarioLoader.scenarioName
 	scenario = scenarioLoader env
 
 
@@ -173,12 +174,14 @@ export runScenario = seqr.bind (scenarioLoader) !->*
 	scenario.let \run
 
 	done = scenario.get \done
+	env.logger.write startingScenario: scenarioLoader.scenarioName
 	scene.onStart.dispatch()
 
 	yield eachFrame (dt) !->
 		return true if not done.isPending()
 		scene.tick dt
 	scene.onExit.dispatch()
+	env.logger.write exitedScenario: scenarioLoader.scenarioName
 
 	env.notifications.fadeOut()
 	yield ui.waitFor el~fadeOut
@@ -194,6 +197,7 @@ export runScenario = seqr.bind (scenarioLoader) !->*
 	yield outro
 	scope.let \destroy
 	yield scope
+	env.logger.write destroyedScenario: scenarioLoader.scenarioName
 
 #require './three.js/examples/js/controls/VRControls.js'
 #require './three.js/examples/js/effects/VREffect.js'
