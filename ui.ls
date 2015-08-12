@@ -96,7 +96,7 @@ export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 	form.on "submit" (e) ~>
 		result =
 			canceled: canceled
-			data: form.serialize()
+			formData: form.serializeArray()
 		logger.write result
 		@let \result, result
 
