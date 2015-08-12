@@ -200,10 +200,11 @@ handleProbeLocs = (scene) ->
 	x2 = (v2.x+1)*0.5*100
 	y2 =(v2.y+1)*0.5*100
 
-	pos = [[x2,y2],[x1,y1],[x2 + 20/hFOV,y2],[x1 + 20/hFOV,y1], [x2 - 20/hFOV,y2], [x1 - 20/hFOV,y1]]
+	pos = [[x2,y2],[x1,y1],[x2 + 10/hFOV,y2],[x1 + 10/hFOV,y1], [x2 - 10/hFOV,y2], [x1 - 10/hFOV,y1]]
 	for i from 0 til 6
 		scene.probes[i].0.style.left = pos[i][0] + '%'
 		scene.probes[i].0.style.bottom = pos[i][1] + '%'
+	fixationCrossLoc scene, (x2 + 20/hFOV) / 100, y2/100
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -336,14 +337,14 @@ fixationCrossLoc = (scene, x, y) ->
 	h = (1/aspect) * (w)
 	heigth = cross.heigth
 	cross.position.x = (w*x - w/2) * heigth
-	cross.position.y = (w*y - w/2) * heigth
+	cross.position.y = (h*y - h/2) * heigth
 
 addFixationCross = (scene) ->
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	size = heigth * 0.75
+	size = heigth * 0.5
 	horCross = new THREE.PlaneGeometry(size, size * 0.05)
 	verCross = new THREE.PlaneGeometry(size * 0.05, size)
 	horCross.merge(verCross)
@@ -353,7 +354,7 @@ addFixationCross = (scene) ->
 	cross.heigth = heigth
 	scene.camera.add cross
 	scene.cross = cross
-	fixationCrossLoc scene, 0.75, 0.5
+	fixationCrossLoc scene, -0.1, -0.1
 	cross.visible = true
 
 addMarkerScreen = (scene, env) ->
