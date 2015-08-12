@@ -51,7 +51,7 @@ export baseScene = seqr.bind (env) ->*
 
 	scene.playerControls = controls
 
-	player = yield addVehicle scene, controls
+	player = yield addVehicle scene, controls, objectName: 'player'
 	player.eye.add scene.camera
 	player.physical.position.x = -1.75
 	scene.player = player

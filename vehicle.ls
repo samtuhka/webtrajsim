@@ -130,7 +130,7 @@ loadViva = Co ->*
 	wheels: wheels
 	eye: eye
 
-export addVehicle = Co (scene, controls=new DummyControls) ->*
+export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 	{body, wheels, eye} = yield loadViva()
 
 	syncModels = new Signal
@@ -150,6 +150,8 @@ export addVehicle = Co (scene, controls=new DummyControls) ->*
 		..addShape (new Cannon.Box halfbox), offOrigin
 		..linearDamping = 0.1									# "Air resistance"
 		..angularDamping = 0.1
+		..objectName = objectName
+		..objectClass = 'vehicle'
 
 	car = new Cannon.RaycastVehicle do
 		chassisBody: bodyPhys
