@@ -182,7 +182,7 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 		scene.probes.push(probe)
 		$('#drivesim').append(scene.probes[i])
 
-handleProbeLocs = (scene) ->
+handleProbeLocs = (scene, rev) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
@@ -204,7 +204,10 @@ handleProbeLocs = (scene) ->
 	for i from 0 til 6
 		scene.probes[i].0.style.left = pos[i][0] + '%'
 		scene.probes[i].0.style.bottom = pos[i][1] + '%'
-	fixationCrossLoc scene, (x2 + 20/hFOV) / 100, y2/100
+	if rev == -1
+		fixationCrossLoc scene, (x2 - 20/hFOV) / 100, y2/100
+	else
+		fixationCrossLoc scene, (x2 + 20/hFOV) / 100, y2/100
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -253,7 +256,6 @@ calculateFuture = (scene, r) ->
 			t2 = 1 - Math.abs(t2)
 		point2 = scene.centerLine.getPoint(t2)
 		scene.predict[i] = point2
-	handleProbeLocs scene
 
 deparam = require 'jquery-deparam'
 opts = deparam window.location.search.substring 1
@@ -261,6 +263,7 @@ xrad = Math.floor(opts.rx)
 yrad = Math.floor(opts.ry)
 length = Math.floor(opts.l)
 speed = Math.floor(opts.s)
+rev = Math.floor(opts.rev)
 if xrad === NaN
 		xrad = 200
 if yrad  === NaN
@@ -269,6 +272,8 @@ if length === NaN
 		length = 100
 if speed === NaN
 		speed = 80
+if rev === NaN
+		rev = 1
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -379,7 +384,7 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-exportScenario \circleDriving, (env, rx, ry, l, s) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -389,6 +394,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s) ->*
 		l = length
 	if s == undefined
 		s = speed
+	if r == undefined
+		r = rev
 
 	@let \intro,
 		title: "Stay on your lane"
@@ -428,6 +435,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s) ->*
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, 1
+		handleProbeLocs scene, r
 
 		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
@@ -462,7 +470,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s) ->*
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -472,6 +480,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 		l = length
 	if s == undefined
 		s = speed
+	if r == undefined
+		r = -rev
 
 	@let \intro,
 		title: "Stay on your lane"
@@ -487,11 +497,11 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 	probeOrder scene
 	createProbes scene, rx, ry, l, s, -1
 
-	scene.player.physical.position.x = -rx - (7-1.75)
+	scene.player.physical.position.x = -rx - 1.75
 	scene.player.physical.position.z = - 7.5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
-	lightX = ((rx + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
+	lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = -lightX
 	startLight.addTo scene
 
@@ -511,6 +521,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, -1
+		handleProbeLocs scene, r
 
 		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
@@ -527,7 +538,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onOuterLane(x, z, rx, ry, 7, l)
+		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
 
 		scene.prevTime = scene.time

@@ -101,7 +101,7 @@ export newEnv = seqr.bind !->*
 	if window.gc?
 		window.gc()
 
-export runScenario = seqr.bind (scenarioLoader, rx, ry, l, s) !->*
+export runScenario = seqr.bind (scenarioLoader, rx, ry, l, s, rev) !->*
 	scope = newEnv()
 	env = yield scope.get \env
 	# Setup
