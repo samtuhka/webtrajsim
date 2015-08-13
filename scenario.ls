@@ -264,7 +264,7 @@ yrad = Math.floor(opts.ry)
 length = Math.floor(opts.l)
 speed = Math.floor(opts.s)
 rev = Math.floor(opts.rev)
-stat = JSON.parse(opts.stat)
+stat = Math.floor(opts.stat)
 if xrad === NaN
 		xrad = 200
 if yrad  === NaN
@@ -275,8 +275,10 @@ if speed === NaN
 		speed = 80
 if rev === NaN
 		rev = 1
-if stat === NaN
-		stat = false
+if stat === 1
+		stat = true
+else
+	stat = false
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
