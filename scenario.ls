@@ -380,6 +380,7 @@ addMarkerScreen = (scene, env) ->
 
 
 exportScenario \circleDriving, (env, rx, ry, l, s) ->*
+
 	if rx == undefined
 		rx = xrad
 	if ry == undefined
@@ -388,35 +389,46 @@ exportScenario \circleDriving, (env, rx, ry, l, s) ->*
 		l = length
 	if s == undefined
 		s = speed
+
 	@let \intro,
 		title: "Stay on your lane"
 		content: """
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
+
 	scene = yield basecircleDriving env, rx, ry, l
+
 	addMarkerScreen scene, env
 	addFixationCross scene
+
+	probeOrder scene
+	createProbes scene, rx, ry, l, s, 1
+
 	scene.player.physical.position.z = - 7.5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = lightX
 	startLight.addTo scene
+
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep-01a.wav')
+
 	@let \scene, scene
 	yield @get \run
-	probeOrder scene
-	createProbes scene, rx, ry, l, s, 1
+
 	yield P.delay 3000
 	yield startLight.switchToGreen()
+
 	startTime = scene.time
 	scene.probeIndx = 0
+
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, 1
+
 		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -427,11 +439,17 @@ exportScenario \circleDriving, (env, rx, ry, l, s) ->*
 			else
 				scene.score -= 1
 			scene.probes[i].text 'B'
+
+		handleProbesAlt scene, i
+
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-		handleProbesAlt scene, i
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
 		if scene.end == true
 			console.log(scene)
 			@let \done, passed: true, outro:
@@ -441,11 +459,11 @@ exportScenario \circleDriving, (env, rx, ry, l, s) ->*
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
 			return false
-		scene.prevTime = scene.time
-		scene.player.prevSpeed = scene.player.getSpeed()*3.6
-	yield @get \done
+
+	return yield @get \done
 
 exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
+
 	if rx == undefined
 		rx = xrad
 	if ry == undefined
@@ -454,6 +472,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 		l = length
 	if s == undefined
 		s = speed
+
 	@let \intro,
 		title: "Stay on your lane"
 		content: """
@@ -461,8 +480,13 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 			<p>Press enter or click the button below to continue.</p>
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
+
 	addMarkerScreen scene, env
 	addFixationCross scene
+
+	probeOrder scene
+	createProbes scene, rx, ry, l, s, -1
+
 	scene.player.physical.position.x = -rx - (7-1.75)
 	scene.player.physical.position.z = - 7.5
 	scene.playerControls.throttle = 0
@@ -470,20 +494,24 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 	lightX = ((rx + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
 	startLight.position.x = -lightX
 	startLight.addTo scene
+
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep-01a.wav')
+
 	@let \scene, scene
 	yield @get \run
-	probeOrder scene
-	createProbes scene, rx, ry, l, s, -1
+
 	yield P.delay 3000
 	yield startLight.switchToGreen()
+
 	startTime = scene.time
 	scene.probeIndx = 0
+
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, -1
+
 		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
 			scene.dT = scene.time
@@ -494,11 +522,17 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 			else
 				scene.score -= 1
 			scene.probes[i].text 'B'
+
+		handleProbesAlt scene, i
+
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onOuterLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-		handleProbesAlt scene, i
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
 		if scene.end == true
 			console.log(scene)
 			@let \done, passed: true, outro:
@@ -508,9 +542,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
 			return false
-		scene.prevTime = scene.time
-		scene.player.prevSpeed = scene.player.getSpeed()*3.6
-	yield @get \done
+
+	return yield @get \done
 
 export basePedalScene = (env) ->
 	env = env with

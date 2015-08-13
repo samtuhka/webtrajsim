@@ -116,11 +116,27 @@ export logkiller = seqr.bind !->*
 	yield scope
 	console.log "Done"
 
+
+runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s) ->*
+	currentPasses = 0
+	for retry from 1 til Infinity
+		task = runScenario scenarioLoader, rx, ry, l, s
+		result = yield task.get \done
+		currentPasses += result.passed
+		doQuit = currentPasses >= passes or retry > maxRetries
+		#if not doQuit
+		#	result.outro \content .append $ L "<p>Let's try that again.</p>"
+		yield task
+		if doQuit
+			break
+
 export circleDriving = seqr.bind ->*
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
-	yield runUntilPassed scenario.circleDriving, passes: 1, maxRetries: 1
-	yield runUntilPassed scenario.circleDrivingRev, passes: 1, maxRetries: 1
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 100, 100, 50, 65
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 100, 100, 50, 65
 
