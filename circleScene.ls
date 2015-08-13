@@ -15,14 +15,14 @@ L = (s) -> s
 ui = require './ui.ls'
 
 export circleScene = seqr.bind (env, rx, ry, length) ->*
-	{controls, audioContext} = env
+	{controls, audioContext, L} = env
 	scene = new Scene
 	yield P.resolve addCircleGround scene, rx, ry, length
 	sky = yield P.resolve assets.addSky scene
 
 	scene.playerControls = controls
 
-	player = yield addVehicle scene, controls
+	player = yield addVehicle scene, controls, objectName: 'player'
 	player.eye.add scene.camera
 	player.physical.position.x = rx + 1.75
 	for i from 0 til player.body.children.length - 1
@@ -61,12 +61,6 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 		value: ->
 			score = scene.outside
 			score.toFixed(2)
-	scene.player.speedometer = ui.gauge env,
-		name: L "Speed"
-		unit: L "km/h"
-		value: ->
-			speed = scene.player.getSpeed()*3.6
-			Math.round speed
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()
 	gainNode.connect audioContext.destination

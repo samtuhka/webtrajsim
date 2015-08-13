@@ -255,26 +255,26 @@ calculateFuture = (scene, r) ->
 		scene.predict[i] = point2
 	handleProbeLocs scene
 
+deparam = require 'jquery-deparam'
+opts = deparam window.location.search.substring 1
+xrad = Math.floor(opts.rx)
+yrad = Math.floor(opts.ry)
+length = Math.floor(opts.l)
+speed = Math.floor(opts.s)
+if xrad === NaN
+		xrad = 200
+if yrad  === NaN
+		yrad  = xrad
+if length === NaN
+		length = 100
+if speed === NaN
+		speed = 80
+
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
 	scene = yield circleScene env, rx, ry, l
 	return scene
-
-deparam = require 'jquery-deparam'
-opts = deparam window.location.search.substring 1
-rx = Math.floor(opts.rx)
-ry = Math.floor(opts.ry)
-l = Math.floor(opts.l)
-s = Math.floor(opts.s)
-if rx === NaN
-		rx = 200
-if ry === NaN
-		ry = rx
-if l === NaN
-		l = 100
-if s === NaN
-		s = 80
 
 onInnerLane = (x, z, rX, rY, rW, l) ->
 	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + (z ^ 2 / (rY ^ 2))) > 1) && z >= 0)
@@ -379,24 +379,30 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-export circleDriving = seqr.bind (env) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s) ->*
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
 	@let \intro,
-		title: L "Stay on your lane"
-		content: $ L """
+		title: "Stay on your lane"
+		content: """
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
 	addMarkerScreen scene, env
 	addFixationCross scene
-	scene.player.physical.position.z = - 5
+	scene.player.physical.position.z = - 7.5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
 	startLight.position.x = lightX
 	startLight.addTo scene
-	scene.predictTime = 0
-	scene.predictPoint = scene.player.physical.position
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep-01a.wav')
@@ -426,16 +432,11 @@ export circleDriving = seqr.bind (env) ->*
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
 		handleProbesAlt scene, i
-		#if cnt == false
-		#	@let \done, passed: false, outro:
-		#		title: L "You failed"
-		#		content: L "You left your lane."
-		#	return false
 		if scene.end == true
 			console.log(scene)
 			@let \done, passed: true, outro:
-				title: L "Passed"
-				content: L  """
+				title: "Passed"
+				content: """
 				<p>You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
@@ -444,10 +445,18 @@ export circleDriving = seqr.bind (env) ->*
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 	yield @get \done
 
-export circleDrivingRev = seqr.bind (env) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s) ->*
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
 	@let \intro,
-		title: L "Stay on your lane"
-		content: $ L """
+		title: "Stay on your lane"
+		content: """
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
 			"""
@@ -455,7 +464,7 @@ export circleDrivingRev = seqr.bind (env) ->*
 	addMarkerScreen scene, env
 	addFixationCross scene
 	scene.player.physical.position.x = -rx - (7-1.75)
-	scene.player.physical.position.z = - 5
+	scene.player.physical.position.z = - 7.5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
 	lightX = ((rx + 7) ^ 2 - 5 ^ 2)^0.5 + 0.1
@@ -490,16 +499,11 @@ export circleDrivingRev = seqr.bind (env) ->*
 		cnt = onOuterLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
 		handleProbesAlt scene, i
-		#if cnt == false
-		#	@let \done, passed: false, outro:
-		#		title: L "You failed"
-		#		content: L "You left your lane."
-		#	return false
 		if scene.end == true
 			console.log(scene)
 			@let \done, passed: true, outro:
-				title: L "Passed"
-				content: L  """
+				title: "Passed"
+				content: """
 				<p>You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
