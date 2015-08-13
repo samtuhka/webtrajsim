@@ -244,11 +244,11 @@ search = (scene) ->
 		else
 			r = rT
 
-calculateFuture = (scene, r) ->
+calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
 	for i from 0 til 2
 		point = scene.centerLine.getPointAt(t1)
-		dist = scene.player.getSpeed()*(i+1)
+		dist = speed*(i+1)
 		t2 = t1 + dist/scene.centerLine.getLength()*r
 		if t2 >= 1
 			t2 -= 1
@@ -264,6 +264,7 @@ yrad = Math.floor(opts.ry)
 length = Math.floor(opts.l)
 speed = Math.floor(opts.s)
 rev = Math.floor(opts.rev)
+stat = JSON.parse(opts.stat)
 if xrad === NaN
 		xrad = 200
 if yrad  === NaN
@@ -274,6 +275,8 @@ if speed === NaN
 		speed = 80
 if rev === NaN
 		rev = 1
+if stat === NaN
+		stat = false
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -384,7 +387,7 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -396,6 +399,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r) ->*
 		s = speed
 	if r == undefined
 		r = rev
+	if st == undefined
+		st = stat
 
 	@let \intro,
 		title: "Stay on your lane"
@@ -426,6 +431,9 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r) ->*
 	@let \scene, scene
 	yield @get \run
 
+	calculateFuture scene, 1, s/3.6
+	handleProbeLocs scene, r
+
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 
@@ -434,8 +442,9 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r) ->*
 
 	scene.onTickHandled ~>
 		handleSpeed scene, s
-		calculateFuture scene, 1
-		handleProbeLocs scene, r
+		calculateFuture scene, 1, s/3.6
+		unless st == true
+			handleProbeLocs scene, r
 
 		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true
@@ -470,7 +479,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r) ->*
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -482,6 +491,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r) ->*
 		s = speed
 	if r == undefined
 		r = -rev
+	if st == undefined
+		st = stat
 
 	@let \intro,
 		title: "Stay on your lane"
@@ -512,6 +523,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r) ->*
 	@let \scene, scene
 	yield @get \run
 
+	calculateFuture scene, -1, s/3.6
+	handleProbeLocs scene, r
+
 	yield P.delay 3000
 	yield startLight.switchToGreen()
 
@@ -520,8 +534,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r) ->*
 
 	scene.onTickHandled ~>
 		handleSpeed scene, s
-		calculateFuture scene, -1
-		handleProbeLocs scene, r
+		calculateFuture scene, -1, s/3.6
+		unless st == true
+			handleProbeLocs scene, r
 
 		i = scene.order[scene.probeIndx][0]
 		if env.controls.probeReact == true

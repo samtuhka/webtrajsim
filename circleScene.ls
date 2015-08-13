@@ -42,6 +42,7 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.missed = 0
 	scene.outside = 0
 	scene.end = false
+	scene.pos
 	scene.predict = []
 	scene.predict.push new THREE.Vector3(0,0,0)
 	scene.predict.push new THREE.Vector3(0,0,0)
