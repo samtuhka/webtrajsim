@@ -306,13 +306,13 @@ export addCircleGround = (scene, rx, ry, length) ->
 		z = zDist.sample()
 		cnt = false
 		rW = roadWidth + 1
-		if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + (z ^ 2 / (rY ^ 2))) > 1) && z >= 0)
+		if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 1) ^ 2)  + (z ^ 2 / ((rY - 1) ^ 2))) > 1) && z >= 0)
 			cnt = true
-		if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + ((z+length) ^ 2 / (rY ^ 2))) > 1) && z <= -length)
+		if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 1) ^ 2)  + ((z+length) ^ 2 / ((rY - 1) ^ 2))) > 1) && z <= -length)
 			cnt = true
-		if z <= 0 && z >= -length && x > rX && x < rX + rW
+		if z <= 0 && z >= -length && x > (rX - 1) && x < rX + rW
 			cnt = true
-		if z <= 0 && z >= -length && x < -rX && x > -rX - rW
+		if z <= 0 && z >= -length && x < -(rX - 1) && x > -rX - rW
 			cnt = true
 		if cnt == true
 			continue
