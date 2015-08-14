@@ -106,6 +106,12 @@ exportScenario \freeDriving, (env) ->*
 	# we are ready
 	@let \scene, scene
 
+	scene.prevTime = 0
+
+	scene.onTickHandled ~>
+		console.log(Math.round(1/(scene.time - scene.prevTime)))
+		scene.prevTime = scene.time
+
 	# Run until somebody says "done".
 	yield @get \done
 
@@ -214,35 +220,36 @@ search = (scene) ->
 	d = 0.01 / scene.centerLine.getLength()
 	minC = 1000
 	maxDist = speed*2/scene.centerLine.getLength()
+	minPos = 0
 	z = scene.player.physical.position.z
 	x = scene.player.physical.position.x
-	l = 0
-	r = 1.1
 	t = true
-	while t == true
-		if Math.abs(r - l) <= d
-			pos = ((l + r) / 2)
-			if pos > 1
-				pos -= 1
-			return pos
-		lT = l + (r - l)/3
-		rT =  r - (r - l)/3
-		posLT = lT
-		if posLT > 1
-			posLT -= 1
-		posRT = rT
-		if posRT > 1
-			posRT -= 1
+	for i from 0 til 3
+		l = 0 + i*(1/3)
+		r = 1/3 + i*(1/3)
+		while t == true
+			if Math.abs(r - l) <= d
+				pos = ((l + r) / 2)
+				point = scene.centerLine.getPointAt(pos)
+				c = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
+				if c <= minC
+					minC = c
+					minPos = pos
+				break
+			lT = l + (r - l)/3
+			rT =  r - (r - l)/3
+			posLT = lT
+			posRT = rT
+			point = scene.centerLine.getPointAt(posLT)
+			cLT = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
 
-		point = scene.centerLine.getPointAt(posLT)
-		cLT = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
-
-		point = scene.centerLine.getPointAt(posRT)
-		cRT = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
-		if cLT >= cRT
-			l = lT
-		else
-			r = rT
+			point = scene.centerLine.getPointAt(posRT)
+			cRT = ((z - point.x) ^ 2 + (x - point.y) ^ 2 ) ^ 0.5
+			if cLT >= cRT
+				l = lT
+			else
+				r = rT
+	return minPos
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
@@ -465,7 +472,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-
+		console.log(Math.round(1/(scene.time - scene.prevTime)))
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
@@ -557,7 +564,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-
+		console.log(Math.round(1/(scene.time - scene.prevTime)))
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
