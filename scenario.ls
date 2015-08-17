@@ -10,6 +10,8 @@ seqr = require './seqr.ls'
 {circleScene} = require './circleScene.ls'
 assets = require './assets.ls'
 
+require './three.js/examples/fonts/helvetiker_regular.typeface.js'
+
 ui = require './ui.ls'
 
 exportScenario = (name, impl) ->
@@ -142,17 +144,19 @@ handleProbesAlt = (scene) ->
 			seed = scene.order[i][1]
 			if scene.maxScore == 60
 				scene.end = true
-			if scene.probes[probe].get(0).innerText == 'A'
+			if scene.probes[probe].pA.visible == true
 				scene.missed += 1
 				scene.probes[probe].missed += 1
-			scene.probes[probe].text "B"
+			scene.probes[probe].pA.visible = false
+			scene.probes[probe].pB.visible = true
 		scene.probeIndx += 1
 		i = scene.probeIndx
 		if scene.end == false && i >=0
 			probe = scene.order[i][0]
 			seed = scene.order[i][1]
 			if seed == 1
-				scene.probes[probe].text "A"
+				scene.probes[probe].pA.visible = true
+				scene.probes[probe].pB.visible = false
 				scene.maxScore += 1
 		scene.dT = scene.time
 
@@ -161,19 +165,64 @@ handleProbes = (scene, i) ->
 	if (scene.time - scene.dT) > 1
 		if scene.maxScore == 50
 			scene.end = true
-		if  scene.probes[i].get(0).innerText == 'A'
+		if  scene.probes[i].pA.visible == true
 			scene.missed += 1
 			scene.probes[i].missed += 1
-		scene.probes[i].text "B"
+		scene.probes[i].pA.visible == false
+		scene.probes[i].pB.visible == true
 		scene.probeIndx = Math.floor((Math.random() * 6))
 		seed = Math.floor((Math.random() * 3) + 1)
 		i = scene.probeIndx
 		if seed == 1 && scene.maxScore < 50
-			scene.probes[i].text "A"
+			scene.probes[i].pB.visible == false
+			scene.probes[i].pA.visible == true
 			scene.maxScore += 1
 		else
-			scene.probes[i].text "B"
+			scene.probes[i].pA.visible == false
+			scene.probes[i].pB.visible == true
 		scene.dT = scene.time
+
+addProbe = (scene) ->
+	vFOV = scene.camera.fov
+	angle = (vFOV/2) * Math.PI/180
+	ratio = 0.025
+	heigth = (Math.tan(angle) * 1000 * 2) * ratio
+	s = heigth
+	params = {size: s, height: 0.1*s}
+	geoA = new THREE.TextGeometry("A", params)
+	geoB = new THREE.TextGeometry("B", params)
+	geo4 = new THREE.TextGeometry("4", params)
+	geo8 = new THREE.TextGeometry("8", params)
+	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
+
+	pa = new THREE.Mesh geoA, material
+	pa.visible = false
+	pb = new THREE.Mesh geoB, material
+	pb.visible = true
+	p4 = new THREE.Mesh geo4, material
+	p4.visible = false
+	p8 = new THREE.Mesh geo8, material
+	p8.visible = false
+
+	probe = new THREE.Object3D()
+	probe.pA = pa
+	probe.p4 = p4
+	probe.pB = pb
+	probe.p8 = p8
+	probe.heigth = heigth
+	probe.ratio = ratio
+
+	probe.add pa
+	probe.add pb
+	probe.add p4
+	probe.add p8
+
+	probe.position.y = -1000
+	probe.position.z = -1000
+
+	scene.camera.add probe
+
+	return probe
 
 createProbes = (scene, rx, ry, l, s, rev) ->
 	scene.probes = []
@@ -181,12 +230,20 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 	z = scene.player.physical.position.z
 	pos = []
 	for i from 0 til 6
-		probe = $('<div>').css "font-size": "200%", line-height: '20px', position: 'absolute', display: "inline-block", left: '50%', bottom: '-10%', "color": "black"
-		probe.text 'B'
+		probe = addProbe(scene)
 		probe.score = 0
 		probe.missed = 0
 		scene.probes.push(probe)
-		$('#drivesim').append(scene.probes[i])
+
+objectLoc = (object, x, y) ->
+	aspect = screen.width / screen.height
+	ratio = object.ratio
+	w = aspect/ratio
+	h = 1/ratio
+	heigth = object.heigth
+	object.position.x = (w*x - w/2) * heigth
+	object.position.y = (h*y - h/2) * heigth
+
 
 handleProbeLocs = (scene, rev) ->
 	aspect = screen.width / screen.height
@@ -198,22 +255,21 @@ handleProbeLocs = (scene, rev) ->
 
 	v1 = new THREE.Vector3(point1.y, 0.1, point1.x)
 	v1.project(scene.camera)
-	x1 = (v1.x+1)*0.5*100
-	y1 =(v1.y+1)*0.5*100
+	x1 = (v1.x+1)*0.5
+	y1 =(v1.y+1)*0.5
 
 	v2 = new THREE.Vector3(point2.y, 0.1, point2.x)
 	v2.project(scene.camera)
-	x2 = (v2.x+1)*0.5*100
-	y2 =(v2.y+1)*0.5*100
+	x2 = (v2.x+1)*0.5
+	y2 =(v2.y+1)*0.5
 
-	pos = [[x2,y2],[x1,y1],[x2 + 10/hFOV,y2],[x1 + 10/hFOV,y1], [x2 - 10/hFOV,y2], [x1 - 10/hFOV,y1]]
+	pos = [[x2,y2],[x1,y1],[x2 + 0.1/hFOV,y2],[x1 + 0.1/hFOV,y1], [x2 - 0.1/hFOV,y2], [x1 - 0.1/hFOV,y1]]
 	for i from 0 til 6
-		scene.probes[i].0.style.left = pos[i][0] + '%'
-		scene.probes[i].0.style.bottom = pos[i][1] + '%'
+		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
 	if rev == -1
-		fixationCrossLoc scene, (x2 - 20/hFOV) / 100, y2/100
+		objectLoc scene.cross, x2 - 0.2/hFOV, y2
 	else
-		fixationCrossLoc scene, (x2 + 20/hFOV) / 100, y2/100
+		objectLoc scene.cross, x2 + 0.2/hFOV, y2
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -346,16 +402,6 @@ handleSpeed = (scene, target) ->
 		scene.playerControls.throttle = 0
 		scene.playerControls.brake = -newForce
 
-fixationCrossLoc = (scene, x, y) ->
-	aspect = screen.width / screen.height
-	cross = scene.cross
-	ratio = 0.1
-	w = aspect/ratio
-	h = (1/aspect) * (w)
-	heigth = cross.heigth
-	cross.position.x = (w*x - w/2) * heigth
-	cross.position.y = (h*y - h/2) * heigth
-
 addFixationCross = (scene) ->
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
@@ -369,9 +415,10 @@ addFixationCross = (scene) ->
 	cross = new THREE.Mesh horCross, material
 	cross.position.z = -1000
 	cross.heigth = heigth
+	cross.ratio = ratio
 	scene.camera.add cross
 	scene.cross = cross
-	fixationCrossLoc scene, -0.1, -0.1
+	objectLoc cross, -0.1, -0.1
 	cross.visible = true
 
 addMarkerScreen = (scene, env) ->
@@ -459,12 +506,13 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 		if env.controls.probeReact == true
 			scene.dT = scene.time
 			env.controls.probeReact = false
-			if scene.probes[i].get(0).innerText == 'A'
+			if scene.probes[i].pA.visible == true
 				scene.score +=1
 				scene.probes[i].score += 1
 			else
 				scene.score -= 1
-			scene.probes[i].text 'B'
+			scene.probes[i].pA.visible = false
+			scene.probes[i].pB.visible = true
 
 		handleProbesAlt scene, i
 
@@ -472,7 +520,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-		console.log(Math.round(1/(scene.time - scene.prevTime)))
+
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
@@ -551,12 +599,13 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 		if env.controls.probeReact == true
 			scene.dT = scene.time
 			env.controls.probeReact = false
-			if scene.probes[i].get(0).innerText == 'A'
+			if scene.probes[i].pA.visible == true
 				scene.score +=1
 				scene.probes[i].score += 1
 			else
 				scene.score -= 1
-			scene.probes[i].text 'B'
+			scene.probes[i].pA.visible = false
+			scene.probes[i].pB.visible = true
 
 		handleProbesAlt scene, i
 
