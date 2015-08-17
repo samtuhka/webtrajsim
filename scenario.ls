@@ -236,7 +236,7 @@ createProbes = (scene, rx, ry, l, s, rev) ->
 		scene.probes.push(probe)
 
 objectLoc = (object, x, y) ->
-	aspect = screen.width / screen.height
+	aspect = window.innerWidth / window.innerHeight
 	ratio = object.ratio
 	w = aspect/ratio
 	h = 1/ratio
@@ -246,7 +246,7 @@ objectLoc = (object, x, y) ->
 
 
 handleProbeLocs = (scene, rev) ->
-	aspect = screen.width / screen.height
+	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
 
