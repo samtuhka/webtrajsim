@@ -1,7 +1,7 @@
 $ = require 'jquery'
 P = require 'bluebird'
 seqr = require './seqr.ls'
-{runScenario, newEnv} = require './scenarioRunner.ls'
+{runScenario, runScenarioCurve, newEnv} = require './scenarioRunner.ls'
 scenario = require './scenario.ls'
 
 L = (s) -> s
@@ -65,8 +65,12 @@ export singleScenario = seqr.bind ->*
 	# TODO: The control flow is a mess!
 	opts = deparam window.location.search.substring 1
 	scn = scenario[opts.singleScenario]
+	scnName = opts.singleScenario
 	while true
-		yield runScenario scn
+		if scnName == "circleDriving" || scnName == "circleDrivingRev"
+			yield runScenarioCurve scn
+		else
+			yield runScenario scn
 
 
 export memkiller = seqr.bind !->*
@@ -117,10 +121,10 @@ export logkiller = seqr.bind !->*
 	console.log "Done"
 
 
-runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s) ->*
+runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s, rev, stat) ->*
 	currentPasses = 0
 	for retry from 1 til Infinity
-		task = runScenario scenarioLoader, rx, ry, l, s
+		task = runScenarioCurve scenarioLoader, rx, ry, l, s, rev, stat
 		result = yield task.get \done
 		currentPasses += result.passed
 		doQuit = currentPasses >= passes or retry > maxRetries

@@ -145,10 +145,11 @@ handleProbesAlt = (scene) ->
 			if scene.maxScore == 60
 				scene.end = true
 			if scene.probes[probe].pA.visible == true
-				scene.missed += 1
+				scene.scoring.missed += 1
 				scene.probes[probe].missed += 1
 			scene.probes[probe].pA.visible = false
 			scene.probes[probe].pB.visible = true
+			scene.probes[probe].current = "B"
 		scene.probeIndx += 1
 		i = scene.probeIndx
 		if scene.end == false && i >=0
@@ -157,6 +158,7 @@ handleProbesAlt = (scene) ->
 			if seed == 1
 				scene.probes[probe].pA.visible = true
 				scene.probes[probe].pB.visible = false
+				scene.probes[probe].current = "A"
 				scene.maxScore += 1
 		scene.dT = scene.time
 
@@ -166,20 +168,23 @@ handleProbes = (scene, i) ->
 		if scene.maxScore == 50
 			scene.end = true
 		if  scene.probes[i].pA.visible == true
-			scene.missed += 1
+			scene.scoring.missed += 1
 			scene.probes[i].missed += 1
 		scene.probes[i].pA.visible == false
 		scene.probes[i].pB.visible == true
+		scene.probes[i].current = "B"
 		scene.probeIndx = Math.floor((Math.random() * 6))
 		seed = Math.floor((Math.random() * 3) + 1)
 		i = scene.probeIndx
 		if seed == 1 && scene.maxScore < 50
 			scene.probes[i].pB.visible == false
 			scene.probes[i].pA.visible == true
+			scene.probes[i].current = "A"
 			scene.maxScore += 1
 		else
 			scene.probes[i].pA.visible == false
 			scene.probes[i].pB.visible == true
+			scene.probes[i].current = "B"
 		scene.dT = scene.time
 
 addProbe = (scene) ->
@@ -216,6 +221,8 @@ addProbe = (scene) ->
 	probe.add pb
 	probe.add p4
 	probe.add p8
+
+	probe.current = "B"
 
 	probe.position.y = -1000
 	probe.position.z = -1000
@@ -305,6 +312,7 @@ search = (scene) ->
 				l = lT
 			else
 				r = rT
+	scene.player.pos = minPos
 	return minPos
 
 calculateFuture = (scene, r, speed) ->
@@ -374,8 +382,6 @@ onOuterLane = (x, z, rX, rY, rW, l) ->
 		return false
 
 handleSound = (sound, scene, cnt) ->
-	if cnt == false
-		scene.outside += scene.time - scene.prevTime
 	if cnt == false and scene.time - scene.soundTs >= 1
 		sound.play()
 		scene.soundPlay = true
@@ -401,6 +407,21 @@ handleSpeed = (scene, target) ->
 	else
 		scene.playerControls.throttle = 0
 		scene.playerControls.brake = -newForce
+
+handleReaction = (env, scene, i) ->
+	if env.controls.probeReact == true
+		env.controls.probeReact = false
+		scene.player.react = true
+		if scene.probes[i].pA.visible == true
+			scene.dT = scene.time
+			scene.scoring.score +=1
+			scene.probes[i].score += 1
+		else
+			scene.scoring.score -= 1
+		scene.probes[i].pA.visible = false
+		scene.probes[i].pB.visible = true
+	else
+		scene.player.react = false
 
 addFixationCross = (scene) ->
 	vFOV = scene.camera.fov
@@ -458,6 +479,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	if st == undefined
 		st = stat
 
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st}
+
 	@let \intro,
 		title: "Stay on your lane"
 		content: """
@@ -466,6 +489,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 			"""
 
 	scene = yield basecircleDriving env, rx, ry, l
+
+	scene.params = settingParams
 
 	addMarkerScreen scene, env
 	addFixationCross scene
@@ -503,33 +528,34 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 			handleProbeLocs scene, r
 
 		i = scene.order[scene.probeIndx][0]
-		if env.controls.probeReact == true
-			scene.dT = scene.time
-			env.controls.probeReact = false
-			if scene.probes[i].pA.visible == true
-				scene.score +=1
-				scene.probes[i].score += 1
-			else
-				scene.score -= 1
-			scene.probes[i].pA.visible = false
-			scene.probes[i].pB.visible = true
 
+		if scene.probes[i].pA.visible == false
+			scene.probes[i].current = "B"
+
+		handleReaction env, scene, i
 		handleProbesAlt scene, i
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
+
 		handleSound annoyingSound, scene, cnt
 
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
 		if scene.end == true
-			console.log(scene)
 			@let \done, passed: true, outro:
 				title: "Passed"
 				content: """
-				<p>You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
+				<p>You score was #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
 			return false
@@ -551,6 +577,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	if st == undefined
 		st = stat
 
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st}
+
 	@let \intro,
 		title: "Stay on your lane"
 		content: """
@@ -558,6 +586,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 			<p>Press enter or click the button below to continue.</p>
 			"""
 	scene = yield basecircleDriving env, rx, ry, l
+
+	scene.params = settingParams
 
 	addMarkerScreen scene, env
 	addFixationCross scene
@@ -596,33 +626,32 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 			handleProbeLocs scene, r
 
 		i = scene.order[scene.probeIndx][0]
-		if env.controls.probeReact == true
-			scene.dT = scene.time
-			env.controls.probeReact = false
-			if scene.probes[i].pA.visible == true
-				scene.score +=1
-				scene.probes[i].score += 1
-			else
-				scene.score -= 1
-			scene.probes[i].pA.visible = false
-			scene.probes[i].pB.visible = true
 
+		if scene.probes[i].pA.visible == false
+			scene.probes[i].current = "B"
+
+		handleReaction env, scene, i
 		handleProbesAlt scene, i
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 		cnt = onInnerLane(x, z, rx, ry, 7, l)
 		handleSound annoyingSound, scene, cnt
-		console.log(Math.round(1/(scene.time - scene.prevTime)))
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
 		if scene.end == true
-			console.log(scene)
 			@let \done, passed: true, outro:
 				title: "Passed"
 				content: """
-				<p>You score was #{(scene.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
+				<p>You score was #{scene.scoring.score.toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
 				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
 				 """
 			return false

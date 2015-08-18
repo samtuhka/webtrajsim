@@ -101,13 +101,13 @@ export newEnv = seqr.bind !->*
 	if window.gc?
 		window.gc()
 
-export runScenario = seqr.bind (scenarioLoader, rx, ry, l, s, rev) !->*
+export runScenario = seqr.bind (scenarioLoader) !->*
 	scope = newEnv()
 	env = yield scope.get \env
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
-	scenario = scenarioLoader env, rx, ry, l, s
+	scenario = scenarioLoader env
 
 
 	intro = P.resolve undefined
@@ -153,6 +153,122 @@ export runScenario = seqr.bind (scenarioLoader, rx, ry, l, s, rev) !->*
 				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
 				projectionMatrix: scene.camera.projectionMatrix.toArray()
 			telemetry: env.controls{throttle, brake, steering, direction}
+		env.logger.write dump
+
+	env.onSize (w, h) ->
+		renderer.setSize w, h
+		scene.camera.aspect = w/h
+		scene.camera.updateProjectionMatrix()
+		render()
+
+	el = $ renderer.domElement
+	el.hide()
+	env.container.append el
+
+	# Run
+	yield P.resolve scene.preroll()
+	yield ui.waitFor el~fadeIn
+	@let \ready, [scenario]
+	@let \intro, [intro]
+	yield intro
+	scenario.let \run
+
+	done = scenario.get \done
+	env.logger.write startingScenario: scenarioLoader.scenarioName
+	scene.onStart.dispatch()
+
+	yield eachFrame (dt) !->
+		return true if not done.isPending()
+		scene.tick dt
+	scene.onExit.dispatch()
+	env.logger.write exitedScenario: scenarioLoader.scenarioName
+
+	env.notifications.fadeOut()
+	yield ui.waitFor el~fadeOut
+	{passed, outro} = yield scenario
+	el.remove()
+
+	outro = ui.instructionScreen env, ->
+			@ \title .append outro.title
+			@ \subtitle .append outro.subtitle
+			@ \content .append outro.content
+			me.let \done, passed: passed, outro: @
+	@let \outro, [outro]
+	yield outro
+	scope.let \destroy
+	yield scope
+	env.logger.write destroyedScenario: scenarioLoader.scenarioName
+
+export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat) !->*
+	scope = newEnv()
+	env = yield scope.get \env
+	# Setup
+	env.notifications = $ '<div class="notifications">' .appendTo env.container
+	env.logger.write loadingScenario: scenarioLoader.scenarioName
+	scenario = scenarioLoader env, rx, ry, l, s, rev, stat
+
+
+	intro = P.resolve undefined
+	me = @
+	scenario.get \intro .then (introContent) ->
+		intro := ui.instructionScreen env, ->
+			@ \title .append introContent.title
+			@ \subtitle .append introContent.subtitle
+			@ \content .append introContent.content
+			# HACK!
+			env.logger.write scenarioIntro: @el.html()
+			me.get \ready
+
+	scene = yield scenario.get \scene
+
+	env.logger.write scenarioParameters: scene.params
+	env.logger.write probeOrder: scene.order
+
+	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
+	@finally ->
+		THREE.Cache.clear()
+		# A hack to clear some caches in Cannon
+		(new CANNON.World).step(1/60)
+	#renderer.shadowMapEnabled = true
+	#renderer.shadowMapType = THREE.PCFShadowMap
+	renderer.autoClear = false
+	scene.beforeRender.add -> renderer.clear()
+
+	render = ->
+		renderer.render scene.visual, scene.camera
+	if env.opts.enableVr
+		render = enableVr env, renderer, scene
+
+	#physDebug = new THREE.CannonDebugRenderer scene.visual, scene.physics
+	#scene.beforeRender.add ->
+	#	physDebug.update()
+
+	probeData = (scene) ->
+		probes = []
+		for i from 0 til scene.probes.length
+			s = scene.probes[i].score
+			m = scene.probes[i].missed
+			pos = scene.probes[i].position
+			vis = scene.probes[i].current
+			probe = {index: i, score: s, missed: m, position: pos, visible: vis}
+			probes.push probe
+		return probes
+
+	scene.onRender.add render
+
+	scene.onTickHandled ->
+		dump =
+			sceneTime: scene.time
+			#physics: dumpPhysics scene.physics
+			camera:
+				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
+				projectionMatrix: scene.camera.projectionMatrix.toArray()
+			telemetry: env.controls{throttle, brake, steering, direction}
+			scoring: scene.scoring
+			outside: scene.outside
+			probes: probeData scene
+			player: {position: scene.player.physical.position, track_position: scene.player.pos, speed: scene.player.getSpeed(), react: scene.player.react}
+			prediction: scene.predict
 		env.logger.write dump
 
 	env.onSize (w, h) ->
