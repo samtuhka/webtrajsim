@@ -499,6 +499,9 @@ addMarkerScreen = (scene, env) ->
 		scene.camera.add marker
 		marker.visible = true
 
+listener = new THREE.AudioListener()
+annoyingSound = new THREE.Audio(listener)
+annoyingSound.load('res/sounds/beep-01a.wav')
 
 exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 
@@ -541,10 +544,6 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	startLight.position.x = lightX
 	startLight.position.z = 7.5
 	startLight.addTo scene
-
-	listener = new THREE.AudioListener()
-	annoyingSound = new THREE.Audio(listener)
-	annoyingSound.load('res/sounds/beep-01a.wav')
 
 	@let \scene, scene
 	yield @get \run
@@ -592,6 +591,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
 		if scene.end == true
+			listener.remove()
 			@let \done, passed: true, outro:
 				title: "Passed"
 				content: """
@@ -643,10 +643,6 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	startLight.position.x = -lightX
 	startLight.position.z = 7.5
 	startLight.addTo scene
-
-	listener = new THREE.AudioListener()
-	annoyingSound = new THREE.Audio(listener)
-	annoyingSound.load('res/sounds/beep-01a.wav')
 
 	@let \scene, scene
 	yield @get \run
