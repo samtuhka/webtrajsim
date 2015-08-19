@@ -222,7 +222,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 7
+	roadWidth = 5.25
 	roadLenght = 20
 	shape = new THREE.Shape()
 	shape.moveTo(0, 0)
@@ -254,7 +254,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	scene.centerLine = generateCircle(rx + 0.5*roadWidth, ry + 0.5*roadWidth, length)
 	extrudeSettings = {curveSegments: 1000, steps: 1000, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture.jpg'
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture_alt.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
 	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter

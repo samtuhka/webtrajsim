@@ -537,7 +537,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, 7, l)
+		cnt = onInnerLane(x, z, rx, ry, 10.5, l)
 
 		if cnt == false
 			scene.outside.out = true
@@ -595,7 +595,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	probeOrder scene
 	createProbes scene, rx, ry, l, s, -1
 
-	scene.player.physical.position.x = -rx - 1.75
+	scene.player.physical.position.x = -rx - 2.625
 	scene.player.physical.position.z = - 7.5
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
@@ -635,7 +635,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, 7, l)
+		cnt = onInnerLane(x, z, rx, ry, 10.5, l)
 		handleSound annoyingSound, scene, cnt
 
 		if cnt == false
