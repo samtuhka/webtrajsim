@@ -122,15 +122,9 @@ probeOrder = (scene, n) ->
 	for i from 0 til n
 		for j from 1 til 31
 			if j % 3 == 0
-				if j % 6 == 0
 					array.push([i, 0])
-				else
-					array.push([i, 2])
 			else
-				if j % 4 == 0
 					array.push([i, 1])
-				else
-					array.push([i, 3])
 	counter = n*30
 	while counter > 0
 		index = Math.floor(Math.random() * counter)
@@ -222,7 +216,7 @@ addProbe = (scene) ->
 	probe.add pb
 	probe.add p4
 	probe.add p8
-	seed = Math.round(Math.random())
+	seed = Math.round(Math.random()) + 1
 	if seed == 0
 		p8.visible = true
 		probe.current = "B"
