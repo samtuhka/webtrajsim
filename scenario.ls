@@ -117,15 +117,15 @@ exportScenario \freeDriving, (env) ->*
 	# Run until somebody says "done".
 	yield @get \done
 
-probeOrder = (scene) ->
+probeOrder = (scene, n) ->
 	array = []
-	for i from 0 til 6
+	for i from 0 til n
 		for j from 1 til 31
 			if j % 3 == 0
-				array.push([i, 1])
-			else
 				array.push([i, 0])
-	counter = 180
+			else
+				array.push([i, 1])
+	counter = n*30
 	while counter > 0
 		index = Math.floor(Math.random() * counter)
 		counter -= 1
@@ -136,56 +136,51 @@ probeOrder = (scene) ->
 	array.reverse()
 	scene.order = array
 
-handleProbesAlt = (scene) ->
+probeLogic = (scene, n) ->
 	if (scene.time - scene.dT) > 1
 		i = scene.probeIndx
 		if i >= 0
 			probe = scene.order[i][0]
 			seed = scene.order[i][1]
-			if scene.maxScore == 60
+			if scene.maxScore == n*10
 				scene.end = true
 			if scene.probes[probe].pA.visible == true
 				scene.scoring.missed += 1
 				scene.probes[probe].missed += 1
-			scene.probes[probe].pA.visible = false
-			scene.probes[probe].pB.visible = true
-			scene.probes[probe].current = "B"
+				scene.probes[probe].pA.visible = false
+				scene.probes[probe].p4.visible = true
+				scene.probes[probe].current = "4"
+			if scene.probes[probe].pB.visible == true
+				scene.scoring.missed += 1
+				scene.probes[probe].missed += 1
+				scene.probes[probe].pB.visible = false
+				scene.probes[probe].p8.visible = true
+				scene.probes[probe].current = "8"
 		scene.probeIndx += 1
 		i = scene.probeIndx
 		if scene.end == false && i >=0
 			probe = scene.order[i][0]
 			seed = scene.order[i][1]
-			if seed == 1
+			scene.probes[probe].pA.visible = false
+			scene.probes[probe].p4.visible = false
+			scene.probes[probe].p8.visible = false
+			scene.probes[probe].pB.visible = false
+			if seed == 0
 				scene.probes[probe].pA.visible = true
-				scene.probes[probe].pB.visible = false
 				scene.probes[probe].current = "A"
 				scene.maxScore += 1
+			if seed == 1
+				scene.probes[probe].p4.visible = true
+				scene.probes[probe].current = "4"
+			if seed == 2
+				scene.probes[probe].pB.visible = true
+				scene.probes[probe].current = "B"
+				scene.maxScore += 1
+			if seed == 4
+				scene.probes[probe].p8.visible = true
+				scene.probes[probe].current = "8"
 		scene.dT = scene.time
 
-#a bit less insane
-handleProbes = (scene, i) ->
-	if (scene.time - scene.dT) > 1
-		if scene.maxScore == 50
-			scene.end = true
-		if  scene.probes[i].pA.visible == true
-			scene.scoring.missed += 1
-			scene.probes[i].missed += 1
-		scene.probes[i].pA.visible == false
-		scene.probes[i].pB.visible == true
-		scene.probes[i].current = "B"
-		scene.probeIndx = Math.floor((Math.random() * 6))
-		seed = Math.floor((Math.random() * 3) + 1)
-		i = scene.probeIndx
-		if seed == 1 && scene.maxScore < 50
-			scene.probes[i].pB.visible == false
-			scene.probes[i].pA.visible == true
-			scene.probes[i].current = "A"
-			scene.maxScore += 1
-		else
-			scene.probes[i].pA.visible == false
-			scene.probes[i].pB.visible == true
-			scene.probes[i].current = "B"
-		scene.dT = scene.time
 
 addProbe = (scene) ->
 	vFOV = scene.camera.fov
@@ -203,9 +198,9 @@ addProbe = (scene) ->
 	pa = new THREE.Mesh geoA, material
 	pa.visible = false
 	pb = new THREE.Mesh geoB, material
-	pb.visible = true
+	pb.visible = false
 	p4 = new THREE.Mesh geo4, material
-	p4.visible = false
+	p4.visible = true
 	p8 = new THREE.Mesh geo8, material
 	p8.visible = false
 
@@ -231,12 +226,12 @@ addProbe = (scene) ->
 
 	return probe
 
-createProbes = (scene, rx, ry, l, s, rev) ->
+createProbes = (scene, n) ->
 	scene.probes = []
 	x = scene.player.physical.position.x
 	z = scene.player.physical.position.z
 	pos = []
-	for i from 0 til 6
+	for i from 0 til n
 		probe = addProbe(scene)
 		probe.score = 0
 		probe.missed = 0
@@ -251,32 +246,54 @@ objectLoc = (object, x, y) ->
 	object.position.x = (w*x - w/2) * heigth
 	object.position.y = (h*y - h/2) * heigth
 
-
-handleProbeLocs = (scene, rev) ->
+fixationCrossLoc = (scene, rev) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
-
-	point1 = scene.predict[0]
 	point2 = scene.predict[1]
-
-	v1 = new THREE.Vector3(point1.y, 0.1, point1.x)
-	v1.project(scene.camera)
-	x1 = (v1.x+1)*0.5
-	y1 =(v1.y+1)*0.5
-
 	v2 = new THREE.Vector3(point2.y, 0.1, point2.x)
 	v2.project(scene.camera)
 	x2 = (v2.x+1)*0.5
 	y2 =(v2.y+1)*0.5
-
-	pos = [[x2,y2],[x1,y1],[x2 + 0.1/hFOV,y2],[x1 + 0.1/hFOV,y1], [x2 - 0.1/hFOV,y2], [x1 - 0.1/hFOV,y1]]
-	for i from 0 til 6
-		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
 	if rev == -1
 		objectLoc scene.cross, x2 - 0.2/hFOV, y2
 	else
 		objectLoc scene.cross, x2 + 0.2/hFOV, y2
+
+handleProbeLocs = (scene, n) ->
+	aspect = window.innerWidth / window.innerHeight
+	vFOV = scene.camera.fov/100
+	hFOV = aspect*vFOV
+
+	p500 = scene.predict[0]
+	p1000 = scene.predict[1]
+	p2000 = scene.predict[2]
+	p4000 = scene.predict[3]
+
+	v1 = new THREE.Vector3(p500.y, 0, p500.x)
+	v1.project(scene.camera)
+	x1 = (v1.x+1)*0.5
+	y1 =(v1.y+1)*0.5
+
+	v2 = new THREE.Vector3(p1000.y, 0, p1000.x)
+	v2.project(scene.camera)
+	x2 = (v2.x+1)*0.5
+	y2 =(v2.y+1)*0.5
+
+	v3 = new THREE.Vector3(p2000.y, 0, p2000.x)
+	v3.project(scene.camera)
+	x3 = (v3.x+1)*0.5
+	y3 =(v3.y+1)*0.5
+
+	v4 = new THREE.Vector3(p4000.y, 0, p4000.x)
+	v4.project(scene.camera)
+	x4 = (v4.x+1)*0.5
+	y4 =(v4.y+1)*0.5
+
+	pos = [[x1,y1],[x2,y2], [x3,y3],  [x4,y4], [x1 - 0.1/hFOV, y1], [x2 - 0.1/hFOV, y2], [x3 - 0.1/hFOV, y3], [x1 + 0.1/hFOV, y1], [x2 + 0.1/hFOV, y2], [x3 + 0.1/hFOV, y3]]
+	for i from 0 til n
+		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
+
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -317,9 +334,10 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	for i from 0 til 2
+	fut = [0.5, 1, 2, 4]
+	for i from 0 til 4
 		point = scene.centerLine.getPointAt(t1)
-		dist = speed*(i+1)
+		dist = speed*fut[i]
 		t2 = t1 + dist/scene.centerLine.getLength()*r
 		if t2 >= 1
 			t2 -= 1
@@ -350,6 +368,7 @@ if stat === 1
 		stat = true
 else
 	stat = false
+n = 10
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -416,10 +435,16 @@ handleReaction = (env, scene, i) ->
 			scene.dT = scene.time
 			scene.scoring.score +=1
 			scene.probes[i].score += 1
+			scene.probes[i].pA.visible = false
+			scene.probes[i].p4.visible = true
+		if scene.probes[i].pB.visible == true
+			scene.dT = scene.time
+			scene.scoring.score +=1
+			scene.probes[i].score += 1
+			scene.probes[i].pB.visible = false
+			scene.probes[i].p8.visible = true
 		else
 			scene.scoring.score -= 1
-		scene.probes[i].pA.visible = false
-		scene.probes[i].pB.visible = true
 	else
 		scene.player.react = false
 
@@ -495,8 +520,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	addMarkerScreen scene, env
 	addFixationCross scene
 
-	probeOrder scene
-	createProbes scene, rx, ry, l, s, 1
+	probeOrder scene, n
+	createProbes scene, n
 
 	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
@@ -514,7 +539,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	yield @get \run
 
 	calculateFuture scene, 1, s/3.6
-	handleProbeLocs scene, r
+	handleProbeLocs scene, n
+	fixationCrossLoc scene, r
 
 	yield P.delay 3000
 	yield startLight.switchToGreen()
@@ -526,15 +552,17 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 		handleSpeed scene, s
 		calculateFuture scene, 1, s/3.6
 		unless st == true
-			handleProbeLocs scene, r
+			handleProbeLocs scene, n
 
 		i = scene.order[scene.probeIndx][0]
 
-		if scene.probes[i].pA.visible == false
-			scene.probes[i].current = "B"
+		if scene.probes[i].p8.visible == true
+			scene.probes[i].current = "8"
+		if scene.probes[i].p4.visible == true
+			scene.probes[i].current = "4"
 
 		handleReaction env, scene, i
-		handleProbesAlt scene, i
+		probeLogic scene, n
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
@@ -593,8 +621,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	addMarkerScreen scene, env
 	addFixationCross scene
 
-	probeOrder scene
-	createProbes scene, rx, ry, l, s, -1
+	probeOrder scene, n
+	createProbes scene, n
 
 	scene.player.physical.position.x *= -1
 	scene.player.physical.position.z = 0
@@ -613,7 +641,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
-	handleProbeLocs scene, r
+	handleProbeLocs scene, n
+	fixationCrossLoc scene, r
 
 	yield P.delay 3000
 	yield startLight.switchToGreen()
@@ -625,15 +654,17 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 		handleSpeed scene, s
 		calculateFuture scene, -1, s/3.6
 		unless st == true
-			handleProbeLocs scene, r
+			handleProbeLocs scene, n
 
 		i = scene.order[scene.probeIndx][0]
 
-		if scene.probes[i].pA.visible == false
-			scene.probes[i].current = "B"
+		if scene.probes[i].p8.visible == true
+			scene.probes[i].current = "8"
+		if scene.probes[i].p4.visible == true
+			scene.probes[i].current = "4"
 
 		handleReaction env, scene, i
-		handleProbesAlt scene, i
+		probeLogic scene, n
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
