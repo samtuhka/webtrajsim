@@ -122,9 +122,15 @@ probeOrder = (scene, n) ->
 	for i from 0 til n
 		for j from 1 til 31
 			if j % 3 == 0
-				array.push([i, 0])
+				if j % 6 == 0
+					array.push([i, 0])
+				else
+					array.push([i, 2])
 			else
-				array.push([i, 1])
+				if j % 4 == 0
+					array.push([i, 1])
+				else
+					array.push([i, 3])
 	counter = n*30
 	while counter > 0
 		index = Math.floor(Math.random() * counter)
@@ -176,7 +182,7 @@ probeLogic = (scene, n) ->
 				scene.probes[probe].pB.visible = true
 				scene.probes[probe].current = "B"
 				scene.maxScore += 1
-			if seed == 4
+			if seed == 3
 				scene.probes[probe].p8.visible = true
 				scene.probes[probe].current = "8"
 		scene.dT = scene.time
@@ -200,7 +206,7 @@ addProbe = (scene) ->
 	pb = new THREE.Mesh geoB, material
 	pb.visible = false
 	p4 = new THREE.Mesh geo4, material
-	p4.visible = true
+	p4.visible = false
 	p8 = new THREE.Mesh geo8, material
 	p8.visible = false
 
@@ -216,8 +222,13 @@ addProbe = (scene) ->
 	probe.add pb
 	probe.add p4
 	probe.add p8
-
-	probe.current = "B"
+	seed = Math.round(Math.random())
+	if seed == 0
+		p8.visible = true
+		probe.current = "B"
+	else
+		p4.visible = true
+		probe.current = "4"
 
 	probe.position.y = -1000
 	probe.position.z = -1000
