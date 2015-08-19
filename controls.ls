@@ -34,7 +34,7 @@ export class KeyboardController
 		@brake = 0
 		@steering = 0
 		@direction = 1
-		@start = 3
+		@start = false
 
 		@throttleTarget = 0
 		@brakeTarget = 0
@@ -92,7 +92,7 @@ export class KeyboardController
 			| LEFT => @steeringLeft = 0
 			| RIGHT => @steeringRight = 0
 			| CTRL => @_update \blinder, false
-			| SPACE => @_update \catch, false, @start = true
+			| SPACE => @_update \catch, false, @start = false
 			| ENTER => @probeReact = true
 
 
