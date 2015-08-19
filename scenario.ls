@@ -122,8 +122,14 @@ probeOrder = (scene, n) ->
 	for i from 0 til n
 		for j from 1 til 31
 			if j % 3 == 0
+				if j % 6 == 0 && scene.params.four == true
+					array.push([i, 2])
+				else
 					array.push([i, 0])
 			else
+				if j % 4 == 0 && scene.params.four == true
+					array.push([i, 3])
+				else
 					array.push([i, 1])
 	counter = n*30
 	while counter > 0
@@ -216,7 +222,9 @@ addProbe = (scene) ->
 	probe.add pb
 	probe.add p4
 	probe.add p8
-	seed = Math.round(Math.random()) + 1
+	seed = Math.round(Math.random())
+	if scene.params.four == false
+		seed += 1
 	if seed == 0
 		p8.visible = true
 		probe.current = "B"
@@ -359,6 +367,7 @@ length = Math.floor(opts.l)
 speed = Math.floor(opts.s)
 rev = Math.floor(opts.rev)
 stat = Math.floor(opts.stat)
+four = Math.floor(opts.four)
 if xrad === NaN
 		xrad = 200
 if yrad  === NaN
@@ -371,6 +380,10 @@ if rev === NaN
 		rev = 1
 if stat === 1
 		stat = true
+else
+	stat = false
+if four === 1
+		four = true
 else
 	stat = false
 n = 10
@@ -497,7 +510,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -511,8 +524,10 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 		r = rev
 	if st == undefined
 		st = stat
+	if fr == undefined
+		fr = four
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr}
 
 	@let \intro,
 		title: "Stay on the road"
@@ -599,7 +614,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -613,8 +628,10 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 		r = -rev
 	if st == undefined
 		st = stat
+	if fr == undefined
+		fr = four
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr}
 
 	@let \intro,
 		title: "Stay on the road"
