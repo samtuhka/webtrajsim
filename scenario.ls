@@ -552,8 +552,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
 
-	while env.controls.start == false
-			yield P.delay 1000
+	while not env.controls.start == true
+			yield P.delay 100
 	env.controls.probeReact = false
 
 	yield startLight.switchToGreen()
@@ -654,9 +654,10 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
 	console.log env.controls
-	while env.controls.start == false
-			yield P.delay 1000
-
+	while not env.controls.start == true
+			yield P.delay 100
+	env.controls.probeReact = false
+	
 	yield startLight.switchToGreen()
 
 	startTime = scene.time
