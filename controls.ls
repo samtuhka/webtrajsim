@@ -34,7 +34,7 @@ export class KeyboardController
 		@brake = 0
 		@steering = 0
 		@direction = 1
-		@start = false
+		@start = 3
 
 		@throttleTarget = 0
 		@brakeTarget = 0
