@@ -531,7 +531,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 
 	scene.params = settingParams
 
-	addMarkerScreen scene, env
+	#addMarkerScreen scene, env
 	addFixationCross scene
 
 	probeOrder scene, n
@@ -629,7 +629,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 
 	scene.params = settingParams
 
-	addMarkerScreen scene, env
+	#addMarkerScreen scene, env
 	addFixationCross scene
 
 	probeOrder scene, n

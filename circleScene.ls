@@ -48,22 +48,22 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.predict.push new THREE.Vector3(0,0,0)
 	scene.predict.push new THREE.Vector3(0,0,0)
 	scene.predict.push new THREE.Vector3(0,0,0)
-	scene.player.scoremeter = ui.gauge env,
-		name: L "Score"
-		unit: L "points"
-		value: ->
-			score = scene.scoring.score
-	scene.player.missed = ui.gauge env,
-		name: L "Missed"
-		unit: L "points"
-		value: ->
-			score = scene.scoring.missed
-	scene.player.outside = ui.gauge env,
-		name: L "Outside"
-		unit: L "seconds"
-		value: ->
-			score = scene.outside.totalTime
-			score.toFixed(2)
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "Score"
+	#	unit: L "points"
+	#	value: ->
+	#		score = scene.scoring.score
+	#scene.player.missed = ui.gauge env,
+	#	name: L "Missed"
+	#	unit: L "points"
+	#	value: ->
+	#		score = scene.scoring.missed
+	#scene.player.outside = ui.gauge env,
+	#	name: L "Outside"
+	#	unit: L "seconds"
+	#	value: ->
+	#		score = scene.outside.totalTime
+	#		score.toFixed(2)
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()
 	gainNode.connect audioContext.destination
