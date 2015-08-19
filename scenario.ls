@@ -475,6 +475,7 @@ addFixationCross = (scene) ->
 	cross.ratio = ratio
 	scene.camera.add cross
 	scene.cross = cross
+	objectLoc scene.cross, -0.1, -0.1
 	cross.visible = true
 
 addMarkerScreen = (scene, env) ->
@@ -551,7 +552,10 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
 
-	yield P.delay 5000
+	while env.controls.probeReact == false
+			yield P.delay 1000
+	env.controls.probeReact = false
+
 	yield startLight.switchToGreen()
 
 	startTime = scene.time
@@ -650,7 +654,10 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
 
-	yield P.delay 5000
+	while env.controls.probeReact == false
+			yield P.delay 1000
+	env.controls.probeReact = false
+
 	yield startLight.switchToGreen()
 
 	startTime = scene.time
