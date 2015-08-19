@@ -83,7 +83,6 @@ export class KeyboardController
 			| LEFT => @steeringLeft = 1
 			| RIGHT => @steeringRight = 1
 			| CTRL => @_update \blinder, true
-			| SPACE => @_update \catch, true, @start = true
 
 		.keyup @_keyup = (e) ~>
 			switch e.which
@@ -92,7 +91,7 @@ export class KeyboardController
 			| LEFT => @steeringLeft = 0
 			| RIGHT => @steeringRight = 0
 			| CTRL => @_update \blinder, false
-			| SPACE => @_update \catch, false, @start = false
+			| SPACE => @_update \catch, false, @start = true
 			| ENTER => @probeReact = true
 
 
