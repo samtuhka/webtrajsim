@@ -475,7 +475,6 @@ addFixationCross = (scene) ->
 	cross.ratio = ratio
 	scene.camera.add cross
 	scene.cross = cross
-	objectLoc cross, -0.1, -0.1
 	cross.visible = true
 
 addMarkerScreen = (scene, env) ->
@@ -521,7 +520,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st}
 
 	@let \intro,
-		title: "Stay on your lane"
+		title: "Stay on the road"
 		content: """
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
@@ -552,7 +551,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
 
-	yield P.delay 3000
+	yield P.delay 5000
 	yield startLight.switchToGreen()
 
 	startTime = scene.time
@@ -620,7 +619,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st}
 
 	@let \intro,
-		title: "Stay on your lane"
+		title: "Stay on the road"
 		content: """
 			<p>Here be instructions.</p>
 			<p>Press enter or click the button below to continue.</p>
@@ -651,7 +650,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
 
-	yield P.delay 3000
+	yield P.delay 5000
 	yield startLight.switchToGreen()
 
 	startTime = scene.time
