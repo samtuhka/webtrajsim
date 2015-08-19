@@ -259,7 +259,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat) !-
 	scene.onTickHandled ->
 		dump =
 			sceneTime: scene.time
-			#physics: dumpPhysics scene.physics
+			physics: dumpPhysics scene.physics
 			camera:
 				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
 				projectionMatrix: scene.camera.projectionMatrix.toArray()

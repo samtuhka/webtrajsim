@@ -498,11 +498,12 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st) ->*
 	probeOrder scene
 	createProbes scene, rx, ry, l, s, 1
 
-	scene.player.physical.position.z = - 7.5
+	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
-	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.1
+	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
 	startLight.position.x = lightX
+	startLight.position.z = 7.5
 	startLight.addTo scene
 
 	listener = new THREE.AudioListener()
@@ -595,12 +596,13 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	probeOrder scene
 	createProbes scene, rx, ry, l, s, -1
 
-	scene.player.physical.position.x = -rx - 2.625
-	scene.player.physical.position.z = - 7.5
+	scene.player.physical.position.x *= -1
+	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
 	startLight = yield assets.TrafficLight()
-	lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.1
+	lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
 	startLight.position.x = -lightX
+	startLight.position.z = 7.5
 	startLight.addTo scene
 
 	listener = new THREE.AudioListener()

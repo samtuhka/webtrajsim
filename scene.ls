@@ -222,7 +222,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 5.25
+	roadWidth = 4
 	roadLenght = 20
 	shape = new THREE.Shape()
 	shape.moveTo(0, 0)
