@@ -653,10 +653,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st) ->*
 	calculateFuture scene, -1, s/3.6
 	handleProbeLocs scene, n
 	fixationCrossLoc scene, r
-
-	while env.controls.probeReact == false
+	console.log env.controls
+	while env.controls.start == false
 			yield P.delay 1000
-	env.controls.probeReact = false
 
 	yield startLight.switchToGreen()
 
