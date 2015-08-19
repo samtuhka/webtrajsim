@@ -385,7 +385,7 @@ else
 if four === 1
 		four = true
 else
-	stat = false
+	four = false
 n = 10
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
