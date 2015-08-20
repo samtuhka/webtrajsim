@@ -566,11 +566,11 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 
 	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
-	startLight = yield assets.TrafficLight()
-	lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
-	startLight.position.x = lightX
-	startLight.position.z = 7.5
-	startLight.addTo scene
+	#startLight = yield assets.TrafficLight()
+	#lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
+	#startLight.position.x = lightX
+	#startLight.position.z = 7.5
+	#startLight.addTo scene
 
 	@let \scene, scene
 	yield @get \run
@@ -670,11 +670,11 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 	scene.player.physical.position.x *= -1
 	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
-	startLight = yield assets.TrafficLight()
-	lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
-	startLight.position.x = -lightX
-	startLight.position.z = 7.5
-	startLight.addTo scene
+	#startLight = yield assets.TrafficLight()
+	#lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
+	#startLight.position.x = -lightX
+	#startLight.position.z = 7.5
+	#startLight.addTo scene
 
 	@let \scene, scene
 	yield @get \run
