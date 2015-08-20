@@ -121,10 +121,10 @@ export logkiller = seqr.bind !->*
 	console.log "Done"
 
 
-runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s, rev, stat) ->*
+runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s, rev, stat, four, fut) ->*
 	currentPasses = 0
 	for retry from 1 til Infinity
-		task = runScenarioCurve scenarioLoader, rx, ry, l, s, rev, stat
+		task = runScenarioCurve scenarioLoader, rx, ry, l, s, rev, stat, four, fut
 		result = yield task.get \done
 		currentPasses += result.passed
 		doQuit = currentPasses >= passes or retry > maxRetries
@@ -139,12 +139,13 @@ export circleDriving = seqr.bind ->*
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, false
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, false
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, true
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, true
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, false
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, false
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, true
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, true
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, false, false, 1
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, false, 1
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, false, false, 2
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, false, 2
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, false, false, 3
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, false, 3
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 100, 80, 1, false, false, 0
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 100, 80, -1, false, 0
+
 

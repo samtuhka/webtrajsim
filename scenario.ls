@@ -278,11 +278,11 @@ fixationCrossLoc = (scene, rev) ->
 	else
 		objectLoc scene.cross, x2 + 0.2/hFOV, y2
 
-handleProbeLocs = (scene, n, rev, dir) ->
+handleProbeLocs = (scene, n, rev, i) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
-
+	console.log(hFOV)
 	p500 = scene.predict[0]
 	p1000 = scene.predict[1]
 	p2000 = scene.predict[2]
@@ -308,18 +308,12 @@ handleProbeLocs = (scene, n, rev, dir) ->
 	x4 = (v4.x+1)*0.5
 	y4 =(v4.y+1)*0.5
 
-	xa = x2
-	ya = y2
-	xb = x3
-	yb = y3
-	xFix = (xa + xb) / 2 + 0.025/hFOV*dir
-	if rev == -1
-		xa = x1 - (x2 - x1)
-		xb = x1 - (x3 - x1)
-		xFix = (xa + xb) / 2 - 0.025/hFOV*dir
-	yFix = (xa - xb) / (yb - ya) * (xFix - (xa + xb)/2) + (ya + yb)/ 2
-	#yFix = ((xb - xFix) ^ 2 - (xa - xFix) ^ 2 + (yb ^ 2 - ya ^ 2)) / (2*(yb - ya))
-	pos = [[x1,y1],[x2,y2], [x3,y3],  [x4,y4], [x1 - (x2 - x1), y2], [x1 - (x3 - x1), y3], [x1 - (x4 - x1), y4], [0,0], [0,0], [0,0]]
+	rx = 0.05/hFOV
+	ry = 0.025/vFOV
+	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
+	xFix = lis[i][0]
+	yFix = lis[i][1]
+	pos = [[xFix, yFix + ry],[xFix, yFix - ry], [xFix - rx, yFix],  [xFix + rx, yFix], [xFix + rx, yFix + ry], [xFix  - rx, yFix + ry], [xFix + rx, yFix - ry], [xFix  - rx, yFix - ry], [xFix  - 2*rx, yFix - 0.5*ry], [xFix  - 2*rx, yFix + 0.5*ry],  [xFix  + 2*rx, yFix - 0.5*ry], [xFix  + 2*rx, yFix + 0.5*ry]]
 	for i from 0 til n
 		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
 	objectLoc scene.cross, xFix, yFix
@@ -384,6 +378,7 @@ speed = Math.floor(opts.s)
 rev = Math.floor(opts.rev)
 stat = Math.floor(opts.stat)
 four = Math.floor(opts.four)
+future = Math.floor(opts.fut)
 if xrad === NaN
 		xrad = 200
 if yrad  === NaN
@@ -402,7 +397,9 @@ if four === 1
 		four = true
 else
 	four = false
-n = 7
+if future === NaN
+	future = 2
+n = 12
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -528,7 +525,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -544,8 +541,10 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 		st = stat
 	if fr == undefined
 		fr = four
+	if fut == undefined
+		fut = future
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut}
 
 	@let \intro,
 		title: "Stay on the road"
@@ -576,7 +575,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 	yield @get \run
 
 	calculateFuture scene, 1, s/3.6
-	handleProbeLocs scene, n, r, 1
+	handleProbeLocs scene, n, r, fut
 	#fixationCrossLoc scene, r
 
 	while not env.controls.start == true
@@ -592,7 +591,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 		handleSpeed scene, s
 		calculateFuture scene, 1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n, r, 1
+			handleProbeLocs scene, n, r, fut
 
 		i = scene.order[scene.probeIndx][0]
 
@@ -632,7 +631,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -648,8 +647,10 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 		st = stat
 	if fr == undefined
 		fr = four
+	if fut == undefined
+		fut = future
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut}
 
 	@let \intro,
 		title: "Stay on the road"
@@ -680,7 +681,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
-	handleProbeLocs scene, n, -r, -1
+	handleProbeLocs scene, n, -r, fut
 	#fixationCrossLoc scene, -r
 	console.log env.controls
 	while not env.controls.start == true
@@ -696,7 +697,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 		handleSpeed scene, s
 		calculateFuture scene, -1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n, -r, -1
+			handleProbeLocs scene, n, -r, fut
 
 		i = scene.order[scene.probeIndx][0]
 
