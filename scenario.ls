@@ -217,7 +217,7 @@ addProbe = (scene) ->
 	probe.p8 = p8
 	probe.heigth = heigth
 	probe.ratio = ratio
-	probes = [pa, p4, pb, pb]
+	probes = [pa, p4, pb, p8]
 	for i from 0 til 4
 		probes[i].geometry.computeBoundingBox ()
 		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
