@@ -278,7 +278,7 @@ fixationCrossLoc = (scene, rev) ->
 	else
 		objectLoc scene.cross, x2 + 0.2/hFOV, y2
 
-handleProbeLocs = (scene, n, rev) ->
+handleProbeLocs = (scene, n, rev, dir) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
@@ -312,11 +312,11 @@ handleProbeLocs = (scene, n, rev) ->
 	ya = y2
 	xb = x3
 	yb = y3
-	xFix = (xa + xb) / 2 + 0.025/hFOV
+	xFix = (xa + xb) / 2 + 0.025/hFOV*dir
 	if rev == -1
 		xa = x1 - (x2 - x1)
 		xb = x1 - (x3 - x1)
-		xFix = (xa + xb) / 2 - 0.025/hFOV
+		xFix = (xa + xb) / 2 - 0.025/hFOV*dir
 	yFix = (xa - xb) / (yb - ya) * (xFix - (xa + xb)/2) + (ya + yb)/ 2
 	#yFix = ((xb - xFix) ^ 2 - (xa - xFix) ^ 2 + (yb ^ 2 - ya ^ 2)) / (2*(yb - ya))
 	pos = [[x1,y1],[x2,y2], [x3,y3],  [x4,y4], [x1 - (x2 - x1), y2], [x1 - (x3 - x1), y3], [x1 - (x4 - x1), y4], [0,0], [0,0], [0,0]]
@@ -576,14 +576,14 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 	yield @get \run
 
 	calculateFuture scene, 1, s/3.6
-	handleProbeLocs scene, n, r
+	handleProbeLocs scene, n, r, 1
 	#fixationCrossLoc scene, r
 
 	while not env.controls.start == true
 			yield P.delay 100
 	env.controls.probeReact = false
 
-	yield startLight.switchToGreen()
+	#yield startLight.switchToGreen()
 
 	startTime = scene.time
 	scene.probeIndx = 0
@@ -592,7 +592,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 		handleSpeed scene, s
 		calculateFuture scene, 1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n, r
+			handleProbeLocs scene, n, r, 1
 
 		i = scene.order[scene.probeIndx][0]
 
@@ -680,14 +680,14 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
-	handleProbeLocs scene, n, r
-	#fixationCrossLoc scene, r
+	handleProbeLocs scene, n, -r, -1
+	#fixationCrossLoc scene, -r
 	console.log env.controls
 	while not env.controls.start == true
 			yield P.delay 100
 	env.controls.probeReact = false
 	
-	yield startLight.switchToGreen()
+	#yield startLight.switchToGreen()
 
 	startTime = scene.time
 	scene.probeIndx = 0
@@ -696,7 +696,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 		handleSpeed scene, s
 		calculateFuture scene, -1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n, r
+			handleProbeLocs scene, n, -r, -1
 
 		i = scene.order[scene.probeIndx][0]
 
