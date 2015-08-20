@@ -217,6 +217,11 @@ addProbe = (scene) ->
 	probe.p8 = p8
 	probe.heigth = heigth
 	probe.ratio = ratio
+	probes = [pa, p4, pb, pb]
+	for i from 0 til 4
+		probes[i].geometry.computeBoundingBox ()
+		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
+		probes[i].position.y = -(probes[i].geometry.boundingBox.max.y - probes[i].geometry.boundingBox.min.y) / 2
 
 	probe.add pa
 	probe.add pb
@@ -273,7 +278,7 @@ fixationCrossLoc = (scene, rev) ->
 	else
 		objectLoc scene.cross, x2 + 0.2/hFOV, y2
 
-handleProbeLocs = (scene, n) ->
+handleProbeLocs = (scene, n, rev) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
@@ -303,10 +308,21 @@ handleProbeLocs = (scene, n) ->
 	x4 = (v4.x+1)*0.5
 	y4 =(v4.y+1)*0.5
 
-	pos = [[x1,y1],[x2,y2], [x3,y3],  [x4,y4], [x1 - 0.1/hFOV, y1], [x2 - 0.1/hFOV, y2], [x3 - 0.1/hFOV, y3], [x1 + 0.1/hFOV, y1], [x2 + 0.1/hFOV, y2], [x3 + 0.1/hFOV, y3]]
+	xa = x2
+	ya = y2
+	xb = x3
+	yb = y3
+	xFix = (xa + xb) / 2 + 0.025/hFOV
+	if rev == -1
+		xa = x1 - (x2 - x1)
+		xb = x1 - (x3 - x1)
+		xFix = (xa + xb) / 2 - 0.025/hFOV
+	yFix = (xa - xb) / (yb - ya) * (xFix - (xa + xb)/2) + (ya + yb)/ 2
+	#yFix = ((xb - xFix) ^ 2 - (xa - xFix) ^ 2 + (yb ^ 2 - ya ^ 2)) / (2*(yb - ya))
+	pos = [[x1,y1],[x2,y2], [x3,y3],  [x4,y4], [x1 - (x2 - x1), y2], [x1 - (x3 - x1), y3], [x1 - (x4 - x1), y4], [0,0], [0,0], [0,0]]
 	for i from 0 til n
 		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
-
+	objectLoc scene.cross, xFix, yFix
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -386,7 +402,7 @@ if four === 1
 		four = true
 else
 	four = false
-n = 10
+n = 7
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -476,7 +492,9 @@ addFixationCross = (scene) ->
 	verCross = new THREE.PlaneGeometry(size * 0.05, size)
 	horCross.merge(verCross)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
-	cross = new THREE.Mesh horCross, material
+	crossMesh = new THREE.Mesh horCross, material
+	cross = new THREE.Object3D()
+	cross.add crossMesh
 	cross.position.z = -1000
 	cross.heigth = heigth
 	cross.ratio = ratio
@@ -558,8 +576,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 	yield @get \run
 
 	calculateFuture scene, 1, s/3.6
-	handleProbeLocs scene, n
-	fixationCrossLoc scene, r
+	handleProbeLocs scene, n, r
+	#fixationCrossLoc scene, r
 
 	while not env.controls.start == true
 			yield P.delay 100
@@ -574,7 +592,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr) ->*
 		handleSpeed scene, s
 		calculateFuture scene, 1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n
+			handleProbeLocs scene, n, r
 
 		i = scene.order[scene.probeIndx][0]
 
@@ -662,8 +680,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
-	handleProbeLocs scene, n
-	fixationCrossLoc scene, r
+	handleProbeLocs scene, n, r
+	#fixationCrossLoc scene, r
 	console.log env.controls
 	while not env.controls.start == true
 			yield P.delay 100
@@ -678,7 +696,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr) ->*
 		handleSpeed scene, s
 		calculateFuture scene, -1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n
+			handleProbeLocs scene, n, r
 
 		i = scene.order[scene.probeIndx][0]
 
