@@ -141,15 +141,13 @@ export circleDriving = seqr.bind ->*
 	yield env
 
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, false, 1
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 1
-
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, false, 0
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 0
-
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, false, 2
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 2
-	
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, false, 3
+
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 1
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 0
+	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 2
 	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, false, 3
 
 
