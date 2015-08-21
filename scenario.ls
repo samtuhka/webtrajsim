@@ -464,11 +464,11 @@ handleReaction = (env, scene, i) ->
 		scene.player.react = true
 		if scene.probes[i].pA.visible == true
 			scene.dT = scene.time
-			scene.scoring.score +=1
+			scene.scoring.score += 1
 			scene.probes[i].score += 1
 			scene.probes[i].pA.visible = false
 			scene.probes[i].p4.visible = true
-		if scene.probes[i].pB.visible == true
+		else if scene.probes[i].pB.visible == true
 			scene.dT = scene.time
 			scene.scoring.score +=1
 			scene.probes[i].score += 1
