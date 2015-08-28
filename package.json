@@ -21,6 +21,7 @@
     "jade": "^1.9.2",
     "jquery": "^2.1.3",
     "jquery-deparam": "^0.3.0",
+    "jszip": "^2.5.0",
     "keypress": "dmauro/Keypress",
     "livescript-loader": "^0.1.3",
     "prelude-ls": "^1.1.1",
