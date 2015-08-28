@@ -3,10 +3,13 @@ dbjs = require 'db.js'
 export Sessions = (name) ->
 	dbjs.open do
 		server: name
-		version: 1
+		version: 2
 		schema:
 			sessions: key: {keyPath: 'sessionSurrogateId', autoIncrement: true}
-			entries: key: {autoIncrement: true}
+			entries:
+				key: {autoIncrement: true}
+				indexes:
+					sessionId: {}
 	.then (db) ->
 		return new _Sessions db
 
