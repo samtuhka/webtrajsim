@@ -89,6 +89,8 @@ export class KeyboardController
 			| LEFT => @steeringLeft = 1
 			| RIGHT => @steeringRight = 1
 			| CTRL => @_update \blinder, true
+			| Q => @pNo = true
+			| W => @pYes = true
 
 		.keyup @_keyup = (e) ~>
 			switch e.which
@@ -99,8 +101,8 @@ export class KeyboardController
 			| CTRL => @_update \blinder, false
 			| SPACE => @_update \catch, false, @start = true
 			| ENTER => @probeReact = true
-			| Q => @pNo = true
-			| W => @pYes = true
+			| Q => @pNo = false
+			| W => @pYes = false
 
 
 

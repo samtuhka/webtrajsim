@@ -51,7 +51,7 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.targetPresent = false
 	scene.targetScreen = false
 	scene.transientScreen = false
-	scene.reacted = false
+	scene.reacted = true
 
 	scene.player.scoremeter = ui.gauge env,
 		name: L "False negative"

@@ -120,7 +120,7 @@ exportScenario \freeDriving, (env) ->*
 probeOrder = (scene, n) ->
 	array = []
 	for i from 0 til n
-		for j from 1 til 31
+		for j from 1 til 11
 			if j % 2 == 0
 				if j % 4 == 0 && scene.params.four == true
 					array.push([i, 2])
@@ -131,7 +131,7 @@ probeOrder = (scene, n) ->
 					array.push([i, 3])
 				else
 					array.push([i, 1])
-	counter = n*30
+	counter = n*10
 	while counter > 0
 		index = Math.floor(Math.random() * counter)
 		counter -= 1
@@ -160,39 +160,41 @@ clearProbes = (scene) ->
 		scene.transientScreen = false
 
 addProbes = (scene) ->
+	scene.reacted = false
 	for i from 0 til scene.probes.length
 		scene.probes[i].pA.visible = false
 		scene.probes[i].p4.visible = true
 		scene.probes[i].pB.visible = false
 		scene.probes[i].p8.visible = false
-		scene.targetScreen = true
-		scene.transientScreen = false
+	scene.targetScreen = true
+	scene.transientScreen = false
 
 transientTransistion = (scene) ->
 	if (scene.time - scene.dT) > 1 && scene.targetScreen == true && scene.transientScreen == false
-		scene.reacted = false
 		transientScreen scene
-	if (scene.time - scene.dT) > 4 && scene.transientScreen == false
+	if (scene.time - scene.dT) > 3 && scene.transientScreen == false
 		transientScreen scene
 
 probeLogic = (scene) ->
 	transientTransistion scene
 	if (scene.time - scene.dT) > 1.25 && scene.targetScreen == true
 		clearProbes scene
+		scene.dT = scene.time
+		if scene.probeIndx == 80
+			scene.end = true
+	if (scene.time - scene.dT) > 3.25
 		if scene.reacted == false
 			scene.scoring.missed += 1
-		scene.dT = scene.time
-	if (scene.time - scene.dT) > 4.25
 		if scene.probes[0].p4.visible == false
 			addProbes scene
 			i = scene.probeIndx
 			probe = scene.order[i][0]
 			seed = scene.order[i][1]
+			scene.maxScore += 1
 			if seed == 0
 				scene.probes[probe].p4.visible = false
 				scene.probes[probe].pA.visible = true
 				scene.probes[probe].current = "A"
-				scene.maxScore += 1
 				scene.targetPresent = true
 			else
 				scene.targetPresent = false
@@ -272,6 +274,7 @@ addProbe = (scene) ->
 
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
+	plane.position.z = -10
 	probe.pA = pa
 	probe.p4 = p4
 	probe.pB = pb
@@ -523,24 +526,26 @@ handleSpeed = (scene, target) ->
 
 handleReaction = (env, scene, i) ->
 	if env.controls.pYes == true
-		if scene.targetScreen == true && scene.reacted == false
+		if scene.reacted == false
 			scene.reacted = true
 			if scene.targetPresent == true
 				scene.scoring.trueYes += 1
 				scene.targetPresent = false
 			else
 				scene.scoring.falseYes += 1
-			transientScreen scene
+			if scene.targetScreen == true
+				transientScreen scene
 		env.controls.pYes = false
 	if env.controls.pNo == true
-		if scene.targetScreen == true && scene.reacted == false
+		if scene.reacted == false
 			scene.reacted = true
 			if scene.targetPresent == true
 				scene.scoring.falseNo += 1
 				scene.targetPresent = false
 			else
 				scene.scoring.trueNo += 1
-			transientScreen scene
+			if scene.targetScreen == true
+				transientScreen scene
 		env.controls.pNo = false
 
 
@@ -650,6 +655,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 	#yield startLight.switchToGreen()
 
 	startTime = scene.time
+	scene.dT = startTime
 	scene.probeIndx = 0
 
 	scene.onTickHandled ~>
@@ -756,6 +762,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut) ->*
 	#yield startLight.switchToGreen()
 
 	startTime = scene.time
+	scene.dT = startTime
 	scene.probeIndx = 0
 
 	scene.onTickHandled ~>
