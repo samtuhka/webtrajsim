@@ -170,19 +170,19 @@ addProbes = (scene) ->
 	scene.transientScreen = false
 
 transientTransistion = (scene) ->
-	if (scene.time - scene.dT) > 1 && scene.targetScreen == true && scene.transientScreen == false
+	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true && scene.transientScreen == false
 		transientScreen scene
-	if (scene.time - scene.dT) > 3 && scene.transientScreen == false
+	if (scene.time - scene.dT) >= 3 && scene.transientScreen == false
 		transientScreen scene
 
 probeLogic = (scene) ->
 	transientTransistion scene
-	if (scene.time - scene.dT) > 1.25 && scene.targetScreen == true
+	if (scene.time - scene.dT) >= 1.25 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
 		if scene.probeIndx == 80
 			scene.end = true
-	if (scene.time - scene.dT) > 3.25
+	if (scene.time - scene.dT) >= 3.25
 		if scene.reacted == false
 			scene.scoring.missed += 1
 		if scene.probes[0].p4.visible == false
@@ -261,7 +261,7 @@ addProbe = (scene) ->
 	geo8 = new THREE.TextGeometry("8", params)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
-	mat = new THREE.MeshBasicMaterial color: 0x808080, transparent: false, depthTest: false, depthWrite: false
+	mat = new THREE.MeshBasicMaterial color: 0x808080, opacity: 0.50, transparent: true, depthTest: false, depthWrite: false
 
 	pa = new THREE.Mesh geoA, material
 	pa.visible = false
@@ -274,7 +274,6 @@ addProbe = (scene) ->
 
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
-	plane.position.z = -10
 	probe.pA = pa
 	probe.p4 = p4
 	probe.pB = pb
@@ -287,6 +286,7 @@ addProbe = (scene) ->
 		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
 		probes[i].position.y = -(probes[i].geometry.boundingBox.max.y - probes[i].geometry.boundingBox.min.y) / 2
 	probe.add plane
+	plane.position.z = -0.1
 	probe.add pa
 	probe.add pb
 	probe.add p4
@@ -691,12 +691,13 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
 		if scene.end == true
+			trialTime = scene.time - startTime
 			listener.remove()
 			@let \done, passed: true, outro:
 				title: "Passed"
 				content: """
 				<p>You score was #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
-				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
+				<p>Trial lasted #{trialTime.toFixed 2} seconds</p>
 				 """
 			return false
 
@@ -796,11 +797,13 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut) ->*
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
 		if scene.end == true
+			listener.remove()
+			trialTime = scene.time - startTime
 			@let \done, passed: true, outro:
 				title: "Passed"
 				content: """
 				<p>You score was #{scene.scoring.score.toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
-				<p>Trial lasted #{(scene.time - startTime).toFixed 2} seconds</p>
+				<p>Trial lasted #{trialTime.toFixed 2} seconds</p>
 				 """
 			return false
 
