@@ -41,6 +41,10 @@ export class KeyboardController
 		@steeringLeft = 0
 		@steeringRight = 0
 		@probeReact = false
+
+		@pYes = false
+		@pNo = false
+
 		changeSpeed = 2
 
 		nudge = (dt, name, target) ~>
@@ -74,6 +78,8 @@ export class KeyboardController
 		RIGHT = 39
 		CTRL = 17
 		ENTER = 13
+		Q = 81
+		W = 87
 
 		$("body")
 		.keydown @_keydown = (e) ~>
@@ -93,6 +99,8 @@ export class KeyboardController
 			| CTRL => @_update \blinder, false
 			| SPACE => @_update \catch, false, @start = true
 			| ENTER => @probeReact = true
+			| Q => @pNo = true
+			| W => @pYes = true
 
 
 

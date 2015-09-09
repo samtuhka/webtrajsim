@@ -121,13 +121,13 @@ probeOrder = (scene, n) ->
 	array = []
 	for i from 0 til n
 		for j from 1 til 31
-			if j % 3 == 0
-				if j % 6 == 0 && scene.params.four == true
+			if j % 2 == 0
+				if j % 4 == 0 && scene.params.four == true
 					array.push([i, 2])
 				else
 					array.push([i, 0])
 			else
-				if j % 4 == 0 && scene.params.four == true
+				if j % 3 == 0 && scene.params.four == true
 					array.push([i, 3])
 				else
 					array.push([i, 1])
@@ -142,7 +142,65 @@ probeOrder = (scene, n) ->
 	array.reverse()
 	scene.order = array
 
-probeLogic = (scene, n) ->
+transientScreen = (scene) ->
+	for i from 0 til scene.probes.length
+		scene.probes[i].pA.visible = false
+		scene.probes[i].p4.visible = false
+		scene.probes[i].pB.visible = false
+		scene.probes[i].p8.visible = false
+		scene.transientScreen = true
+
+clearProbes = (scene) ->
+	for i from 0 til scene.probes.length
+		scene.probes[i].pA.visible = false
+		scene.probes[i].p4.visible = false
+		scene.probes[i].pB.visible = false
+		scene.probes[i].p8.visible = true
+		scene.targetScreen = false
+		scene.transientScreen = false
+
+addProbes = (scene) ->
+	for i from 0 til scene.probes.length
+		scene.probes[i].pA.visible = false
+		scene.probes[i].p4.visible = true
+		scene.probes[i].pB.visible = false
+		scene.probes[i].p8.visible = false
+		scene.targetScreen = true
+		scene.transientScreen = false
+
+transientTransistion = (scene) ->
+	if (scene.time - scene.dT) > 1 && scene.targetScreen == true && scene.transientScreen == false
+		scene.reacted = false
+		transientScreen scene
+	if (scene.time - scene.dT) > 4 && scene.transientScreen == false
+		transientScreen scene
+
+probeLogic = (scene) ->
+	transientTransistion scene
+	if (scene.time - scene.dT) > 1.25 && scene.targetScreen == true
+		clearProbes scene
+		if scene.reacted == false
+			scene.scoring.missed += 1
+		scene.dT = scene.time
+	if (scene.time - scene.dT) > 4.25
+		if scene.probes[0].p4.visible == false
+			addProbes scene
+			i = scene.probeIndx
+			probe = scene.order[i][0]
+			seed = scene.order[i][1]
+			if seed == 0
+				scene.probes[probe].p4.visible = false
+				scene.probes[probe].pA.visible = true
+				scene.probes[probe].current = "A"
+				scene.maxScore += 1
+				scene.targetPresent = true
+			else
+				scene.targetPresent = false
+			scene.probeIndx += 1
+		scene.dT = scene.time
+
+
+probeLogicAlt = (scene, n) ->
 	if (scene.time - scene.dT) > 1
 		i = scene.probeIndx
 		if i >= 0
@@ -200,6 +258,8 @@ addProbe = (scene) ->
 	geo4 = new THREE.TextGeometry("4", params)
 	geo8 = new THREE.TextGeometry("8", params)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
+	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
+	mat = new THREE.MeshBasicMaterial color: 0x808080, transparent: false, depthTest: false, depthWrite: false
 
 	pa = new THREE.Mesh geoA, material
 	pa.visible = false
@@ -211,6 +271,7 @@ addProbe = (scene) ->
 	p8.visible = false
 
 	probe = new THREE.Object3D()
+	plane = new THREE.Mesh geo, mat
 	probe.pA = pa
 	probe.p4 = p4
 	probe.pB = pb
@@ -222,7 +283,7 @@ addProbe = (scene) ->
 		probes[i].geometry.computeBoundingBox ()
 		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
 		probes[i].position.y = -(probes[i].geometry.boundingBox.max.y - probes[i].geometry.boundingBox.min.y) / 2
-
+	probe.add plane
 	probe.add pa
 	probe.add pb
 	probe.add p4
@@ -231,10 +292,10 @@ addProbe = (scene) ->
 	if scene.params.four == false
 		seed += 1
 	if seed == 0
-		p8.visible = true
+		p4.visible = true
 		probe.current = "B"
 	else
-		p4.visible = true
+		p8.visible = true
 		probe.current = "4"
 
 	probe.position.y = -1000
@@ -282,7 +343,6 @@ handleProbeLocs = (scene, n, rev, i) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
-	console.log(hFOV)
 	p500 = scene.predict[0]
 	p1000 = scene.predict[1]
 	p2000 = scene.predict[2]
@@ -308,12 +368,15 @@ handleProbeLocs = (scene, n, rev, i) ->
 	x4 = (v4.x+1)*0.5
 	y4 =(v4.y+1)*0.5
 
-	rx = 0.05/hFOV
-	ry = 0.025/vFOV
+	r = 0.05
+	rx = r/hFOV
+	ry = r/vFOV
+	x = rx * Math.cos(Math.PI/4)
+	y = ry * Math.sin(Math.PI/4)
 	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
 	xFix = lis[i][0]
 	yFix = lis[i][1]
-	pos = [[xFix, yFix + ry],[xFix, yFix - ry], [xFix - rx, yFix],  [xFix + rx, yFix], [xFix + rx, yFix + ry], [xFix  - rx, yFix + ry], [xFix + rx, yFix - ry], [xFix  - rx, yFix - ry], [xFix  - 2*rx, yFix - 0.5*ry], [xFix  - 2*rx, yFix + 0.5*ry],  [xFix  + 2*rx, yFix - 0.5*ry], [xFix  + 2*rx, yFix + 0.5*ry]]
+	pos = [[xFix, yFix + ry],[xFix, yFix - ry], [xFix - rx, yFix], [xFix + rx, yFix],  [xFix + x, yFix + y], [xFix - x, yFix - y],[xFix + x, yFix - y], [xFix - x, yFix + y]]
 	for i from 0 til n
 		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
 	objectLoc scene.cross, xFix, yFix
@@ -399,7 +462,7 @@ else
 	four = false
 if future === NaN
 	future = 2
-n = 12
+n = 8
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -459,25 +522,27 @@ handleSpeed = (scene, target) ->
 		scene.playerControls.brake = -newForce
 
 handleReaction = (env, scene, i) ->
-	if env.controls.probeReact == true
-		env.controls.probeReact = false
-		scene.player.react = true
-		if scene.probes[i].pA.visible == true
-			scene.dT = scene.time - 0.5
-			scene.scoring.score += 1
-			scene.probes[i].score += 1
-			scene.probes[i].pA.visible = false
-			scene.probes[i].p4.visible = true
-		else if scene.probes[i].pB.visible == true
-			scene.dT = scene.time - 0.5
-			scene.scoring.score +=1
-			scene.probes[i].score += 1
-			scene.probes[i].pB.visible = false
-			scene.probes[i].p8.visible = true
-		else
-			scene.scoring.score -= 1
-	else
-		scene.player.react = false
+	if env.controls.pYes == true
+		if scene.targetScreen == true && scene.reacted == false
+			scene.reacted = true
+			if scene.targetPresent == true
+				scene.scoring.trueYes += 1
+				scene.targetPresent = false
+			else
+				scene.scoring.falseYes += 1
+			transientScreen scene
+		env.controls.pYes = false
+	if env.controls.pNo == true
+		if scene.targetScreen == true && scene.reacted == false
+			scene.reacted = true
+			if scene.targetPresent == true
+				scene.scoring.falseNo += 1
+				scene.targetPresent = false
+			else
+				scene.scoring.trueNo += 1
+			transientScreen scene
+		env.controls.pNo = false
+
 
 addFixationCross = (scene) ->
 	vFOV = scene.camera.fov

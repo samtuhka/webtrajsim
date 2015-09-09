@@ -39,7 +39,7 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.dT = 0
 	scene.maxScore = 0
 	scene.outside = {out: false, totalTime: 0}
-	scene.scoring = {score: 0, missed: 0}
+	scene.scoring = {score: 0, missed: 0, trueYes: 0, falseYes: 0, trueNo: 0, falseNo: 0}
 	scene.end = false
 	scene.player.pos = 0
 	scene.player.react = false
@@ -48,16 +48,36 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.predict.push new THREE.Vector3(0,0,0)
 	scene.predict.push new THREE.Vector3(0,0,0)
 	scene.predict.push new THREE.Vector3(0,0,0)
-	#scene.player.scoremeter = ui.gauge env,
-	#	name: L "Score"
-	#	unit: L "points"
-	#	value: ->
-	#		score = scene.scoring.score
-	#scene.player.missed = ui.gauge env,
-	#	name: L "Missed"
-	#	unit: L "points"
-	#	value: ->
-	#		score = scene.scoring.missed
+	scene.targetPresent = false
+	scene.targetScreen = false
+	scene.transientScreen = false
+	scene.reacted = false
+
+	scene.player.scoremeter = ui.gauge env,
+		name: L "False negative"
+		unit: L "times"
+		value: ->
+			score = scene.scoring.falseNo
+	scene.player.scoremeter = ui.gauge env,
+		name: L "True negative"
+		unit: L "times"
+		value: ->
+			score = scene.scoring.trueNo
+	scene.player.scoremeter = ui.gauge env,
+		name: L "False positive"
+		unit: L "times"
+		value: ->
+			score = scene.scoring.falseYes
+	scene.player.scoremeter = ui.gauge env,
+		name: L "True positive"
+		unit: L "times"
+		value: ->
+			score = scene.scoring.trueYes
+	scene.player.missed = ui.gauge env,
+		name: L "Missed"
+		unit: L "times"
+		value: ->
+			score = scene.scoring.missed
 	#scene.player.outside = ui.gauge env,
 	#	name: L "Outside"
 	#	unit: L "seconds"

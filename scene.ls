@@ -284,7 +284,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
-	road.position.y = 0
+	road.position.y = -0.09
 	terrain.add road
 
 	rocks = new THREE.Object3D()
