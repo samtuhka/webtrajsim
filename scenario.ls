@@ -423,8 +423,8 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [0.5, 1, 2, 4]
-	for i from 0 til 4
+	fut = [0.1, 1, 2, 4, -0.1]
+	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
 		t2 = t1 + dist/scene.centerLine.getLength()*r
@@ -505,6 +505,28 @@ handleSound = (sound, scene, cnt) ->
 	else if scene.soundPlay == true && cnt == true
 		sound.stop()
 		scene.soundPlay = false
+
+handleSteering = (scene, env) ->
+	steering = env.controls.steering
+	v1 = scene.player.physical.velocity
+	pos = scene.player.body.position
+	v2 = scene.predict[0]
+	v1 = {x: v1.x , z: v1.z}
+	v2 = {x: v2.y - pos.x, z: v2.x - pos.z}
+	c1 = (v1.x ^ 2 + v1.z ^2) ^ 0.5
+	c2 = (v2.x ^ 2 + v2.z ^ 2) ^ 0.5
+	dotProduct = (v1.x * v2.x) + (v1.z * v2.z)
+	angle = Math.acos((dotProduct) / (c1*c2))
+	angle =  Math.atan2(v1.x, v1.z) - Math.atan2(v2.x, v2.z)
+	angle2 = Math.min Math.abs(angle), Math.abs(Math.PI*2 - Math.abs(angle))
+	if Math.abs(angle2) == Math.abs(angle)
+		angle2 = angle
+	else
+		angle2 = -Math.sign(angle)*angle2
+	env.controls.steering = -angle2
+
+
+
 
 handleSpeed = (scene, target) ->
 	speed = scene.player.getSpeed()*3.6
@@ -633,7 +655,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 	probeOrder scene, n
 	createProbes scene, n
 
-	scene.player.physical.position.z = 0
+	scene.player.physical.position.x = scene.centerLine.getPointAt(0).y
+	scene.player.physical.position.z = scene.centerLine.getPointAt(0).x
 	scene.playerControls.throttle = 0
 	#startLight = yield assets.TrafficLight()
 	#lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
@@ -643,7 +666,6 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 
 	@let \scene, scene
 	yield @get \run
-
 	calculateFuture scene, 1, s/3.6
 	handleProbeLocs scene, n, r, fut
 	#fixationCrossLoc scene, r
@@ -663,6 +685,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 		calculateFuture scene, 1, s/3.6
 		unless st == true
 			handleProbeLocs scene, n, r, fut
+
+		handleSteering scene, env
 
 		i = scene.order[scene.probeIndx][0]
 
