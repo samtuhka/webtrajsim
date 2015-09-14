@@ -174,14 +174,14 @@ transientTransistion = (scene) ->
 		transientScreen scene
 	if (scene.time - scene.dT) >= 3 && scene.transientScreen == false
 		transientScreen scene
+		if scene.probeIndx == 80
+			scene.end = true
 
 probeLogic = (scene) ->
 	transientTransistion scene
 	if (scene.time - scene.dT) >= 1.25 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
-		if scene.probeIndx == 80
-			scene.end = true
 	if (scene.time - scene.dT) >= 3.25
 		if scene.reacted == false
 			scene.scoring.missed += 1
@@ -423,7 +423,7 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [0.1, 1, 2, 4, -0.1]
+	fut = [0.5, 1, 2, 4, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
@@ -513,17 +513,15 @@ handleSteering = (scene, env) ->
 	v2 = scene.predict[0]
 	v1 = {x: v1.x , z: v1.z}
 	v2 = {x: v2.y - pos.x, z: v2.x - pos.z}
-	c1 = (v1.x ^ 2 + v1.z ^2) ^ 0.5
-	c2 = (v2.x ^ 2 + v2.z ^ 2) ^ 0.5
-	dotProduct = (v1.x * v2.x) + (v1.z * v2.z)
-	angle = Math.acos((dotProduct) / (c1*c2))
+	#c1 = (v1.x ^ 2 + v1.z ^2) ^ 0.5
+	#c2 = (v2.x ^ 2 + v2.z ^ 2) ^ 0.5
+	#dotProduct = (v1.x * v2.x) + (v1.z * v2.z)
+	#angle = Math.acos((dotProduct) / (c1*c2))
 	angle =  Math.atan2(v1.x, v1.z) - Math.atan2(v2.x, v2.z)
-	angle2 = Math.min Math.abs(angle), Math.abs(Math.PI*2 - Math.abs(angle))
-	if Math.abs(angle2) == Math.abs(angle)
-		angle2 = angle
-	else
-		angle2 = -Math.sign(angle)*angle2
-	env.controls.steering = -angle2
+	angleMin = Math.min Math.abs(angle), Math.abs(Math.PI*2 - Math.abs(angle))
+	if Math.abs(angleMin) != Math.abs(angle)
+		angle = -Math.sign(angle)*angleMin
+	env.controls.steering = -angle
 
 
 

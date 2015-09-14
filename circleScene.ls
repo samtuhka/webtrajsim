@@ -44,11 +44,8 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.player.pos = 0
 	scene.player.react = false
 	scene.predict = []
-	scene.predict.push new THREE.Vector3(0,0,0)
-	scene.predict.push new THREE.Vector3(0,0,0)
-	scene.predict.push new THREE.Vector3(0,0,0)
-	scene.predict.push new THREE.Vector3(0,0,0)
-	scene.predict.push new THREE.Vector3(0,0,0)
+	for i from 0 til 5
+		scene.predict.push new THREE.Vector3(0,0,0)
 	scene.targetPresent = false
 	scene.targetScreen = false
 	scene.transientScreen = false
