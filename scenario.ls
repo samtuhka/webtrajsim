@@ -254,7 +254,7 @@ addProbe = (scene) ->
 	ratio = 0.025
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth
-	params = {size: s, height: 0.1*s}
+	params = {size: s, height: 0}
 	geoA = new THREE.TextGeometry("A", params)
 	geoB = new THREE.TextGeometry("B", params)
 	geo4 = new THREE.TextGeometry("4", params)
@@ -286,7 +286,7 @@ addProbe = (scene) ->
 		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
 		probes[i].position.y = -(probes[i].geometry.boundingBox.max.y - probes[i].geometry.boundingBox.min.y) / 2
 	probe.add plane
-	plane.position.z = -0.1
+	plane.position.z = -0.01
 	probe.add pa
 	probe.add pb
 	probe.add p4
@@ -445,8 +445,11 @@ rev = Math.floor(opts.rev)
 stat = Math.floor(opts.stat)
 four = Math.floor(opts.four)
 future = Math.floor(opts.fut)
+automatic = Math.floor(opts.aut)
 if xrad === NaN
 		xrad = 200
+if automatic === NaN
+	automatic = 0
 if yrad  === NaN
 		yrad  = xrad
 if length === NaN
@@ -507,7 +510,6 @@ handleSound = (sound, scene, cnt) ->
 		scene.soundPlay = false
 
 handleSteering = (scene, env) ->
-	steering = env.controls.steering
 	v1 = scene.player.physical.velocity
 	pos = scene.player.body.position
 	v2 = scene.predict[0]
@@ -521,7 +523,7 @@ handleSteering = (scene, env) ->
 	angleMin = Math.min Math.abs(angle), Math.abs(Math.PI*2 - Math.abs(angle))
 	if Math.abs(angleMin) != Math.abs(angle)
 		angle = -Math.sign(angle)*angleMin
-	env.controls.steering = -angle
+	scene.playerControls.steering = -angle
 
 
 
@@ -615,7 +617,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -633,8 +635,10 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 		fr = four
 	if fut == undefined
 		fut = future
+	if aut == undefined
+		aut = automatic
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	@let \intro,
 		title: "Stay on the road"
@@ -678,14 +682,15 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 	scene.dT = startTime
 	scene.probeIndx = 0
 
+	scene.beforePhysics.add ->
+			if aut == 1
+				handleSteering scene, env
+
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, 1, s/3.6
 		unless st == true
 			handleProbeLocs scene, n, r, fut
-
-		handleSteering scene, env
-
 		i = scene.order[scene.probeIndx][0]
 
 		if scene.probes[i].p8.visible == true
@@ -725,7 +730,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut) ->*
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -743,8 +748,10 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut) ->*
 		fr = four
 	if fut == undefined
 		fut = future
+	if aut == undefined
+		aut = automatic
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	@let \intro,
 		title: "Stay on the road"
@@ -787,6 +794,10 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut) ->*
 	startTime = scene.time
 	scene.dT = startTime
 	scene.probeIndx = 0
+
+	scene.beforePhysics.add ->
+		if aut == 1
+			handleSteering scene, env
 
 	scene.onTickHandled ~>
 		handleSpeed scene, s
