@@ -53,8 +53,8 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     mapAxis(ecodes.ABS_RZ, "brake", (1, 0), (0, 255))
     mapKey(FRONT_RIGHT_KEY, "catch")
     mapKey(FRONT_LEFT_KEY, "start")
-    mapKey(BACK_RIGHT_KEY, "probeReact")
-    mapKey(BACK_LEFT_KEY, "blinder")
+    mapKey(BACK_RIGHT_KEY, "pYes")
+    mapKey(BACK_LEFT_KEY, "pNo")
     
     def handlemsg(msg):
             msg = json.loads(msg)
