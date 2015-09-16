@@ -657,14 +657,14 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	probeOrder scene, n
 	createProbes scene, n
 
-	scene.player.physical.position.x = scene.centerLine.getPointAt(0).y
-	scene.player.physical.position.z = scene.centerLine.getPointAt(0).x
+	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
 	#startLight = yield assets.TrafficLight()
 	#lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
 	#startLight.position.x = lightX
 	#startLight.position.z = 7.5
 	#startLight.addTo scene
+	rw = scene.centerLine.width
 
 	@let \scene, scene
 	yield @get \run
@@ -703,7 +703,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, 10.5, l)
+		cnt = onInnerLane(x, z, rx, ry, rw*2, l)
 
 		if cnt == false
 			scene.outside.out = true
@@ -777,6 +777,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	#startLight.position.x = -lightX
 	#startLight.position.z = 7.5
 	#startLight.addTo scene
+	rw = scene.centerLine.width
 
 	@let \scene, scene
 	yield @get \run
@@ -817,7 +818,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, 10.5, l)
+		cnt = onInnerLane(x, z, rx, ry, 2*rw, l)
 		handleSound annoyingSound, scene, cnt
 
 		if cnt == false

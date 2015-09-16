@@ -24,7 +24,7 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 
 	player = yield addVehicle scene, controls, objectName: 'player'
 	player.eye.add scene.camera
-	player.physical.position.x = rx + 2.5
+	player.physical.position.x = rx + scene.centerLine.width/2
 	for i from 0 til player.body.children.length - 1
 		player.body.children[i].visible = false
 	scene.player = player
