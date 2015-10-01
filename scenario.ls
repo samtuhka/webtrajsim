@@ -138,8 +138,8 @@ probeOrder = (scene, n) ->
 		temp = array[counter]
 		array[counter] = array[index]
 		array[index] = temp
-	array.push([0,0])
 	array.reverse()
+	array.push([0,0])
 	scene.order = array
 
 transientScreen = (scene) ->
@@ -174,7 +174,7 @@ transientTransistion = (scene) ->
 		transientScreen scene
 	if (scene.time - scene.dT) >= 3 && scene.transientScreen == false
 		transientScreen scene
-		if scene.probeIndx == 80
+		if scene.probeIndx == scene.order.length - 1
 			scene.end = true
 
 probeLogic = (scene) ->
@@ -651,7 +651,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	scene.params = settingParams
 
-	#addMarkerScreen scene, env
+	addMarkerScreen scene, env
 	addFixationCross scene
 
 	probeOrder scene, n
@@ -691,12 +691,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 		calculateFuture scene, 1, s/3.6
 		unless st == true
 			handleProbeLocs scene, n, r, fut
-		i = scene.order[scene.probeIndx][0]
 
-		if scene.probes[i].p8.visible == true
-			scene.probes[i].current = "8"
-		if scene.probes[i].p4.visible == true
-			scene.probes[i].current = "4"
+		i = scene.order[scene.probeIndx][0]
 
 		handleReaction env, scene, i
 		probeLogic scene, n
@@ -763,7 +759,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	scene.params = settingParams
 
-	#addMarkerScreen scene, env
+	addMarkerScreen scene, env
 	addFixationCross scene
 
 	probeOrder scene, n
@@ -807,11 +803,6 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 			handleProbeLocs scene, n, -r, fut
 
 		i = scene.order[scene.probeIndx][0]
-
-		if scene.probes[i].p8.visible == true
-			scene.probes[i].current = "8"
-		if scene.probes[i].p4.visible == true
-			scene.probes[i].current = "4"
 
 		handleReaction env, scene, i
 		probeLogic scene, n
