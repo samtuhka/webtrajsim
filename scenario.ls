@@ -261,7 +261,7 @@ addProbe = (scene) ->
 	geo8 = new THREE.TextGeometry("8", params)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
-	mat = new THREE.MeshBasicMaterial color: 0x808080, opacity: 0.50, transparent: true, depthTest: false, depthWrite: false
+	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, transparent: true, depthTest: false, depthWrite: false
 
 	pa = new THREE.Mesh geoA, material
 	pa.visible = false
@@ -341,6 +341,9 @@ fixationCrossLoc = (scene, rev) ->
 	else
 		objectLoc scene.cross, x2 + 0.2/hFOV, y2
 
+contrastCalculator = (r, g, b) ->
+	brightness = (299*r + 587*g + 114*b) / 1000
+
 handleProbeLocs = (scene, n, rev, i) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
@@ -378,7 +381,7 @@ handleProbeLocs = (scene, n, rev, i) ->
 	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
 	xFix = lis[i][0]
 	yFix = lis[i][1]
-	pos = [[xFix, yFix + ry],[xFix, yFix - ry], [xFix - rx, yFix], [xFix + rx, yFix],  [xFix + x, yFix + y], [xFix - x, yFix - y],[xFix + x, yFix - y], [xFix - x, yFix + y]]
+	pos = [[xFix, yFix - ry], [xFix - rx, yFix], [xFix + rx, yFix],  [xFix - x, yFix - y],[xFix + x, yFix - y]]
 	for i from 0 til n
 		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
 	objectLoc scene.cross, xFix, yFix
@@ -467,7 +470,7 @@ else
 	four = false
 if future === NaN
 	future = 2
-n = 8
+n = 5
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
@@ -578,11 +581,11 @@ addFixationCross = (scene) ->
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	size = heigth * 0.5
-	circleGeometry = new THREE.CircleGeometry(size, 64)
+	circleGeometry = new THREE.RingGeometry(size*0.9, size, 64)
 	#horCross = new THREE.PlaneGeometry(size, size * 0.05)
 	#verCross = new THREE.PlaneGeometry(size * 0.05, size)
 	#horCross.merge(verCross)
-	material = new THREE.MeshBasicMaterial color: 0x00FFFF, opacity: 0.5, transparent: true, depthTest: false, depthWrite: false
+	material = new THREE.MeshBasicMaterial color: 0xFFFFFF, transparent: true, depthTest: false, depthWrite: false
 	crossMesh = new THREE.Mesh circleGeometry, material
 	cross = new THREE.Object3D()
 	cross.add crossMesh
