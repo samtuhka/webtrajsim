@@ -10,7 +10,7 @@ seqr = require './seqr.ls'
 {circleScene} = require './circleScene.ls'
 assets = require './assets.ls'
 
-require './three.js/examples/fonts/helvetiker_regular.typeface.js'
+require './three.js/examples/fonts/Digital-7_Regular.typeface.js'
 
 ui = require './ui.ls'
 
@@ -172,7 +172,7 @@ addProbes = (scene) ->
 transientTransistion = (scene) ->
 	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true && scene.transientScreen == false
 		transientScreen scene
-	if (scene.time - scene.dT) >= 3 && scene.transientScreen == false
+	if (scene.time - scene.dT) >= 2 && scene.transientScreen == false
 		transientScreen scene
 		if scene.probeIndx == scene.order.length - 1
 			scene.end = true
@@ -182,7 +182,7 @@ probeLogic = (scene) ->
 	if (scene.time - scene.dT) >= 1.25 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
-	if (scene.time - scene.dT) >= 3.25
+	if (scene.time - scene.dT) >= 2.25
 		if scene.reacted == false
 			scene.scoring.missed += 1
 		if scene.probes[0].p4.visible == false
@@ -254,14 +254,14 @@ addProbe = (scene) ->
 	ratio = 0.025
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth
-	params = {size: s, height: 0}
-	geoA = new THREE.TextGeometry("A", params)
+	params = {size: s*1.2, height: 0, font: "digital-7"}
+	geoA = new THREE.TextGeometry("5", params)
 	geoB = new THREE.TextGeometry("B", params)
-	geo4 = new THREE.TextGeometry("4", params)
-	geo8 = new THREE.TextGeometry("8", params)
+	geo4 = new THREE.TextGeometry("2", params)
+	geo8 = new THREE.TextGeometry("0", params)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
-	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, transparent: true, depthTest: false, depthWrite: false
+	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
 
 	pa = new THREE.Mesh geoA, material
 	pa.visible = false
@@ -286,7 +286,7 @@ addProbe = (scene) ->
 		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
 		probes[i].position.y = -(probes[i].geometry.boundingBox.max.y - probes[i].geometry.boundingBox.min.y) / 2
 	probe.add plane
-	plane.position.z = -0.01
+	plane.position.z = 0
 	probe.add pa
 	probe.add pb
 	probe.add p4
@@ -373,13 +373,15 @@ handleProbeLocs = (scene, n, rev, i) ->
 	x4 = (v4.x+1)*0.5
 	y4 =(v4.y+1)*0.5
 
-	r = 0.08
+	r = 0.075
 	rx = r/hFOV
 	ry = r/vFOV
 	x = rx * Math.cos(Math.PI/4)
 	y = ry * Math.sin(Math.PI/4)
 	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
-	xFix = lis[i][0]
+	xFix = lis[i][0] + rx
+	if rev == -1
+		xFix = lis[i][0] - rx
 	yFix = lis[i][1]
 	pos = [[xFix, yFix - ry], [xFix - rx, yFix], [xFix + rx, yFix],  [xFix - x, yFix - y],[xFix + x, yFix - y]]
 	for i from 0 til n
@@ -528,8 +530,6 @@ handleSteering = (scene, env) ->
 	scene.playerControls.steering = -angle
 
 
-
-
 handleSpeed = (scene, target) ->
 	speed = scene.player.getSpeed()*3.6
 	force = scene.playerControls.throttle - scene.playerControls.brake
@@ -580,12 +580,12 @@ addFixationCross = (scene) ->
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	size = heigth * 0.5
-	circleGeometry = new THREE.RingGeometry(size*0.9, size, 64)
+	size = heigth * 0.75
+	circleGeometry = new THREE.RingGeometry(size*0.95, size, 64)
 	#horCross = new THREE.PlaneGeometry(size, size * 0.05)
 	#verCross = new THREE.PlaneGeometry(size * 0.05, size)
 	#horCross.merge(verCross)
-	material = new THREE.MeshBasicMaterial color: 0xFFFFFF, transparent: true, depthTest: false, depthWrite: false
+	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	crossMesh = new THREE.Mesh circleGeometry, material
 	cross = new THREE.Object3D()
 	cross.add crossMesh
@@ -784,7 +784,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
-	handleProbeLocs scene, n, -r, fut
+	handleProbeLocs scene, n, r, fut
 	#fixationCrossLoc scene, -r
 	console.log env.controls
 	while not env.controls.start == true
@@ -805,7 +805,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 		handleSpeed scene, s
 		calculateFuture scene, -1, s/3.6
 		unless st == true
-			handleProbeLocs scene, n, -r, fut
+			handleProbeLocs scene, n, r, fut
 
 		i = scene.order[scene.probeIndx][0]
 
