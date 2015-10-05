@@ -292,8 +292,7 @@ addProbe = (scene) ->
 	probe.add p4
 	probe.add p8
 	seed = Math.round(Math.random())
-	if scene.params.four == false
-		seed += 1
+	seed += 1
 	if seed == 0
 		p4.visible = true
 		probe.current = "B"
@@ -552,6 +551,7 @@ handleReaction = (env, scene, i) ->
 			scene.reacted = true
 			if scene.targetPresent == true
 				scene.scoring.trueYes += 1
+				scene.scoring.score += 1
 				scene.targetPresent = false
 			else
 				scene.scoring.falseYes += 1
@@ -566,6 +566,7 @@ handleReaction = (env, scene, i) ->
 				scene.targetPresent = false
 			else
 				scene.scoring.trueNo += 1
+				scene.scoring.score += 1
 			if scene.targetScreen == true
 				transientScreen scene
 		env.controls.pNo = false
