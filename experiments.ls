@@ -140,7 +140,7 @@ export circleDriving = seqr.bind ->*
 	env.let \destroy
 	yield env
 
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 1
+	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 0
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 3
 	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 2

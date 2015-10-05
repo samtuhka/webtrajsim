@@ -370,7 +370,7 @@ handleProbeLocs = (scene, n, rev, i) ->
 	x4 = (v4.x+1)*0.5
 	y4 =(v4.y+1)*0.5
 
-	r = 0.05
+	r = 0.08
 	rx = r/hFOV
 	ry = r/vFOV
 	x = rx * Math.cos(Math.PI/4)
@@ -578,11 +578,12 @@ addFixationCross = (scene) ->
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	size = heigth * 0.5
-	horCross = new THREE.PlaneGeometry(size, size * 0.05)
-	verCross = new THREE.PlaneGeometry(size * 0.05, size)
-	horCross.merge(verCross)
-	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
-	crossMesh = new THREE.Mesh horCross, material
+	circleGeometry = new THREE.CircleGeometry(size, 64)
+	#horCross = new THREE.PlaneGeometry(size, size * 0.05)
+	#verCross = new THREE.PlaneGeometry(size * 0.05, size)
+	#horCross.merge(verCross)
+	material = new THREE.MeshBasicMaterial color: 0x00FFFF, opacity: 0.5, transparent: true, depthTest: false, depthWrite: false
+	crossMesh = new THREE.Mesh circleGeometry, material
 	cross = new THREE.Object3D()
 	cross.add crossMesh
 	cross.position.z = -1000
