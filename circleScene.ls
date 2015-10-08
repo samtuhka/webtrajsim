@@ -51,31 +51,31 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	scene.transientScreen = false
 	scene.reacted = true
 
-	scene.player.scoremeter = ui.gauge env,
-		name: L "False negative"
-		unit: L "times"
-		value: ->
-			score = scene.scoring.falseNo
-	scene.player.scoremeter = ui.gauge env,
-		name: L "True negative"
-		unit: L "times"
-		value: ->
-			score = scene.scoring.trueNo
-	scene.player.scoremeter = ui.gauge env,
-		name: L "False positive"
-		unit: L "times"
-		value: ->
-			score = scene.scoring.falseYes
-	scene.player.scoremeter = ui.gauge env,
-		name: L "True positive"
-		unit: L "times"
-		value: ->
-			score = scene.scoring.trueYes
-	scene.player.missed = ui.gauge env,
-		name: L "Missed"
-		unit: L "times"
-		value: ->
-			score = scene.scoring.missed
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "False negative"
+	#	unit: L "times"
+	#	value: ->
+	#		score = scene.scoring.falseNo
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "True negative"
+	#	unit: L "times"
+	#	value: ->
+	#		score = scene.scoring.trueNo
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "False positive"
+	#	unit: L "times"
+	#	value: ->
+	#		score = scene.scoring.falseYes
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "True positive"
+	#	unit: L "times"
+	#	value: ->
+	#		score = scene.scoring.trueYes
+	#scene.player.missed = ui.gauge env,
+	#	name: L "Missed"
+	#	unit: L "times"
+	#	value: ->
+	#		score = scene.scoring.missed
 	#scene.player.outside = ui.gauge env,
 	#	name: L "Outside"
 	#	unit: L "seconds"
