@@ -719,7 +719,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	return yield @get \done
 
 exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
-
+	L = env.L
 	if rx == undefined
 		rx = xrad
 	if ry == undefined
@@ -742,11 +742,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	@let \intro,
-		title: "Stay on the road"
-		content: """
-			<p>Here be instructions.</p>
-			<p>Press enter or click the button below to continue.</p>
-			"""
+		title: env.L "Circle driving"
+		content: L '%circleDriving.intro'
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams

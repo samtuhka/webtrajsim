@@ -172,3 +172,12 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 "On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>ajokortin saatuasi</strong>."""
 
+'Circle driving': 'Mutkassa ajo'
+'%circleDriving.intro': """
+			<p>Tulet ohjaamaan autoa mutkaisella tiellä samalla kun suoritat tarkkavaisuutta mittaavaa tehtävää. Auton nopeus säätyy automaattisesti.
+			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko ajon ajan pitämään katse mahdollisimman hyvin ympyrän sisällä.</strong>
+			<p>Tietyin väliajoin kaikkien valkoisten ruutujen sisään ilmestyy näkyviin numeroita. Joko numero 2 ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy numero 5.
+			<p>Jos havaitset numeron 5, paina ratin oikeanpuoleista takapainiketta. Muutoin paina ratin vasemmanpuoleista takapainiketta. Koita arvata vaikka et olisi varma.
+			<p>Numerot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet numerot taas ilmestyvät valkoisten ruutujen sisään.
+			<p>Koe lähtee liikkeelle painamalla ratin vasenta punaista painiketta.
+			"""

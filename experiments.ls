@@ -139,16 +139,25 @@ export circleDriving = seqr.bind ->*
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
+	ntrials = 4
+	rightParams = [0,1,2,3]
+	leftParams = rightParams.slice()
+	rightParams = shuffleArray rightParams
+	leftParams = shuffleArray leftParams
+	i = 0
+	j = 0
+	scenarios = []
+		.concat([scenario.circleDriving]*ntrials)
+		.concat([scenario.circleDrivingRev]*ntrials)
+	scenarios = shuffleArray scenarios
+	for scn in scenarios
+		if scn.scenarioName == "circleDriving"
+			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, true, rightParams[i]
+			i += 1
+		else
+			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, true, leftParams[j]
+			j += 1
 
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 0
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 3
-	yield runUntilPassedCircle scenario.circleDriving, passes: 1, maxRetries: 1, 200, 200, 50, 80, 1, false, true, 2
-
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, true, 1
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, true, 0
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, true, 3
-	yield runUntilPassedCircle scenario.circleDrivingRev, passes: 1, maxRetries: 1, 200, 200, 50, 80, -1, true, 2
 
 
 
