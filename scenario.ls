@@ -120,7 +120,7 @@ exportScenario \freeDriving, (env) ->*
 probeOrder = (scene, n) ->
 	array = []
 	for i from 0 til n
-		for j from 1 til 11
+		for j from 1 til 9
 			if j % 2 == 0
 				if j % 4 == 0 && scene.params.four == true
 					array.push([i, 2])
@@ -179,10 +179,10 @@ transientTransistion = (scene) ->
 
 probeLogic = (scene) ->
 	transientTransistion scene
-	if (scene.time - scene.dT) >= 1.25 && scene.targetScreen == true
+	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
-	if (scene.time - scene.dT) >= 2.25
+	if (scene.time - scene.dT) >= 2
 		if scene.reacted == false
 			scene.scoring.missed += 1
 		if scene.probes[0].p4.visible == false
