@@ -131,7 +131,7 @@ probeOrder = (scene, n) ->
 					array.push([i, 3])
 				else
 					array.push([i, 1])
-	counter = n*10
+	counter = n*8
 	while counter > 0
 		index = Math.floor(Math.random() * counter)
 		counter -= 1
@@ -182,7 +182,7 @@ probeLogic = (scene) ->
 	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
-	if (scene.time - scene.dT) >= 2
+	if (scene.time - scene.dT) >= 2 && scene.end == false
 		if scene.reacted == false
 			scene.scoring.missed += 1
 		if scene.probes[0].p4.visible == false
@@ -636,8 +636,6 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	@let \intro,
 		title: env.L "Circle driving"
 		content: L '%circleDriving.intro'
-	scene = yield basecircleDriving env, rx, ry, l
-
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams
