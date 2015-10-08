@@ -155,7 +155,7 @@ clearProbes = (scene) ->
 		scene.probes[i].pA.visible = false
 		scene.probes[i].p4.visible = false
 		scene.probes[i].pB.visible = false
-		scene.probes[i].p8.visible = true
+		scene.probes[i].p8.visible = false
 		scene.targetScreen = false
 		scene.transientScreen = false
 
@@ -291,14 +291,6 @@ addProbe = (scene) ->
 	probe.add pb
 	probe.add p4
 	probe.add p8
-	seed = Math.round(Math.random())
-	seed += 1
-	if seed == 0
-		p4.visible = true
-		probe.current = "B"
-	else
-		p8.visible = true
-		probe.current = "4"
 
 	probe.position.y = -1000
 	probe.position.z = -1000
@@ -341,9 +333,6 @@ fixationCrossLoc = (scene, rev) ->
 	else
 		objectLoc scene.cross, x2 + 0.2/hFOV, y2
 
-contrastCalculator = (r, g, b) ->
-	brightness = (299*r + 587*g + 114*b) / 1000
-
 handleProbeLocs = (scene, n, rev, i) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
@@ -379,9 +368,7 @@ handleProbeLocs = (scene, n, rev, i) ->
 	x = rx * Math.cos(Math.PI/4)
 	y = ry * Math.sin(Math.PI/4)
 	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
-	xFix = lis[i][0] + rx
-	if rev == -1
-		xFix = lis[i][0] - rx
+	xFix = lis[i][0]
 	yFix = lis[i][1]
 	pos = [[xFix, yFix - ry], [xFix - rx, yFix], [xFix + rx, yFix],  [xFix - x, yFix - y],[xFix + x, yFix - y]]
 	for i from 0 til n
