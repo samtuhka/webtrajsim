@@ -54,9 +54,6 @@ export mulsimco2015 = seqr.bind ->*
 		yield runScenario scn
 	#trials = 6
 
-
-export defaultExperiment = mulsimco2015
-
 export freeDriving = seqr.bind ->*
 	yield runScenario scenario.freeDriving
 
@@ -160,6 +157,5 @@ export circleDriving = seqr.bind ->*
 			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, true, leftParams[j]
 			j += 1
 
-
-
+export defaultExperiment = circleDriving
 
