@@ -108,15 +108,10 @@
 
 'Welcome to the experiment': 'Tervetuloa kokeeseen!'
 '%intro.introduction': """
-<p>Tämän kokeen tarkoituksena on tutkia autonkuljettajan nopeudensäätelyä,
-ennakointia ja tarkkaavaisuuden jakamista.
+<p>Tämän kokeen tarkoituksena on tutkia auton ohjaamista ja kuljettajan tarkkavaisuutta.
 
-<p>Koe koostuu useasta osatehtävästä,
-jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin tunnin.
+<p>Koe koostuu useasta osakokeesta. Koe kestää kokonaisuudessaan noin tunnin.
 Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
-
-<p>Kokeen vastuullisena tutkijana toimii prof. Heikki Summala ja tutkijoina
-Jami Pekkanen, Teemu Itkonen ja Otto Lappi.
 """
 
 'Participation is voluntary': 'Osallistuminen on vapaaehtoista'
@@ -178,6 +173,6 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko ajon ajan pitämään katse mahdollisimman hyvin ympyrän sisällä.</strong>
 			<p>Tietyin väliajoin kaikkien valkoisten ruutujen sisään ilmestyy näkyviin numeroita. Joko numero 2 ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy numero 5.
 			<p>Jos havaitset numeron 5, paina ratin oikeanpuoleista takapainiketta. Muutoin paina ratin vasemmanpuoleista takapainiketta. Koita arvata vaikka et olisi varma.
-			<p>Numerot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet numerot taas ilmestyvät valkoisten ruutujen sisään.
+			<p>Numerot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet numerot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin numeroihin.
 			<p>Koe lähtee liikkeelle painamalla ratin vasenta punaista painiketta.
 			"""
