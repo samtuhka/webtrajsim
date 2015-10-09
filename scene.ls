@@ -90,7 +90,7 @@ generateRock = (seed=Math.random()) ->
 	geo.computeVertexNormals()
 	geo.computeFaceNormals()
 	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
-		color: 0xd3ab6d
+		color: 0x696969
 	rock.castShadow = true
 	rock.receiveShadow = true
 	return rock
@@ -191,7 +191,7 @@ export addGround = (scene) ->
 		behind.position.z = terrain.position.z - terrainSize
 
 export addCircleGround = (scene, rx, ry, length) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
 	terrainSize = 1000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
@@ -222,7 +222,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 3.75
+	roadWidth = 3.5
 	roadLenght = 20
 	shape = new THREE.Shape()
 	shape.moveTo(0, 0)
@@ -255,7 +255,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 1000, steps: 1000, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture_alt.jpg'
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_broken.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
 	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
