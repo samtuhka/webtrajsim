@@ -654,7 +654,6 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	scene = yield basecircleDriving env, rx, ry, l
-	yield instructions env
 
 	scene.params = settingParams
 
@@ -674,6 +673,9 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	rw = scene.centerLine.width
 
 	@let \scene, scene
+
+	yield instructions env
+
 	yield @get \run
 	calculateFuture scene, 1, s/3.6
 	handleProbeLocs scene, n, r, fut
@@ -757,7 +759,6 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	scene = yield basecircleDriving env, rx, ry, l
-	yield instructions env
 
 	scene.params = settingParams
 
@@ -778,6 +779,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	rw = scene.centerLine.width
 
 	@let \scene, scene
+
+	yield instructions env
+
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
