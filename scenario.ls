@@ -461,6 +461,27 @@ if future === NaN
 	future = 2
 n = 5
 
+export instructions = seqr.bind (env) ->*
+	L = env.L
+	dialogs =
+		->
+			@ \title .text L "Circle driving"
+			@ \text .append L "%circleDriving.intro"
+			@ \accept .text L "Next"
+			@ \cancel-button .hide!
+		->
+			@ \title .text L "Circle driving"
+			@ \text .append L "%circleDriving.intro2"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "Next"
+	i = 0
+	while i < dialogs.length
+		result = yield ui.inputDialog env, dialogs[i]
+		console.log result
+		if result.canceled
+			i -= 2
+		i += 1
+
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
@@ -632,11 +653,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
-	L = env.L
-	@let \intro,
-		title: env.L "Circle driving"
-		content: L '%circleDriving.intro'
 	scene = yield basecircleDriving env, rx, ry, l
+	yield instructions env
 
 	scene.params = settingParams
 
@@ -738,11 +756,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
 
-	L = env.L
-	@let \intro,
-		title: env.L "Circle driving"
-		content: L '%circleDriving.intro'
 	scene = yield basecircleDriving env, rx, ry, l
+	yield instructions env
 
 	scene.params = settingParams
 
