@@ -673,13 +673,12 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	rw = scene.centerLine.width
 
 	@let \scene, scene
-
-	yield instructions env
-
 	yield @get \run
+
 	calculateFuture scene, 1, s/3.6
 	handleProbeLocs scene, n, r, fut
-	#fixationCrossLoc scene, r
+
+	yield instructions env
 
 	while not env.controls.start == true
 			yield P.delay 100
@@ -779,14 +778,13 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	rw = scene.centerLine.width
 
 	@let \scene, scene
-
-	yield instructions env
-
 	yield @get \run
 
 	calculateFuture scene, -1, s/3.6
 	handleProbeLocs scene, n, r, fut
-	#fixationCrossLoc scene, -r
+
+	yield instructions env
+
 	console.log env.controls
 	while not env.controls.start == true
 			yield P.delay 100
