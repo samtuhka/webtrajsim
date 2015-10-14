@@ -473,7 +473,7 @@ export instructions = seqr.bind (env) ->*
 			@ \title .text L "Circle driving"
 			@ \text .append L "%circleDriving.intro2"
 			@ \cancel .text L "Previous"
-			@ \accept .text L "Next"
+			@ \accept .text L "Ok"
 	i = 0
 	while i < dialogs.length
 		result = yield ui.inputDialog env, dialogs[i]
