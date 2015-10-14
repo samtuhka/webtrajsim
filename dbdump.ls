@@ -1,30 +1,62 @@
 {Sessions} = require './datalogger.ls'
 $ = require 'jquery'
 {saveAs} = require './vendor/FileSaver.js'
-JSZip = require 'jszip'
 seqr = require './seqr.ls'
+msgpack = require 'msgpack-lite'
+pako = require 'pako'
 
 getSessionData = (db, session) ->
-	db.entries.query().filter("sessionId", session.sessionSurrogateId).execute()
+	db.entries.query('sessionId').only(session.sessionSurrogateId).execute()
+
+getSerializedSession = (db, session) ->
+	console.log "Loading"
+	getSessionData db, session
+	.then (entries) ->
+		console.log "Serializing"
+		output = new pako.Deflate gzip: true
+		for entry in entries
+			output.push msgpack.encode entry
+		output.push "", true
+		console.log output.result
+		return new Blob [output.result], type: "application/x-gzip"
+		return new Blob blob, type: "application/x-msgpack"
 
 dump = (db, session) ->
-	getSessiondata db, session
-	.then (entries) ->
-		blob = new Blob [JSON.stringify(entries)], type: "text/plain;charset=utf-8"
-		saveAs blob, "#{session.name}_#{session.date}.json"
+	console.log "Dumping", "#{session.name}_#{session.date}.msgpack"
+	getSerializedSession db, session
+	.then (blob) -> new Promise (accept, reject) ->
+		console.log "Saving"
+		accept() # A hack as there seems to be no way of knowing when the saving is done
+		saveAs blob, "#{session.name}_#{session.date}.msgpack.gz"
+
+
+readBlob = (blob) -> new Promise (accept, reject) ->
+	reader = new FileReader()
+	reader.onload = ->
+		accept new Uint8Array @result
+	reader.readAsArrayBuffer blob
 
 dumpAll = seqr.bind (db) ->*
-	output = new JSZip()
 	listing = yield db.sessions.query().all().execute()
-	output.file('sessions.json', JSON.stringify(listing))
+	#output.file('sessions.json', JSON.stringify(listing))
 	for session in listing
-		name = "#{session.name}_#{session.date}.json"
+		yield dump db, session
+
+	console.log "All done"
+
+	/*
+	for session in listing
+		name = "#{session.name}_#{session.date}.msgpack"
 		console.log "Dumping", name
-		data = yield getSessionData db, session
-		output.file name, JSON.stringify data
+		blob = yield getSerializedSession db, session
+		blob = yield readBlob blob
+		if blob.length == 0
+			continue
+		output.file name, blob
 
 	content = output.generate type: 'blob'
 	saveAs content, "dbdump.zip"
+	*/
 $ ->
 	db = undefined
 	Sessions("wtsSessions").then (sessions) ->

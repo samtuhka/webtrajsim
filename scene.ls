@@ -15,7 +15,7 @@ require './three.js/examples/js/SkyShader.js'
 # TODO: Find a good fidelity/performance
 # compromise parameters
 export class Scene
-	({@minStepDuration=1/60}={}) ->
+	({@minStepDuration=1/60, @camera, @visual, @physics}={}) ->
 		@ <<<
 			beforePhysics: new Signal
 			onPhysics: new Signal
@@ -30,7 +30,7 @@ export class Scene
 			onStart: new Signal
 			onExit: new Signal
 
-		@physics = new Cannon.World
+		@physics ?= new Cannon.World
 			..gravity.set 0, -9.81, 0
 			..defaultContactMaterial
 				..friction = 0.7
@@ -44,9 +44,9 @@ export class Scene
 			step: ->
 			bodies: []*/
 
-		@visual = new THREE.Scene
+		@visual ?= new THREE.Scene
 
-		@camera = new THREE.PerspectiveCamera 65/(16/9), 1, 0.01, 450000
+		@camera ?= new THREE.PerspectiveCamera 65/(16/9), 1, 0.01, 450000
 
 		@time = 0
 
