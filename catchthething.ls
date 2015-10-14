@@ -1,6 +1,6 @@
 THREE = require "three"
 $ = require 'jquery'
-{jStat} = require 'jstat'
+jStat = require 'jstat'
 seqr = require './seqr.ls'
 {Signal} = require './signal.ls'
 
@@ -11,11 +11,20 @@ class TheThing
 		@mesh = new THREE.Mesh objectGeometry, objectMaterial
 		@mesh.position.set 1, 0, 0
 		@velocity = new THREE.Vector3 -1, 0, 0
-		@velocity.multiplyScalar Math.abs jStat.normal.sample(2, 0.5)
+		#@velocity.multiplyScalar Math.abs jStat.normal.sample(2, 0.5)
+		@velocity.multiplyScalar 1.5
+		@manipulated = false
 
 	tick: (dt) ->
 		step = @velocity.clone().multiplyScalar dt
+		prevPos = @mesh.position.clone()
 		@mesh.position.add step
+
+		# Hack!
+		if prevPos.x > 0 and @mesh.position.x < 0 and (not @manipulated) and (Math.random() < 0.3)
+			manip = Math.sign((Math.random() - 0.5)*2)*0.13
+			@mesh.position.x += manip
+			@manipulated = true
 
 export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}={}) ->*
 	self = {}
@@ -113,7 +122,7 @@ export class Catchthething
 		@scene = new THREE.Scene
 
 		radius = 0.1
-		@target = new THREE.Sphere (new THREE.Vector3 -1+2*radius, 0, 0), radius
+		@target = new THREE.Sphere (new THREE.Vector3 0, 0, 0), radius
 
 		@objects = []
 
@@ -123,8 +132,17 @@ export class Catchthething
 			wireframe: true
 		targetMesh = new THREE.Mesh targetGeo, targetMaterial
 		@scene.add targetMesh
+		@targetMesh = targetMesh
+		@targetMesh.position.x = -0.5
 
-		@meanDelay = 0.5
+		mask = new THREE.Mesh do
+			new THREE.PlaneGeometry 0.3, 0.3
+			new THREE.MeshBasicMaterial color: 0xffffff
+		mask.position.z = -1
+		mask.rotation.x = Math.PI
+		@scene.add mask
+
+		@meanDelay = 1
 
 	_readyForNew: (dt) ->
 		return false if @objects.length > 0
@@ -151,8 +169,8 @@ export class Catchthething
 	catch: ->
 		misses = []
 		for obj in @objects
-			d = @target.distanceToPoint obj.mesh.position
-			if d >= 0
+			d = @targetMesh.position.distanceTo obj.mesh.position
+			if d >= @target.radius
 				misses.push obj
 				continue
 			@scene.remove obj.mesh

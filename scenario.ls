@@ -180,6 +180,45 @@ addBlinderTask = (scene, env) ->
 
 	return self
 
+addPursuitTask = (scene, env) ->
+	mask = new THREE.Mesh do
+		new THREE.PlaneGeometry 0.1*16/9, 0.1
+		new THREE.MeshBasicMaterial color: 0x000000
+	mask.position.z = -0.3
+	mask.position.x = 0.03
+	mask.position.y = -0.03
+	scene.camera.add mask
+
+	self =
+		change: Signal!
+		glances: 0
+
+	showMask = ->
+		mask.visible = true
+		self.change.dispatch true
+		env.logger.write blinder: true
+	showMask()
+
+	#ui.gauge env,
+	#	name: env.L "Glances"
+	#	unit: ""
+	#	value: ->
+	#		self.glances
+
+
+	#env.controls.change (btn, isOn) ->
+	#	return if btn != 'blinder'
+	#	return if isOn != true
+	#	return if not mask.visible
+	#	mask.visible = false
+	#	self.glances += 1
+	#	self.change.dispatch false
+	#	env.logger.write blinder: false
+	#	setTimeout showMask, 300
+
+	return self
+
+
 
 exportScenario \runTheLight, (env) ->*
 	@let \intro,
@@ -735,3 +774,91 @@ exportScenario \participantInformation, (env) ->*
 	#	textbox = $('<input name="name" type="text" style="color: black">')
 	#	.appendTo @ \content
 	#	setTimeout textbox~focus, 0
+
+/*
+exportScenario \blindPursuit, (env) ->*
+	react = new catchthething.Catchthething()
+	screen = yield assets.SceneDisplay()
+
+	screen.object.position.z = -0.3
+	screen.object.scale.set 0.12, 0.12, 0.12
+	screen.object.visible = false
+	#screen.object.position.y = 2
+	#screen.object.rotation.y = Math.PI
+	scene.camera.add screen.object
+
+	env.controls.change (btn, isOn) !->
+		if btn == "catch" and isOn and screen.object.visible
+			react.catch()
+		else if btn == "blinder"
+			screen.object.visible = isOn
+
+	react.event (type) ->
+		env.logger.write reactionGameEvent: type
+
+	scene.onRender.add (dt) ->
+		react.tick dt
+		env.renderer.render react.scene, react.camera, screen.renderTarget, true
+		#env.renderer.render react.scene, react.camera
+
+	return react
+*/
+
+exportScenario \blindPursuit, (env) ->*
+	L = env.L
+	#base = module.exports.freeDriving env
+
+	#intro = yield base.get \intro
+	#@let \intro,
+	#	title: L "Anticipating supermiler"
+	#	content: L '%blindFollowInTraffic.intro'
+
+	scene = new Scene
+
+	scene.preroll = ->
+		# Tick a couple of frames for the physics to settle
+		scene.tick 1/60
+		n = 100
+		t = Date.now()
+		for [0 to n]
+			scene.tick 1/60
+		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
+
+
+	screen = yield assets.SceneDisplay()
+
+	screen.object.position.z = -0.1
+	screen.object.scale.set 0.1, 0.1, 0.1
+	screen.object.visible = true
+	#screen.object.position.y = 2
+	#screen.object.rotation.y = Math.PI
+	scene.visual.add screen.object
+
+	catcher = new catchthething.Catchthething()
+
+	env.controls.change (btn, isOn) !->
+		if btn == "catch" and isOn and screen.object.visible
+			console.log "Catching"
+			catcher.catch()
+
+
+	scene.onRender.add (dt) ->
+		catcher.tick dt
+		env.renderer.render catcher.scene, catcher.camera, screen.renderTarget, true
+
+	#scene.draftIndicator.el.hide()
+	@let \scene, scene
+
+	yield @get \run
+
+	#@get \done .then (result) ->
+	#	base.let \done, result
+
+	#result = yield base.get \done
+
+	yield @get \done
+
+	#@let \done, result
+
+	return result
+
