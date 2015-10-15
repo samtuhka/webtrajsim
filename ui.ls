@@ -93,6 +93,11 @@ export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 		canceled := true
 
 	yield waitFor background~fadeIn
+	screen = true
+	controls.change (btn, isOn) !->
+		if btn == "catch" and isOn and screen
+			form.submit()
+
 	form.on "submit" (e) ~>
 		result =
 			canceled: canceled
@@ -103,6 +108,7 @@ export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 	result = yield @get \result
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
+	screen = false
 	return result
 
 export taskDialog = Co ({notifications}, cb) ->*

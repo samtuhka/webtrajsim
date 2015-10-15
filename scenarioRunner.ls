@@ -207,18 +207,6 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
 	scenario = scenarioLoader env, rx, ry, l, s, rev, stat, four, fut
 
-
-	intro = P.resolve undefined
-	me = @
-	scenario.get \intro .then (introContent) ->
-		intro := ui.instructionScreen env, ->
-			@ \title .append introContent.title
-			@ \subtitle .append introContent.subtitle
-			@ \content .append introContent.content
-			# HACK!
-			env.logger.write scenarioIntro: @el.html()
-			me.get \ready
-
 	scene = yield scenario.get \scene
 
 	env.logger.write scenarioParameters: scene.params
@@ -285,8 +273,6 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	yield P.resolve scene.preroll()
 	yield ui.waitFor el~fadeIn
 	@let \ready, [scenario]
-	@let \intro, [intro]
-	yield intro
 	scenario.let \run
 
 	done = scenario.get \done
