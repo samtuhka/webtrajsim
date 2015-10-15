@@ -207,6 +207,8 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
 	scenario = scenarioLoader env, rx, ry, l, s, rev, stat, four, fut
 
+	me = @
+
 	scene = yield scenario.get \scene
 
 	env.logger.write scenarioParameters: scene.params

@@ -89,6 +89,8 @@ export class KeyboardController
 			| LEFT => @steeringLeft = 1
 			| RIGHT => @steeringRight = 1
 			| CTRL => @_update \blinder, true
+			| Q => @pNo = true
+			| W => @pYes = true
 			| SPACE => @_update \catch, true
 
 		.keyup @_keyup = (e) ~>
