@@ -191,8 +191,10 @@ addBlinderTask = (scene, env) ->
 addForcedBlinderTask = (scene, env) ->
 	self = addBlinder(scene, env)
 
-	# TODO! LEAKS!!
-	setInterval self~_liftMask, 2000
+	id = setInterval self~_liftMask, 2000
+	env.finally ->
+		console.log "Clearing interval"
+		clearInterval id
 
 	return self
 

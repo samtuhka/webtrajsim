@@ -93,6 +93,9 @@ export newEnv = seqr.bind !->*
 	id = setInterval env.uiUpdate.dispatch, 1/60*1000
 	@finally !->
 		clearInterval id
+
+	env.finally = @~finally
+
 	@let \env, env
 	yield @get \destroy
 	yield ui.waitFor container~fadeOut
