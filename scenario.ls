@@ -512,6 +512,7 @@ followInTraffic = exportScenario \followInTraffic, (env) ->*
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
 	finishSign.addTo scene
+	finishSign.visual.visible = false
 
 	scene.player.onCollision (e) ~>
 		reason = L "You crashed!"
