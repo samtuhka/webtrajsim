@@ -141,8 +141,7 @@ addReactionTest = seqr.bind (scene, env) ->*
 
 	return react
 
-
-addBlinderTask = (scene, env) ->
+addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
 		new THREE.PlaneGeometry 0.1*16/9, 0.1
 		new THREE.MeshBasicMaterial color: 0x000000
@@ -155,11 +154,25 @@ addBlinderTask = (scene, env) ->
 		change: Signal!
 		glances: 0
 
-	showMask = ->
+	self._showMask = showMask = ->
+		return if mask.visible
 		mask.visible = true
 		self.change.dispatch true
 		env.logger.write blinder: true
-	showMask()
+	self._showMask()
+
+	self._liftMask = ->
+		mask.visible = false
+		self.glances += 1
+		self.change.dispatch false
+		env.logger.write blinder: false
+		setTimeout showMask, 300
+
+	return self
+
+
+addBlinderTask = (scene, env) ->
+	self = addBlinder(scene, env)
 
 	ui.gauge env,
 		name: env.L "Glances"
@@ -171,12 +184,15 @@ addBlinderTask = (scene, env) ->
 	env.controls.change (btn, isOn) ->
 		return if btn != 'blinder'
 		return if isOn != true
-		return if not mask.visible
-		mask.visible = false
-		self.glances += 1
-		self.change.dispatch false
-		env.logger.write blinder: false
-		setTimeout showMask, 300
+		self._liftMask()
+
+	return self
+
+addForcedBlinderTask = (scene, env) ->
+	self = addBlinder(scene, env)
+
+	# TODO! LEAKS!!
+	setInterval self~_liftMask, 2000
 
 	return self
 
@@ -657,6 +673,32 @@ exportScenario \blindFollowInTraffic, (env) ->*
 	scene = yield base.get \scene
 	scene.draftIndicator.el.hide()
 	addBlinderTask scene, env
+	@let \scene, scene
+
+	yield @get \run
+	base.let \run
+
+	@get \done .then (result) ->
+		base.let \done, result
+
+	result = yield base.get \done
+
+	@let \done, result
+
+	return result
+
+exportScenario \forcedBlindFollowInTraffic, (env) ->*
+	L = env.L
+	base = followInTraffic env
+
+	intro = yield base.get \intro
+	@let \intro,
+		title: L "Distracted supermiler"
+		content: L '%forcedBlindFollowInTraffic.intro'
+
+	scene = yield base.get \scene
+	scene.draftIndicator.el.hide()
+	addForcedBlinderTask scene, env
 	@let \scene, scene
 
 	yield @get \run
