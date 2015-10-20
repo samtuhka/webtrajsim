@@ -53,8 +53,9 @@ export mulsimco2015 = seqr.bind ->*
 	for scn in scenarios
 		yield runScenario scn
 
-	yield runUntilPassed scenario.forcedBlindFollowInTraffic , passes: 3
-	#trials = 6
+	intervals = shuffleArray [1, 1, 2, 2, 3, 3]
+	for interval in intervals
+		yield runScenario scenario.forcedBlindFollowInTraffic, interval: interval
 
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env

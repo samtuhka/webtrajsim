@@ -188,10 +188,10 @@ addBlinderTask = (scene, env) ->
 
 	return self
 
-addForcedBlinderTask = (scene, env, interval=2000) ->
+addForcedBlinderTask = (scene, env, {interval=2}={}) ->
 	self = addBlinder(scene, env)
 
-	id = setInterval self~_liftMask, interval
+	id = setInterval self~_liftMask, interval*1000
 	env.finally ->
 		clearInterval id
 
@@ -494,7 +494,7 @@ class MicrosimWrapper
 {knuthShuffle: shuffleArray} = require 'knuth-shuffle'
 
 {TargetSpeedController} = require './controls.ls'
-followInTraffic = exportScenario \followInTraffic, (env) ->*
+followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	L = env.L
 	@let \intro,
 		title: L "Supermiler"
@@ -509,7 +509,7 @@ followInTraffic = exportScenario \followInTraffic, (env) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-	goalDistance = 2000
+	goalDistance = distance
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
 	finishSign.addTo scene
@@ -689,9 +689,9 @@ exportScenario \blindFollowInTraffic, (env) ->*
 
 	return result
 
-exportScenario \forcedBlindFollowInTraffic, (env) ->*
+exportScenario \forcedBlindFollowInTraffic, (env, opts) ->*
 	L = env.L
-	base = followInTraffic env
+	base = followInTraffic env, distance: 1000
 
 	intro = yield base.get \intro
 	@let \intro,
@@ -700,7 +700,7 @@ exportScenario \forcedBlindFollowInTraffic, (env) ->*
 
 	scene = yield base.get \scene
 	scene.draftIndicator.el.hide()
-	addForcedBlinderTask scene, env
+	addForcedBlinderTask scene, env, opts
 	@let \scene, scene
 
 	yield @get \run

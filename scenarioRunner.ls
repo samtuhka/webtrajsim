@@ -104,13 +104,13 @@ export newEnv = seqr.bind !->*
 	if window.gc?
 		window.gc()
 
-export runScenario = seqr.bind (scenarioLoader) !->*
+export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scope = newEnv()
 	env = yield scope.get \env
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
-	scenario = scenarioLoader env
+	scenario = scenarioLoader env, ...args
 
 
 	intro = P.resolve undefined
