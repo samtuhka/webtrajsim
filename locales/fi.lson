@@ -185,3 +185,5 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 "On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>ajokortin saatuasi</strong>."""
 
+'The experiment is done!': 'Koe on päättynyt'
+'%experimentOutro': 'Kiitos osallistumisestasi!'

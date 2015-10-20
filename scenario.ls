@@ -188,12 +188,11 @@ addBlinderTask = (scene, env) ->
 
 	return self
 
-addForcedBlinderTask = (scene, env) ->
+addForcedBlinderTask = (scene, env, interval=2000) ->
 	self = addBlinder(scene, env)
 
-	id = setInterval self~_liftMask, 2000
+	id = setInterval self~_liftMask, interval
 	env.finally ->
-		console.log "Clearing interval"
 		clearInterval id
 
 	return self
@@ -813,12 +812,21 @@ exportScenario \participantInformation, (env) ->*
 			i -= 2
 		i += 1
 
+
 	#yield ui.inputDialog env, ->
 	#	@ \title .text L "Welcome to the experiment"
 	#	@ \text .text L "Please type your name."
 	#	textbox = $('<input name="name" type="text" style="color: black">')
 	#	.appendTo @ \content
 	#	setTimeout textbox~focus, 0
+
+exportScenario \experimentOutro, (env) ->*
+	L = env.L
+	yield ui.instructionScreen env, ->
+		@ \title .append L "The experiment is done!"
+		@ \content .append L '%experimentOutro'
+		@ \accept-button .hide()
+
 
 /*
 exportScenario \blindPursuit, (env) ->*

@@ -56,6 +56,11 @@ export mulsimco2015 = seqr.bind ->*
 	yield runUntilPassed scenario.forcedBlindFollowInTraffic , passes: 3
 	#trials = 6
 
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
+
 
 export defaultExperiment = mulsimco2015
 
