@@ -828,43 +828,11 @@ exportScenario \experimentOutro, (env) ->*
 		@ \accept-button .hide()
 
 
-/*
-exportScenario \blindPursuit, (env) ->*
-	react = new catchthething.Catchthething()
-	screen = yield assets.SceneDisplay()
-
-	screen.object.position.z = -0.3
-	screen.object.scale.set 0.12, 0.12, 0.12
-	screen.object.visible = false
-	#screen.object.position.y = 2
-	#screen.object.rotation.y = Math.PI
-	scene.camera.add screen.object
-
-	env.controls.change (btn, isOn) !->
-		if btn == "catch" and isOn and screen.object.visible
-			react.catch()
-		else if btn == "blinder"
-			screen.object.visible = isOn
-
-	react.event (type) ->
-		env.logger.write reactionGameEvent: type
-
-	scene.onRender.add (dt) ->
-		react.tick dt
-		env.renderer.render react.scene, react.camera, screen.renderTarget, true
-		#env.renderer.render react.scene, react.camera
-
-	return react
-*/
-
-exportScenario \blindPursuit, (env) ->*
+exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 	L = env.L
-	#base = module.exports.freeDriving env
-
-	#intro = yield base.get \intro
-	#@let \intro,
-	#	title: L "Anticipating supermiler"
-	#	content: L '%blindFollowInTraffic.intro'
+	@let \intro,
+		title: L "Catch the ball"
+		content: L '%blindPursuit.intro'
 
 	scene = new Scene
 
@@ -887,7 +855,7 @@ exportScenario \blindPursuit, (env) ->*
 	#screen.object.rotation.y = Math.PI
 	scene.visual.add screen.object
 
-	catcher = new catchthething.Catchthething()
+	catcher = new catchthething.Catchthething oddballRate: oddballRate
 
 	env.controls.change (btn, isOn) !->
 		if btn == "catch" and isOn and screen.object.visible
@@ -902,14 +870,36 @@ exportScenario \blindPursuit, (env) ->*
 
 	yield @get \run
 
-	#@get \done .then (result) ->
-	#	base.let \done, result
+	score =
+		missed: 0
+		catched: 0
+		catchRate: ->
+			@catched / @total!
+		total: ->
+			@catched + @missed
 
-	#result = yield base.get \done
+	catcher.objectCatched ->
+		score.catched += 1
+	catcher.objectMissed ->
+		score.missed += 1
 
-	yield @get \done
 
-	#@let \done, result
+	catcher.objectHandled ~>
+		return if score.total! < nTrials
+		finalScore = (score.catchRate()*100).toFixed 1
+		@let \done, passed: true, outro:
+			title: env.L "Level passed"
+			content: env.L "You caught #finalScore% of the balls"
+
+	ui.gauge env,
+		name: L "Catch percentage"
+		unit: L '%'
+		range: [0, 100]
+		value: -> score.catchRate()*100
+		format: (v) ->
+			return v.toFixed 1
+
+	result = yield @get \done
 
 	return result
 

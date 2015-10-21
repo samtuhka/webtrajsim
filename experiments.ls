@@ -68,6 +68,21 @@ export defaultExperiment = mulsimco2015
 export freeDriving = seqr.bind ->*
 	yield runScenario scenario.freeDriving
 
+export blindPursuit = seqr.bind ->*
+	nTrials = 50
+	yield runScenario scenario.blindPursuit,
+		nTrials: nTrials
+		oddballRate: 0.0
+
+	for i from 0 til 10
+		yield runScenario scenario.blindPursuit,
+			nTrials: nTrials
+			oddballRate: 0.1
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
+
 deparam = require 'jquery-deparam'
 export singleScenario = seqr.bind ->*
 	# TODO: The control flow is a mess!
