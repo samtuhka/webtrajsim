@@ -680,7 +680,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	yield instructions env
 
-	while not env.controls.start == true
+	while not env.controls.catch == true
 			yield P.delay 100
 	env.controls.probeReact = false
 
@@ -786,7 +786,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	yield instructions env
 
 	console.log env.controls
-	while not env.controls.start == true
+	while not env.controls.catch == true
 			yield P.delay 100
 	env.controls.probeReact = false
 	
