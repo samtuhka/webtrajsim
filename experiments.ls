@@ -147,14 +147,14 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDriving]*ntrials)
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
-	practice = runScenarioCurve scenario.circleDriving, 200, 200, 50, 80, 1, false, true, 2
+	practice = runScenarioCurve scenario.circleDriving, 200, 200, 50, 80, 1, false, false, 2
 	yield practice
 	for scn in scenarios
 		if scn.scenarioName == "circleDriving"
-			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, true, rightParams[i]
+			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, rightParams[i]
 			i += 1
 		else
-			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, true, leftParams[j]
+			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, leftParams[j]
 			j += 1
 
 export defaultExperiment = circleDriving
