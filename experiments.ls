@@ -179,6 +179,10 @@ export circleDriving = seqr.bind ->*
 		else
 			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, leftParams[j], false
 			j += 1
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
 
 export defaultExperiment = circleDriving
 
