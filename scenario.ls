@@ -726,10 +726,11 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 			trialTime = scene.time - startTime
 			listener.remove()
 			@let \done, passed: true, outro:
-				title: "Passed"
+				title: env.L "Passed"
 				content: """
-				<p>You score was #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
-				<p>Trial lasted #{trialTime.toFixed 2} seconds</p>
+				<p>Sait vastauksista #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2} oikein.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>
 				 """
 			return false
 
@@ -831,10 +832,11 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 			listener.remove()
 			trialTime = scene.time - startTime
 			@let \done, passed: true, outro:
-				title: "Passed"
+				title: env.L "Passed"
 				content: """
-				<p>You score was #{scene.scoring.score.toFixed 2}/#{(scene.maxScore).toFixed 2}</p>
-				<p>Trial lasted #{trialTime.toFixed 2} seconds</p>
+				<p>Sait vastauksista #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2} oikein.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>
 				 """
 			return false
 
