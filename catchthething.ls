@@ -5,26 +5,41 @@ seqr = require './seqr.ls'
 {Signal} = require './signal.ls'
 
 class TheThing
-	->
+	({@oddballRate=0}={}) ->
 		objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
 		objectMaterial = new THREE.MeshBasicMaterial color: 0xffffff
 		@mesh = new THREE.Mesh objectGeometry, objectMaterial
 		@mesh.position.set 1, 0, 0
-		@velocity = new THREE.Vector3 -1, 0, 0
+		@velocity = -1.5
 		#@velocity.multiplyScalar Math.abs jStat.normal.sample(2, 0.5)
-		@velocity.multiplyScalar 1.5
 		@manipulated = false
+		@t = 0
 
 	tick: (dt) ->
-		step = @velocity.clone().multiplyScalar dt
+		@t += dt
+		#step = @velocity.clone().multiplyScalar dt
+		#@mesh.position.add step
 		prevPos = @mesh.position.clone()
-		@mesh.position.add step
+		x0 = 1
+		x1 = -0.5
+		@mesh.position.x = x = @velocity*@t + x0
+
+		total = (x0 - x1)
+		h = -0.3
+		y0 = 0
+		d = Math.abs(@velocity*@t)
+
+		a = -4*(h - y0)/(total**2)
+		b = 4*(h - y0)/total
+		@mesh.position.y = y0 + a*d**2 + b*d
 
 		# Hack!
-		if prevPos.x > 0 and @mesh.position.x < 0 and (not @manipulated) and (Math.random() < 0.3)
-			manip = Math.sign((Math.random() - 0.5)*2)*0.13
-			@mesh.position.x += manip
+		if prevPos.x > 0 and @mesh.position.x < 0 and (not @manipulated) and (Math.random() < @oddballRate)
+			manip = Math.sign((Math.random() - 0.5)*2)*0.1
+			@t += manip
 			@manipulated = true
+
+
 
 export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}={}) ->*
 	self = {}
@@ -107,7 +122,11 @@ export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}=
 
 
 export class Catchthething
-	->
+	({@oddballRate=0}={}) ->
+		@objectHandled = Signal()
+		@objectCatched = Signal()
+		@objectMissed = Signal()
+
 		@camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 
@@ -121,7 +140,7 @@ export class Catchthething
 
 		@scene = new THREE.Scene
 
-		radius = 0.1
+		radius = 0.15
 		@target = new THREE.Sphere (new THREE.Vector3 0, 0, 0), radius
 
 		@objects = []
@@ -139,6 +158,7 @@ export class Catchthething
 			new THREE.PlaneGeometry 0.3, 0.3
 			new THREE.MeshBasicMaterial color: 0xffffff
 		mask.position.z = -1
+		mask.position.y = -0.3
 		mask.rotation.x = Math.PI
 		@scene.add mask
 
@@ -153,7 +173,7 @@ export class Catchthething
 
 	tick: (dt) ->
 		if @_readyForNew dt
-			thing = new TheThing
+			thing = new TheThing oddballRate: @oddballRate
 			@scene.add thing.mesh
 			@objects.push thing
 
@@ -163,6 +183,8 @@ export class Catchthething
 			thing.tick dt
 			if not @frustum.containsPoint thing.mesh.position
 				@scene.remove thing.mesh
+				@objectHandled.dispatch thing
+				@objectMissed.dispatch thing
 				continue
 			@objects.push thing
 
@@ -174,5 +196,7 @@ export class Catchthething
 				misses.push obj
 				continue
 			@scene.remove obj.mesh
+			@objectHandled.dispatch obj
+			@objectCatched.dispatch obj
 		@objects = misses
 

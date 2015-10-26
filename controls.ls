@@ -108,6 +108,7 @@ export class KeyboardController
 
 
 	_update: (key, value) ->
+		return if @[key] == value
 		@change.dispatch key, value
 		@[key] = value
 

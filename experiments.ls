@@ -52,10 +52,33 @@ export mulsimco2015 = seqr.bind ->*
 
 	for scn in scenarios
 		yield runScenario scn
-	#trials = 6
+
+	intervals = shuffleArray [1, 1, 2, 2, 3, 3]
+	for interval in intervals
+		yield runScenario scenario.forcedBlindFollowInTraffic, interval: interval
+
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
 
 export freeDriving = seqr.bind ->*
 	yield runScenario scenario.freeDriving
+
+export blindPursuit = seqr.bind ->*
+	nTrials = 50
+	yield runScenario scenario.blindPursuit,
+		nTrials: nTrials
+		oddballRate: 0.0
+
+	for i from 0 til 10
+		yield runScenario scenario.blindPursuit,
+			nTrials: nTrials
+			oddballRate: 0.1
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
 
 deparam = require 'jquery-deparam'
 export singleScenario = seqr.bind ->*

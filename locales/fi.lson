@@ -65,12 +65,18 @@
 
 'Anticipatory speed control': 'Ennakointi nopeudenhallinnassa'
 
+'%forcedBlinderIntro': """
+	<p>Tässä tehtävässä mitataan myös kykyäsi toimia häirinnän alaisena. Tienäkymä peittyy
+	hetkittäin.
+	"""
+
 '%blindSpeedControl.intro': -> """
 	<p>#{@ '%speedControl.intro'}
 	#{@ '%blinderIntro'}
 	"""
 
 'Supermiler': 'Taloudellinen ajo'
+
 
 '%followInTraffic.intro': """
 	<p>Aja siten, että polttoaineenkulutuksesi on mahdollisimman pieni.</p>
@@ -100,6 +106,13 @@
 '%blindFollowInTraffic.intro': -> """
 	<p>#{@ '%followInTraffic.intro'}
 	#{@ '%blinderIntro'}
+	"""
+
+'Distracted supermiler': 'Taloudellinen ajo ja rajattu näkyvyys'
+
+'%forcedBlindFollowInTraffic.intro': -> """
+	<p>#{@ '%followInTraffic.intro'}
+	#{@ '%forcedBlinderIntro'}
 	"""
 
 'Next': 'Seuraava'
@@ -178,3 +191,6 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			<p>Numerot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet numerot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin numeroihin.
 			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
+
+'The experiment is done!': 'Koe on päättynyt'
+'%experimentOutro': 'Kiitos osallistumisestasi!'

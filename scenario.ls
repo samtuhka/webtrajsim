@@ -873,8 +873,7 @@ addReactionTest = seqr.bind (scene, env) ->*
 
 	return react
 
-
-addBlinderTask = (scene, env) ->
+addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
 		new THREE.PlaneGeometry 0.1*16/9, 0.1
 		new THREE.MeshBasicMaterial color: 0x000000
@@ -887,11 +886,25 @@ addBlinderTask = (scene, env) ->
 		change: Signal!
 		glances: 0
 
-	showMask = ->
+	self._showMask = showMask = ->
+		return if mask.visible
 		mask.visible = true
 		self.change.dispatch true
 		env.logger.write blinder: true
-	showMask()
+	self._showMask()
+
+	self._liftMask = ->
+		mask.visible = false
+		self.glances += 1
+		self.change.dispatch false
+		env.logger.write blinder: false
+		setTimeout showMask, 300
+
+	return self
+
+
+addBlinderTask = (scene, env) ->
+	self = addBlinder(scene, env)
 
 	ui.gauge env,
 		name: env.L "Glances"
@@ -903,12 +916,16 @@ addBlinderTask = (scene, env) ->
 	env.controls.change (btn, isOn) ->
 		return if btn != 'blinder'
 		return if isOn != true
-		return if not mask.visible
-		mask.visible = false
-		self.glances += 1
-		self.change.dispatch false
-		env.logger.write blinder: false
-		setTimeout showMask, 300
+		self._liftMask()
+
+	return self
+
+addForcedBlinderTask = (scene, env, {interval=2}={}) ->
+	self = addBlinder(scene, env)
+
+	id = setInterval self~_liftMask, interval*1000
+	env.finally ->
+		clearInterval id
 
 	return self
 
@@ -1209,7 +1226,7 @@ class MicrosimWrapper
 {knuthShuffle: shuffleArray} = require 'knuth-shuffle'
 
 {TargetSpeedController} = require './controls.ls'
-followInTraffic = exportScenario \followInTraffic, (env) ->*
+followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	L = env.L
 	@let \intro,
 		title: L "Supermiler"
@@ -1224,10 +1241,11 @@ followInTraffic = exportScenario \followInTraffic, (env) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-	goalDistance = 2000
+	goalDistance = distance
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
 	finishSign.addTo scene
+	finishSign.visual.visible = false
 
 	scene.player.onCollision (e) ~>
 		reason = L "You crashed!"
@@ -1403,6 +1421,32 @@ exportScenario \blindFollowInTraffic, (env) ->*
 
 	return result
 
+exportScenario \forcedBlindFollowInTraffic, (env, opts) ->*
+	L = env.L
+	base = followInTraffic env, distance: 1000
+
+	intro = yield base.get \intro
+	@let \intro,
+		title: L "Distracted supermiler"
+		content: L '%forcedBlindFollowInTraffic.intro'
+
+	scene = yield base.get \scene
+	scene.draftIndicator.el.hide()
+	addForcedBlinderTask scene, env, opts
+	@let \scene, scene
+
+	yield @get \run
+	base.let \run
+
+	@get \done .then (result) ->
+		base.let \done, result
+
+	result = yield base.get \done
+
+	@let \done, result
+
+	return result
+
 exportScenario \participantInformation, (env) ->*
 	L = env.L
 	currentYear = (new Date).getFullYear()
@@ -1500,6 +1544,7 @@ exportScenario \participantInformation, (env) ->*
 			i -= 2
 		i += 1
 
+
 	#yield ui.inputDialog env, ->
 	#	@ \title .text L "Welcome to the experiment"
 	#	@ \text .text L "Please type your name."
@@ -1507,43 +1552,19 @@ exportScenario \participantInformation, (env) ->*
 	#	.appendTo @ \content
 	#	setTimeout textbox~focus, 0
 
-/*
-exportScenario \blindPursuit, (env) ->*
-	react = new catchthething.Catchthething()
-	screen = yield assets.SceneDisplay()
-
-	screen.object.position.z = -0.3
-	screen.object.scale.set 0.12, 0.12, 0.12
-	screen.object.visible = false
-	#screen.object.position.y = 2
-	#screen.object.rotation.y = Math.PI
-	scene.camera.add screen.object
-
-	env.controls.change (btn, isOn) !->
-		if btn == "catch" and isOn and screen.object.visible
-			react.catch()
-		else if btn == "blinder"
-			screen.object.visible = isOn
-
-	react.event (type) ->
-		env.logger.write reactionGameEvent: type
-
-	scene.onRender.add (dt) ->
-		react.tick dt
-		env.renderer.render react.scene, react.camera, screen.renderTarget, true
-		#env.renderer.render react.scene, react.camera
-
-	return react
-*/
-
-exportScenario \blindPursuit, (env) ->*
+exportScenario \experimentOutro, (env) ->*
 	L = env.L
-	#base = module.exports.freeDriving env
+	yield ui.instructionScreen env, ->
+		@ \title .append L "The experiment is done!"
+		@ \content .append L '%experimentOutro'
+		@ \accept-button .hide()
 
-	#intro = yield base.get \intro
-	#@let \intro,
-	#	title: L "Anticipating supermiler"
-	#	content: L '%blindFollowInTraffic.intro'
+
+exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
+	L = env.L
+	@let \intro,
+		title: L "Catch the ball"
+		content: L '%blindPursuit.intro'
 
 	scene = new Scene
 
@@ -1566,11 +1587,10 @@ exportScenario \blindPursuit, (env) ->*
 	#screen.object.rotation.y = Math.PI
 	scene.visual.add screen.object
 
-	catcher = new catchthething.Catchthething()
+	catcher = new catchthething.Catchthething oddballRate: oddballRate
 
 	env.controls.change (btn, isOn) !->
 		if btn == "catch" and isOn and screen.object.visible
-			console.log "Catching"
 			catcher.catch()
 
 
@@ -1578,19 +1598,40 @@ exportScenario \blindPursuit, (env) ->*
 		catcher.tick dt
 		env.renderer.render catcher.scene, catcher.camera, screen.renderTarget, true
 
-	#scene.draftIndicator.el.hide()
 	@let \scene, scene
 
 	yield @get \run
 
-	#@get \done .then (result) ->
-	#	base.let \done, result
+	score =
+		missed: 0
+		catched: 0
+		catchRate: ->
+			@catched / @total!
+		total: ->
+			@catched + @missed
 
-	#result = yield base.get \done
+	catcher.objectCatched ->
+		score.catched += 1
+	catcher.objectMissed ->
+		score.missed += 1
 
-	yield @get \done
 
-	#@let \done, result
+	catcher.objectHandled ~>
+		return if score.total! < nTrials
+		finalScore = (score.catchRate()*100).toFixed 1
+		@let \done, passed: true, outro:
+			title: env.L "Level passed"
+			content: env.L "You caught #finalScore% of the balls"
+
+	ui.gauge env,
+		name: L "Catch percentage"
+		unit: L '%'
+		range: [0, 100]
+		value: -> score.catchRate()*100
+		format: (v) ->
+			return v.toFixed 1
+
+	result = yield @get \done
 
 	return result
 
