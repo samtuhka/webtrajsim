@@ -630,7 +630,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -678,7 +678,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	calculateFuture scene, 1, s/3.6
 	handleProbeLocs scene, n, r, fut
 
-	yield instructions env
+	unless inst == false
+		yield instructions env
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -734,7 +735,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -783,7 +784,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, aut) ->*
 	calculateFuture scene, -1, s/3.6
 	handleProbeLocs scene, n, r, fut
 
-	yield instructions env
+	unless inst == false
+		yield instructions env
 
 	console.log env.controls
 	while not env.controls.catch == true

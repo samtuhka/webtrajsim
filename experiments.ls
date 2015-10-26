@@ -118,10 +118,10 @@ export logkiller = seqr.bind !->*
 	console.log "Done"
 
 
-runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s, rev, stat, four, fut) ->*
+runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, rx, ry, l, s, rev, stat, four, fut, inst) ->*
 	currentPasses = 0
 	for retry from 1 til Infinity
-		task = runScenarioCurve scenarioLoader, rx, ry, l, s, rev, stat, four, fut
+		task = runScenarioCurve scenarioLoader, rx, ry, l, s, rev, stat, four, fut, inst
 		result = yield task.get \done
 		currentPasses += result.passed
 		doQuit = currentPasses >= passes or retry > maxRetries
@@ -147,14 +147,14 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDriving]*ntrials)
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
-	practice = runScenarioCurve scenario.circleDriving, 200, 200, 50, 80, 1, false, false, 2
+	practice = runScenarioCurve scenario.circleDriving, 200, 200, 50, 80, 1, false, false, 2, true
 	yield practice
 	for scn in scenarios
 		if scn.scenarioName == "circleDriving"
-			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, rightParams[i]
+			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, rightParams[i], false
 			i += 1
 		else
-			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, leftParams[j]
+			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, leftParams[j], false
 			j += 1
 
 export defaultExperiment = circleDriving
