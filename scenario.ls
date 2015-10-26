@@ -174,31 +174,49 @@ transientTransistion = (scene) ->
 		transientScreen scene
 	if (scene.time - scene.dT) >= 2 && scene.transientScreen == false
 		transientScreen scene
-		if scene.probeIndx == scene.order.length - 1
-			scene.end = true
+
+dif = (scene) ->
+	dir = scene.params.direction
+	pos = scene.player.pos
+	roadSecond = scene.roadSecond
+	futPos = scene.futPos
+	if pos - futPos >= 0 && pos - futPos < roadSecond && dir==1 || futPos - pos >= 0 && futPos - pos < roadSecond && dir==-1
+		return true
+	else
+		return false
+
+futPos = (scene) ->
+		dir = scene.params.direction
+		roadSecond = scene.roadSecond
+		scene.futPos += 3*roadSecond*dir
+		if scene.futPos > 1 || scene.futPos < 0
+			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	transientTransistion scene
 	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
-	if (scene.time - scene.dT) >= 2 && scene.end == false
-		if scene.reacted == false
-			scene.scoring.missed += 1
-		if scene.probes[0].p4.visible == false
-			addProbes scene
-			i = scene.probeIndx
-			probe = scene.order[i][0]
-			seed = scene.order[i][1]
-			scene.maxScore += 1
-			if seed == 0
-				scene.probes[probe].p4.visible = false
-				scene.probes[probe].pA.visible = true
-				scene.probes[probe].current = "A"
-				scene.targetPresent = true
-			else
-				scene.targetPresent = false
-			scene.probeIndx += 1
+	if dif(scene)==true
+		if scene.probeIndx == scene.order.length - 1
+			scene.end = true
+		else
+			if scene.reacted == false
+				scene.scoring.missed += 1
+			if scene.probes[0].p4.visible == false
+				addProbes scene
+				i = scene.probeIndx
+				probe = scene.order[i][0]
+				seed = scene.order[i][1]
+				scene.maxScore += 1
+				if seed == 0
+					scene.probes[probe].p4.visible = false
+					scene.probes[probe].pA.visible = true
+					scene.probes[probe].current = "A"
+					scene.targetPresent = true
+				else
+					scene.targetPresent = false
+				scene.probeIndx += 1
+				futPos scene
 		scene.dT = scene.time
 
 
@@ -651,7 +669,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 	if aut == undefined
 		aut = automatic
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -690,6 +708,9 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 	startTime = scene.time
 	scene.dT = startTime
 	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = scene.player.pos
+	futPos scene
 
 	scene.beforePhysics.add ->
 			if aut == 1
@@ -757,7 +778,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 	if aut == undefined
 		aut = automatic
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, fixation_cross_location: r, static_probes: st, four: fr, future: fut, automatic: aut}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -788,7 +809,6 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 	unless inst == false
 		yield instructions env
 
-	console.log env.controls
 	while not env.controls.catch == true
 			yield P.delay 100
 	env.controls.probeReact = false
@@ -798,6 +818,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 	startTime = scene.time
 	scene.dT = startTime
 	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = scene.player.pos
+	futPos scene
 
 	scene.beforePhysics.add ->
 		if aut == 1
