@@ -39,6 +39,9 @@ export class KeyboardController
 		@steeringLeft = 0
 		@steeringRight = 0
 
+		@up = 0
+		@down = 0
+
 		changeSpeed = 2
 
 		nudge = (dt, name, target) ~>
@@ -75,8 +78,8 @@ export class KeyboardController
 		$("body")
 		.keydown @_keydown = (e) ~>
 			switch e.which
-			| UP => @throttleTarget = 1
-			| DOWN => @brakeTarget = 1
+			| UP => @throttleTarget = 1 ; @up = 1
+			| DOWN => @brakeTarget = 1 ; @down = 1
 			| LEFT => @steeringLeft = 1
 			| RIGHT => @steeringRight = 1
 			| CTRL => @_update \blinder, true
@@ -84,8 +87,8 @@ export class KeyboardController
 
 		.keyup @_keyup = (e) ~>
 			switch e.which
-			| UP => @throttleTarget = 0
-			| DOWN => @brakeTarget = 0
+			| UP => @throttleTarget = 0 ; @up = 0
+			| DOWN => @brakeTarget = 0 ; @down = 0
 			| LEFT => @steeringLeft = 0
 			| RIGHT => @steeringRight = 0
 			| CTRL => @_update \blinder, false

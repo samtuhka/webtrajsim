@@ -855,7 +855,7 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 	#screen.object.rotation.y = Math.PI
 	scene.visual.add screen.object
 
-	catcher = new catchthething.Catchthething oddballRate: oddballRate
+	catcher = new catchthething.SpatialCatch oddballRate: oddballRate, controls: env.controls
 
 	env.controls.change (btn, isOn) !->
 		if btn == "catch" and isOn and screen.object.visible
