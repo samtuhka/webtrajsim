@@ -180,13 +180,21 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 "On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>ajokortin saatuasi</strong>."""
 
+'Circle driving practice': 'Mutkassa ajo (harjoittelu)'
+'%circleDriving.intro2Color': """
+			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin värillisiä neliöitä. Joko sininen neliö ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy punainen neliö.
+			<p>Jos havaitset punaisen neliön, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse punaista neliötä, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
+			<p>Neliöt ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet neliöt taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin neliöihin.
+			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+			"""
+
 'Circle driving': 'Mutkassa ajo'
 '%circleDriving.intro': """
 			<p>Tulet ohjaamaan autoa mutkaisella tiellä samalla kun suoritat tarkkavaisuutta mittaavaa tehtävää. Polkimia ei käytetä.
 			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
 			"""
 '%circleDriving.intro2': """
-			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin numeroita. Joko numero 2 ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy numero 5.
+			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>numeroita</strong>. Joko numero 2 ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy numero 5.
 			<p>Jos havaitset numeron 5, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse 5:sta, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
 			<p>Numerot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet numerot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin numeroihin.
 			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.

@@ -159,8 +159,8 @@ export circleDriving = seqr.bind ->*
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
-	ntrials = 5
-	rightParams = [0,1,2,2,3]
+	ntrials = 6
+	rightParams = [1,1,2,2,3,3]
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
@@ -173,15 +173,32 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDriving]*ntrials)
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
-	practice = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, false, 2, true
-	yield practice
+
+	practiceColor = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, true, 2, "colPrac"
+	result = yield practiceColor.get \done
+	result.outro \content .append $ L "<p>Harjoitellaan samaa toiseen suuntaan.</p>"
+	yield practiceColor
+	practiceColor2 = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, 80, 1, false, true, 2, false
+	result = yield practiceColor2.get \done
+	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa. Ärsykkeet eivät enää eroa värin vaan muodon perusteella.</p>"
+	yield practiceColor2
+	practiceReal = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, false, 2, "prac"
+	result = yield practiceReal.get \done
+	result.outro \content .append $ L "<p>Varsinainen koe alkaa seuraavaksi.</p>"
+	yield practiceReal
 	for scn in scenarios
+		inst = false
+		if i==0 && j==0
+			inst = "real"
 		if scn.scenarioName == "circleDriving"
-			yield runScenarioCurve scn, rx, ry, l, 80, 1, false, false, rightParams[i], false
+			task = runScenarioCurve scn, rx, ry, l, 80, 1, false, false, rightParams[i], inst
 			i += 1
 		else
-			yield runScenarioCurve scn, rx, ry, l, 80, 1, false, false, leftParams[j], false
+			task = runScenarioCurve scn, rx, ry, l, 80, 1, false, false, leftParams[j], inst
 			j += 1
+		result = yield task.get \done
+		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
+		yield task
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env
 	env.let \destroy

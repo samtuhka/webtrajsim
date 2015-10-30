@@ -159,6 +159,24 @@ clearProbes = (scene) ->
 		scene.targetScreen = false
 		scene.transientScreen = false
 
+colorProbes = (scene) ->
+	vFOV = scene.camera.fov
+	angle = (vFOV/2) * Math.PI/180
+	ratio = 0.025
+	s = (Math.tan(angle) * 1000 * 2) * ratio
+	geo = new THREE.PlaneGeometry(s*0.7, s*0.7, 32 )
+	mat1 = new THREE.MeshBasicMaterial color: 0x0000FF, transparent: true, depthTest: false, depthWrite: false
+	mat2 = new THREE.MeshBasicMaterial color: 0xDC143C, transparent: true, depthTest: false, depthWrite: false
+	for i from 0 til scene.probes.length
+		scene.probes[i].pA.position.x = 0
+		scene.probes[i].pA.position.y = 0
+		scene.probes[i].pA.geometry = geo
+		scene.probes[i].pA.material = mat1
+		scene.probes[i].p4.position.x = 0
+		scene.probes[i].p4.position.y = 0
+		scene.probes[i].p4.geometry = geo
+		scene.probes[i].p4.material = mat2
+
 addProbes = (scene) ->
 	scene.reacted = false
 	for i from 0 til scene.probes.length
@@ -480,17 +498,25 @@ if future === NaN
 	future = 2
 n = 5
 
-export instructions = seqr.bind (env) ->*
+export instructions = seqr.bind (env, inst) ->*
 	L = env.L
+	console.log inst
+	title = "Circle driving"
+	text = "%circleDriving.intro2"
+	if inst == "prac"
+		title = "Circle driving practice"
+	if inst == "colPrac"
+		title = "Circle driving practice"
+		text = "%circleDriving.intro2Color"
 	dialogs =
 		->
-			@ \title .text L "Circle driving"
+			@ \title .text L title
 			@ \text .append L "%circleDriving.intro"
 			@ \accept .text L "Next"
 			@ \cancel-button .hide!
 		->
-			@ \title .text L "Circle driving"
-			@ \text .append L "%circleDriving.intro2"
+			@ \title .text L title
+			@ \text .append L text
 			@ \cancel .text L "Previous"
 			@ \accept .text L "Ok"
 	i = 0
@@ -649,7 +675,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -681,6 +707,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 
 	probeOrder scene, n
 	createProbes scene, n
+	if col == true
+		colorProbes scene
 
 	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
@@ -698,7 +726,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 	handleProbeLocs scene, n, r, fut
 
 	unless inst == false
-		yield instructions env
+		yield instructions env, inst
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -712,7 +740,6 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
 	scene.futPos = 0
 	futPos scene
-
 	scene.beforePhysics.add ->
 			if aut == 1
 				handleSteering scene, env
@@ -752,13 +779,12 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 				content: """
 				<p>Sait vastauksista #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2} oikein.</p>
 				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
-				<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>
 				 """
 			return false
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -790,6 +816,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 
 	probeOrder scene, n
 	createProbes scene, n
+	if col == true
+		colorProbes scene
 
 	scene.player.physical.position.x *= -1
 	scene.player.physical.position.z = 0
@@ -808,7 +836,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 	handleProbeLocs scene, n, r, fut
 
 	unless inst == false
-		yield instructions env
+		yield instructions env, inst
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -860,7 +888,6 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 				content: """
 				<p>Sait vastauksista #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2} oikein.</p>
 				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
-				<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>
 				 """
 			return false
 
