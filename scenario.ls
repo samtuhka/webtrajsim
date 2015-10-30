@@ -709,7 +709,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, fr, fut, inst, aut) ->
 	scene.dT = startTime
 	scene.probeIndx = 0
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
-	scene.futPos = scene.player.pos
+	scene.futPos = 0
 	futPos scene
 
 	scene.beforePhysics.add ->
@@ -819,7 +819,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, fr, fut, inst, aut)
 	scene.dT = startTime
 	scene.probeIndx = 0
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
-	scene.futPos = scene.player.pos
+	scene.futPos = scene.centerLine.curves[0].getLength()*2/scene.centerLine.getLength()
 	futPos scene
 
 	scene.beforePhysics.add ->
