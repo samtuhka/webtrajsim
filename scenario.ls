@@ -457,7 +457,7 @@ four = Math.floor(opts.four)
 future = Math.floor(opts.fut)
 automatic = Math.floor(opts.aut)
 if xrad === NaN
-		xrad = (599.9999999 / Math.PI) - (3.5/2)
+		xrad = (533.33333333 / Math.PI) - (3.5/2)
 if automatic === NaN
 	automatic = 0
 if yrad  === NaN
