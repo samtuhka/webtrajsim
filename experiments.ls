@@ -164,20 +164,23 @@ export circleDriving = seqr.bind ->*
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
+	rx = (599.9999999 / Math.PI) - (3.5/2)
+	ry = rx
+	l = 133.33333333
 	i = 0
 	j = 0
 	scenarios = []
 		.concat([scenario.circleDriving]*ntrials)
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
-	practice = runScenarioCurve scenario.circleDriving, 200, 200, 50, 80, 1, false, false, 2, true
+	practice = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, false, 2, true
 	yield practice
 	for scn in scenarios
 		if scn.scenarioName == "circleDriving"
-			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, rightParams[i], false
+			yield runScenarioCurve scn, rx, ry, l, 80, 1, false, false, rightParams[i], false
 			i += 1
 		else
-			yield runScenarioCurve scn, 200, 200, 50, 80, 1, false, false, leftParams[j], false
+			yield runScenarioCurve scn, rx, ry, l, 80, 1, false, false, leftParams[j], false
 			j += 1
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env

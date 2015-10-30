@@ -180,7 +180,7 @@ dif = (scene) ->
 	pos = scene.player.pos
 	roadSecond = scene.roadSecond
 	futPos = scene.futPos
-	if pos - futPos >= 0 && pos - futPos < roadSecond && dir==1 || futPos - pos >= 0 && futPos - pos < roadSecond && dir==-1
+	if (pos - futPos >= 0 && pos - futPos < roadSecond ||(1+pos) - futPos >= 0 && (1+pos) - futPos < roadSecond) && dir==1 || (futPos - pos >= 0 && futPos - pos < roadSecond || (futPos+1) - pos >= 0 && (futPos+1) - pos < roadSecond) && dir==-1
 		return true
 	else
 		return false
@@ -197,6 +197,7 @@ probeLogic = (scene) ->
 		clearProbes scene
 		scene.dT = scene.time
 	if dif(scene)==true
+		console.log scene.futPos
 		if scene.probeIndx == scene.order.length - 1
 			scene.end = true
 		else
@@ -456,13 +457,13 @@ four = Math.floor(opts.four)
 future = Math.floor(opts.fut)
 automatic = Math.floor(opts.aut)
 if xrad === NaN
-		xrad = 200
+		xrad = (599.9999999 / Math.PI) - (3.5/2)
 if automatic === NaN
 	automatic = 0
 if yrad  === NaN
 		yrad  = xrad
 if length === NaN
-		length = 100
+		length = 133.33333333
 if speed === NaN
 		speed = 80
 if rev === NaN
