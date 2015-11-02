@@ -164,6 +164,7 @@ export circleDriving = seqr.bind ->*
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
+
 	rx = (533.33333333 / Math.PI) - (3.5/2)
 	ry = rx
 	l = 133.33333333

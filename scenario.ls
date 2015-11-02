@@ -284,6 +284,18 @@ probeLogicAlt = (scene, n) ->
 				scene.probes[probe].current = "8"
 		scene.dT = scene.time
 
+triangle = (s) ->
+	triA = new THREE.Shape()
+	triA.moveTo(0,0)
+	triA.lineTo(0, s)
+	triA.lineTo(s, 0.5*s)
+	triA.lineTo(0, 0 )
+	triB = new THREE.Shape()
+	triB.moveTo(s,s)
+	triB.lineTo(s, 0)
+	triB.lineTo(0, 0.5*s)
+	triB.lineTo(s, s)
+	return [triA, triB]
 
 addProbe = (scene) ->
 	vFOV = scene.camera.fov
@@ -292,10 +304,14 @@ addProbe = (scene) ->
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth
 	params = {size: s*1.2, height: 0, font: "digital-7"}
+	triangles = triangle(s)
 	geoA = new THREE.TextGeometry("5", params)
 	geoB = new THREE.TextGeometry("B", params)
 	geo4 = new THREE.TextGeometry("2", params)
 	geo8 = new THREE.TextGeometry("0", params)
+	if tri == 1
+		geoA = new THREE.ShapeGeometry(triangles[0])
+		geo4 = new THREE.ShapeGeometry(triangles[1])
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
@@ -451,7 +467,7 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [0.5, 1, 2, 4, -0.1]
+	fut = [0.5, 1, 2, 3, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
@@ -473,6 +489,7 @@ rev = Math.floor(opts.rev)
 stat = Math.floor(opts.stat)
 four = Math.floor(opts.four)
 future = Math.floor(opts.fut)
+tri = Math.floor(opts.tri)
 automatic = Math.floor(opts.aut)
 if xrad === NaN
 		xrad = (533.33333333 / Math.PI) - (3.5/2)
@@ -533,15 +550,12 @@ export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	scene = yield circleScene env, rx, ry, l
 	return scene
 
-onInnerLane = (x, z, rX, rY, rW, l) ->
-	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + (z ^ 2 / (rY ^ 2))) > 1) && z >= 0)
-			return true
-	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + ((z+l) ^ 2 / ((rY + 0.5*rW) ^ 2))) <= 1)  && ((x ^ 2 / (rX ^ 2)  + ((z+l) ^ 2 / (rY ^ 2))) > 1) && z <= -l)
-			return true
-	if z <= 0 && z >= -l && x > rX && x < rX + 0.5* rW
-			return true
-	if z <= 0 && z >= -l && x < -rX && x > -rX - 0.5* rW
-			return true
+onInnerLane = (scene) ->
+	pos = scene.centerLine.getPointAt(scene.player.pos)
+	posActual = scene.player.physical.position
+	c = ((posActual.z - pos.x) ^ 2 + (posActual.x - pos.y) ^ 2 ) ^ 0.5
+	if c <= 1.75
+		return true
 	else
 		return false
 
@@ -757,7 +771,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) -
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, rw*2, l)
+		cnt = onInnerLane scene
 
 		if cnt == false
 			scene.outside.out = true
@@ -819,8 +833,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 	if col == true
 		colorProbes scene
 
-	scene.player.physical.position.x *= -1
-	scene.player.physical.position.z = 0
+	scene.player.physical.position.x = ry
+	scene.player.physical.position.z = l
 	scene.playerControls.throttle = 0
 	#startLight = yield assets.TrafficLight()
 	#lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
@@ -868,7 +882,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
-		cnt = onInnerLane(x, z, rx, ry, 2*rw, l)
+		cnt = onInnerLane scene
 		handleSound annoyingSound, scene, cnt
 
 		if cnt == false
