@@ -192,7 +192,7 @@ export addGround = (scene) ->
 
 export addCircleGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 5000
+	terrainSize = 3000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
@@ -313,14 +313,18 @@ export addCircleGround = (scene, rx, ry, length) ->
 		cnt = false
 		rW = roadWidth + 2
 		for i from 0 til 3
-			xi = x - i*rx*4
+			xi = x + i*rx*4
 			if (((xi ^ 2 / ((rx + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((xi ^ 2 / ((rx - rW) ^ 2)  + (z ^ 2 / ((rY - rW) ^ 2))) > 1) && z >= 0)
+				console.log "a", x, z
 				cnt = true
-			if (((xi ^ 2 / ((3*rx + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((xi ^ 2 / ((rx*3 - rW) ^ 2)  + ((z+length) ^ 2 / ((rY - rW) ^ 2))) > 1) && z <= -length)
+			if ((((xi - 2*rx) ^ 2 / ((rx + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && (((xi - 2*rx) ^ 2 / ((rx - rW) ^ 2)  + ((z+length) ^ 2 / ((rY - rW) ^ 2))) > 1) && z <= -length)
+				console.log "b", x, z
 				cnt = true
-			if z <= 0 && z >= -length && x > -(rx*3 - rW) && xi < -(rx*3) - rW
+			if z <= 0 && z >= -length && xi < -(rx*3 - rW) && xi > -(rx*3) - rW
+				console.log "c", x, z
 				cnt = true
-			if z <= 0 && z >= -length && x < -(rx - rW) && xi > -rx - rW
+			if z <= 0 && z >= -length && xi < -(rx - rW) && xi > -rx - rW
+				console.log "d", x, z
 				cnt = true
 		if cnt == true
 			continue
