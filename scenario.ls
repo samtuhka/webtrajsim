@@ -215,7 +215,6 @@ probeLogic = (scene) ->
 		clearProbes scene
 		scene.dT = scene.time
 	if dif(scene)==true
-		console.log scene.futPos
 		if scene.probeIndx == scene.order.length - 1
 			scene.end = true
 		else
@@ -305,13 +304,13 @@ addProbe = (scene) ->
 	s = heigth
 	params = {size: s*1.2, height: 0, font: "digital-7"}
 	triangles = triangle(s)
-	geoA = new THREE.TextGeometry("5", params)
+	geoA = new THREE.ShapeGeometry(triangles[0])
+	geo4 = new THREE.ShapeGeometry(triangles[1])
 	geoB = new THREE.TextGeometry("B", params)
-	geo4 = new THREE.TextGeometry("2", params)
 	geo8 = new THREE.TextGeometry("0", params)
 	if tri == 1
-		geoA = new THREE.ShapeGeometry(triangles[0])
-		geo4 = new THREE.ShapeGeometry(triangles[1])
+		geoA = new THREE.TextGeometry("5", params)
+		geo4 = new THREE.TextGeometry("2", params)
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
