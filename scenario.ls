@@ -784,7 +784,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) -
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
-		if scene.end == true
+		if scene.end == true || (scene.time - startTime) > 180
 			trialTime = scene.time - startTime
 			listener.remove()
 			@let \done, passed: true, outro:
@@ -894,7 +894,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
-		if scene.end == true
+		if scene.end == true || (scene.time - startTime) > 180
 			listener.remove()
 			trialTime = scene.time - startTime
 			@let \done, passed: true, outro:
