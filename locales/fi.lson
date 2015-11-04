@@ -194,9 +194,9 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
 			"""
 '%circleDriving.intro2': """
-			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>numeroita</strong>. Joko numero 2 ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy numero 5.
-			<p>Jos havaitset numeron 5, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse 5:sta, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
-			<p>Numerot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet numerot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin numeroihin.
+			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>kolmioita</strong>. Joko vasemalle osoittava kolmio ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy oikealle osoittava kolmio.
+			<p>Jos havaitset oikealle osoittavan kolmion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse oikealle osoittavaa kolmiota, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
+			<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet kolmiot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin kolmioihin.
 			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
