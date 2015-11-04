@@ -196,7 +196,7 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 '%circleDriving.intro2': """
 			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>kolmioita</strong>. Joko vasemalle osoittava kolmio ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy oikealle osoittava kolmio.
 			<p>Jos havaitset oikealle osoittavan kolmion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse oikealle osoittavaa kolmiota, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
-			<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet kolmiot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin kolmioihin.
+			<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet kolmiot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin kolmioihin.
 			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
