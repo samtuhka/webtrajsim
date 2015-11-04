@@ -179,7 +179,7 @@ export circleDriving = seqr.bind ->*
 	result = yield practiceColor.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	yield practiceColor
-	practiceColor2 = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, true, 2, false
+	practiceColor2 = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, 80, 1, false, true, 2, false
 	result = yield practiceColor2.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa. Ärsykkeet eivät enää eroa värin vaan muodon perusteella.</p>"
 	yield practiceColor2
@@ -195,7 +195,6 @@ export circleDriving = seqr.bind ->*
 			task = runScenarioCurve scn, rx, ry, l, 80, 1, false, false, rightParams[i], inst
 			i += 1
 		else
-			scn = scenario.circleDriving
 			task = runScenarioCurve scn, rx, ry, l, 80, 1, false, false, leftParams[j], inst
 			j += 1
 		result = yield task.get \done
