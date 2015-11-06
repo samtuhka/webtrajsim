@@ -262,6 +262,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 			probes: probeData scene
 			player: {position: scene.player.physical.position, track_position: scene.player.pos, speed: scene.player.getSpeed()}
 			prediction: scene.predict
+			targetScreen: scene.targetScreen
 		env.logger.write dump
 
 	env.onSize (w, h) ->

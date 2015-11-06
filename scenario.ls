@@ -184,6 +184,7 @@ addProbes = (scene) ->
 		scene.probes[i].p4.visible = true
 		scene.probes[i].pB.visible = false
 		scene.probes[i].p8.visible = false
+		scene.probes[i].current = "distractor"
 	scene.targetScreen = true
 	scene.transientScreen = false
 
@@ -198,7 +199,7 @@ dif = (scene) ->
 	pos = scene.player.pos
 	roadSecond = scene.roadSecond
 	futPos = scene.futPos
-	if (pos - futPos >= 0 && pos - futPos < roadSecond ||(1+pos) - futPos >= 0 && (1+pos) - futPos < roadSecond) && dir==1 || (futPos - pos >= 0 && futPos - pos < roadSecond || (futPos+1) - pos >= 0 && (futPos+1) - pos < roadSecond) && dir==-1
+	if (pos - futPos >= 0 ||(1+pos) - futPos >= 0 && (1+pos) - futPos < roadSecond) && dir==1 || (futPos - pos >= 0 || (futPos+1) - pos >= 0 && (futPos+1) - pos < roadSecond) && dir==-1
 		return true
 	else
 		return false
@@ -220,6 +221,9 @@ probeLogic = (scene) ->
 		else
 			if scene.reacted == false
 				scene.scoring.missed += 1
+				if scene.targetPresent == true
+					prev = scene.order[scene.probeIndx - 1][0]
+					scene.probes[prev].missed += 1
 			if scene.probes[0].p4.visible == false
 				addProbes scene
 				i = scene.probeIndx
@@ -229,7 +233,7 @@ probeLogic = (scene) ->
 				if seed == 0
 					scene.probes[probe].p4.visible = false
 					scene.probes[probe].pA.visible = true
-					scene.probes[probe].current = "A"
+					scene.probes[probe].current = "target"
 					scene.targetPresent = true
 				else
 					scene.targetPresent = false
@@ -490,16 +494,16 @@ four = Math.floor(opts.four)
 future = Math.floor(opts.fut)
 tri = Math.floor(opts.tri)
 automatic = Math.floor(opts.aut)
+if speed === NaN
+		speed = 80
 if xrad === NaN
-		xrad = (533.33333333 / Math.PI) - (3.5/2)
+		xrad = ((speed/3.6)*24 / Math.PI)
 if automatic === NaN
 	automatic = 0
 if yrad  === NaN
 		yrad  = xrad
 if length === NaN
-		length = 133.33333333
-if speed === NaN
-		speed = 80
+		length = (speed/3.6)*6
 if rev === NaN
 		rev = 1
 if stat === 1
@@ -862,7 +866,6 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 	scene.probeIndx = 0
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
 	scene.futPos = 1 -((scene.centerLine.curves[0].getLength()*2 + 2*l)/scene.centerLine.getLength())
-	console.log scene.player.pos, scene.futPos
 	futPos scene
 
 	scene.beforePhysics.add ->

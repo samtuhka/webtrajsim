@@ -164,10 +164,10 @@ export circleDriving = seqr.bind ->*
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
-
-	rx = (533.33333333 / Math.PI) - (3.5/2)
+	s = 80
+	rx = ((s/3.6)*24 / Math.PI)
 	ry = rx
-	l = 133.33333333
+	l = (s/3.6)*6
 	i = 0
 	j = 0
 	scenarios = []
@@ -175,15 +175,15 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
 
-	practiceColor = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, true, 2, "colPrac"
+	practiceColor = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 2, "colPrac"
 	result = yield practiceColor.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	yield practiceColor
-	practiceColor2 = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, 80, 1, false, true, 2, false
+	practiceColor2 = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, true, 2, false
 	result = yield practiceColor2.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa. Ärsykkeet eivät enää eroa värin vaan muodon perusteella.</p>"
 	yield practiceColor2
-	practiceReal = runScenarioCurve scenario.circleDriving, rx, ry, l, 80, 1, false, false, 2, "prac"
+	practiceReal = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2, "prac"
 	result = yield practiceReal.get \done
 	result.outro \content .append $ L "<p>Varsinainen koe alkaa seuraavaksi.</p>"
 	yield practiceReal
