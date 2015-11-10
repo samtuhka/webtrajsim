@@ -192,10 +192,10 @@ export circleDriving = seqr.bind ->*
 		if i==0 && j==0
 			inst = "real"
 		if scn.scenarioName == "circleDriving"
-			task = runScenarioCurve scn, rx, ry, l, 80, 1, false, false, rightParams[i], inst
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst
 			i += 1
 		else
-			task = runScenarioCurve scn, rx, ry, l, 80, 1, false, false, leftParams[j], inst
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst
 			j += 1
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"

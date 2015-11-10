@@ -192,7 +192,7 @@ export addGround = (scene) ->
 
 export addCircleGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 4000
+	terrainSize = 2500
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
@@ -236,7 +236,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		ox = rX * c
 		oy = rY * c
 		dy = -2*rY
-		k = 0
+		k = terrainSize/4
 		circle = new THREE.CurvePath()
 		for i from 0 til 3
 			curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
@@ -313,7 +313,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		cnt = false
 		rW = roadWidth + 2
 		for i from 0 til 3
-			xi = x + i*rx*4
+			xi = x + i*rx*4 -terrainSize/4
 			if (((xi ^ 2 / ((rx + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((xi ^ 2 / ((rx - rW) ^ 2)  + (z ^ 2 / ((rY - rW) ^ 2))) > 1) && z >= 0)
 				cnt = true
 			if ((((xi - 2*rx) ^ 2 / ((rx + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && (((xi - 2*rx) ^ 2 / ((rx - rW) ^ 2)  + ((z+length) ^ 2 / ((rY - rW) ^ 2))) > 1) && z <= -length)

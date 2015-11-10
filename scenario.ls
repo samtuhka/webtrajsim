@@ -440,9 +440,9 @@ search = (scene) ->
 	z = scene.player.physical.position.z
 	x = scene.player.physical.position.x
 	t = true
-	for i from 0 til 3
-		l = 0 + i*(1/3)
-		r = 1/3 + i*(1/3)
+	for i from 0 til 6
+		l = 0 + i*(1/6)
+		r = 1/6 + i*(1/6)
 		while t == true
 			if Math.abs(r - l) <= d
 				pos = ((l + r) / 2)
@@ -836,7 +836,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 	if col == true
 		colorProbes scene
 
-	scene.player.physical.position.x = -9*rx
+	startPoint = 1 -((scene.centerLine.curves[0].getLength()*2 + 2*l)/scene.centerLine.getLength())
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = 0
 	scene.playerControls.throttle = 0
 	#startLight = yield assets.TrafficLight()
@@ -865,7 +866,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 	scene.dT = startTime
 	scene.probeIndx = 0
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
-	scene.futPos = 1 -((scene.centerLine.curves[0].getLength()*2 + 2*l)/scene.centerLine.getLength())
+	scene.futPos = startPoint
 	futPos scene
 
 	scene.beforePhysics.add ->
