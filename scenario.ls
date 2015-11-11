@@ -120,7 +120,7 @@ exportScenario \freeDriving, (env) ->*
 probeOrder = (scene, n) ->
 	array = []
 	for i from 0 til n
-		for j from 1 til 9
+		for j from 1 til 13
 			if j % 2 == 0
 				if j % 4 == 0 && scene.params.four == true
 					array.push([i, 2])
@@ -191,7 +191,7 @@ addProbes = (scene) ->
 transientTransistion = (scene) ->
 	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true && scene.transientScreen == false
 		transientScreen scene
-	if (scene.time - scene.dT) >= 2 && scene.transientScreen == false
+	if (scene.time - scene.dT) >= 2.25 && scene.transientScreen == false
 		transientScreen scene
 
 dif = (scene) ->
@@ -207,7 +207,7 @@ dif = (scene) ->
 futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
-		scene.futPos += 3*roadSecond*dir
+		scene.futPos += 2.25*roadSecond*dir
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -302,8 +302,10 @@ triangle = (s) ->
 
 addProbe = (scene) ->
 	vFOV = scene.camera.fov
+	aspect = screen.width / screen.height
+	hFOV = aspect * vFOV
 	angle = (vFOV/2) * Math.PI/180
-	ratio = 0.025
+	ratio = 1.625/hFOV
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth
 	params = {size: s*1.2, height: 0, font: "digital-7"}
@@ -470,7 +472,7 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [0.5, 1, 2, 3, -0.1]
+	fut = [0.5, 1.125, 2.25, 4.5, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
@@ -497,13 +499,13 @@ automatic = Math.floor(opts.aut)
 if speed === NaN
 		speed = 80
 if xrad === NaN
-		xrad = ((speed/3.6)*24 / Math.PI)
+		xrad = ((speed/3.6)*22.5 / Math.PI)
 if automatic === NaN
 	automatic = 0
 if yrad  === NaN
 		yrad  = xrad
 if length === NaN
-		length = (speed/3.6)*6
+		length = (speed/3.6)*11.25
 if rev === NaN
 		rev = 1
 if stat === 1
@@ -647,8 +649,9 @@ handleReaction = (env, scene, i) ->
 
 addFixationCross = (scene) ->
 	vFOV = scene.camera.fov
+	aspect = screen.width / screen.height
 	angle = (vFOV/2) * Math.PI/180
-	ratio = 0.1
+	ratio = 6.5 / (vFOV*aspect)
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	size = heigth * 0.75
 	circleGeometry = new THREE.RingGeometry(size*0.95, size, 64)

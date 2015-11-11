@@ -155,19 +155,16 @@ runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, r
 			break
 
 export circleDriving = seqr.bind ->*
-	env = newEnv!
-	yield scenario.participantInformation yield env.get \env
-	env.let \destroy
-	yield env
+
 	ntrials = 6
 	rightParams = [1,1,2,2,3,3]
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
 	s = 80
-	rx = ((s/3.6)*24 / Math.PI)
+	rx = ((s/3.6)*22.5 / Math.PI)
 	ry = rx
-	l = (s/3.6)*6
+	l = (s/3.6)*11.25
 	i = 0
 	j = 0
 	scenarios = []
@@ -175,7 +172,7 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
 
-	practiceColor = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 2, "colPrac"
+	practiceColor = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 3 , "colPrac"
 	result = yield practiceColor.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	yield practiceColor
@@ -199,6 +196,7 @@ export circleDriving = seqr.bind ->*
 			j += 1
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
+		result.outro \content .append $ L "<p>Trialeja jäljellä #{(12-(i+j))}/#</p>"
 		yield task
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env

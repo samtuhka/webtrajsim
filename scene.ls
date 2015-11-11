@@ -45,8 +45,8 @@ export class Scene
 			bodies: []*/
 
 		@visual ?= new THREE.Scene
-
-		@camera ?= new THREE.PerspectiveCamera 65/(16/9), 1, 0.01, 450000
+		aspect = screen.width / screen.height
+		@camera ?= new THREE.PerspectiveCamera 65/aspect, 1, 0.01, 450000
 
 		@time = 0
 
@@ -192,7 +192,7 @@ export addGround = (scene) ->
 
 export addCircleGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 2500
+	terrainSize = 2000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'

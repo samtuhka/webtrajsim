@@ -165,7 +165,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 
 	#controls = new MouseController $ 'body'
 
-	enginePower = 6000										# Engine power
+	enginePower = 6000									# Engine power
 	brakePower = 1000										# Brake power
 	brakeExponent = 2000										# Brake response
 	brakeResponse = (pedal) -> (brakeExponent**pedal - 1)/brakeExponent*brakePower
