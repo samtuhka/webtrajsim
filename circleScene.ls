@@ -28,10 +28,10 @@ export circleScene = seqr.bind (env, rx, ry, length) ->*
 	for i from 0 til player.body.children.length - 1
 		player.body.children[i].visible = false
 	scene.player = player
-	scene.visual.children[9].visible = false
-	scene.visual.children[8].visible = false
 	scene.visual.children[7].visible = false
 	scene.visual.children[6].visible = false
+	scene.visual.children[5].visible = false
+	scene.visual.children[4].visible = false
 	scene.soundPlay = false
 	scene.soundTs = 0
 	scene.prevTime = 0

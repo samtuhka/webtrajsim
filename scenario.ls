@@ -207,7 +207,7 @@ dif = (scene) ->
 futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
-		scene.futPos += 2.25*roadSecond*dir
+		scene.futPos += 2*roadSecond*dir
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -472,7 +472,7 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [0.5, 1.125, 2.25, 4.5, -0.1]
+	fut = [0.5, 1, 2, 4, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]

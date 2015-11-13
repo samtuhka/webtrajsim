@@ -155,16 +155,20 @@ runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, r
 			break
 
 export circleDriving = seqr.bind ->*
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
 
 	ntrials = 6
-	rightParams = [1,1,2,2,3,3]
+	rightParams = [2,2,2,3,3,3]
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
 	s = 80
-	rx = ((s/3.6)*22.5 / Math.PI)
+	rx = ((s/3.6)*22 / Math.PI)
 	ry = rx
-	l = (s/3.6)*11.25
+	l = (s/3.6)*8
 	i = 0
 	j = 0
 	scenarios = []

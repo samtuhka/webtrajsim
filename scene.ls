@@ -336,16 +336,9 @@ export addCircleGround = (scene, rx, ry, length) ->
 	terrain.add mergeObject rocks
 
 	scene.visual.add terrain
-	ahead = terrain.clone()
-	behind = terrain.clone()
-	scene.visual.add ahead
-	scene.visual.add behind
 
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		nTerrains = Math.floor (position.z+terrainSize/2.0)/terrainSize
 		terrain.position.z = nTerrains*terrainSize
-		ahead.position.z = terrain.position.z + terrainSize
-		behind.position.z = terrain.position.z - terrainSize
-
