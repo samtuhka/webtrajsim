@@ -168,13 +168,7 @@ colorProbes = (scene) ->
 	mat1 = new THREE.MeshBasicMaterial color: 0x0000FF, transparent: true, depthTest: false, depthWrite: false
 	mat2 = new THREE.MeshBasicMaterial color: 0xDC143C, transparent: true, depthTest: false, depthWrite: false
 	for i from 0 til scene.probes.length
-		scene.probes[i].pA.position.x = 0
-		scene.probes[i].pA.position.y = 0
-		scene.probes[i].pA.geometry = geo
 		scene.probes[i].pA.material = mat1
-		scene.probes[i].p4.position.x = 0
-		scene.probes[i].p4.position.y = 0
-		scene.probes[i].p4.geometry = geo
 		scene.probes[i].p4.material = mat2
 
 addProbes = (scene) ->
@@ -314,9 +308,9 @@ addProbe = (scene) ->
 	geo4 = new THREE.ShapeGeometry(triangles[1])
 	geoB = new THREE.TextGeometry("B", params)
 	geo8 = new THREE.TextGeometry("0", params)
-	if tri == 1
-		geoA = new THREE.TextGeometry("5", params)
-		geo4 = new THREE.TextGeometry("2", params)
+	if scene.params.deviant == 1
+		geoA = new THREE.ShapeGeometry(triangles[1])
+		geo4 = new THREE.ShapeGeometry(triangles[0])
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
@@ -520,16 +514,20 @@ if future === NaN
 	future = 2
 n = 5
 
-export instructions = seqr.bind (env, inst) ->*
+export instructions = seqr.bind (env, inst, scene) ->*
 	L = env.L
 	console.log inst
 	title = "Circle driving"
 	text = "%circleDriving.intro2"
+	if scene.params.deviant == 1
+		text = "%circleDriving.intro2Rev"
 	if inst == "prac"
 		title = "Circle driving practice"
 	if inst == "colPrac"
 		title = "Circle driving practice"
 		text = "%circleDriving.intro2Color"
+		if scene.params.deviant == 1
+			text = "%circleDriving.intro2ColorRev"
 	dialogs =
 		->
 			@ \title .text L title
@@ -695,7 +693,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -716,12 +714,11 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) -
 	if aut == undefined
 		aut = automatic
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams
-
 	addMarkerScreen scene, env
 	addFixationCross scene
 
@@ -746,7 +743,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) -
 	handleProbeLocs scene, n, r, fut
 
 	unless inst == false
-		yield instructions env, inst
+		yield instructions env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -804,7 +801,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, aut) -
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -825,12 +822,11 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 	if aut == undefined
 		aut = automatic
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams
-
 	addMarkerScreen scene, env
 	addFixationCross scene
 
@@ -857,7 +853,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, aut
 	handleProbeLocs scene, n, r, fut
 
 	unless inst == false
-		yield instructions env, inst
+		yield instructions env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100

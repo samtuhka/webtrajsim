@@ -202,13 +202,13 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	yield scope
 	env.logger.write destroyedScenario: scenarioLoader.scenarioName
 
-export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, four, fut, inst) !->*
+export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, four, fut, inst, dev) !->*
 	scope = newEnv()
 	env = yield scope.get \env
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
-	scenario = scenarioLoader env, rx, ry, l, s, rev, stat, four, fut, inst
+	scenario = scenarioLoader env, rx, ry, l, s, rev, stat, four, fut, inst, dev
 
 	me = @
 

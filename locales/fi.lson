@@ -182,8 +182,15 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 
 'Circle driving practice': 'Mutkassa ajo (harjoittelu)'
 '%circleDriving.intro2Color': """
+			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin värillisiä kolmioita. Joko punainen kolmio ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy sininen kolmio.
+			<p>Jos havaitset sinisen kolmiota, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse sinistä kolmiota, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
+			<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet kolmiot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin kolmioihin.
+			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+			"""
+
+'%circleDriving.intro2ColorRev': """
 			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin värillisiä neliöitä. Joko sininen neliö ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy punainen neliö.
-			<p>Jos havaitset punaisen neliön, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse punaista neliötä, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
+			<p>Jos havaitset sinisen neliön, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse punaista neliötä, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
 			<p>Neliöt ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka numerot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet neliöt taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin neliöihin.
 			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
@@ -194,8 +201,15 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
 			"""
 '%circleDriving.intro2': """
-			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>kolmioita</strong>. Joko vasemalle osoittava kolmio ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy oikealle osoittava kolmio.
-			<p>Jos havaitset oikealle osoittavan kolmion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse oikealle osoittavaa kolmiota, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
+			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>kolmioita</strong>. Joko vasemmalle osoittava kolmio ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy oikealle osoittava kolmio.
+			<p>Jos havaitset oikealle osoittavan kolmion, paina ratin oikeanpuoleista takapainiketta. Jos havaitset pelkästään vasemmalle osoittavia kolmioita, paina ratin vasemmanpuoleista takapainiketta. Jos et ole varma, arvaa.
+			<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet kolmiot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin kolmioihin.
+			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+			"""
+
+'%circleDriving.intro2Rev': """
+			<p>Välillä kaikkien valkoisten ruutujen sisään ilmestyy näkyviin <strong>kolmioita</strong>. Joko oikealla osoittava kolmio ilmestyy kaikkien ruutujen sisään tai kaikkien paitsi yhden, jonka sisälle ilmestyy vasemalle osoittava kolmio.
+			<p>Jos havaitset vasemmalle osoittavan kolmion, paina ratin vasemmanpuoleista takapainiketta. Jos havaitset pelkästään oikealle osoittavia kolmioita, paina ratin oikeanpuoleista takapainiketta. Jos et ole varma, arvaa.
 			<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat jo ehtineet kadota. Vastausaikaa on muutaman sekunnin ajan kunnes uudet kolmiot taas ilmestyvät valkoisten ruutujen sisään. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraaviin kolmioihin.
 			<p>Koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""

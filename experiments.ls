@@ -159,9 +159,9 @@ export circleDriving = seqr.bind ->*
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
-
-	ntrials = 6
-	rightParams = [2,2,2,3,3,3	]
+	dev = 0
+	ntrials = 4
+	rightParams = [2,2,3,3]
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
@@ -176,15 +176,15 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
 
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 3 , "colPrac"
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 3 , "colPrac", dev
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	yield task
-	task = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, true, 2, false
+	task = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, true, 2, false, dev
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa. Ärsykkeet eivät enää eroa värin vaan muodon perusteella.</p>"
 	yield task
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2, "prac"
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2, "prac", dev
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Varsinainen koe alkaa seuraavaksi.</p>"
 	yield task
@@ -193,14 +193,13 @@ export circleDriving = seqr.bind ->*
 		if i==0 && j==0
 			inst = "real"
 		if scn.scenarioName == "circleDriving"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst, dev
 			i += 1
 		else
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst, dev
 			j += 1
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
-		result.outro \content .append $ L "<p>Trialeja jäljellä #{(12-(i+j))}/#</p>"
 		yield task
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env
