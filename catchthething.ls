@@ -124,6 +124,7 @@ export class SpatialCatch
 		@objectHandled = Signal()
 		@objectCatched = Signal()
 		@objectMissed = Signal()
+		@objectAdded = Signal()
 
 		@camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
@@ -177,6 +178,7 @@ export class SpatialCatch
 
 		@meanDelay = 1.0
 		@objects = []
+		@_objCount = 0
 
 	_readyForNew: (dt) ->
 		return false if @objects.length > 0
@@ -187,7 +189,10 @@ export class SpatialCatch
 			thing = new AngledThing do
 				oddballRate: @oddballRate
 				totalHeight: 0.3
+			thing.id = @_objCount
+			@_objCount += 1
 			@scene.add thing.mesh
+			@objectAdded.dispatch thing
 			@objects.push thing
 
 		@topTarget.material.opacity = @inactiveOpacity

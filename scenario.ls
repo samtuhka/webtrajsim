@@ -857,6 +857,15 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 
 	catcher = new catchthething.SpatialCatch oddballRate: oddballRate, controls: env.controls
 
+	scene.onTickHandled ->
+		objects = for obj in catcher.objects
+			id: obj.id
+			position: obj.mesh.position{x, y, z}
+		env.logger.write do
+			sceneTime: scene.time
+			pursuitObjects: objects
+
+
 	env.controls.change (btn, isOn) !->
 		if btn == "catch" and isOn and screen.object.visible
 			catcher.catch()
@@ -878,10 +887,14 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 		total: ->
 			@catched + @missed
 
-	catcher.objectCatched ->
+	catcher.objectAdded (obj) ->
+		env.logger.write pursuitObjectAdded: obj.id
+	catcher.objectCatched (obj) ->
 		score.catched += 1
-	catcher.objectMissed ->
+		env.logger.write pursuitObjectCatched: obj.id
+	catcher.objectMissed (obj) ->
 		score.missed += 1
+		env.logger.write pursuitObjectMissed: obj.id
 
 
 	catcher.objectHandled ~>
