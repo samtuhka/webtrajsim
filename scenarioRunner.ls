@@ -60,8 +60,8 @@ wsLogger = seqr.bind (url, orig={}) ->*
 				time: Date.now() / 1000
 				data: data
 		close: ->
-			orig.close()
-			socket.close()
+			#orig.close()
+			#socket.close()
 	return _wsLogger
 
 
