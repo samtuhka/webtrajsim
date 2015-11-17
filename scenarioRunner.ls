@@ -1,6 +1,7 @@
 $ = require 'jquery'
 deparam = require 'jquery-deparam'
-P = require 'bluebird'
+P = Promise = require 'bluebird'
+Promise.config longStackTraces: true
 Co = P.coroutine
 seqr = require './seqr.ls'
 
@@ -35,9 +36,34 @@ getLogger = seqr.bind ->*
 		return _logger
 
 	startTime = (new Date).toISOString()
-	sessions = yield Sessions("wtsSessions")
+	p = Sessions("wtsSessions")
+	console.log p
+	sessions = yield p
 	_logger := yield sessions.create date: startTime
 	return _logger
+
+_wsLogger = void
+wsLogger = seqr.bind (url, orig={}) ->*
+	if _wsLogger?
+		return _wsLogger
+
+	socket = yield new Promise (accept, reject) ->
+		socket = new WebSocket url
+		socket.onopen = -> accept socket
+		socket.onerror = (ev) ->
+			console.error "Failed to open logging socket", ev
+			reject "Failed to open logging socket #url."
+	_wsLogger := orig with
+		write: (data) ->
+			orig.write data
+			socket.send JSON.stringify do
+				time: Date.now() / 1000
+				data: data
+		close: ->
+			orig.close()
+			socket.close()
+	return _wsLogger
+
 
 dumpPhysics = (world) ->
 	ret = world{time}
@@ -78,7 +104,16 @@ export newEnv = seqr.bind !->*
 		onSize: onSize
 		opts: opts
 
-	env.logger = yield getLogger!
+	if not opts.disableDefaultLogger
+		env.logger = yield getLogger!
+	else
+		env.logger =
+			write: ->
+			close: ->
+	if opts.wsLogger?
+		env.logger = yield wsLogger opts.wsLogger, env.logger
+	@finally ->
+		env.logger.close()
 
 	if opts.controller?
 		env.controls = controls = yield WsController.Connect opts.controller
@@ -86,6 +121,7 @@ export newEnv = seqr.bind !->*
 		env.controls = new KeyboardController
 	@finally ->
 		env.controls.close()
+
 	env.controls.change (...args) ->
 		env.logger.write controlsChange: args
 
