@@ -149,7 +149,7 @@ export class SpatialCatch
 		@topTarget = new THREE.Mesh do
 			new THREE.PlaneGeometry targetWidth, targetHeight
 			new THREE.MeshBasicMaterial do
-				color: 0xffffff
+				color: 0x8B0000
 				opacity: @inactiveOpacity
 				transparent: true
 		@topTarget.rotation.y = -Math.PI
@@ -160,7 +160,7 @@ export class SpatialCatch
 		@bottomTarget = new THREE.Mesh do
 			new THREE.PlaneGeometry targetWidth, targetHeight
 			new THREE.MeshBasicMaterial do
-				color: 0xffffff
+				color: 0x00008B
 				opacity: @inactiveOpacity
 				transparent: true
 		@bottomTarget.rotation.y = -Math.PI
@@ -176,15 +176,19 @@ export class SpatialCatch
 		@mask.rotation.y = -Math.PI
 		@scene.add @mask
 
-		@meanDelay = 1.0
+		@meanDelay = 0.5
 		@objects = []
 		@_objCount = 0
+		@t = 0
+		@prevBall = 0
 
 	_readyForNew: (dt) ->
 		return false if @objects.length > 0
-		Math.random() > Math.exp(-1/@meanDelay * dt)
+		return @t - @prevBall > @meanDelay
+		#Math.random() > Math.exp(-1/@meanDelay * dt)
 
 	tick: (dt) ->
+		@t += dt
 		if @_readyForNew dt
 			thing = new AngledThing do
 				oddballRate: @oddballRate
@@ -216,12 +220,14 @@ export class SpatialCatch
 					@objectHandled.dispatch thing
 					@objectCatched.dispatch thing
 					@scene.remove thing.mesh
+					@prevBall = @t
 					continue
 
 			if not @frustum.containsPoint thing.mesh.position
 				@scene.remove thing.mesh
 				@objectMissed.dispatch thing
 				@objectHandled.dispatch thing
+				@prevBall = @t
 				continue
 			@objects.push thing
 
