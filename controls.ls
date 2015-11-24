@@ -41,6 +41,8 @@ export class KeyboardController
 
 		@up = 0
 		@down = 0
+		@left = 0
+		@right = 0
 
 		changeSpeed = 2
 
@@ -78,19 +80,19 @@ export class KeyboardController
 		$("body")
 		.keydown @_keydown = (e) ~>
 			switch e.which
-			| UP => @throttleTarget = 1 ; @up = 1
-			| DOWN => @brakeTarget = 1 ; @down = 1
-			| LEFT => @steeringLeft = 1
-			| RIGHT => @steeringRight = 1
+			| UP => @throttleTarget = 1 ; @_update 'up', 1
+			| DOWN => @brakeTarget = 1 ; @_update 'down', 1
+			| LEFT => @steeringLeft = 1; @_update 'left', 1
+			| RIGHT => @steeringRight = 1; @_update 'right', 1
 			| CTRL => @_update \blinder, true
 			| SPACE => @_update \catch, true
 
 		.keyup @_keyup = (e) ~>
 			switch e.which
-			| UP => @throttleTarget = 0 ; @up = 0
-			| DOWN => @brakeTarget = 0 ; @down = 0
-			| LEFT => @steeringLeft = 0
-			| RIGHT => @steeringRight = 0
+			| UP => @throttleTarget = 0 ; @_update 'up', 0
+			| DOWN => @brakeTarget = 0 ; @_update 'down', 0
+			| LEFT => @steeringLeft = 0 ; @_update 'left', 0
+			| RIGHT => @steeringRight = 0 ; @_update 'right', 0
 			| CTRL => @_update \blinder, false
 			| SPACE => @_update \catch, false
 

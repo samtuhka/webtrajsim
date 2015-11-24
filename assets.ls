@@ -26,7 +26,7 @@ svgToCanvas = seqr.bind (el, width, height, pw=0, ph=0) ->*
 	DOMURL.revokeObjectURL img.src
 	return canvas
 
-svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
+svgToSign = seqr.bind (img, {pixelsPerMeter=100}={}) ->*
 	texSize = (v) ->
 		v = Math.round v*pixelsPerMeter
 		return 0 if v < 1
@@ -55,6 +55,37 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
 	face.width = faceWidth
 	face.height = faceHeight
 	return face
+
+export ArrowMarker = seqr.bind ->*
+	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
+	doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	arrow = yield svgToSign img
+	doc = $ yield $.ajax "./res/signs/arrow-circle.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	circle = yield svgToSign img
+	marker = new THREE.Object3D
+	marker.add arrow
+	marker.add circle
+	marker.arrow = arrow
+	return marker
+
+export TrackingMarker = seqr.bind ->*
+	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
+	doc = $ yield $.ajax "./res/signs/trackerbr.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	target = yield svgToSign img, pixelsPerMeter: 2000
+	target.position.z = -2
+	doc = $ yield $.ajax "./res/signs/trackerbar.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	crosshair = yield svgToSign img, pixelsPerMeter: 2000
+	marker = new THREE.Object3D
+	marker.add crosshair
+	marker.add target
+	marker.crosshair = crosshair
+	marker.target = target
+	return marker
+
 
 export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 	doc = $ yield $.ajax "./res/signs/speedsign.svg", dataType: 'xml'

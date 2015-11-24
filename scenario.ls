@@ -197,46 +197,6 @@ addForcedBlinderTask = (scene, env, {interval=2}={}) ->
 
 	return self
 
-addPursuitTask = (scene, env) ->
-	mask = new THREE.Mesh do
-		new THREE.PlaneGeometry 0.1*16/9, 0.1
-		new THREE.MeshBasicMaterial color: 0x000000
-	mask.position.z = -0.3
-	mask.position.x = 0.03
-	mask.position.y = -0.03
-	scene.camera.add mask
-
-	self =
-		change: Signal!
-		glances: 0
-
-	showMask = ->
-		mask.visible = true
-		self.change.dispatch true
-		env.logger.write blinder: true
-	showMask()
-
-	#ui.gauge env,
-	#	name: env.L "Glances"
-	#	unit: ""
-	#	value: ->
-	#		self.glances
-
-
-	#env.controls.change (btn, isOn) ->
-	#	return if btn != 'blinder'
-	#	return if isOn != true
-	#	return if not mask.visible
-	#	mask.visible = false
-	#	self.glances += 1
-	#	self.change.dispatch false
-	#	env.logger.write blinder: false
-	#	setTimeout showMask, 300
-
-	return self
-
-
-
 exportScenario \runTheLight, (env) ->*
 	@let \intro,
 		title: env.L "Run the light"
@@ -828,7 +788,7 @@ exportScenario \experimentOutro, (env) ->*
 		@ \accept-button .hide()
 
 
-exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
+exportScenario \blindPursuitOld, (env, {nTrials=50, oddballRate=1}={}) ->*
 	L = env.L
 	@let \intro,
 		title: L "Catch the ball"
@@ -916,3 +876,264 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 
 	return result
 
+exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=1.0}={}) ->*
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+	env.onSize (w, h) ->
+		h = h/w
+		w = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+
+	#objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
+	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
+	#target = new THREE.Mesh objectGeometry, objectMaterial
+	scene.visual.add new THREE.AmbientLight 0xffffff
+	target = yield assets.ArrowMarker()
+	target.position.set 0, 0, -1
+	target.visible = true
+	target.scale.set 0.08, 0.08, 0.08
+
+	#target2 = new THREE.Mesh objectGeometry, objectMaterial
+	#target2.position.set 0, 0, -0.05
+	#target.add target2
+
+	directions = ['up', 'down'] #, 'left', 'right']
+	rotations =
+		up: Math.PI
+		left: -(Math.PI/2)
+		right: (Math.PI/2)
+		down: 0
+
+	targetDirection = 'down'
+	getCurrentDirection = ->
+		dirs = {up, down, left, right} = env.controls{up, down, left, right}
+		total = up + down + left + right
+		if total == 0 or total > 1
+			return void
+		for name, value of dirs
+			if value == 1
+				return name
+
+	scene.visual.add target
+	scene.preroll = ->
+
+	t = 0
+	hideDuration = 0.2
+	prevX = void
+	hideTime = 0
+	fadeDuration = 0.1
+	fadeTime = 0
+
+	score =
+		right: 0
+		wrong: 0
+		total: -> (@right - @wrong)
+
+	rightDirection = Signal()
+	rightDirection -> score.right += 1
+	wrongDirection = Signal()
+	wrongDirection -> score.wrong += 1
+
+
+	env.controls.change (key, isOn) ->
+		return if not isOn
+		if key == targetDirection
+			rightDirection.dispatch()
+		else
+			wrongDirection.dispatch()
+
+	rightDirection ->
+		newdir = directions[Math.floor (Math.random()*directions.length)]
+		targetDirection := newdir
+		target.rotation.z = rotations[targetDirection]
+		fadeTime := fadeDuration
+
+	scene.beforeRender (dt) ~>
+		#console.log score.total!
+		reactionTime = t/nRights
+		penaltyTime = (reactionTime * score.wrong)/nRights
+		if score.total! >= nRights
+			console.log score
+			console.log t
+			@let \done passed: true, score: score, time: t, outro:
+				title: env.L "Round done!"
+				content: env.L "Average correct reaction time was #{reactionTime.toFixed 3} seconds. You made #{score.wrong} errors, which cost about #{penaltyTime.toFixed 3} seconds."
+			return false
+		if score.right < 1
+			return
+		t += dt
+		#target.position.x = (Math.cos t)*0.5
+		cycleLength = 2
+		pt = t + cycleLength / 2.0
+		nthCycle = Math.floor(pt / cycleLength)
+		cycleRatio = (pt % cycleLength) / cycleLength
+		if nthCycle % 2 != 0
+			cycleRatio = 1 - cycleRatio
+
+		#if getCurrentDirection() == targetDirection
+		#	# OMG!
+		#	newdir = directions[Math.floor (Math.random()*directions.length)]
+		#	targetDirection := newdir
+		#	target.rotation.z = rotations[targetDirection]
+		#	fadeTime := fadeDuration
+
+		dist = 0.5
+		target.position.x = x = (cycleRatio - 0.5)*2*dist
+		if Math.sign(prevX) != Math.sign(x) and hideTime <= 0
+			hideTime := hideDuration
+			if Math.random() < oddballRate
+				t += Math.sign(Math.random() - 0.5)*(hideDuration*0.5)
+		prevX := x
+		hideTime -= dt
+
+		if fadeTime > 0
+			#target.arrow.material.opacity = 1 - fadeTime/fadeDuration
+			target.arrow.visible = false
+		else
+			#target.arrow.material.opacity = 1
+			target.arrow.visible = true
+		fadeTime -= dt
+
+		target.visible = not (hideTime > 0)
+		target.visible = true
+		return
+
+	@let \scene, scene
+	yield @get \run
+
+	return yield @get \done
+
+exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+	env.onSize (w, h) ->
+		h = h/w
+		w = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+
+	#objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
+	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
+	#target = new THREE.Mesh objectGeometry, objectMaterial
+	scene.visual.add new THREE.AmbientLight 0xffffff
+	target = yield assets.TrackingMarker()
+	target.position.set 0, 0, -1
+	target.visible = true
+	target.scale.set 0.1, 0.5, 0.5
+
+	#target2 = new THREE.Mesh objectGeometry, objectMaterial
+	#target2.position.set 0, 0, -0.05
+	#target.add target2
+
+	scene.visual.add target
+	scene.preroll = ->
+
+
+
+	score =
+		right: 0
+		wrong: 0
+		total: -> (@right - @wrong)
+	
+	env.container.css cursor: "none"
+
+
+	@let \scene, scene
+	yield @get \run
+
+	env.container.mousemove (ev) ->
+		y = ev.clientY
+		y /= window.innerHeight
+		pos = (0.5 - y)*2
+		pos = Math.min pos, 0.5
+		pos = Math.max pos, -0.5
+		target.crosshair.position.y = pos
+
+
+	t = 0
+	hideDuration = 0.2
+	prevX = void
+	hideTime = 0
+
+	ySpeed = 0.0
+	distance = 0
+	acceleration = 0
+
+	showDuration = 1.0
+	prevHide = 0.0
+
+	cycleLength = 2
+	timeWarp = cycleLength / 2.0
+
+	engineSounds = yield DefaultEngineSound env.audioContext
+	gainNode = env.audioContext.createGain()
+	gainNode.connect env.audioContext.destination
+	engineSounds.connect gainNode
+
+	scene.onStart.add engineSounds.start
+	scene.onExit.add engineSounds.stop
+
+	yield new Promise (accept) -> env.container.one "click", accept
+
+	scene.beforeRender (dt) !~>
+		t += dt
+		if t >= duration
+			console.log t
+			@let \done passed: true, score: score, time: t, outro:
+				title: env.L "Round done!"
+				content: ""
+			return
+
+		error = target.crosshair.position.y - target.target.position.y
+		damping = (error)**2/0.25
+		acceleration := 1.0 - damping*(ySpeed**2)
+		if ySpeed <= 0 and acceleration <= 0
+			ySpeed := 0
+			acceleration := 0
+
+		ySpeed += acceleration*dt
+		distance += ySpeed*dt
+		y = Math.sin(distance*0.3)
+		y *= 0.3
+		target.target.position.y = y
+
+		#target.position.x = (Math.cos t)*0.5
+		pt = t + timeWarp
+		nthCycle = Math.floor(pt / cycleLength)
+		cycleRatio = (pt % cycleLength) / cycleLength
+		if nthCycle % 2 != 0
+			cycleRatio = 1 - cycleRatio
+
+		dist = 0.5
+		target.position.x = x = (cycleRatio - 0.5)*2*dist
+		if (t - prevHide) > showDuration
+			prevHide := t
+			hideTime := hideDuration
+			if Math.random() < oddballRate
+				timeWarp += Math.sign(Math.random() - 0.5)*0.2
+		prevX := x
+		hideTime -= dt
+
+		target.visible = not (hideTime > 0)
+
+		console.log 1 - damping
+		rev = ySpeed / 10.0
+		rev = Math.max 0.1, rev
+		rev = (rev + 0.1)/1.1
+		gain = 1 - damping
+		gain = (gain + 0.5)/1.5
+		gainNode.gain.value = gain
+		engineSounds.setPitch rev*2000
+
+	return yield @get \done
