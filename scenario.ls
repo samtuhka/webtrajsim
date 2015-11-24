@@ -170,6 +170,9 @@ colorProbes = (scene) ->
 	for i from 0 til scene.probes.length
 		scene.probes[i].pA.material = mat1
 		scene.probes[i].p4.material = mat2
+		if scene.params.deviant == 1
+				scene.probes[i].pA.material = mat2
+				scene.probes[i].p4.material = mat1
 
 addProbes = (scene) ->
 	scene.reacted = false
@@ -493,13 +496,13 @@ automatic = Math.floor(opts.aut)
 if speed === NaN
 		speed = 80
 if xrad === NaN
-		xrad = ((speed/3.6)*22.5 / Math.PI)
+		xrad = ((speed/3.6)*22 / Math.PI)
 if automatic === NaN
 	automatic = 0
 if yrad  === NaN
 		yrad  = xrad
 if length === NaN
-		length = (speed/3.6)*11.25
+		length = (speed/3.6)*8
 if rev === NaN
 		rev = 1
 if stat === 1
@@ -516,7 +519,6 @@ n = 5
 
 export instructions = seqr.bind (env, inst, scene) ->*
 	L = env.L
-	console.log inst
 	title = "Circle driving"
 	text = "%circleDriving.intro2"
 	if scene.params.deviant == 1
@@ -619,6 +621,10 @@ handleSpeed = (scene, target) ->
 		scene.playerControls.brake = -newForce
 
 handleReaction = (env, scene, i) ->
+	if scene.params.deviant == 1
+		oldYes = env.controls.pYes
+		env.controls.pYes = env.controls.pNo
+		env.controls.pNo = oldYes
 	if env.controls.pYes == true
 		if scene.reacted == false
 			scene.reacted = true
@@ -1628,6 +1634,8 @@ exportScenario \experimentOutro, (env) ->*
 		@ \title .append L "The experiment is done!"
 		@ \content .append L '%experimentOutro'
 		@ \accept-button .hide()
+		@ \progress .hide()
+		@ \progressTitle .hide()
 
 
 exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*

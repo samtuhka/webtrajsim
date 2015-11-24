@@ -103,6 +103,7 @@ export newEnv = seqr.bind !->*
 	# Hint cg run
 	if window.gc?
 		window.gc()
+trial = 0
 
 export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scope = newEnv()
@@ -211,6 +212,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	scenario = scenarioLoader env, rx, ry, l, s, rev, stat, four, fut, inst, dev
 
 	me = @
+	trial += 1
 
 	scene = yield scenario.get \scene
 
@@ -296,10 +298,13 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	{passed, outro} = yield scenario
 	el.remove()
 
+	prog = trial/11.0*100
+	prog = Math.max prog, 1
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title
 			@ \subtitle .append outro.subtitle
 			@ \content .append outro.content
+			@ \progress-bar .0.style.width="#{prog}%"
 			me.let \done, passed: passed, outro: @
 	@let \outro, [outro]
 	yield outro
