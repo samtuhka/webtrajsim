@@ -1130,7 +1130,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		#target.target.position.y = y
 		*/
 
-		angle = -env.controls.steering*Math.PI*0.5
+		angle = -env.controls.steering*Math.PI*0.3
 		target.turnable.rotation.z = -angle
 
 		angle += (Math.random() - 0.5)*Math.PI*0.1
