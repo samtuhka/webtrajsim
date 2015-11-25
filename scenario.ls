@@ -1081,14 +1081,16 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	mass = 10.0
 	weightedError = 1.0
 
+
+
 	errorWave = env.audioContext.createOscillator()
 	errorWave.frequency.value = 1000
 	errorGain = env.audioContext.createGain()
 	errorGain.gain.value = 0
 	errorWave.connect errorGain
-	errorGain.connect env.audioContext.destination
-	errorWave.start()
-	scene.onExit.add -> errorWave.stop()
+	#errorGain.connect env.audioContext.destination
+	#errorWave.start()
+	#scene.onExit.add -> errorWave.stop()
 
 	#ui.gauge env,
 	#	name: "Speed"
@@ -1112,23 +1114,6 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 				title: env.L "Round done!"
 				content: ""
 			return false
-		/*
-		targetPosition = Math.sin(distance*0.3)*0.3
-		#error = target.crosshair.position.y - target.target.position.y
-		error = controlPosition - targetPosition
-		target.crosshair.position.y = error
-		damping = (error)**2/0.25
-		acceleration := 5.0 - damping*(ySpeed**2)
-		if ySpeed <= 0 and acceleration <= 0
-			ySpeed := 0
-			acceleration := 0
-
-		ySpeed += acceleration*dt
-		distance += ySpeed*dt
-		y = Math.sin(distance*0.3)
-		y *= 0.3
-		#target.target.position.y = y
-		*/
 
 		angle = -env.controls.steering*Math.PI*0.3
 		target.turnable.rotation.z = -angle
