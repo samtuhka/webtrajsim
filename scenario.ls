@@ -1009,6 +1009,10 @@ exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=0.1}={}) ->*
 	return yield @get \done
 
 exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
+	@let \intro,
+		title: env.L "Find the balance"
+		content: env.L "Use the steering wheel to keep the ball as close to the scale center as you can."
+
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
@@ -1048,7 +1052,6 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 
 
 	@let \scene, scene
-	yield @get \run
 
 	controlPosition = 0.0
 
@@ -1104,15 +1107,17 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	engineSounds.start()
 	scene.onExit.add engineSounds.stop*/
 
-	yield new Promise (accept) -> env.container.one "click", accept
+	totalError = 0
 
 	scene.beforeRender (dt) !~>
 		t += dt
 		if t >= duration
-			console.log t
-			@let \done passed: true, score: score, time: t, outro:
+			meanError = totalError/t
+			relativeError = meanError/0.5
+			totalScore = (1 - relativeError)*100
+			@let \done passed: true, outro:
 				title: env.L "Round done!"
-				content: ""
+				content: "Your score was #{totalScore.toFixed 1}%"
 			return false
 
 		angle = -env.controls.steering*Math.PI*0.3
@@ -1125,6 +1130,8 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		ySpeed += acceleration*dt
 		yPosition += ySpeed*dt
 		error = Math.abs yPosition
+
+		totalError += dt*error
 
 		relError = error/0.25
 
@@ -1163,5 +1170,6 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		gain = (gain + 0.5)/1.5
 		gainNode.gain.value = gain
 		engineSounds.setPitch rev*2000*/
+	yield @get \run
 
 	return yield @get \done
