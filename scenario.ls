@@ -1081,6 +1081,15 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	gravity = 10.0
 	mass = 0.1
 
+	errorWave = env.audioContext.createOscillator()
+	errorWave.frequency.value = 1000
+	errorGain = env.audioContext.createGain()
+	errorGain.gain.value = 0
+	errorWave.connect errorGain
+	errorGain.connect env.audioContext.destination
+	errorWave.start()
+	scene.onExit.add -> errorWave.stop()
+
 	/*engineSounds = yield DefaultEngineSound env.audioContext
 	gainNode = env.audioContext.createGain()
 	gainNode.connect env.audioContext.destination
@@ -1128,6 +1137,9 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		y = Math.max -0.5, y
 		y = Math.min 0.5, y
 		target.crosshair.position.y = y
+
+		error = Math.abs y
+		errorGain.gain.value = error
 
 		pt = t + timeWarp
 		nthCycle = Math.floor(pt / cycleLength)
