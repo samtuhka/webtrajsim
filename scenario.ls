@@ -1009,7 +1009,7 @@ exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=1.0}={}) ->*
 
 	return yield @get \done
 
-exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
+exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
@@ -1052,13 +1052,15 @@ exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
 	@let \scene, scene
 	yield @get \run
 
+	controlPosition = 0.0
+
 	env.container.mousemove (ev) ->
 		y = ev.clientY
 		y /= window.innerHeight
 		pos = (0.5 - y)*2
 		pos = Math.min pos, 0.5
 		pos = Math.max pos, -0.5
-		target.crosshair.position.y = pos
+		controlPosition := pos
 
 
 	t = 0
@@ -1076,13 +1078,16 @@ exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
 	cycleLength = 2
 	timeWarp = cycleLength / 2.0
 
-	engineSounds = yield DefaultEngineSound env.audioContext
+	gravity = 10.0
+	mass = 0.1
+
+	/*engineSounds = yield DefaultEngineSound env.audioContext
 	gainNode = env.audioContext.createGain()
 	gainNode.connect env.audioContext.destination
 	engineSounds.connect gainNode
-
-	scene.onStart.add engineSounds.start
-	scene.onExit.add engineSounds.stop
+	
+	engineSounds.start()
+	scene.onExit.add engineSounds.stop*/
 
 	yield new Promise (accept) -> env.container.one "click", accept
 
@@ -1093,11 +1098,14 @@ exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
 			@let \done passed: true, score: score, time: t, outro:
 				title: env.L "Round done!"
 				content: ""
-			return
-
-		error = target.crosshair.position.y - target.target.position.y
+			return false
+		/*
+		targetPosition = Math.sin(distance*0.3)*0.3
+		#error = target.crosshair.position.y - target.target.position.y
+		error = controlPosition - targetPosition
+		target.crosshair.position.y = error
 		damping = (error)**2/0.25
-		acceleration := 1.0 - damping*(ySpeed**2)
+		acceleration := 5.0 - damping*(ySpeed**2)
 		if ySpeed <= 0 and acceleration <= 0
 			ySpeed := 0
 			acceleration := 0
@@ -1106,9 +1114,21 @@ exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
 		distance += ySpeed*dt
 		y = Math.sin(distance*0.3)
 		y *= 0.3
-		target.target.position.y = y
+		#target.target.position.y = y
+		*/
 
-		#target.position.x = (Math.cos t)*0.5
+		angle = controlPosition*Math.PI
+		angle += (Math.random() - 0.5)*0.1*Math.PI
+
+		force = (gravity*Math.sin(angle))
+		acceleration = force/mass
+		ySpeed += acceleration*dt
+
+		y = ySpeed*dt
+		y = Math.max -0.5, y
+		y = Math.min 0.5, y
+		target.crosshair.position.y = y
+
 		pt = t + timeWarp
 		nthCycle = Math.floor(pt / cycleLength)
 		cycleRatio = (pt % cycleLength) / cycleLength
@@ -1127,13 +1147,12 @@ exportScenario \blindPursuit, (env, {duration=5*60.0, oddballRate=0.1}={}) ->*
 
 		target.visible = not (hideTime > 0)
 
-		console.log 1 - damping
-		rev = ySpeed / 10.0
+		/*rev = ySpeed / 5.0
 		rev = Math.max 0.1, rev
 		rev = (rev + 0.1)/1.1
 		gain = 1 - damping
 		gain = (gain + 0.5)/1.5
 		gainNode.gain.value = gain
-		engineSounds.setPitch rev*2000
+		engineSounds.setPitch rev*2000*/
 
 	return yield @get \done
