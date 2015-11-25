@@ -1164,6 +1164,18 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 
 		target.visible = not (hideTime > 0)
 
+		env.logger.write do
+			balancingTask:
+				time: t
+				timeWarp: timeWarp
+				ballPosition: target.ball.position.x
+				ballVelocity: ySpeed
+				ballAcceleration: acceleration
+				visualRotation: target.turnable.rotation.z
+				trueRotation: angle
+				targetPosition: target.position.y
+				targetVisible: target.visible
+
 		/*rev = ySpeed / 5.0
 		rev = Math.max 0.1, rev
 		rev = (rev + 0.1)/1.1
