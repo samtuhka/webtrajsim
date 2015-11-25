@@ -201,7 +201,33 @@ export StopSign = seqr.bind ({height=2, poleRadius=0.07/2}=opts={}) ->*
 
 	return self
 
+export BallBoard = seqr.bind ->*
+	doc = $ yield $.ajax "./res/items/circle.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	ball = yield svgToSign img
+	ball.scale.set 0.05, 0.05, 0.05
+	ball.position.y = 0.05/2
 
+	doc = $ yield $.ajax "./res/items/level.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	board = yield svgToSign img, pixelsPerMeter: 1000
+
+	doc = $ yield $.ajax "./res/items/balancepoint.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	midpoint = yield svgToSign img, pixelsPerMeter: 1000
+
+	obj = new THREE.Object3D
+	obj.add midpoint
+
+	turnable = new THREE.Object3D
+	turnable.add ball
+	obj.ball = ball
+	turnable.add board
+
+	obj.turnable = turnable
+	obj.add turnable
+
+	return obj
 
 export TrafficLight = seqr.bind ->*
 	data = yield loadCollada 'res/signs/TrafficLight.dae'

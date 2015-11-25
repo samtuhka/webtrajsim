@@ -1012,8 +1012,8 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
-		h = h/w
-		w = 1
+		w = w/h
+		h = 1
 		camera.left = -w
 		camera.right = w
 		camera.bottom = -h
@@ -1026,10 +1026,10 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
 	#target = new THREE.Mesh objectGeometry, objectMaterial
 	scene.visual.add new THREE.AmbientLight 0xffffff
-	target = yield assets.TrackingMarker()
+	target = yield assets.BallBoard()
 	target.position.set 0, 0, -1
 	target.visible = true
-	target.scale.set 0.1, 0.5, 0.5
+	target.scale.set 0.5, 0.5, 0.5
 
 	#target2 = new THREE.Mesh objectGeometry, objectMaterial
 	#target2.position.set 0, 0, -0.05
@@ -1053,19 +1053,19 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	controlPosition = 0.0
 
 	env.container.mousemove (ev) ->
-		y = ev.clientY
-		y /= window.innerHeight
-		pos = (0.5 - y)*2
+		x = ev.clientX
+		x /= window.innerWidth
+		pos = (0.5 - x)*2
 		pos = Math.min pos, 0.5
 		pos = Math.max pos, -0.5
 		controlPosition := pos
 
 
 	t = 0
-	hideDuration = 0.2
+	hideDuration = 0.3
 	prevX = void
 	hideTime = 0
-	
+
 	yPosition = 0.0
 	ySpeed = 0.0
 	distance = 0
@@ -1078,7 +1078,8 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	timeWarp = cycleLength / 2.0
 
 	gravity = 10.0
-	mass = 1.0
+	mass = 10.0
+	weightedError = 1.0
 
 	errorWave = env.audioContext.createOscillator()
 	errorWave.frequency.value = 1000
@@ -1129,14 +1130,18 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		#target.target.position.y = y
 		*/
 
-		angle = (controlPosition*Math.PI)*0.3
-		angle += (Math.random() - 0.5)*0.01*Math.PI
+		angle = -env.controls.steering*Math.PI*0.5
+		target.turnable.rotation.z = -angle
 
-		force = (gravity*Math.sin(angle))
+		angle += (Math.random() - 0.5)*Math.PI*0.1
+
+		force = mass*(gravity*Math.sin(angle))
 		acceleration = force/mass
 		ySpeed += acceleration*dt
 		yPosition += ySpeed*dt
 		error = Math.abs yPosition
+
+		relError = error/0.25
 
 		if yPosition < -0.5 and ySpeed < 0
 			yPosition := -0.5
@@ -1145,7 +1150,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 			yPosition := 0.5
 			ySpeed := 0
 
-		target.crosshair.position.y = yPosition
+		target.ball.position.x = yPosition
 
 		errorGain.gain.value = error
 
@@ -1156,13 +1161,12 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 			cycleRatio = 1 - cycleRatio
 
 		dist = 0.5
-		target.position.x = x = (cycleRatio - 0.5)*2*dist
+		target.position.y = y = (cycleRatio - 0.5)*2*dist
 		if (t - prevHide) > showDuration
 			prevHide := t
 			hideTime := hideDuration
 			if Math.random() < oddballRate
 				timeWarp += Math.sign(Math.random() - 0.5)*0.3
-		prevX := x
 		hideTime -= dt
 
 		target.visible = not (hideTime > 0)
