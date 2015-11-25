@@ -1077,7 +1077,8 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	showDuration = 1.0
 	prevHide = 0.0
 
-	cycleLength = 2
+	cycleLength = 1.3
+	timeManipulation = 0.2
 	timeWarp = cycleLength / 2.0
 
 	gravity = 10.0
@@ -1158,7 +1159,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 			prevHide := t
 			hideTime := hideDuration
 			if Math.random() < oddballRate
-				timeWarp += Math.sign(Math.random() - 0.5)*0.3
+				timeWarp += Math.sign(Math.random() - 0.5)*timeManipulation
 		hideTime -= dt
 
 		target.visible = not (hideTime > 0)
