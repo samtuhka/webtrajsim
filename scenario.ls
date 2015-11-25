@@ -876,7 +876,7 @@ exportScenario \blindPursuitOld, (env, {nTrials=50, oddballRate=1}={}) ->*
 
 	return result
 
-exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=1.0}={}) ->*
+exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=0.1}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
@@ -1001,7 +1001,6 @@ exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=1.0}={}) ->*
 		fadeTime -= dt
 
 		target.visible = not (hideTime > 0)
-		target.visible = true
 		return
 
 	@let \scene, scene
@@ -1045,8 +1044,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		right: 0
 		wrong: 0
 		total: -> (@right - @wrong)
-	
-	env.container.css cursor: "none"
+
 
 
 	@let \scene, scene
@@ -1067,7 +1065,8 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	hideDuration = 0.2
 	prevX = void
 	hideTime = 0
-
+	
+	yPosition = 0.0
 	ySpeed = 0.0
 	distance = 0
 	acceleration = 0
@@ -1079,7 +1078,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	timeWarp = cycleLength / 2.0
 
 	gravity = 10.0
-	mass = 0.1
+	mass = 1.0
 
 	errorWave = env.audioContext.createOscillator()
 	errorWave.frequency.value = 1000
@@ -1089,6 +1088,10 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	errorGain.connect env.audioContext.destination
 	errorWave.start()
 	scene.onExit.add -> errorWave.stop()
+
+	#ui.gauge env,
+	#	name: "Speed"
+	#	value: -> ySpeed.toFixed 2
 
 	/*engineSounds = yield DefaultEngineSound env.audioContext
 	gainNode = env.audioContext.createGain()
@@ -1126,19 +1129,24 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		#target.target.position.y = y
 		*/
 
-		angle = controlPosition*Math.PI
-		angle += (Math.random() - 0.5)*0.1*Math.PI
+		angle = (controlPosition*Math.PI)*0.3
+		angle += (Math.random() - 0.5)*0.01*Math.PI
 
 		force = (gravity*Math.sin(angle))
 		acceleration = force/mass
 		ySpeed += acceleration*dt
+		yPosition += ySpeed*dt
+		error = Math.abs yPosition
 
-		y = ySpeed*dt
-		y = Math.max -0.5, y
-		y = Math.min 0.5, y
-		target.crosshair.position.y = y
+		if yPosition < -0.5 and ySpeed < 0
+			yPosition := -0.5
+			ySpeed := 0
+		if yPosition > 0.5 and ySpeed > 0
+			yPosition := 0.5
+			ySpeed := 0
 
-		error = Math.abs y
+		target.crosshair.position.y = yPosition
+
 		errorGain.gain.value = error
 
 		pt = t + timeWarp
@@ -1153,7 +1161,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 			prevHide := t
 			hideTime := hideDuration
 			if Math.random() < oddballRate
-				timeWarp += Math.sign(Math.random() - 0.5)*0.2
+				timeWarp += Math.sign(Math.random() - 0.5)*0.3
 		prevX := x
 		hideTime -= dt
 
