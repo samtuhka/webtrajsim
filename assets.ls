@@ -369,3 +369,21 @@ export SceneDisplay = seqr.bind ({width=1024, height=1024}={}) ->*
 
 	object: object
 	renderTarget: rtTexture
+
+export addMarkerScreen = (scene) ->
+	aspect = screen.width / screen.height
+	t = scene.camera.top
+	b = scene.camera.bottom
+	l = -aspect
+	r = aspect
+	s = 0.2
+	pos = [[l + s, t - s], [r - s, t - s], [l + s, -t + s], [r - s, -t + s]]
+	for i from 0 til 4
+		path = 'res/markers/' + i + '_marker.png'
+		texture = THREE.ImageUtils.loadTexture path
+		marker = new THREE.Mesh do
+			new THREE.PlaneGeometry s, s
+			new THREE.MeshBasicMaterial map:texture
+		marker.position.x = pos[i][0]
+		marker.position.y = pos[i][1]
+		scene.visual.add marker

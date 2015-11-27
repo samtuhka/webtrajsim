@@ -1026,6 +1026,8 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 
 	scene = new Scene camera: camera
 
+	assets.addMarkerScreen scene
+
 	#objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
 	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
 	#target = new THREE.Mesh objectGeometry, objectMaterial
@@ -1038,7 +1040,6 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	#target2 = new THREE.Mesh objectGeometry, objectMaterial
 	#target2.position.set 0, 0, -0.05
 	#target.add target2
-
 	scene.visual.add target
 	scene.preroll = ->
 
