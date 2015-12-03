@@ -56,6 +56,9 @@ export class Scene
 			@physics.step stepdur, dt, nSteps
 
 	tick: (dt) ->
+		if dt == 0
+			console.warn "BUG got dt of zero"
+			return
 		@beforePhysics.dispatch dt, @time
 		@onPhysics.dispatch dt, @time
 		@afterPhysics.dispatch dt, @time
