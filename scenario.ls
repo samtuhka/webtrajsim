@@ -149,6 +149,7 @@ transientScreen = (scene) ->
 		scene.probes[i].pB.visible = false
 		scene.probes[i].p8.visible = false
 		scene.transientScreen = true
+		scene.targetScreen = false
 
 clearProbes = (scene) ->
 	for i from 0 til scene.probes.length
