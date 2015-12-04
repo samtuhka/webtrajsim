@@ -176,12 +176,12 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
 
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 3 , "colPrac", dev
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 2 , "colPrac", dev
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
-	task = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, true, 2, false, dev
+	task = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, true, 3, false, dev
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa. Ärsykkeet eivät enää eroa värin vaan muodon perusteella.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"

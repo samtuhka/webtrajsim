@@ -733,7 +733,9 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	if col == true
 		colorProbes scene
 
-	scene.player.physical.position.z = 0
+	startPoint = 0.5*l/scene.centerLine.getLength()
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z = -0.5*l
 	scene.playerControls.throttle = 0
 	#startLight = yield assets.TrafficLight()
 	#lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
@@ -761,7 +763,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	scene.dT = startTime
 	scene.probeIndx = 0
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
-	scene.futPos = 0
+	scene.futPos = startPoint
 	futPos scene
 	scene.beforePhysics.add ->
 			if aut == 1
@@ -841,9 +843,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	if col == true
 		colorProbes scene
 
-	startPoint = 1 -((scene.centerLine.curves[0].getLength()*2 + 2*l)/scene.centerLine.getLength())
+	startPoint = 1 -((scene.centerLine.curves[1].getLength()*2 + 1.5*l)/scene.centerLine.getLength())
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
-	scene.player.physical.position.z = 0
+	scene.player.physical.position.z =  -0.5*l
 	scene.playerControls.throttle = 0
 	#startLight = yield assets.TrafficLight()
 	#lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
