@@ -621,13 +621,15 @@ handleSpeed = (scene, target) ->
 		scene.playerControls.brake = -newForce
 
 handleReaction = (env, scene, i) ->
+	pYes = env.controls.pYes
+	pNo = env.controls.pNo
 	if scene.params.deviant == 1
-		oldYes = env.controls.pYes
-		env.controls.pYes = env.controls.pNo
-		env.controls.pNo = oldYes
-	if env.controls.pYes == true
+		pYes = env.controls.pNo
+		pNo = env.controls.pYes
+	if pYes == true and scene.controlChange == true
 		if scene.reacted == false
 			scene.reacted = true
+			scene.controlChange = false
 			if scene.targetPresent == true
 				scene.scoring.trueYes += 1
 				scene.scoring.score += 1
@@ -636,10 +638,10 @@ handleReaction = (env, scene, i) ->
 				scene.scoring.falseYes += 1
 			if scene.targetScreen == true
 				transientScreen scene
-		env.controls.pYes = false
-	if env.controls.pNo == true
+	if pNo == true and scene.controlChange == true
 		if scene.reacted == false
 			scene.reacted = true
+			scene.controlChange = false
 			if scene.targetPresent == true
 				scene.scoring.falseNo += 1
 				scene.targetPresent = false
@@ -648,8 +650,8 @@ handleReaction = (env, scene, i) ->
 				scene.scoring.score += 1
 			if scene.targetScreen == true
 				transientScreen scene
-		env.controls.pNo = false
-
+	if not pYes and not pNo and scene.reacted == false
+		scene.controlChange = true
 
 addFixationCross = (scene) ->
 	vFOV = scene.camera.fov
@@ -866,7 +868,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	while not env.controls.catch == true
 			yield P.delay 100
 	env.controls.probeReact = false
-	
+
 	#yield startLight.switchToGreen()
 
 	startTime = scene.time
