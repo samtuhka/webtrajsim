@@ -132,12 +132,10 @@ probeOrder = (scene, n) ->
 				else
 					array.push([i, 1])
 	counter = n*8
-	while counter > 0
-		index = Math.floor(Math.random() * counter)
-		counter -= 1
-		temp = array[counter]
-		array[counter] = array[index]
-		array[index] = temp
+	i = array.length
+	while (--i) > 0
+		j = Math.floor (Math.random()*(i+1))
+		[array[i], array[j]] = [array[j], array[i]]
 	array.reverse()
 	array.push([0,0])
 	scene.order = array
@@ -634,6 +632,8 @@ handleReaction = (env, scene, i) ->
 			if scene.targetPresent == true
 				scene.scoring.trueYes += 1
 				scene.scoring.score += 1
+				prev = scene.order[scene.probeIndx - 1][0]
+				scene.probes[prev].score += 1
 				scene.targetPresent = false
 			else
 				scene.scoring.falseYes += 1
@@ -646,6 +646,8 @@ handleReaction = (env, scene, i) ->
 			if scene.targetPresent == true
 				scene.scoring.falseNo += 1
 				scene.targetPresent = false
+				prev = scene.order[scene.probeIndx - 1][0]
+				scene.probes[prev].missed += 1
 			else
 				scene.scoring.trueNo += 1
 				scene.scoring.score += 1
