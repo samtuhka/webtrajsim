@@ -921,6 +921,188 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 
 	return yield @get \done
 
+
+exportScenario \circleDrivingFree, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut) ->*
+
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
+	if r == undefined
+		r = rev
+	if st == undefined
+		st = stat
+	if fr == undefined
+		fr = four
+	if fut == undefined
+		fut = future
+	if aut == undefined
+		aut = automatic
+
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+
+	scene = yield basecircleDriving env, rx, ry, l
+
+	scene.params = settingParams
+	addMarkerScreen scene, env
+
+	startPoint = 0.5*l/scene.centerLine.getLength()
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z = -0.5*l
+	scene.playerControls.throttle = 0
+	#startLight = yield assets.TrafficLight()
+	#lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
+	#startLight.position.x = lightX
+	#startLight.position.z = 7.5
+	#startLight.addTo scene
+	rw = scene.centerLine.width
+
+	@let \scene, scene
+	yield @get \run
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+	#yield startLight.switchToGreen()
+
+	startTime = scene.time
+	scene.dT = startTime
+	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+	scene.beforePhysics.add ->
+			if aut == 1
+				handleSteering scene, env
+
+	scene.onTickHandled ~>
+		handleSpeed scene, s
+		calculateFuture scene, 1, s/3.6
+
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		cnt = onInnerLane scene
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
+
+		handleSound annoyingSound, scene, cnt
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > 120
+			trialTime = scene.time - startTime
+			listener.remove()
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
+exportScenario \circleDrivingRevFree, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut) ->*
+
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
+	if r == undefined
+		r = -rev
+	if st == undefined
+		st = stat
+	if fr == undefined
+		fr = four
+	if fut == undefined
+		fut = future
+	if aut == undefined
+		aut = automatic
+
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+
+	scene = yield basecircleDriving env, rx, ry, l
+
+	scene.params = settingParams
+	addMarkerScreen scene, env
+	startPoint = 1 -((scene.centerLine.curves[1].getLength()*2 + 1.5*l)/scene.centerLine.getLength())
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z =  -0.5*l
+	scene.playerControls.throttle = 0
+	#startLight = yield assets.TrafficLight()
+	#lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
+	#startLight.position.x = -lightX
+	#startLight.position.z = 7.5
+	#startLight.addTo scene
+	rw = scene.centerLine.width
+
+	@let \scene, scene
+	yield @get \run
+
+	unless inst == false
+		yield instructions env, inst, scene
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+	#yield startLight.switchToGreen()
+
+	startTime = scene.time
+	scene.dT = startTime
+	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+
+	scene.beforePhysics.add ->
+		if aut == 1
+			handleSteering scene, env
+
+	scene.onTickHandled ~>
+		handleSpeed scene, s
+		calculateFuture scene, -1, s/3.6
+
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		cnt = onInnerLane scene
+		handleSound annoyingSound, scene, cnt
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > 120
+			listener.remove()
+			trialTime = scene.time - startTime
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
 export basePedalScene = (env) ->
 	env = env with
 		controls: NonSteeringControl env.controls

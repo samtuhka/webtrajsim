@@ -154,6 +154,17 @@ runUntilPassedCircle = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}, r
 		if doQuit
 			break
 
+export freeDrivingCurve = seqr.bind ->*
+	s = 80
+	rx = ((s/3.6)*22 / Math.PI)
+	ry = rx
+	l = (s/3.6)*8
+	for i from 0 til 10
+		if i%2 == 0
+			yield runScenario scenario.circleDrivingFree, rx, ry, l, s, 1, false, false, 2, false, 0
+		else
+			yield runScenario scenario.circleDrivingRevFree, rx, ry, l, s, 1, false, false, 2, false, 0
+
 export circleDriving = seqr.bind ->*
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
