@@ -6,8 +6,9 @@ seqr = require './seqr.ls'
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
-{DefaultEngineSound} = require './sounds.ls'
+{DefaultEngineSound, BellPlayer, NoisePlayer} = require './sounds.ls'
 assets = require './assets.ls'
+prelude = require 'prelude-ls'
 
 ui = require './ui.ls'
 
@@ -1182,3 +1183,77 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	yield @get \run
 
 	return yield @get \done
+
+
+exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.0, preSilence=30.0, postSilence=20.0}={}) ->*
+	bell = yield BellPlayer env
+	noise = yield NoisePlayer env
+
+	nBursts = Math.round duration*spookRate
+	console.log nBursts
+	times = for i from 0 to nBursts
+		Math.random()*duration
+	times = prelude.sort times
+	schedule = [times[0]]
+	for i from 1 til times.length
+		schedule.push times[i] - times[i - 1]
+	console.log schedule
+
+	if preIntro
+		yield ui.instructionScreen env, ->
+			@ \title .append env.L "Relaxation and sound response"
+			@ \subtitle .append env.L "Notification sound"
+			@ \content .append env.L """
+			During the experiment you will at times be asked to close your eyes
+			and relax. When you first hear the notification sound, please close
+			your eyes. When you hear it second time, please open your eyes.
+
+			Press the right side red button on the steering wheel to hear the
+			sound now.
+			"""
+			@ \accept .text env.L "Play the notification sound"
+		yield bell()
+
+
+		yield ui.instructionScreen env, ->
+			@ \title .append env.L "Relaxation and sound response"
+			@ \subtitle .append env.L "Noise sound"
+			@ \content .append env.L """
+			During the relaxation periods, a noise sound is occasionally played.
+			This is used to measure how your nervous system responses to sudden events.
+			Please try not to move when you hear the sound even if you get surprised,
+			and keep your eyes closed.
+			"""
+			@ \accept .text env.L "Play the noise sound"
+		yield noise()
+
+	yield ui.instructionScreen env, ->
+			@ \title .append env.L "Relaxation and sound response"
+			@ \content .append env.L """
+			Please close your eyes and relax when you hear the notification sound
+			and keep them closed until you hear it again. Also try not to actively
+			think anything; keep your mind as clear as you can. Try not to react
+			any way to the noise sounds.
+			"""
+
+	msg = $('<h1>')
+		.text env.L "Please keep your eyes closed"
+		.css do
+			"text-align": "center"
+			"margin-top": "10%"
+	env.container.append msg
+	yield bell()
+
+	env.logger.write soundSpookEvent: "preSilenceStart"
+	yield ui.sleep preSilence
+	env.logger.write soundSpookEvent: "preSilenceDone"
+	for pause in schedule
+		yield ui.sleep pause
+		env.logger.write soundSpookEvent: "noiseBurst"
+		noise()
+
+
+	env.logger.write soundSpookEvent: "postSilenceStart"
+	yield ui.sleep postSilence
+	env.logger.write soundSpookEvent: "postSilenceDone"
+	yield bell()

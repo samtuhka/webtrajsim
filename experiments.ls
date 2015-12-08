@@ -68,7 +68,17 @@ export defaultExperiment = mulsimco2015
 export freeDriving = seqr.bind ->*
 	yield runScenario scenario.freeDriving
 
+runWithNewEnv = seqr.bind (scenario, ...args) ->*
+	envP = newEnv!
+	env = yield envP.get \env
+	ret = yield scenario env, ...args
+	envP.let \destroy
+	yield envP
+	return ret
+
 export blindPursuit = seqr.bind ->*
+	yield runWithNewEnv scenario.soundSpook, preIntro: true
+
 	yield runScenario scenario.blindPursuit, oddballRate: 0.0
 
 	for i from 0 til 10

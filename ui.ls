@@ -8,6 +8,7 @@ seqr = require './seqr.ls'
 #
 #
 export waitFor = (f) -> new P (accept) -> f (accept)
+export sleep = (duration) -> new P (accept) -> setTimeout accept, duration*1000
 
 configTemplate = (data, config, parent) ->
 	el = $ data
