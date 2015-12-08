@@ -1190,14 +1190,12 @@ exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.
 	noise = yield NoisePlayer env
 
 	nBursts = Math.round duration*spookRate
-	console.log nBursts
 	times = for i from 0 to nBursts
 		Math.random()*duration
 	times = prelude.sort times
 	schedule = [times[0]]
 	for i from 1 til times.length
 		schedule.push times[i] - times[i - 1]
-	console.log schedule
 
 	if preIntro
 		yield ui.instructionScreen env, ->
