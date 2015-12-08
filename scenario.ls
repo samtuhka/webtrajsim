@@ -1054,17 +1054,6 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 
 	@let \scene, scene
 
-	controlPosition = 0.0
-
-	env.container.mousemove (ev) ->
-		x = ev.clientX
-		x /= window.innerWidth
-		pos = (0.5 - x)*2
-		pos = Math.min pos, 0.5
-		pos = Math.max pos, -0.5
-		controlPosition := pos
-
-
 	t = 0
 	hideDuration = 0.3
 	prevX = void
@@ -1079,7 +1068,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	prevHide = 0.0
 
 	cycleLength = 1.3
-	timeManipulation = 0.2
+	timeManipulation = 0.5
 	timeWarp = cycleLength / 2.0
 
 	gravity = 10.0
@@ -1110,6 +1099,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	scene.onExit.add engineSounds.stop*/
 
 	totalError = 0
+	prevHideCycle = void
 
 	scene.beforeRender (dt) !~>
 		t += dt
@@ -1120,6 +1110,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 			@let \done passed: true, outro:
 				title: env.L "Round done!"
 				content: "Your score was #{totalScore.toFixed 1}%"
+				totalScore: score
 			return false
 
 		angle = -env.controls.steering*Math.PI*0.3
@@ -1155,12 +1146,16 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 			cycleRatio = 1 - cycleRatio
 
 		dist = 0.5
+		prevTargetPos = target.position.y
 		target.position.y = y = (cycleRatio - 0.5)*2*dist
-		if (t - prevHide) > showDuration
+		#if (t - prevHide) > showDuration
+		if Math.sign(prevTargetPos) != Math.sign(y) and prevHideCycle != nthCycle
+			prevHideCycle := nthCycle
 			prevHide := t
 			hideTime := hideDuration
 			if Math.random() < oddballRate
-				timeWarp += Math.sign(Math.random() - 0.5)*timeManipulation
+				coeff = (Math.random() - 0.5)*2
+				timeWarp += coeff*timeManipulation
 		hideTime -= dt
 
 		target.visible = not (hideTime > 0)
