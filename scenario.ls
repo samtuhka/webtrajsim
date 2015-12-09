@@ -1072,7 +1072,7 @@ exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	timeManipulation = 0.5
 	timeWarp = cycleLength / 2.0
 
-	gravity = 10.0
+	gravity = 5.0
 	mass = 10.0
 	weightedError = 1.0
 
