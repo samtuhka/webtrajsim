@@ -80,8 +80,8 @@ export blindPursuit = seqr.bind ->*
 	yield runWithNewEnv scenario.soundSpook, preIntro: true
 
 	yield runScenario scenario.blindPursuit, oddballRate: 0.0
-	nBlocks = 6
-	nTrials = 4
+	nBlocks = 4
+	nTrials = 2
 	for block from 0 til nBlocks
 		for trial from 0 til nTrials
 			yield runScenario scenario.blindPursuit, oddballRate: 0.1

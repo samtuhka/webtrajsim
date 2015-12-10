@@ -1009,7 +1009,7 @@ exportScenario \blindPursuitOld2, (env, {nRights=50, oddballRate=0.1}={}) ->*
 
 	return yield @get \done
 
-exportScenario \blindPursuit, (env, {duration=60.0, oddballRate=0.1}={}) ->*
+exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 	@let \intro,
 		title: env.L "Find the balance"
 		content: env.L "Use the steering wheel to keep the ball as close to the scale center as you can."
