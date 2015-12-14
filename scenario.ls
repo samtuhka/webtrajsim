@@ -1198,7 +1198,7 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	width = 0.5
 	height = 0.6
 	margin = 0.1
-	blockWidth = 0.1
+	targetWidth = 0.1
 
 	env.onSize (w, h) ->
 		w = w/h
@@ -1218,28 +1218,29 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	#target = new THREE.Mesh objectGeometry, objectMaterial
 	scene.visual.add new THREE.AmbientLight 0xffffff
 
-	geo = new THREE.PlaneGeometry 0.01, 0.1
+	geo = new THREE.PlaneGeometry targetWidth, 0.01
 	target = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
 	target.position.y = -height
 	scene.visual.add target
 
-	geo = new THREE.PlaneGeometry blockWidth, 0.05
+	geo = new THREE.SphereGeometry 0.01, 32, 32
 	block = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
 	block.position.y = height
 	scene.visual.add block
 	blockSpeed = 1.0
-	speedMultiplier = 1.1
+	speedMultiplier = 1.01
+	steeringSpeed = 2.0
 
 	scene.beforeRender (dt) ->
 		if block.position.y < -height
-			if Math.abs(block.position.x) < blockWidth/2.0
+			if Math.abs(block.position.x) < targetWidth/2.0
 				blockSpeed *= speedMultiplier
 			else
 				blockSpeed /= speedMultiplier
 			block.position.y = height
-			block.position.x = (Math.random() - 0.5)*2*(width - blockWidth/2.0 - margin)
+			block.position.x = (Math.random() - 0.5)*2*(width - margin)
 		block.position.y -= dt*blockSpeed
-		block.position.x -= dt*env.controls.steering
+		block.position.x -= dt*env.controls.steering*steeringSpeed
 		if block.position.x < -width
 			block.position.x = -width
 		if block.position.x > width
