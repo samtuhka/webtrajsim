@@ -1057,17 +1057,17 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 	@let \scene, scene
 
 	t = 0
-	hideDuration = 0.3
 	prevX = void
-	hideTime = 0
 
 	yPosition = 0.0
 	ySpeed = 0.0
 	distance = 0
 	acceleration = 0
 
+	hideDuration = 0.3
 	showDuration = 1.0
 	prevHide = 0.0
+	hideTime = 0
 
 	cycleLength = 1.3
 	timeManipulation = 0.5
@@ -1193,7 +1193,7 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	@let \intro,
 		title: env.L "Catch the blocks"
 		content: env.L "Use the steering wheel to catch the blocks."
-	
+
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	width = 0.3
@@ -1220,7 +1220,7 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	scene.visual.add new THREE.AmbientLight 0xffffff
 
 	geo = new THREE.PlaneGeometry targetWidth, 0.01
-	target = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
+	target = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true
 	target.position.y = -height
 	scene.visual.add target
 
@@ -1228,18 +1228,26 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	block = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
 	block.position.y = height
 	scene.visual.add block
-	blockSpeed = 0.5
+	blockSpeed = 0.7
 	speedup = 1.01
 	slowdown = 1.03
 	steeringSpeed = 2.0
+	shineTime = 0.1
 
-	scene.beforeRender (dt) ->
+	hideDuration = 0.1
+	showDuration = 1.0
+	hideTime = 0
+	prevHide = 0
+
+	t = 0
+	scene.beforeRender (dt) !->
+		t += dt
 		if block.position.y < -height
 			if Math.abs(block.position.x) < targetWidth/2.0
 				blockSpeed *= speedup
+				target.shineLeft = shineTime
 			else
 				blockSpeed /= slowdown
-			console.log blockSpeed
 			block.position.y = height
 			block.position.x = (Math.random() - 0.5)*2*(width - margin)
 		block.position.y -= dt*blockSpeed
@@ -1248,6 +1256,24 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 			block.position.x = -width
 		if block.position.x > width
 			block.position.x = width
+
+		if target.shineLeft > 0
+			target.shineLeft -= dt
+			target.material.opacity = 1
+		else
+			target.material.opacity = 0.5
+
+
+		if (t - prevHide) > showDuration
+			prevHide := t
+			hideTime := hideDuration
+			if Math.random() < oddballRate
+				coeff = (Math.random() - 0.5)*2
+				manipulation = (Math.random() - 0.5)*targetWidth*2
+				console.log manipulation
+				block.position.x += manipulation
+		hideTime -= dt
+		block.visible = not (hideTime > 0)
 
 
 	env.controls.set autocenter: 0.3
