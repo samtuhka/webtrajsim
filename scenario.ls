@@ -1148,9 +1148,12 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 
 		dist = 0.5
 		prevTargetPos = target.position.y
-		target.position.y = y = (cycleRatio - 0.5)*2*dist
-		#if (t - prevHide) > showDuration
-		if Math.sign(prevTargetPos) != Math.sign(y) and prevHideCycle != nthCycle
+		#target.position.y = y = (cycleRatio - 0.5)*2*dist
+		rotSpeed = 2.0
+		target.position.y = (Math.sin pt*rotSpeed)*dist
+		target.position.x = (Math.cos pt*rotSpeed)*dist
+		if (t - prevHide) > showDuration
+		#if Math.sign(prevTargetPos) != Math.sign(y) and prevHideCycle != nthCycle
 			prevHideCycle := nthCycle
 			prevHide := t
 			hideTime := hideDuration
@@ -1165,12 +1168,12 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 			balancingTask:
 				time: t
 				timeWarp: timeWarp
-				ballPosition: target.ball.position.x
+				ballPosition: target.ball.position{x, y, z}
 				ballVelocity: ySpeed
 				ballAcceleration: acceleration
 				visualRotation: target.turnable.rotation.z
 				trueRotation: angle
-				targetPosition: target.position.y
+				targetPosition: target.position{x, y, z}
 				targetVisible: target.visible
 
 		/*rev = ySpeed / 5.0
@@ -1183,6 +1186,71 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 	yield @get \run
 
 	return yield @get \done
+
+
+exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
+	@let \intro,
+		title: env.L "Catch the blocks"
+		content: env.L "Use the steering wheel to catch the blocks."
+
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+	width = 0.5
+	height = 0.6
+	margin = 0.1
+	blockWidth = 0.1
+
+	env.onSize (w, h) ->
+		w = w/h
+		h = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+	scene.preroll = ->
+	assets.addMarkerScreen scene
+
+	#objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
+	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
+	#target = new THREE.Mesh objectGeometry, objectMaterial
+	scene.visual.add new THREE.AmbientLight 0xffffff
+
+	geo = new THREE.PlaneGeometry 0.01, 0.1
+	target = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
+	target.position.y = -height
+	scene.visual.add target
+
+	geo = new THREE.PlaneGeometry blockWidth, 0.05
+	block = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
+	block.position.y = height
+	scene.visual.add block
+	blockSpeed = 1.0
+	speedMultiplier = 1.1
+
+	scene.beforeRender (dt) ->
+		if block.position.y < -height
+			if Math.abs(block.position.x) < blockWidth/2.0
+				blockSpeed *= speedMultiplier
+			else
+				blockSpeed /= speedMultiplier
+			block.position.y = height
+			block.position.x = (Math.random() - 0.5)*2*(width - blockWidth/2.0 - margin)
+		block.position.y -= dt*blockSpeed
+		block.position.x -= dt*env.controls.steering
+		if block.position.x < -width
+			block.position.x = -width
+		if block.position.x > width
+			block.position.x = width
+
+
+	@let \scene, scene
+	yield @get \run
+
+	return yield @get \done
+
 
 
 exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.0, preSilence=30.0, postSilence=20.0}={}) ->*
