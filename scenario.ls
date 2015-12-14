@@ -1053,6 +1053,7 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 
 
 
+	env.controls.set autocenter: 0.3
 	@let \scene, scene
 
 	t = 0
@@ -1192,13 +1193,13 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	@let \intro,
 		title: env.L "Catch the blocks"
 		content: env.L "Use the steering wheel to catch the blocks."
-
+	
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
-	width = 0.5
+	width = 0.3
 	height = 0.6
 	margin = 0.1
-	targetWidth = 0.1
+	targetWidth = 0.05
 
 	env.onSize (w, h) ->
 		w = w/h
@@ -1227,26 +1228,29 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	block = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
 	block.position.y = height
 	scene.visual.add block
-	blockSpeed = 1.0
-	speedMultiplier = 1.01
+	blockSpeed = 0.5
+	speedup = 1.01
+	slowdown = 1.03
 	steeringSpeed = 2.0
 
 	scene.beforeRender (dt) ->
 		if block.position.y < -height
 			if Math.abs(block.position.x) < targetWidth/2.0
-				blockSpeed *= speedMultiplier
+				blockSpeed *= speedup
 			else
-				blockSpeed /= speedMultiplier
+				blockSpeed /= slowdown
+			console.log blockSpeed
 			block.position.y = height
 			block.position.x = (Math.random() - 0.5)*2*(width - margin)
 		block.position.y -= dt*blockSpeed
-		block.position.x -= dt*env.controls.steering*steeringSpeed
+		block.position.x += dt*env.controls.steering*blockSpeed*steeringSpeed
 		if block.position.x < -width
 			block.position.x = -width
 		if block.position.x > width
 			block.position.x = width
 
 
+	env.controls.set autocenter: 0.3
 	@let \scene, scene
 	yield @get \run
 
