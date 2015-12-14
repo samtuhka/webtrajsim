@@ -679,15 +679,21 @@ addFixationCross = (scene) ->
 	objectLoc scene.cross, -0.1, -0.1
 	cross.visible = true
 
+markersVisible = (scene) ->
+	for marker in scene.markers
+		marker.visible = true
+
 addMarkerScreen = (scene, env) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	pos = [[0.0625, 0.9], [1 - 0.0625, 0.9], [0.0625, 0.1], [1 - 0.0625, 0.1]]
-	for i from 0 til 4
-		path = 'res/markers/' + i + '_marker.png'
+	scene.markers = []
+	pos = [[0.5 0.5], [1 - 0.0625, 0.8], [0.0625, 0.1], [1 - 0.0625, 0.1], [1 - 0.0625, 0.1], [0.0625, 0.8], [0.5, 0.8]]
+	for i from 0 til 6
+		console.log i
+		path = 'res/markers/' + (i) + '_marker.png'
 		texture = THREE.ImageUtils.loadTexture path
 		marker = new THREE.Mesh do
 			new THREE.PlaneGeometry heigth, heigth
@@ -698,6 +704,7 @@ addMarkerScreen = (scene, env) ->
 		marker.position.x = (w*pos[i][0] - w/2) * heigth
 		marker.position.y = (h*pos[i][1] - h/2) * heigth
 		scene.camera.add marker
+		scene.markers.push marker
 		marker.visible = true
 
 listener = new THREE.AudioListener()
@@ -730,9 +737,9 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams
-	addMarkerScreen scene, env
 	addFixationCross scene
-
+	addMarkerScreen scene, env
+	console.log scene
 	probeOrder scene, n
 	createProbes scene, n
 	if col == true
@@ -748,12 +755,12 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	#startLight.position.z = 7.5
 	#startLight.addTo scene
 	rw = scene.centerLine.width
-
 	@let \scene, scene
 	yield @get \run
 
 	calculateFuture scene, 1, s/3.6
 	handleProbeLocs scene, n, r, fut
+	markersVisible scene
 
 	unless inst == false
 		yield instructions env, inst, scene
@@ -840,8 +847,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams
-	addMarkerScreen scene, env
 	addFixationCross scene
+	addMarkerScreen scene, env
 
 	probeOrder scene, n
 	createProbes scene, n
@@ -858,6 +865,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	#startLight.position.z = 7.5
 	#startLight.addTo scene
 	rw = scene.centerLine.width
+	markersVisible scene
 
 	@let \scene, scene
 	yield @get \run
@@ -951,6 +959,7 @@ exportScenario \circleDrivingFree, (env, rx, ry, l, s, r, st, col, fut, inst, de
 
 	scene.params = settingParams
 	addMarkerScreen scene, env
+
 
 	startPoint = 0.5*l/scene.centerLine.getLength()
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
