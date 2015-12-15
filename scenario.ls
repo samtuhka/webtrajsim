@@ -1234,7 +1234,7 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	steeringSpeed = 2.0
 	shineTime = 0.1
 
-	hideDuration = 0.1
+	hideDuration = 0.2
 	showDuration = 1.0
 	hideTime = 0
 	prevHide = 0
@@ -1270,10 +1270,17 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 			if Math.random() < oddballRate
 				coeff = (Math.random() - 0.5)*2
 				manipulation = (Math.random() - 0.5)*targetWidth*2
-				console.log manipulation
+				env.logger.write steeringCatcherManipulation: manipulation
 				block.position.x += manipulation
 		hideTime -= dt
 		block.visible = not (hideTime > 0)
+
+		env.logger.write do
+			steeringCatcher:
+				time: t
+				ballPosition: block.position{x, y, z}
+				ballVelocity: blockSpeed
+				targetVisible: block.visible
 
 
 	env.controls.set autocenter: 0.3
