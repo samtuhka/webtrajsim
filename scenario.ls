@@ -1189,7 +1189,7 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 	return yield @get \done
 
 
-exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
+exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 	@let \intro,
 		title: env.L "Catch the blocks"
 		content: env.L "Use the steering wheel to catch the blocks."
@@ -1239,17 +1239,31 @@ exportScenario \steeringCatcher, (env, {nScreens=60, oddballRate=0.1}={}) ->*
 	hideTime = 0
 	prevHide = 0
 
+	catched = 0
+	missed = 0
+
 	t = 0
-	scene.beforeRender (dt) !->
+	scene.beforeRender (dt) !~>
 		t += dt
+		if t >= duration
+			totalScore = catched/(catched + missed)*100
+			@let \done passed: true, outro:
+				title: env.L "Round done!"
+				content: "Your score was #{totalScore.toFixed 1}%"
+				totalScore: totalScore
+				finalSpeed: blockSpeed
+			return false
 		if block.position.y < -height
 			if Math.abs(block.position.x) < targetWidth/2.0
 				blockSpeed *= speedup
 				target.shineLeft = shineTime
+				catched += 1
 			else
 				blockSpeed /= slowdown
+				missed += 1
 			block.position.y = height
 			block.position.x = (Math.random() - 0.5)*2*(width - margin)
+
 		block.position.y -= dt*blockSpeed
 		block.position.x += dt*env.controls.steering*blockSpeed*steeringSpeed
 		if block.position.x < -width
