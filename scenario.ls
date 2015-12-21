@@ -1303,6 +1303,62 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
+exportScenario \steerToTarget, (env, {duration=60.0}={}) ->*
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+
+	targetSize = 0.01
+	targetDuration = 1.0
+	circleRadius = 0.1
+	targetRange = Math.PI
+
+	env.onSize (w, h) ->
+		w = w/h
+		h = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+	scene.preroll = ->
+	assets.addMarkerScreen scene
+
+	#objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
+	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
+	#target = new THREE.Mesh objectGeometry, objectMaterial
+	scene.visual.add new THREE.AmbientLight 0xffffff
+
+	geo = new THREE.PlaneGeometry 0.01, circleRadius
+	rawPointer = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true
+	#target.position.y = -height
+	rawPointer.position.y += circleRadius/2.0
+	pointer = new THREE.Object3D
+	pointer.add rawPointer
+	scene.visual.add pointer
+
+	geo = new THREE.SphereGeometry targetSize, 32, 32
+	rawTarget = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
+	rawTarget.position.y = circleRadius
+	target = new THREE.Object3D
+	target.add rawTarget
+	scene.visual.add target
+
+	targetTimeLeft = 0.0
+	scene.beforeRender (dt) ->
+		pointer.rotation.z = env.controls.steering*(Math.PI*3)
+		targetTimeLeft -= dt
+		if targetTimeLeft <= 0
+			targetAngle = (Math.random() - 0.5)*targetRange
+			target.rotation.z = targetAngle
+			targetTimeLeft := targetDuration
+
+	@let \scene, scene
+	yield @get \run
+
+	return yield @get \done
+
 
 
 exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.0, preSilence=30.0, postSilence=20.0}={}) ->*
