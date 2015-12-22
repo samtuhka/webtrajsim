@@ -1307,9 +1307,10 @@ exportScenario \steerToTarget, (env, {duration=60.0}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 
-	targetSize = 0.01
+	targetSize = 0.03
 	targetDuration = 1.0
 	circleRadius = 0.1
+	angleSpan = targetSize/circleRadius
 	targetRange = Math.PI
 
 	env.onSize (w, h) ->
@@ -1339,20 +1340,36 @@ exportScenario \steerToTarget, (env, {duration=60.0}={}) ->*
 	scene.visual.add pointer
 
 	geo = new THREE.SphereGeometry targetSize, 32, 32
-	rawTarget = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff
+	rawTarget = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true
 	rawTarget.position.y = circleRadius
 	target = new THREE.Object3D
 	target.add rawTarget
 	scene.visual.add target
 
 	targetTimeLeft = 0.0
-	scene.beforeRender (dt) ->
-		pointer.rotation.z = env.controls.steering*(Math.PI*3)
-		targetTimeLeft -= dt
-		if targetTimeLeft <= 0
+	slowdown = 1.03
+	speedup = 1.01
+
+	env.controls.change (btn, isOn) !->
+		return if not btn == "catch" and isOn
+		angleError = pointer.rotation.z - target.rotation.z
+
+		if Math.abs(angleError) < angleSpan/2
 			targetAngle = (Math.random() - 0.5)*targetRange
 			target.rotation.z = targetAngle
-			targetTimeLeft := targetDuration
+
+	scene.beforeRender (dt) ->
+		pointer.rotation.z = env.controls.steering*(Math.PI*3)
+		#targetTimeLeft -= dt
+		#if targetTimeLeft <= 0
+		#	targetAngle = (Math.random() - 0.5)*targetRange
+		#	target.rotation.z = targetAngle
+		#	targetTimeLeft := targetDuration
+		#angleError = pointer.rotation.z - target.rotation.z
+		#if Math.abs(angleError) < angleSpan/2
+		#	rawTarget.material.opacity = 0.75
+		#else
+		#	rawTarget.material.opacity = 0.5
 
 	@let \scene, scene
 	yield @get \run
