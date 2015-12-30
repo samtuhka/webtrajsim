@@ -1303,15 +1303,18 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
-exportScenario \steerToTarget, (env, {duration=60.0}={}) ->*
+exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 
 	targetSize = 0.03
 	targetDuration = 1.0
 	circleRadius = 0.1
-	angleSpan = targetSize/circleRadius
-	targetRange = Math.PI
+	cricleLength = circleRadius*2*Math.PI
+	angleSpan = (2*targetSize)/circleRadius
+	targetRange = Math.PI/2.0
+	manipulation = 0.0
+	manipulationRange = Math.PI/4.0
 
 	env.onSize (w, h) ->
 		w = w/h
@@ -1326,40 +1329,49 @@ exportScenario \steerToTarget, (env, {duration=60.0}={}) ->*
 	scene.preroll = ->
 	assets.addMarkerScreen scene
 
-	#objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
-	#objectMaterial = new THREE.MeshBasicMaterial color: 0x00ff00
-	#target = new THREE.Mesh objectGeometry, objectMaterial
 	scene.visual.add new THREE.AmbientLight 0xffffff
 
-	geo = new THREE.PlaneGeometry 0.01, circleRadius
-	rawPointer = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true
+	geo = new THREE.SphereGeometry targetSize, 32, 32
+	#geo = new THREE.PlaneGeometry 0.01, circleRadius
+	pointer = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true, opacity: 0.5
 	#target.position.y = -height
-	rawPointer.position.y += circleRadius/2.0
-	pointer = new THREE.Object3D
-	pointer.add rawPointer
+	pointer.position.z = 0.1
 	scene.visual.add pointer
 
-	geo = new THREE.SphereGeometry targetSize, 32, 32
-	rawTarget = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true
-	rawTarget.position.y = circleRadius
-	target = new THREE.Object3D
-	target.add rawTarget
+	geo = new THREE.SphereGeometry targetSize/2.0, 32, 32
+	target = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true, opacity: 0.5
 	scene.visual.add target
 
 	targetTimeLeft = 0.0
 	slowdown = 1.03
 	speedup = 1.01
+	targetAngle = targetRange/2.0
 
-	env.controls.change (btn, isOn) !->
-		return if not btn == "catch" and isOn
-		angleError = pointer.rotation.z - target.rotation.z
-
-		if Math.abs(angleError) < angleSpan/2
-			targetAngle = (Math.random() - 0.5)*targetRange
-			target.rotation.z = targetAngle
-
+	#env.controls.change (btn, isOn) !->
+	#	return if not (btn == "blinder" and isOn)
+	#	error = target.position.distanceTo pointer.position
+	#
+	#	if error < targetSize
+	#		targetAngle := -targetAngle
+	#		if Math.random() < oddballRate
+	#			manipulation := (Math.random() - 0.5)*manipulationRange
+	#		else
+	#			manipulation := 0
+	#		#targetAngle := (Math.random() - 0.5)*targetRange
+	
+	rotToAngle = (obj, angle) ->
+		obj.position.x = Math.sin(angle)*circleRadius
+		obj.position.y = Math.cos(angle)*circleRadius
+	t = 0
 	scene.beforeRender (dt) ->
-		pointer.rotation.z = env.controls.steering*(Math.PI*3)
+		pointerAngle = env.controls.steering*(Math.PI*3)
+		rotToAngle pointer, -pointerAngle
+		rampInTime = 60
+		w = Math.min 0.5, t/rampInTime
+		targetAngle := Math.sin(t*2)*targetRange*(1 - w) + w*Math.sin(t*4)*targetRange
+		rotToAngle target, (targetAngle + manipulation)
+		t += dt
+		
 		#targetTimeLeft -= dt
 		#if targetTimeLeft <= 0
 		#	targetAngle = (Math.random() - 0.5)*targetRange
@@ -1371,6 +1383,7 @@ exportScenario \steerToTarget, (env, {duration=60.0}={}) ->*
 		#else
 		#	rawTarget.material.opacity = 0.5
 
+	env.controls.set autocenter: 0.0
 	@let \scene, scene
 	yield @get \run
 
