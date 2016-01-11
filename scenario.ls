@@ -1312,7 +1312,7 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
-exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.1}={}) ->*
+exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.3}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
@@ -1334,7 +1334,7 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	scene.visual.add platform
 
 	target = yield assets.ArrowMarker()
-	target.scale.set 0.2, 0.2, 0.2
+	target.scale.set 0.4, 0.4, 0.4
 	platform.add target
 	@let \scene, scene
 
@@ -1342,86 +1342,143 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	speed = 1.3
 	hideDuration = 0.3
 	showDuration = 3.0
+	waitDuration = 3.0
+	maskDuration = 0.3
+	resultDuration = 2.0
 	lastAppear = 0
 	targetDuration = 0.1
 	timeWarp = 0.0
 	rndpos = -> (Math.random() - 0.5)*0.5
 	touched = false
-	slowdown = 1.05
-	speedup = 1.03
+	slowdown = 1.0# = 1.05
+	speedup = 1.0# = 1.03
 
 	waitingAnswer = false
 	trialStart = 0
 	manipulation = 0
+	trialCorrect = void
 
-	newTrial = ->
-		waitingAnswer := false
-		trialStart := t
-		target.arrow.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/2.0
+	score =
+		correct: 0
+		incorrect: 0
+		percentage: -> @correct/(@correct + @incorrect)*100
+
+	oddballScore = score with
+		correct: 0
+		incorrect: 0
+
+	pureScore = score with
+		correct:~ -> score.correct - oddballScore.correct
+		incorrect:~ -> score.incorrect - oddballScore.incorrect
+
+	state =
+		name: 'cue'
+		st: 0
 
 	env.controls.change (key, isOn) ->
 		return if not waitingAnswer
+		return if trialCorrect?
 		return if not isOn
 		keys = ['left', 'right']
 		return if key not in keys
 
-		targetKey = keys[(target.arrow.rotation.z > 0)*1]
-		isCorrect = key == targetKey
+		targetKey = keys[(target.signs.target.rotation.z > 0)*1]
+		trialCorrect := key == targetKey
+
+		if trialCorrect
+			score.correct += 1
+		else
+			score.incorrect += 1
 
 		if manipulation == 0
-			if isCorrect
+			if trialCorrect
 				targetDuration /= speedup
+				oddballScore.correct += 1
 			else
 				targetDuration *= slowdown
 				targetDuration := Math.min targetDuration, showDuration
+				oddballScore.incorrect += 1
 
-		newTrial!
-		console.log targetDuration, isCorrect, manipulation
-		#console.log "Correct:", key == targetKey, key, targetKey
+		console.log targetDuration, trialCorrect, manipulation, pureScore.percentage!, oddballScore.percentage!
 
-	newTrial!
-	scene.beforeRender (dt) !->
-		t += dt
-		prevVisible = platform.visible
-		trialTime = t - trialStart
-		if trialTime < showDuration
+	states =
+		cue: (st) !->
+			if st >= showDuration
+				return "hide"
+			target.setSign 'cue'
+			trialCorrect := void
+			waitingAnswer := false
 			manipulation := 0
-			#platform.position.x = 0
-			#platform.position.y = 0
-			platform.visible = true
-			target.arrow.visible = false
-			target.cue.visible = true
-			target.mask.visible = false
-		else if trialTime < showDuration + hideDuration
+		hide: (st) !->
+			if st >= hideDuration
+				platform.visible = true
+				return "show"
 			platform.visible = false
-			target.arrow.visible = false
-			target.mask.visible = false
-			target.cue.visible = false
-		else if trialTime < showDuration + hideDuration + targetDuration
-			waitingAnswer := true
-			target.arrow.visible = true
-			platform.visible = true
-			target.mask.visible = false
-		else
-			waitingAnswer := true
-			target.arrow.visible = false
-			target.cue.visible = false
-			platform.visible = true
-			target.mask.visible = true
 
-		if prevVisible and not platform.visible
+		show: (st) !->
+			if st == 0
+				target.signs.target.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/2.0
+			if st >= targetDuration
+				return "mask"
+			target.setSign 'target'
+			waitingAnswer := true
+
+		mask: (st) !->
+			if st >= maskDuration
+				return "query"
+			target.setSign 'mask'
+			waitingAnswer := true
+
+		query: (st) !->
+			target.setSign 'query'
+			return void if not trialCorrect?
+			return "wait"
+
+
+		wait: (st) !->
+			target.setSign 'wait'
+			return if st < waitDuration
+			if trialCorrect
+				return "success"
+			else
+				return "failure"
+
+		success: (st) !->
+			if st >= resultDuration
+				return "cue"
+			target.setSign 'success'
+
+		failure: (st) !->
+			if st >= resultDuration
+				return "cue"
+			target.setSign 'failure'
+
+	scene.beforeRender (dt) !->
+		while true
+			newState = states[state.name](t - state.st)
+			if not newState?
+				break
+			state.name = newState
+			state.st = t
+
+		if state.name == "hide" and state.st == t
 			if Math.random() < oddballRate
 				manipulation := (Math.random() - 0.5)*2*0.5
 				timeWarp += manipulation
-			direction = Math.random()*Math.PI*2
-			magnitude = 0.01
+			#direction = Math.random()*Math.PI*2
+			#magnitude = 0.1
 			#platform.position.x = Math.sin(direction)*magnitude
 			#platform.position.y = Math.cos(direction)*magnitude
 
+		#if state.name == "cue"
+		#	platform.position.x = 0
+		#	platform.position.y = 0
 
 		pt = t + timeWarp
 		platform.position.x = Math.sin(pt*speed)*0.5
 		platform.position.y = Math.cos(pt*speed)*0.5
+		t += dt
+
 
 
 	yield @get \run

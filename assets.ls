@@ -58,23 +58,30 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}={}) ->*
 
 export ArrowMarker = seqr.bind ->*
 	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
-	doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
-	img = $ doc.find "svg"
-	arrow = yield svgToSign img
-	doc = $ yield $.ajax "./res/signs/arrow-circle.svg", dataType: 'xml'
-	img = $ doc.find "svg"
-	circle = yield svgToSign img
-	doc = $ yield $.ajax "./res/signs/arrow-mask.svg", dataType: 'xml'
-	img = $ doc.find "svg"
-	mask = yield svgToSign img
 	marker = new THREE.Object3D
-	marker.add arrow
-	marker.add circle
-	marker.arrow = arrow
-	marker.mask = mask
-	marker.add mask
-	mask.visible = false
-	marker.cue = circle
+	marker.signs = signs = {}
+	load = seqr.bind (name, file) ->*
+		doc = $ yield $.ajax file, dataType: 'xml'
+		img = $ doc.find "svg"
+		obj = yield svgToSign img
+		obj.visible = false
+		marker.add obj
+		signs[name] = obj
+
+	marker.setSign = (name) ->
+		for n, o of signs
+			o.visible = false
+		return if name not of signs
+		signs[name].visible = true
+
+	yield load 'cue', './res/signs/arrow-circle.svg'
+	yield load 'target', './res/signs/arrow.svg'
+	yield load 'mask', './res/signs/arrow-mask.svg'
+	yield load 'wait', './res/signs/arrow-wait.svg'
+	yield load 'query', './res/signs/arrow-query.svg'
+	yield load 'success', './res/signs/arrow-success.svg'
+	yield load 'failure', './res/signs/arrow-failure.svg'
+
 	return marker
 
 export TrackingMarker = seqr.bind ->*

@@ -161,9 +161,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.125"
-     inkscape:cx="-1649.8445"
-     inkscape:cy="1095.7914"
+     inkscape:zoom="0.088388348"
+     inkscape:cx="547.27047"
+     inkscape:cy="334.58178"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -193,14 +193,14 @@
      id="layer1"
      transform="translate(0,2490.9449)">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:354.33070866;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
-       d="m 3219.6536,-719.29134 -2896.00009,-2e-5"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:177.16535433;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 2611.6536,-719.29136 -1680.00009,-10e-6"
        id="path4206"
        inkscape:connector-curvature="0" />
     <path
        inkscape:connector-curvature="0"
        id="path4208"
-       d="m 1771.6535,728.70861 0,-2896.00001"
-       style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:354.33070866;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1" />
+       d="m 1771.6535,120.70863 0,-1680.00003"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:177.16535433;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
