@@ -1198,7 +1198,7 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 			..position.z = 5
 	width = 0.3
 	height = 0.6
-	margin = 0.1
+	margin = 0.0
 	targetWidth = 0.05
 
 	env.onSize (w, h) ->
@@ -1242,6 +1242,13 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 	catched = 0
 	missed = 0
 
+	#env.controls = env.controls with steering: 0
+	#env.container.mousemove (ev) ->
+	#	x = ev.pageX/window.innerWidth
+	#	x = (x - 0.5)*2.0
+	#	env.controls.steering = -x
+
+	bias = 0
 	t = 0
 	scene.beforeRender (dt) !~>
 		t += dt
@@ -1262,14 +1269,16 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 				blockSpeed /= slowdown
 				missed += 1
 			block.position.y = height
-			block.position.x = (Math.random() - 0.5)*2*(width - margin)
+			bias := (Math.random() - 0.5)*2*(width - margin)
+			env.logger.write steeringCatcherBias: bias
 
 		block.position.y -= dt*blockSpeed
-		block.position.x += dt*env.controls.steering*blockSpeed*steeringSpeed
-		if block.position.x < -width
-			block.position.x = -width
-		if block.position.x > width
-			block.position.x = width
+		#block.position.x += dt*env.controls.steering*blockSpeed*steeringSpeed
+		block.position.x = env.controls.steering*3*width - bias
+		#if block.position.x < -width
+		#	block.position.x = -width
+		#if block.position.x > width
+		#	block.position.x = width
 
 		if target.shineLeft > 0
 			target.shineLeft -= dt
@@ -1285,7 +1294,7 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 				coeff = (Math.random() - 0.5)*2
 				manipulation = (Math.random() - 0.5)*targetWidth*2
 				env.logger.write steeringCatcherManipulation: manipulation
-				block.position.x += manipulation
+				bias += manipulation
 		hideTime -= dt
 		block.visible = not (hideTime > 0)
 
@@ -1303,7 +1312,122 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
-exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.1}={}) ->*
+exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.1}={}) ->*
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+	env.onSize (w, h) ->
+		w = w/h
+		h = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+	scene.preroll = ->
+	assets.addMarkerScreen scene
+
+	scene.visual.add new THREE.AmbientLight 0xffffff
+
+	platform = new THREE.Object3D()
+	scene.visual.add platform
+
+	target = yield assets.ArrowMarker()
+	target.scale.set 0.2, 0.2, 0.2
+	platform.add target
+	@let \scene, scene
+
+	t = 0
+	speed = 1.3
+	hideDuration = 0.3
+	showDuration = 3.0
+	lastAppear = 0
+	targetDuration = 0.1
+	timeWarp = 0.0
+	rndpos = -> (Math.random() - 0.5)*0.5
+	touched = false
+	slowdown = 1.05
+	speedup = 1.03
+
+	waitingAnswer = false
+	trialStart = 0
+	manipulation = 0
+
+	newTrial = ->
+		waitingAnswer := false
+		trialStart := t
+		target.arrow.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/2.0
+
+	env.controls.change (key, isOn) ->
+		return if not waitingAnswer
+		return if not isOn
+		keys = ['left', 'right']
+		return if key not in keys
+
+		targetKey = keys[(target.arrow.rotation.z > 0)*1]
+		isCorrect = key == targetKey
+
+		if manipulation == 0
+			if isCorrect
+				targetDuration /= speedup
+			else
+				targetDuration *= slowdown
+				targetDuration := Math.min targetDuration, showDuration
+
+		newTrial!
+		console.log targetDuration, isCorrect, manipulation
+		#console.log "Correct:", key == targetKey, key, targetKey
+
+	newTrial!
+	scene.beforeRender (dt) !->
+		t += dt
+		prevVisible = platform.visible
+		trialTime = t - trialStart
+		if trialTime < showDuration
+			manipulation := 0
+			#platform.position.x = 0
+			#platform.position.y = 0
+			platform.visible = true
+			target.arrow.visible = false
+			target.cue.visible = true
+			target.mask.visible = false
+		else if trialTime < showDuration + hideDuration
+			platform.visible = false
+			target.arrow.visible = false
+			target.mask.visible = false
+			target.cue.visible = false
+		else if trialTime < showDuration + hideDuration + targetDuration
+			waitingAnswer := true
+			target.arrow.visible = true
+			platform.visible = true
+			target.mask.visible = false
+		else
+			waitingAnswer := true
+			target.arrow.visible = false
+			target.cue.visible = false
+			platform.visible = true
+			target.mask.visible = true
+
+		if prevVisible and not platform.visible
+			if Math.random() < oddballRate
+				manipulation := (Math.random() - 0.5)*2*0.5
+				timeWarp += manipulation
+			direction = Math.random()*Math.PI*2
+			magnitude = 0.01
+			#platform.position.x = Math.sin(direction)*magnitude
+			#platform.position.y = Math.cos(direction)*magnitude
+
+
+		pt = t + timeWarp
+		platform.position.x = Math.sin(pt*speed)*0.5
+		platform.position.y = Math.cos(pt*speed)*0.5
+
+
+	yield @get \run
+	return yield @get \done
+
+exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.05}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 
@@ -1312,9 +1436,19 @@ exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	circleRadius = 0.1
 	cricleLength = circleRadius*2*Math.PI
 	angleSpan = (2*targetSize)/circleRadius
-	targetRange = Math.PI/2.0
-	manipulation = 0.0
-	manipulationRange = Math.PI/4.0
+	targetRange = 0.4
+	rotSpeed = 2.0
+	rotRadius = 0.3
+
+	hideDuration = 0.3
+	showDuration = 1.0
+	prevHide = 0.0
+	hideTime = 0
+
+	cycleLength = 1.3
+	timeManipulation = 0.5
+	timeWarp = cycleLength / 2.0
+
 
 	env.onSize (w, h) ->
 		w = w/h
@@ -1331,16 +1465,25 @@ exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 
 	scene.visual.add new THREE.AmbientLight 0xffffff
 
+	platform = new THREE.Object3D()
+	scene.visual.add platform
+
 	geo = new THREE.SphereGeometry targetSize, 32, 32
 	#geo = new THREE.PlaneGeometry 0.01, circleRadius
 	pointer = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true, opacity: 0.5
 	#target.position.y = -height
 	pointer.position.z = 0.1
-	scene.visual.add pointer
+	#platform.add pointer
 
 	geo = new THREE.SphereGeometry targetSize/2.0, 32, 32
 	target = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xffffff, transparent: true, opacity: 0.5
-	scene.visual.add target
+	platform.add target
+
+	horizon = new THREE.Mesh do
+			new THREE.PlaneGeometry targetRange*2, 0.01
+			new THREE.MeshBasicMaterial color: 0xffffff, transparent: true, opacity: 0.5
+
+	#platform.add horizon
 
 	targetTimeLeft = 0.0
 	slowdown = 1.03
@@ -1358,20 +1501,50 @@ exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 	#		else
 	#			manipulation := 0
 	#		#targetAngle := (Math.random() - 0.5)*targetRange
-	
+
+	#env.controls = env.controls with steering: 0
+	#env.container.mousemove (ev) ->
+	#	x = ev.pageX/window.innerWidth
+	#	x = (x - 0.5)*2.0
+	#	env.controls.steering = -x
+
+
 	rotToAngle = (obj, angle) ->
 		obj.position.x = Math.sin(angle)*circleRadius
-		obj.position.y = Math.cos(angle)*circleRadius
+		#obj.position.y = Math.cos(angle)*circleRadius
 	t = 0
-	scene.beforeRender (dt) ->
-		pointerAngle = env.controls.steering*(Math.PI*3)
-		rotToAngle pointer, -pointerAngle
-		rampInTime = 60
-		w = Math.min 0.5, t/rampInTime
-		targetAngle := Math.sin(t*2)*targetRange*(1 - w) + w*Math.sin(t*4)*targetRange
-		rotToAngle target, (targetAngle + manipulation)
+	scene.beforeRender (dt) !->
 		t += dt
-		
+		pt = t + timeWarp
+		period = 1/2.0
+		platform.position.x = Math.cos(pt/period)*rotRadius
+		platform.position.y = Math.sin(pt/period)*rotRadius
+		#target.position.y = (Math.sin pt*rotSpeed)*rotRadius
+		#target.position.x = (Math.cos pt*rotSpeed)*rotRadius
+		#target.position.x = env.controls.steering*circleRadius
+		#pointer.position.x = env.controls.steering
+
+		#pointerAngle = env.controls.steering*(Math.PI*3)
+		#rotToAngle pointer, -pointerAngle
+		#rampInTime = 60
+		#w = Math.min 0.5, t/rampInTime
+		#targetAngle := Math.sin(t*2)*targetRange#*(1 - w) + w*Math.sin(t*4)*targetRange
+		#rotToAngle target, targetAngle
+		targetPeriod = 0.5
+		#target.position.x = Math.sin((t + timeWarp)/targetPeriod)*targetRange
+
+		if (t - prevHide) > showDuration
+		#if Math.sign(prevTargetPos) != Math.sign(y) and prevHideCycle != nthCycle
+			prevHide := t
+			hideTime := hideDuration
+			if Math.random() < oddballRate
+				coeff = (Math.random() - 0.5)*2
+				timeWarp += coeff*timeManipulation
+				#platform.position.y = coeff*0.1
+		hideTime -= dt
+
+		platform.visible = not (hideTime > 0)
+
 		#targetTimeLeft -= dt
 		#if targetTimeLeft <= 0
 		#	targetAngle = (Math.random() - 0.5)*targetRange
@@ -1384,6 +1557,45 @@ exportScenario \steerToTarget, (env, {duration=60.0, oddballRate=0.1}={}) ->*
 		#	rawTarget.material.opacity = 0.5
 
 	env.controls.set autocenter: 0.0
+	@let \scene, scene
+	yield @get \run
+
+	return yield @get \done
+
+exportScenario \vsyncTest, (env) ->*
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+
+	env.onSize (w, h) ->
+		w = w/h
+		h = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+	scene.preroll = ->
+
+	geo = new THREE.SphereGeometry 0.3, 32, 32
+	cyan = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0x00ffff
+	red = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xff0000
+
+	scene.visual.add cyan
+	scene.visual.add red
+
+	i = 0
+	scene.beforeRender (dt) !->
+		i += 1
+		if i%2 == 0
+			cyan.visible = true
+			red.visible = false
+		else
+			cyan.visible = false
+			red.visible = true
+
+
 	@let \scene, scene
 	yield @get \run
 

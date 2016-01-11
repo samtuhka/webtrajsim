@@ -15,7 +15,7 @@
    id="svg4136"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="arrow-circle.svg">
+   sodipodi:docname="arrow-query.svg">
   <defs
      id="defs4138">
     <marker
@@ -161,9 +161,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.125"
-     inkscape:cx="-1649.8445"
-     inkscape:cy="1095.7914"
+     inkscape:zoom="0.1767767"
+     inkscape:cx="369.78707"
+     inkscape:cy="1531.7794"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -183,7 +183,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -192,15 +192,17 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,2490.9449)">
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:354.33070866;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
-       d="m 3219.6536,-719.29134 -2896.00009,-2e-5"
-       id="path4206"
-       inkscape:connector-curvature="0" />
-    <path
-       inkscape:connector-curvature="0"
-       id="path4208"
-       d="m 1771.6535,728.70861 0,-2896.00001"
-       style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:354.33070866;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3416.93798828px;line-height:125%;font-family:'Droid Sans';-inkscape-font-specification:'Droid Sans Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:123.21051025;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="1012.5193"
+       y="495.32333"
+       id="text8334"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan8336"
+         x="1012.5193"
+         y="495.32333"
+         style="stroke-width:123.21051025">?</tspan></text>
   </g>
 </svg>

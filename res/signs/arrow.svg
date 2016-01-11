@@ -162,8 +162,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.125"
-     inkscape:cx="340.5346"
-     inkscape:cy="869.34003"
+     inkscape:cx="-693.38583"
+     inkscape:cy="853.34003"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -192,10 +192,19 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,2490.9449)">
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#ffffff;stroke-width:141.11436462;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker4943)"
-       d="m 1770.2977,-1454.0574 0,1256.19003"
-       id="path4137"
-       inkscape:connector-curvature="0" />
+    <circle
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:354.33071899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path7712"
+       cx="363.5827"
+       cy="1771.6536"
+       r="265.74802"
+       transform="matrix(0,-1,1,0,0,0)" />
+    <circle
+       cy="1771.6536"
+       cx="1199.0159"
+       id="circle7714"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:354.33071899;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0,-1,1,0,0,0)"
+       r="212.59842" />
   </g>
 </svg>

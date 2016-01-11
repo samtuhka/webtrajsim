@@ -64,10 +64,17 @@ export ArrowMarker = seqr.bind ->*
 	doc = $ yield $.ajax "./res/signs/arrow-circle.svg", dataType: 'xml'
 	img = $ doc.find "svg"
 	circle = yield svgToSign img
+	doc = $ yield $.ajax "./res/signs/arrow-mask.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	mask = yield svgToSign img
 	marker = new THREE.Object3D
 	marker.add arrow
 	marker.add circle
 	marker.arrow = arrow
+	marker.mask = mask
+	marker.add mask
+	mask.visible = false
+	marker.cue = circle
 	return marker
 
 export TrackingMarker = seqr.bind ->*
