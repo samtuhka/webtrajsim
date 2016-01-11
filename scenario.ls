@@ -1312,7 +1312,7 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
-exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.3}={}) ->*
+exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
@@ -1334,7 +1334,7 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.3}={}) ->*
 	scene.visual.add platform
 
 	target = yield assets.ArrowMarker()
-	target.scale.set 0.4, 0.4, 0.4
+	target.scale.set 0.3, 0.3, 0.3
 	platform.add target
 	@let \scene, scene
 
@@ -1464,6 +1464,7 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.3}={}) ->*
 		if state.name == "hide" and state.st == t
 			if Math.random() < oddballRate
 				manipulation := (Math.random() - 0.5)*2*0.5
+				#manipulation := -0.3
 				timeWarp += manipulation
 			#direction = Math.random()*Math.PI*2
 			#magnitude = 0.1
