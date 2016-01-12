@@ -187,3 +187,19 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 
 'The experiment is done!': 'Koe on päättynyt'
 '%experimentOutro': 'Kiitos osallistumisestasi!'
+
+'Find the direction': 'Löydä suunta'
+'%pursuitDiscrimination.intro': """
+<p>Seuraa katseellasi ruudulla näkyvää kohdetta. Kohteessa
+välähtää ristitähtäimen jälkeen nuolikuvio, jonka suuntaus
+sinun pitää yrittää tunnistaa. Nuolikuvion välähdyksen jälkeen
+näet kysymysmerkin: paina tällöin vasenta- tai oikeaa nuolinäppäintä
+sen mukaan, mikä on paras arvauksesi siitä, kumpaan suuntaan kuvion
+<strong>valkoinen</strong> kolmio osoitti.</p>
+<table class="centered-table" style="width: 100%">
+<tr><th>Vasen</th><th>Oikea</th></tr>
+<tr>
+<td><img src="./res/signs/arrow.svg" style="width: 10em; height: 10em; transform: rotate(90deg)"></td>
+<td><img src="./res/signs/arrow.svg" style="width: 10em; height: 10em; transform: rotate(-90deg)"></td>
+</table>
+"""

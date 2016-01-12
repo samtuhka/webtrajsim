@@ -1312,7 +1312,11 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
-exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
+exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) ->*
+	@let \intro,
+		title: env.L "Find the direction"
+		content: env.L "%pursuitDiscrimination.intro"
+
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
 	env.onSize (w, h) ->
@@ -1346,7 +1350,7 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 	maskDuration = 0.3
 	resultDuration = 2.0
 	lastAppear = 0
-	targetDuration = 0.1
+	targetDuration = 0.15
 	timeWarp = 0.0
 	rndpos = -> (Math.random() - 0.5)*0.5
 	touched = false
@@ -1362,6 +1366,7 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 		correct: 0
 		incorrect: 0
 		percentage: -> @correct/(@correct + @incorrect)*100
+		total:~ -> @correct + @incorrect
 
 	oddballScore = score with
 		correct: 0
@@ -1390,19 +1395,32 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 		else
 			score.incorrect += 1
 
+		if manipulation != 0
+			if trialCorrect
+				oddballScore.correct += 1
+			else
+				oddballScore.incorrect += 1
+
+		env.logger.write pursuitDiscriminationSummary:
+			time: t
+			targetKey: targetKey
+			pressedKey: key
+			manipulation: manipulation
+			targetDuration: targetDuration
+
 		if manipulation == 0
 			if trialCorrect
 				targetDuration /= speedup
-				oddballScore.correct += 1
 			else
 				targetDuration *= slowdown
 				targetDuration := Math.min targetDuration, showDuration
-				oddballScore.incorrect += 1
 
 		console.log targetDuration, trialCorrect, manipulation, pureScore.percentage!, oddballScore.percentage!
 
 	states =
 		cue: (st) !->
+			if score.total >= nTrials
+				return "exit"
 			if st >= showDuration
 				return "hide"
 			target.setSign 'cue'
@@ -1453,6 +1471,11 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 				return "cue"
 			target.setSign 'failure'
 
+		exit: !~>
+			@let \done, outro:
+				title: env.L "Round done!"
+				content: env.L "You got #{pureScore.percentage!.toFixed 1}% right!"
+
 	scene.beforeRender (dt) !->
 		while true
 			newState = states[state.name](t - state.st)
@@ -1460,6 +1483,7 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 				break
 			state.name = newState
 			state.st = t
+			env.logger.write pursuitDiscriminationState: state
 
 		if state.name == "hide" and state.st == t
 			if Math.random() < oddballRate
@@ -1478,6 +1502,12 @@ exportScenario \movingReaction, (env, {duration=60.0, oddballRate=0.2}={}) ->*
 		pt = t + timeWarp
 		platform.position.x = Math.sin(pt*speed)*0.5
 		platform.position.y = Math.cos(pt*speed)*0.5
+
+		env.logger.write pursuitDiscrimination:
+			platformPosition: platform.position{x,y,z}
+			targetRotation: target.signs.target.rotation.z
+			timeWarp: timeWarp
+
 		t += dt
 
 

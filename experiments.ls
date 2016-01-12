@@ -78,15 +78,18 @@ runWithNewEnv = seqr.bind (scenario, ...args) ->*
 
 export blindPursuit = seqr.bind ->*
 	yield runWithNewEnv scenario.soundSpook, preIntro: true
-	trials = shuffleArray [scenario.blindPursuit, scenario.steeringCatcher]
-	for trial in trials
-		yield runScenario trial, oddballRate: 0.0
+	#trials = shuffleArray [scenario.blindPursuit, scenario.steeringCatcher]
+	#for trial in trials
+	#	yield runScenario trial, oddballRate: 0.0
+	yield runScenario scenario.pursuitDiscrimination, oddballRate: 0.0
+
 	#yield runScenario scenario.blindPursuit, oddballRate: 0.0
-	nBlocks = 4
+	nBlocks = 2
+	trialsPerBlock = 2
 	for block from 0 til nBlocks
-		trials = shuffleArray [scenario.blindPursuit, scenario.steeringCatcher]
-		for trial in trials
-			yield runScenario trial, oddballRate: 0.1
+		yield runScenario s
+		for trial in trialsPerBlock
+			yield runScenario scenario.pursuitDiscrimination, oddballRate: 0.2
 		yield runWithNewEnv scenario.soundSpook
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env
