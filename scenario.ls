@@ -208,7 +208,7 @@ futPos = (scene) ->
 			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	if (scene.time - scene.dT) >= 1 && scene.targetScreen == true
+	if (scene.time - scene.dT) >= 0.5 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
 	if dif(scene)==true
@@ -282,6 +282,7 @@ probeLogicAlt = (scene, n) ->
 				scene.probes[probe].p8.visible = true
 				scene.probes[probe].current = "8"
 		scene.dT = scene.time
+
 
 triangle = (s) ->
 	triA = new THREE.Shape()
@@ -690,7 +691,7 @@ addMarkerScreen = (scene, env) ->
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	scene.markers = []
-	pos = [[0.5 0.5], [1 - 0.0625, 0.8], [0.0625, 0.1], [1 - 0.0625, 0.1], [1 - 0.0625, 0.1], [0.0625, 0.8], [0.5, 0.8]]
+	pos = [[0.5 0.8], [1 - 0.0625, 0.8], [0.0625, 0.1], [1 - 0.0625, 0.1], [1 - 0.0625, 0.1], [0.0625, 0.8], [0.5, 0.8]]
 	for i from 0 til 6
 		console.log i
 		path = 'res/markers/' + (i) + '_marker.png'
