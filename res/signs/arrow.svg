@@ -36,7 +36,7 @@
        inkscape:collect="always"
        xlink:href="#pattern8709"
        id="pattern8714"
-       patternTransform="matrix(2.7590043,0,0,2.7590043,-3865.1746,-2608.2686)" />
+       patternTransform="matrix(4.2616305,0,0,4.2616305,-3865.1746,-2608.2686)" />
     <pattern
        inkscape:collect="always"
        xlink:href="#pattern8700"
@@ -300,7 +300,7 @@
        fy="-878.50751"
        r="702.68738"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.2051595,0,0,1.2051595,479.01858,314.60928)" />
+       gradientTransform="matrix(1.2051595,0,0,1.2051595,479.01859,314.6093)" />
   </defs>
   <sodipodi:namedview
      id="base"
