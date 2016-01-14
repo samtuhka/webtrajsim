@@ -56,6 +56,44 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}={}) ->*
 	face.height = faceHeight
 	return face
 
+SineGrating = ({resolution=1024, cycles=16}={}) ->
+	canvas = document.createElement 'canvas'
+	canvas.width = resolution
+	canvas.height = resolution
+	ctx = canvas.getContext '2d'
+	img = ctx.createImageData resolution, resolution
+
+	setPixel = (x, y, value) ->
+		i = (y*resolution + x)*4
+		c = value*255
+		img.data[i] = 255
+		img.data[i + 1] = 255
+		img.data[i + 2] = 255
+		img.data[i + 3] = c
+
+	for x til resolution
+		for y til resolution
+			rx = x/(resolution/2) - 1
+			ry = y/(resolution/2) - 1
+			d = Math.sqrt (rx**2 + ry**2)
+
+			v = (Math.cos(rx*cycles*Math.PI*2) + 1)/2
+			v *= Math.cos d*Math.PI*2
+			v *= d < 0.5
+			setPixel x, y, v
+	ctx.putImageData img, 0, 0
+
+	texture = new THREE.Texture canvas
+	texture.needsUpdate = true
+	face = new THREE.Mesh do
+		new THREE.PlaneGeometry 1, 1
+		new THREE.MeshLambertMaterial do
+			map: texture
+			side: THREE.DoubleSide
+			transparent: true
+
+	return face
+
 export ArrowMarker = seqr.bind ->*
 	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
 	marker = new THREE.Object3D
@@ -74,8 +112,14 @@ export ArrowMarker = seqr.bind ->*
 		return if name not of signs
 		signs[name].visible = true
 
+	target = SineGrating!
+	target.visible = false
+	target.transparent = true
+	signs.target = target
+	marker.add target
+
 	yield load 'cue', './res/signs/arrow-circle.svg'
-	yield load 'target', './res/signs/arrow.svg'
+	#yield load 'target', './res/signs/arrow.svg'
 	yield load 'mask', './res/signs/arrow-mask.svg'
 	yield load 'wait', './res/signs/arrow-wait.svg'
 	yield load 'query', './res/signs/arrow-query.svg'

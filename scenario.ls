@@ -1350,7 +1350,7 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 	maskDuration = 0.3
 	resultDuration = 2.0
 	lastAppear = 0
-	targetDuration = 0.15
+	targetDuration = 0.05
 	timeWarp = 0.0
 	rndpos = -> (Math.random() - 0.5)*0.5
 	touched = false
@@ -1387,7 +1387,7 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 		keys = ['left', 'right']
 		return if key not in keys
 
-		targetKey = keys[(target.signs.target.rotation.z > 0)*1]
+		targetKey = keys[(target.signs.target.rotation.z < 0)*1]
 		trialCorrect := key == targetKey
 
 		if trialCorrect
@@ -1435,7 +1435,7 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 
 		show: (st) !->
 			if st == 0
-				target.signs.target.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/2.0
+				target.signs.target.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/4.0
 			if st >= targetDuration
 				return "mask"
 			target.setSign 'target'
@@ -1490,8 +1490,8 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 				manipulation := (Math.random() - 0.5)*2*0.5
 				#manipulation := -0.3
 				timeWarp += manipulation
-			#direction = Math.random()*Math.PI*2
-			#magnitude = 0.1
+			direction = Math.random()*Math.PI*2
+			magnitude = 0.1
 			#platform.position.x = Math.sin(direction)*magnitude
 			#platform.position.y = Math.cos(direction)*magnitude
 
