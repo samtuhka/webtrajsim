@@ -191,15 +191,15 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 'Find the direction': 'Löydä suunta'
 '%pursuitDiscrimination.intro': """
 <p>Seuraa katseellasi ruudulla näkyvää kohdetta. Kohteessa
-välähtää ristitähtäimen jälkeen nuolikuvio, jonka suuntaus
-sinun pitää yrittää tunnistaa. Nuolikuvion välähdyksen jälkeen
+välähtää ristitähtäimen jälkeen viivakuvion, jonka kallistuksen
+suuntaus sinun pitää yrittää tunnistaa. Viivakuvion välähdyksen jälkeen
 näet kysymysmerkin: paina tällöin vasenta- tai oikeaa nuolinäppäintä
-sen mukaan, mikä on paras arvauksesi siitä, kumpaan suuntaan kuvion
-<strong>valkoinen</strong> kolmio osoitti.</p>
+sen mukaan, mikä on paras arvauksesi siitä, kumpaan suuntaan kuvio
+on kallellaan</p>
 <table class="centered-table" style="width: 100%">
 <tr><th>Vasen</th><th>Oikea</th></tr>
 <tr>
-<td><img src="./res/signs/arrow.svg" style="width: 10em; height: 10em; transform: rotate(90deg)"></td>
-<td><img src="./res/signs/arrow.svg" style="width: 10em; height: 10em; transform: rotate(-90deg)"></td>
+<td class="leftStim"></td>
+<td class="rightStim"></td>
 </table>
 """

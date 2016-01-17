@@ -56,7 +56,7 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}={}) ->*
 	face.height = faceHeight
 	return face
 
-SineGrating = ({resolution=1024, cycles=16}={}) ->
+export SineGratingBitmap = ({resolution=1024, cycles=8}={}) ->
 	canvas = document.createElement 'canvas'
 	canvas.width = resolution
 	canvas.height = resolution
@@ -77,11 +77,15 @@ SineGrating = ({resolution=1024, cycles=16}={}) ->
 			ry = y/(resolution/2) - 1
 			d = Math.sqrt (rx**2 + ry**2)
 
-			v = (Math.cos(rx*cycles*Math.PI*2) + 1)/2
-			v *= Math.cos d*Math.PI*2
-			v *= d < 0.5
+			v = (Math.cos(rx*cycles*Math.PI) + 1)/2
+			v *= Math.cos d*Math.PI/2
+			v *= d < 1.0
 			setPixel x, y, v
 	ctx.putImageData img, 0, 0
+	return canvas
+
+SineGrating = (opts={}) ->
+	canvas = SineGratingBitmap opts
 
 	texture = new THREE.Texture canvas
 	texture.needsUpdate = true

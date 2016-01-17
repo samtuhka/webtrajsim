@@ -1320,9 +1320,20 @@ shuffleArray = (a) ->
 	return a
 
 exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddballLevels=[0.1, 0.25, 0.4]}={}) ->*
+	gratingLeft = assets.SineGratingBitmap resolution: 256, cycles: 8
+	gratingRight = assets.SineGratingBitmap resolution: 256, cycles: 8
+	introContent = $ env.L '%pursuitDiscrimination.intro'
+	gratingLeft = $(gratingLeft)
+		.css width: '50%', height: 'auto', display: 'inline-block'
+		.css transform: 'rotate(-45deg)'
+	gratingRight = $(gratingRight)
+		.css width: '50%', height: 'auto', display: 'inline-block'
+		.css transform: 'rotate(45deg)'
+	introContent.find '.leftStim' .append gratingLeft
+	introContent.find '.rightStim' .append gratingRight
 	@let \intro,
 		title: env.L "Find the direction"
-		content: env.L "%pursuitDiscrimination.intro"
+		content: introContent
 
 	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
 			..position.z = 5
@@ -1346,6 +1357,7 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddba
 
 	target = yield assets.ArrowMarker()
 	target.scale.set 0.3, 0.3, 0.3
+	target.signs.target.scale.set 0.3, 0.3, 0.3
 	platform.add target
 	@let \scene, scene
 
