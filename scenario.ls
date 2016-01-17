@@ -1312,7 +1312,14 @@ exportScenario \steeringCatcher, (env, {duration=60.0*3, oddballRate=0.1}={}) ->
 
 	return yield @get \done
 
-exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) ->*
+shuffleArray = (a) ->
+	i = a.length
+	while (--i) > 0
+		j = Math.floor (Math.random()*(i+1))
+		[a[i], a[j]] = [a[j], a[i]]
+	return a
+
+exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddballLevels=[0.1, 0.25, 0.4]}={}) ->*
 	@let \intro,
 		title: env.L "Find the direction"
 		content: env.L "%pursuitDiscrimination.intro"
@@ -1342,6 +1349,13 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 	platform.add target
 	@let \scene, scene
 
+	trialsPerLevel = Math.floor nTrials*oddballRate/oddballLevels.length
+	standardTrials = nTrials - trialsPerLevel*oddballLevels.length
+	manipulationSequence = [0.0]*standardTrials
+	for i til trialsPerLevel
+		manipulationSequence = manipulationSequence.concat oddballLevels
+	manipulationSequence = shuffleArray manipulationSequence
+
 	t = 0
 	speed = 1.3
 	hideDuration = 0.3
@@ -1350,7 +1364,7 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 	maskDuration = 0.3
 	resultDuration = 2.0
 	lastAppear = 0
-	targetDuration = 0.05
+	targetDuration = 0.00001
 	timeWarp = 0.0
 	rndpos = -> (Math.random() - 0.5)*0.5
 	touched = false
@@ -1486,10 +1500,12 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=40, oddballRate=0.2}={}) -
 			env.logger.write pursuitDiscriminationState: state
 
 		if state.name == "hide" and state.st == t
-			if Math.random() < oddballRate
-				manipulation := (Math.random() - 0.5)*2*0.5
-				#manipulation := -0.3
-				timeWarp += manipulation
+			#if Math.random() < oddballRate
+			#	manipulation := (Math.random() - 0.5)*2*0.5
+			#	#manipulation := -0.3
+			#	timeWarp += manipulation
+			manipulation := manipulationSequence.pop()
+			timeWarp += manipulation
 			direction = Math.random()*Math.PI*2
 			magnitude = 0.1
 			#platform.position.x = Math.sin(direction)*magnitude
