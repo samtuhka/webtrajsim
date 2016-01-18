@@ -1376,7 +1376,7 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddba
 	maskDuration = 0.3
 	resultDuration = 2.0
 	lastAppear = 0
-	targetDuration = 0.00001
+	targetDuration = 0.05
 	timeWarp = 0.0
 	rndpos = -> (Math.random() - 0.5)*0.5
 	touched = false
@@ -1442,13 +1442,20 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddba
 				targetDuration := Math.min targetDuration, showDuration
 
 		console.log targetDuration, trialCorrect, manipulation, pureScore.percentage!, oddballScore.percentage!
-
+	
+	prevX = void
 	states =
 		cue: (st) !->
+			if st == 0
+				prevX := platform.position.x
+
 			if score.total >= nTrials
 				return "exit"
-			if st >= showDuration
+
+			x = platform.position.x
+			if st >= showDuration and Math.sign(x) != Math.sign(prevX)
 				return "hide"
+			prevX := x
 			target.setSign 'cue'
 			trialCorrect := void
 			waitingAnswer := false
@@ -1528,8 +1535,8 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddba
 		#	platform.position.y = 0
 
 		pt = t + timeWarp
-		platform.position.x = Math.sin(pt*speed)*0.5
-		platform.position.y = Math.cos(pt*speed)*0.5
+		platform.position.x = Math.sin(pt*speed)*0.75
+		#platform.position.y = Math.cos(pt*speed)*0.5
 
 		env.logger.write pursuitDiscrimination:
 			platformPosition: platform.position{x,y,z}
