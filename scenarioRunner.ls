@@ -146,6 +146,7 @@ export newEnv = seqr.bind !->*
 export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scope = newEnv()
 	env = yield scope.get \env
+	@let \env, env
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
@@ -227,14 +228,14 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 	env.notifications.fadeOut()
 	yield ui.waitFor el~fadeOut
-	{passed, outro} = yield scenario
+	{passed, outro} = result = yield scenario
 	el.remove()
 
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title
 			@ \subtitle .append outro.subtitle
 			@ \content .append outro.content
-			me.let \done, passed: passed, outro: @
+			me.let \done, passed: passed, outro: @, result: result
 	@let \outro, [outro]
 	yield outro
 	scope.let \destroy
