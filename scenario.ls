@@ -1391,7 +1391,7 @@ exportScenario \pursuitDiscriminationPractice, (env) ->*
 	maxFrequency = 32
 
 	steps = [0.5, 0.3, 0.1, 0.05, 0.05, 0.05, 0.05, 0.05]
-	progress = 10
+	progress = 0
 	controller = (result={}) ->
 		if result.correct
 			progress += 1
