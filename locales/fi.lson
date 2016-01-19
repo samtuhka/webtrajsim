@@ -203,3 +203,62 @@ on kallellaan</p>
 <td class="rightStim"></td>
 </table>
 """
+
+"%blindPursuit.totalScore": ({score}) ->
+	"<p>Kokonaistuloksesi on #{score.toFixed 1}%.</p>"
+
+"%blindPursuit.finalScore": ({score}) ->
+	"<p>Lopullinen tuloksesi on #{score.toFixed 1}%.</p>"
+
+'%introBlindPursuit.introduction': """
+<p>Tämän kokeen tarkoituksena on tutkia havaintotarkkuutta ja
+ennakoivia silmänliikkeitä.
+
+<p>Koe koostuu useasta osatehtävästä,
+jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin tunnin.
+Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
+
+<p>Kokeen vastuullisena tutkijana toimii prof. Heikki Summala.
+"""
+
+'Possible eye strain': 'Koe saattaa väsyttää silmiä'
+'%introBlindPursuit.eyeStrain': """
+<p>Kokeen tehtävissä tehdään toistuvia silmänliikkeitä
+ja seurataan kohdetta yhtäjaksoisesti useita minuutteja.
+Tämä saattaa aiheuttaa väsymystä silmissä.
+
+<p>Ilmoita välittömästi kokeen johtajalle, jos silmissäsi
+alkaa tuntua kipua tai ne alkavat rasittua.
+"""
+
+'Relaxation and sound response': 'Rentoutuminen ja vaste ääniärsykkeeseen'
+'Notification sound': 'Merkkiääni'
+'Play the notification sound': 'Soita merkkiääni'
+
+'%soundSpook.notificationSound': """
+Kokeen aikana sinua tullaan pyytämään ajoittain sulkemaan silmäsi
+ja rentoutumaan. Kun kuulet merkkiäänen ensimmäisen kerran, sulje
+silmäsi. Pidä silmäsi suljettuna, kunnes kuulet merkkiäänen uudelleen.
+"""
+
+'Noise sound': 'Ääniärsyke'
+
+'%soundSpook.noiseSound': """
+Rentutumisen aikana soitetaan ajoittain ääniärsyke. Tällä mitataan,
+miten hermostosi reagoi äkkinäisiin tapahtumiin. Pyydämme, että
+yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
+"""
+
+'Play the noise sound': 'Soita ääniärsyke'
+
+
+'%soundSpook.instruction': """
+Sulje silmäsi, kun kuulet merkkiäänen ja pidä ne suljettuna, kunnes
+kuulet merkkiäänen uudelleen. Pyri rentoutumaan ja olla ajattelematta
+aktiivisesti mitään; yritä pitää mielesi mahdollisimman tyhjänä. Pyri
+olemaan reagoimatta millään tavoin ääniärsykkeisiin.
+"""
+
+'Please keep your eyes closed': 'Pidä silmäsi suljettuna kunnes kuulet merkkiäänen.'
+
+'Round done': 'Kierros suoritettu'

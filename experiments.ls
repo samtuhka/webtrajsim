@@ -77,22 +77,36 @@ runWithNewEnv = seqr.bind (scenario, ...args) ->*
 	return ret
 
 export blindPursuit = seqr.bind ->*
+	yield runWithNewEnv scenario.participantInformationBlindPursuit
+	totalScore =
+		correct: 0
+		incorrect: 0
 	yield runWithNewEnv scenario.soundSpook, preIntro: true
-	#trials = shuffleArray [scenario.blindPursuit, scenario.steeringCatcher]
-	#for trial in trials
-	#	yield runScenario trial, oddballRate: 0.0
-	yield runScenario scenario.pursuitDiscrimination, oddballRate: 0.0
 
-	#yield runScenario scenario.blindPursuit, oddballRate: 0.0
+	runPursuitScenario = seqr.bind (...args) ->*
+		task = runScenario ...args
+		env = yield task.get \env
+		res = yield task.get \done
+
+		totalScore.correct += res.result.score.correct
+		totalScore.incorrect += res.result.score.incorrect
+		totalPercentage = totalScore.correct/(totalScore.correct + totalScore.incorrect)*100
+		res.outro \content .append $ env.L "%blindPursuit.totalScore", score: totalPercentage
+		yield task
+		return res
+	res = yield runPursuitScenario scenario.pursuitDiscriminationPractice
+	frequency = res.result.estimatedFrequency
 	nBlocks = 2
 	trialsPerBlock = 2
 	for block from 0 til nBlocks
-		yield runScenario s
-		for trial in trialsPerBlock
-			yield runScenario scenario.pursuitDiscrimination, oddballRate: 0.2
+		for trial from 0 til trialsPerBlock
+			yield runPursuitScenario scenario.pursuitDiscrimination, frequency: frequency
 		yield runWithNewEnv scenario.soundSpook
+
 	env = newEnv!
-	yield scenario.experimentOutro yield env.get \env
+	yield scenario.experimentOutro (yield env.get \env), (env) ->
+		totalPercentage = totalScore.correct/(totalScore.correct + totalScore.incorrect)*100
+		@ \content .append env.L '%blindPursuit.finalScore', score: totalPercentage
 	env.let \destroy
 	yield env
 

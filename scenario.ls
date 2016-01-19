@@ -773,20 +773,87 @@ exportScenario \participantInformation, (env) ->*
 			i -= 2
 		i += 1
 
-
-	#yield ui.inputDialog env, ->
-	#	@ \title .text L "Welcome to the experiment"
-	#	@ \text .text L "Please type your name."
-	#	textbox = $('<input name="name" type="text" style="color: black">')
-	#	.appendTo @ \content
-	#	setTimeout textbox~focus, 0
-
-exportScenario \experimentOutro, (env) ->*
+exportScenario \participantInformationBlindPursuit, (env) ->*
 	L = env.L
-	yield ui.instructionScreen env, ->
+	currentYear = (new Date).getFullYear()
+	radioSelect = (name, ...options) ->
+		for {value, label} in options
+			$ """
+			<div class="radio">
+				<label>
+					<input type="radio" name="#name" value="#value">
+					#label
+				</label>
+			</div>
+			"""
+
+	dialogs =
+		->
+			@ \title .text L "Welcome to the experiment"
+			@ \text .append L "%introBlindPursuit.introduction"
+			@ \accept .text L "Next"
+			@ \cancel-button .hide!
+		->
+			@ \title .text L "Participation is voluntary"
+			@ \text .append L "%intro.participantRights"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "I wish to participate"
+		->
+			@ \title .text L "Possible eye strain"
+			@ \text .append L "%introBlindPursuit.eyeStrain"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "OK"
+		->
+			@ \title .text L "Collection and use of data"
+			@ \text .append L "%intro.dataUse"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "I accept the usage of my data"
+		->
+			@ \title .text L "Background information"
+			@ \text .append L "%intro.backgroundInfo"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+		->
+			@ \title .text L "E-mail address"
+			@ \text .append L "%intro.email"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			input = $('<input name="email" type="email" style="color: black">')
+			.prop "placeholder", L "E-mail address"
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
+		->
+			@ \title .text L "Birth year"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			input = $("""<input name="birthyear" type="number" min="1900" max="#currentYear" style="color: black">""")
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
+		->
+			@ \title .text L "Gender"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "gender",
+				* value: 'female', label: L "Female"
+				* value: 'male', label: L "Male"
+
+	i = 0
+	while i < dialogs.length
+		result = yield ui.inputDialog env, dialogs[i]
+		console.log result
+		if result.canceled
+			i -= 2
+		i += 1
+
+
+
+exportScenario \experimentOutro, (env, cb=->) ->*
+	L = env.L
+	yield ui.instructionScreen env, (...args) ->
 		@ \title .append L "The experiment is done!"
 		@ \content .append L '%experimentOutro'
 		@ \accept-button .hide()
+		cb.apply @, [env].concat ...args
 
 
 exportScenario \blindPursuitOld, (env, {nTrials=50, oddballRate=1}={}) ->*
@@ -1324,7 +1391,7 @@ exportScenario \pursuitDiscriminationPractice, (env) ->*
 	maxFrequency = 32
 
 	steps = [0.5, 0.3, 0.1, 0.05, 0.05, 0.05, 0.05, 0.05]
-	progress = 0
+	progress = 10
 	controller = (result={}) ->
 		if result.correct
 			progress += 1
@@ -1341,7 +1408,7 @@ exportScenario \pursuitDiscriminationPractice, (env) ->*
 	stepDown = 1.2
 	currentFrequency = minFrequency
 	trialsDone = 0
-	reversalsNeeded = 8
+	reversalsNeeded = 10
 	prevCorrect = true
 	reversals = []
 	staircase = (result) ->
@@ -1375,6 +1442,8 @@ exportScenario \pursuitDiscrimination, (env, {frequency=10}={}) ->*
 	totalTrials = Math.round oddballs.length/0.2
 	standards = [0.0]*(totalTrials - oddballs.length)
 	sequence = shuffleArray standards.concat oddballs
+	sequence = [].concat([0.0]*2, sequence, [0.0]*2)
+	console.log "N trials", sequence.length
 	base = pursuitDiscriminationBase env, ->
 		if sequence.length == 0
 			return void
@@ -1386,7 +1455,7 @@ exportScenario \pursuitDiscrimination, (env, {frequency=10}={}) ->*
 	@let \scene, yield base.get \scene
 	yield @get \run ; base.let \run
 	result = yield base.get \done
-	@let \done
+	@let \done, result
 	return result
 
 pursuitDiscriminationBase = seqr.bind (env, getParameters) ->*
@@ -1396,7 +1465,7 @@ pursuitDiscriminationBase = seqr.bind (env, getParameters) ->*
 		cueDuration: 2.0
 		waitDuration: 2.0
 		maskDuration: 0.3
-		resultDuration: 3.0
+		resultDuration: 2.0
 		targetDuration: 0.05
 		frequency: 10
 		manipulation: 0
@@ -1444,15 +1513,7 @@ pursuitDiscriminationBase = seqr.bind (env, getParameters) ->*
 	platform.add target
 	@let \scene, scene
 
-	/*trialsPerLevel = Math.floor nTrials*oddballRate/oddballLevels.length
-	standardTrials = nTrials - trialsPerLevel*oddballLevels.length
-	manipulationSequence = [0.0]*standardTrials
-	for i til trialsPerLevel
-		manipulationSequence = manipulationSequence.concat oddballLevels
-	manipulationSequence = shuffleArray manipulationSequence*/
-
 	t = 0
-	
 
 	score =
 		correct: 0
@@ -1573,7 +1634,7 @@ pursuitDiscriminationBase = seqr.bind (env, getParameters) ->*
 		movementDirection *= -1
 		platform.position.x = (-movementDirection)*displacement
 		timeToCenter = displacement/parameters.speed
-		startTime = parameters.cueDuration - timeToCenter
+		startTime = (parameters.cueDuration + parameters.hideDuration) - timeToCenter
 		hintTime = Math.max(0, startTime - 0.3)
 		target.signs.cue.material.opacity = 0.5
 		target.signs.cue.material.needsUpdate = true
@@ -1791,14 +1852,7 @@ exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.
 		yield ui.instructionScreen env, ->
 			@ \title .append env.L "Relaxation and sound response"
 			@ \subtitle .append env.L "Notification sound"
-			@ \content .append env.L """
-			During the experiment you will at times be asked to close your eyes
-			and relax. When you first hear the notification sound, please close
-			your eyes. When you hear it second time, please open your eyes.
-
-			Press the right side red button on the steering wheel to hear the
-			sound now.
-			"""
+			@ \content .append env.L "%soundSpook.notificationSound"
 			@ \accept .text env.L "Play the notification sound"
 		yield bell()
 
@@ -1806,7 +1860,8 @@ exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.
 		yield ui.instructionScreen env, ->
 			@ \title .append env.L "Relaxation and sound response"
 			@ \subtitle .append env.L "Noise sound"
-			@ \content .append env.L """
+			@ \content .append env.L '%soundSpook.noiseSound'
+			"""
 			During the relaxation periods, a noise sound is occasionally played.
 			This is used to measure how your nervous system responses to sudden events.
 			Please try not to move when you hear the sound even if you get surprised,
@@ -1817,12 +1872,7 @@ exportScenario \soundSpook, (env, {preIntro=false, spookRate=1/20.0 duration=90.
 
 	yield ui.instructionScreen env, ->
 			@ \title .append env.L "Relaxation and sound response"
-			@ \content .append env.L """
-			Please close your eyes and relax when you hear the notification sound
-			and keep them closed until you hear it again. Also try not to actively
-			think anything; keep your mind as clear as you can. Try not to react
-			any way to the noise sounds.
-			"""
+			@ \content .append env.L '%soundSpook.instruction'
 
 	msg = $('<h1>')
 		.text env.L "Please keep your eyes closed"
