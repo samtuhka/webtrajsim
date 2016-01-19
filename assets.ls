@@ -98,7 +98,7 @@ SineGrating = (opts={}) ->
 
 	return face
 
-export ArrowMarker = seqr.bind ->*
+export ArrowMarker = seqr.bind (opts={}) ->*
 	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
 	marker = new THREE.Object3D
 	marker.signs = signs = {}
@@ -116,14 +116,20 @@ export ArrowMarker = seqr.bind ->*
 		return if name not of signs
 		signs[name].visible = true
 
-	target = SineGrating!
+	target = SineGrating opts
 	target.visible = false
 	target.transparent = true
 	signs.target = target
 	marker.add target
 
+	marker.setFrequency = (frequency) ->
+		return if frequency == target._frequency
+		target.material.map = new THREE.Texture(SineGratingBitmap cycles: frequency)
+		target.material.map.needsUpdate = true
+		target.material.needsUpdate = true
+		target._frequency = frequency
+
 	yield load 'cue', './res/signs/arrow-circle.svg'
-	#yield load 'target', './res/signs/arrow.svg'
 	yield load 'mask', './res/signs/arrow-mask.svg'
 	yield load 'wait', './res/signs/arrow-wait.svg'
 	yield load 'query', './res/signs/arrow-query.svg'
