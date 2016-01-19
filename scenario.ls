@@ -1319,9 +1319,91 @@ shuffleArray = (a) ->
 		[a[i], a[j]] = [a[j], a[i]]
 	return a
 
-exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddballLevels=[0.1, 0.25, 0.4]}={}) ->*
-	gratingLeft = assets.SineGratingBitmap resolution: 256, cycles: 8
-	gratingRight = assets.SineGratingBitmap resolution: 256, cycles: 8
+exportScenario \pursuitDiscriminationPractice, (env) ->*
+	minFrequency = 4
+	maxFrequency = 32
+
+	steps = [0.5, 0.3, 0.1, 0.05, 0.05, 0.05, 0.05, 0.05]
+	progress = 0
+	controller = (result={}) ->
+		if result.correct
+			progress += 1
+		else
+			progress -= 1
+		progress := Math.max progress, 0
+		if progress >= steps.length
+			controller := staircase
+			return controller result
+		frequency: minFrequency
+		targetDuration: steps[progress]
+
+	stepUp = 1.05
+	stepDown = 1.2
+	currentFrequency = minFrequency
+	trialsDone = 0
+	reversalsNeeded = 8
+	prevCorrect = true
+	reversals = []
+	staircase = (result) ->
+		trialsDone += 1
+		if prevCorrect != result.correct
+			reversals.push currentFrequency
+		if reversals.length >= reversalsNeeded
+			return void
+		prevCorrect := result.correct
+		if result.correct
+			currentFrequency := Math.min maxFrequency, currentFrequency*stepUp
+		else
+			currentFrequency := Math.max minFrequency, currentFrequency/stepDown
+
+		frequency: currentFrequency
+
+	base = pursuitDiscriminationBase env, (...args) -> return controller ...args
+
+	@let \intro, yield base.get \intro
+	@let \scene, yield base.get \scene
+	yield @get \run ; base.let \run
+	result = yield base.get \done
+	@let \done
+	result.estimatedFrequency = reversals.reduce((+))/reversals.length
+	env.logger.write pursuitDiscriminationEstimatedFrequency: result.estimatedFrequency
+	console.log "Estimated frequency", result.estimatedFrequency
+	return result
+
+exportScenario \pursuitDiscrimination, (env, {frequency=10}={}) ->*
+	oddballs = [-0.1, 0.1, -0.25, 0.25, -0.4, 0.4]*2
+	totalTrials = Math.round oddballs.length/0.2
+	standards = [0.0]*(totalTrials - oddballs.length)
+	sequence = shuffleArray standards.concat oddballs
+	base = pursuitDiscriminationBase env, ->
+		if sequence.length == 0
+			return void
+
+		manipulation: sequence.pop()
+		frequency: frequency
+
+	@let \intro, yield base.get \intro
+	@let \scene, yield base.get \scene
+	yield @get \run ; base.let \run
+	result = yield base.get \done
+	@let \done
+	return result
+
+pursuitDiscriminationBase = seqr.bind (env, getParameters) ->*
+	defaultParameters =
+		speed: 1.3
+		hideDuration: 0.3
+		cueDuration: 2.0
+		waitDuration: 2.0
+		maskDuration: 0.3
+		resultDuration: 3.0
+		targetDuration: 0.05
+		frequency: 10
+		manipulation: 0
+	parameters = defaultParameters with getParameters!
+
+	gratingLeft = assets.SineGratingBitmap resolution: 256, cycles: parameters.frequency
+	gratingRight = assets.SineGratingBitmap resolution: 256, cycles: parameters.frequency
 	introContent = $ env.L '%pursuitDiscrimination.intro'
 	gratingLeft = $(gratingLeft)
 		.css width: '50%', height: 'auto', display: 'inline-block'
@@ -1356,37 +1438,21 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddba
 	scene.visual.add platform
 
 	target = yield assets.ArrowMarker()
+	target.setFrequency 10
 	target.scale.set 0.3, 0.3, 0.3
 	target.signs.target.scale.set 0.3, 0.3, 0.3
 	platform.add target
 	@let \scene, scene
 
-	trialsPerLevel = Math.floor nTrials*oddballRate/oddballLevels.length
+	/*trialsPerLevel = Math.floor nTrials*oddballRate/oddballLevels.length
 	standardTrials = nTrials - trialsPerLevel*oddballLevels.length
 	manipulationSequence = [0.0]*standardTrials
 	for i til trialsPerLevel
 		manipulationSequence = manipulationSequence.concat oddballLevels
-	manipulationSequence = shuffleArray manipulationSequence
+	manipulationSequence = shuffleArray manipulationSequence*/
 
 	t = 0
-	speed = 1.3
-	hideDuration = 0.3
-	showDuration = 3.0
-	waitDuration = 3.0
-	maskDuration = 0.3
-	resultDuration = 2.0
-	lastAppear = 0
-	targetDuration = 0.05
-	timeWarp = 0.0
-	rndpos = -> (Math.random() - 0.5)*0.5
-	touched = false
-	slowdown = 1.0# = 1.05
-	speedup = 1.0# = 1.03
-
-	waitingAnswer = false
-	trialStart = 0
-	manipulation = 0
-	trialCorrect = void
+	
 
 	score =
 		correct: 0
@@ -1402,150 +1468,133 @@ exportScenario \pursuitDiscrimination, (env, {nTrials=45, oddballRate=0.2, oddba
 		correct:~ -> score.correct - oddballScore.correct
 		incorrect:~ -> score.incorrect - oddballScore.incorrect
 
-	state =
-		name: 'cue'
-		st: 0
+	events =
+		begin: Signal!
+		hide: Signal!
+		show: Signal!
+		mask: Signal!
+		query: Signal!
+		wait: Signal!
+		result: Signal!
+		exit: Signal!
 
-	env.controls.change (key, isOn) ->
-		return if not waitingAnswer
-		return if trialCorrect?
-		return if not isOn
-		keys = ['left', 'right']
-		return if key not in keys
+	for let name, signal of events
+		signal !->
+			env.logger.write pursuitDiscriminationState:
+				name: name
+				st: t
 
-		targetKey = keys[(target.signs.target.rotation.z < 0)*1]
-		trialCorrect := key == targetKey
 
-		if trialCorrect
-			score.correct += 1
-		else
-			score.incorrect += 1
+	schedule = (seconds, func) ->
+		t = 0
+		scene.beforeRender (dt) !->
+			if t >= seconds
+				func()
+				return false
+			t += dt
 
-		if manipulation != 0
-			if trialCorrect
-				oddballScore.correct += 1
+	trialResult = void
+
+	events.begin !->
+		trialResult := {}
+
+		target.setFrequency parameters.frequency
+		target.setSign 'cue'
+		schedule parameters.cueDuration, events.hide~dispatch
+	events.hide !->
+		platform.visible = false
+		schedule parameters.hideDuration, events.show~dispatch
+	events.show !->
+		target.signs.target.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/4.0
+		platform.visible = true
+		target.setSign 'target'
+		schedule parameters.targetDuration, events.mask~dispatch
+		env.controls.change (key, isOn) !->
+			return if not isOn
+			keys = ['left', 'right']
+			return if key not in keys
+
+			targetKey = keys[(target.signs.target.rotation.z < 0)*1]
+			trialResult.correct = key == targetKey
+			trialResult.targetKey = targetKey
+			trialResult.pressedKey = key
+
+			if trialResult.correct
+				score.correct += 1
 			else
-				oddballScore.incorrect += 1
+				score.incorrect += 1
 
-		env.logger.write pursuitDiscriminationSummary:
-			time: t
-			targetKey: targetKey
-			pressedKey: key
-			manipulation: manipulation
-			targetDuration: targetDuration
+			if parameters.manipulation != 0
+				if trialResult.correct
+					oddballScore.correct += 1
+				else
+					oddballScore.incorrect += 1
 
-		if manipulation == 0
-			if trialCorrect
-				targetDuration /= speedup
-			else
-				targetDuration *= slowdown
-				targetDuration := Math.min targetDuration, showDuration
+			env.logger.write pursuitDiscriminationSummary:
+				time: t
+				parameters: parameters
+				result: trialResult
 
-		console.log targetDuration, trialCorrect, manipulation, pureScore.percentage!, oddballScore.percentage!
-	
-	prevX = void
-	states =
-		cue: (st) !->
-			if st == 0
-				prevX := platform.position.x
+			schedule 0, events.wait~dispatch
+			return false
+	events.mask !->
+		return if trialResult.correct?
+		target.setSign 'mask'
+		schedule parameters.maskDuration, events.query~dispatch
+	events.query !->
+		return if trialResult.correct?
+		target.setSign 'query'
+	events.wait !->
+		target.setSign 'wait'
+		schedule parameters.waitDuration, events.result~dispatch
 
-			if score.total >= nTrials
-				return "exit"
+	events.result !->
+		console.log parameters.manipulation, pureScore.percentage!, oddballScore.percentage!
 
-			x = platform.position.x
-			if st >= showDuration and Math.sign(x) != Math.sign(prevX)
-				return "hide"
-			prevX := x
-			target.setSign 'cue'
-			trialCorrect := void
-			waitingAnswer := false
-			manipulation := 0
-		hide: (st) !->
-			if st >= hideDuration
-				platform.visible = true
-				return "show"
-			platform.visible = false
+		target.setSign if trialResult.correct then 'success' else 'failure'
 
-		show: (st) !->
-			if st == 0
-				target.signs.target.rotation.z = Math.sign(Math.random() - 0.5)*Math.PI/4.0
-			if st >= targetDuration
-				return "mask"
-			target.setSign 'target'
-			waitingAnswer := true
+		params = getParameters trialResult
+		if not params?
+			schedule parameters.resultDuration, events.exit~dispatch()
+			return
+		parameters := defaultParameters with params
 
-		mask: (st) !->
-			if st >= maskDuration
-				return "query"
-			target.setSign 'mask'
-			waitingAnswer := true
-
-		query: (st) !->
-			target.setSign 'query'
-			return void if not trialCorrect?
-			return "wait"
+		schedule parameters.resultDuration, events.begin~dispatch
 
 
-		wait: (st) !->
-			target.setSign 'wait'
-			return if st < waitDuration
-			if trialCorrect
-				return "success"
-			else
-				return "failure"
+	events.exit !~>
+		@let \done, score: score, outro:
+			title: env.L "Round done!"
+			content: env.L "You got #{score.percentage!.toFixed 1}% right!"
 
-		success: (st) !->
-			if st >= resultDuration
-				return "cue"
-			target.setSign 'success'
+	displacement = 1.0
+	movementDirection = -1
+	events.begin ->
+		movementDirection *= -1
+		platform.position.x = (-movementDirection)*displacement
+		timeToCenter = displacement/parameters.speed
+		startTime = parameters.cueDuration - timeToCenter
+		hintTime = Math.max(0, startTime - 0.3)
+		target.signs.cue.material.opacity = 0.5
+		target.signs.cue.material.needsUpdate = true
+		schedule hintTime, ->
+			target.signs.cue.material.opacity = 1.0
+			target.signs.cue.material.needsUpdate = true
+		schedule startTime, -> scene.beforeRender (dt) !->
+			platform.position.x += dt*movementDirection*parameters.speed
+			if platform.position.x*movementDirection >= displacement
+				platform.position.x = movementDirection*displacement
+				return false
+	events.hide ->
+		#manipulation := manipulationSequence.pop() ? 0
+		platform.position.x += movementDirection*parameters.manipulation*parameters.speed
 
-		failure: (st) !->
-			if st >= resultDuration
-				return "cue"
-			target.setSign 'failure'
-
-		exit: !~>
-			@let \done, outro:
-				title: env.L "Round done!"
-				content: env.L "You got #{pureScore.percentage!.toFixed 1}% right!"
-
-	scene.beforeRender (dt) !->
-		while true
-			newState = states[state.name](t - state.st)
-			if not newState?
-				break
-			state.name = newState
-			state.st = t
-			env.logger.write pursuitDiscriminationState: state
-
-		if state.name == "hide" and state.st == t
-			#if Math.random() < oddballRate
-			#	manipulation := (Math.random() - 0.5)*2*0.5
-			#	#manipulation := -0.3
-			#	timeWarp += manipulation
-			manipulation := manipulationSequence.pop()
-			timeWarp += manipulation
-			direction = Math.random()*Math.PI*2
-			magnitude = 0.1
-			#platform.position.x = Math.sin(direction)*magnitude
-			#platform.position.y = Math.cos(direction)*magnitude
-
-		#if state.name == "cue"
-		#	platform.position.x = 0
-		#	platform.position.y = 0
-
-		pt = t + timeWarp
-		platform.position.x = Math.sin(pt*speed)*0.75
-		#platform.position.y = Math.cos(pt*speed)*0.5
-
+	events.begin.dispatch()
+	scene.afterRender (dt) !->
 		env.logger.write pursuitDiscrimination:
 			platformPosition: platform.position{x,y,z}
 			targetRotation: target.signs.target.rotation.z
-			timeWarp: timeWarp
-
-		t += dt
-
-
+	scene.afterRender (dt) !-> t += dt
 
 	yield @get \run
 	return yield @get \done
