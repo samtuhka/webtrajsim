@@ -187,30 +187,26 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
 
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 2 , "colPrac", dev
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2 , "prac", dev, 0, 1
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
-	task = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, true, 3, false, dev
-	result = yield task.get \done
-	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa. Ärsykkeet eivät enää eroa värin vaan muodon perusteella.</p>"
-	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
-	yield task
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2, "prac", dev
+	task = runScenarioCurve scenario.circleDrivingRev, rx, ry, l, s, 1, false, false, 3, false, dev, 0, 0.5
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Varsinainen koe alkaa seuraavaksi.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
+
 	for scn in scenarios
 		inst = false
 		if i==0 && j==0
 			inst = "real"
 		if scn.scenarioName == "circleDriving"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst, dev
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst, dev, 0, 0.2
 			i += 1
 		else
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst, dev
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst, dev, 0, 0.2
 			j += 1
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"

@@ -159,11 +159,6 @@ clearProbes = (scene) ->
 		scene.transientScreen = false
 
 colorProbes = (scene) ->
-	vFOV = scene.camera.fov
-	angle = (vFOV/2) * Math.PI/180
-	ratio = 0.025
-	s = (Math.tan(angle) * 1000 * 2) * ratio
-	geo = new THREE.PlaneGeometry(s*0.7, s*0.7, 32 )
 	mat1 = new THREE.MeshBasicMaterial color: 0x0000FF, transparent: true, depthTest: false, depthWrite: false
 	mat2 = new THREE.MeshBasicMaterial color: 0xDC143C, transparent: true, depthTest: false, depthWrite: false
 	for i from 0 til scene.probes.length
@@ -208,7 +203,7 @@ futPos = (scene) ->
 			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	if (scene.time - scene.dT) >= 0.2 && scene.targetScreen == true
+	if (scene.time - scene.dT) >= scene.visibTime && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
 	if dif(scene)==true
@@ -553,9 +548,9 @@ export instructions = seqr.bind (env, inst, scene) ->*
 			@ \title .text L title
 			@ \text .append L text
 			@ \wrapper .0.style.height="2.5cm"
-			@ \rightTitle   .append L "Vaakaviivakuvio"
+			@ \rightTitle   .append L "Vaakaviivakuvio (oikea)"
 			@ \right   .append L gratingHor
-			@ \leftTitle   .append L "Pystyviivakuvio"
+			@ \leftTitle   .append L "Pystyviivakuvio (vasen)"
 			@ \left   .append L gratingVer
 			@ \cancel .text L "Previous"
 			@ \accept .text L "Ok"
@@ -729,7 +724,7 @@ listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
 
-exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut) ->*
+exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -749,6 +744,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 		fut = future
 	if aut == undefined
 		aut = automatic
+	if visib == undefined
+		visib = 0.15
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
 
@@ -779,6 +776,8 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	calculateFuture scene, 1, s/3.6
 	handleProbeLocs scene, n, r, fut
 	markersVisible scene
+
+	scene.visibTime = visib
 
 	unless inst == false
 		yield instructions env, inst, scene
@@ -839,7 +838,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 
 	return yield @get \done
 
-exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut) ->*
+exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -859,6 +858,8 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 		fut = future
 	if aut == undefined
 		aut = automatic
+	if visib == undefined
+		visib = 0.15
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
 
@@ -890,6 +891,9 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 
 	calculateFuture scene, -1, s/3.6
 	handleProbeLocs scene, n, r, fut
+
+	scene.visibTime = visib
+
 
 	unless inst == false
 		yield instructions env, inst, scene
