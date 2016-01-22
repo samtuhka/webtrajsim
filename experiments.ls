@@ -166,7 +166,10 @@ export freeDrivingCurve = seqr.bind ->*
 			yield runScenario scenario.circleDrivingRevFree, rx, ry, l, s, 1, false, false, 2, false, 0
 
 export circleDriving = seqr.bind ->*
-
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
 	dev = 0
 	ntrials = 4
 	rightParams = [2,2,3,3]
@@ -184,7 +187,7 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.circleDrivingRev]*ntrials)
 	scenarios = shuffleArray scenarios
 
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 3 , "colPrac", dev
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, true, 2 , "colPrac", dev
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"

@@ -208,7 +208,7 @@ futPos = (scene) ->
 			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	if (scene.time - scene.dT) >= 0.5 && scene.targetScreen == true
+	if (scene.time - scene.dT) >= 0.2 && scene.targetScreen == true
 		clearProbes scene
 		scene.dT = scene.time
 	if dif(scene)==true
@@ -302,7 +302,7 @@ addProbe = (scene) ->
 	aspect = screen.width / screen.height
 	hFOV = aspect * vFOV
 	angle = (vFOV/2) * Math.PI/180
-	ratio = 1.625/hFOV
+	ratio =1/vFOV
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth
 	params = {size: s*1.2, height: 0, font: "digital-7"}
@@ -311,6 +311,13 @@ addProbe = (scene) ->
 	geo4 = new THREE.ShapeGeometry(triangles[1])
 	geoB = new THREE.TextGeometry("B", params)
 	geo8 = new THREE.TextGeometry("0", params)
+
+	textureA = THREE.ImageUtils.loadTexture 'res/world/grating_hor.png'
+	matA = new THREE.MeshBasicMaterial map:textureA, transparent: true, depthTest: false, depthWrite: false
+
+	textureB = THREE.ImageUtils.loadTexture 'res/world/grating_ver.png'
+	matB = new THREE.MeshBasicMaterial map:textureB, transparent: true, depthTest: false, depthWrite: false
+
 	if scene.params.deviant == 1
 		geoA = new THREE.ShapeGeometry(triangles[1])
 		geo4 = new THREE.ShapeGeometry(triangles[0])
@@ -318,11 +325,11 @@ addProbe = (scene) ->
 	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
 
-	pa = new THREE.Mesh geoA, material
+	pa = new THREE.Mesh geo, matA
 	pa.visible = false
 	pb = new THREE.Mesh geoB, material
 	pb.visible = false
-	p4 = new THREE.Mesh geo4, material
+	p4 = new THREE.Mesh geo, matB
 	p4.visible = false
 	p8 = new THREE.Mesh geo8, material
 	p8.visible = false
@@ -336,10 +343,6 @@ addProbe = (scene) ->
 	probe.heigth = heigth
 	probe.ratio = ratio
 	probes = [pa, p4, pb, p8]
-	for i from 0 til 4
-		probes[i].geometry.computeBoundingBox ()
-		probes[i].position.x = -(probes[i].geometry.boundingBox.max.x - probes[i].geometry.boundingBox.min.x) / 2
-		probes[i].position.y = -(probes[i].geometry.boundingBox.max.y - probes[i].geometry.boundingBox.min.y) / 2
 	probe.add plane
 	plane.position.z = 0
 	probe.add pa
@@ -530,6 +533,16 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		text = "%circleDriving.intro2Color"
 		if scene.params.deviant == 1
 			text = "%circleDriving.intro2ColorRev"
+
+	gratingVer = assets.SineGrating resolution: 512
+	gratingVer = $(gratingVer)
+		.css width: '25%', height: 'auto', display: 'inline-block'
+		.css transform: 'rotate(90deg)'
+
+	gratingHor = assets.SineGrating resolution: 512
+	gratingHor = $(gratingHor)
+		.css width: '25%', height: 'auto', display: 'inline-block'
+
 	dialogs =
 		->
 			@ \title .text L title
@@ -539,6 +552,11 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		->
 			@ \title .text L title
 			@ \text .append L text
+			@ \wrapper .0.style.height="2.5cm"
+			@ \rightTitle   .append L "Vaakaviivakuvio"
+			@ \right   .append L gratingHor
+			@ \leftTitle   .append L "Pystyviivakuvio"
+			@ \left   .append L gratingVer
 			@ \cancel .text L "Previous"
 			@ \accept .text L "Ok"
 	i = 0
@@ -661,9 +679,9 @@ addFixationCross = (scene) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
 	angle = (vFOV/2) * Math.PI/180
-	ratio = 6.5 / (vFOV*aspect)
+	ratio = 2.75 / (vFOV)
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	size = heigth * 0.75
+	size = heigth
 	circleGeometry = new THREE.RingGeometry(size*0.95, size, 64)
 	#horCross = new THREE.PlaneGeometry(size, size * 0.05)
 	#verCross = new THREE.PlaneGeometry(size * 0.05, size)
@@ -693,7 +711,6 @@ addMarkerScreen = (scene, env) ->
 	scene.markers = []
 	pos = [[0.5 0.8], [1 - 0.0625, 0.8], [0.0625, 0.1], [1 - 0.0625, 0.1], [1 - 0.0625, 0.1], [0.0625, 0.8], [0.5, 0.8]]
 	for i from 0 til 6
-		console.log i
 		path = 'res/markers/' + (i) + '_marker.png'
 		texture = THREE.ImageUtils.loadTexture path
 		marker = new THREE.Mesh do

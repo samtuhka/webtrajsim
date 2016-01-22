@@ -1,3 +1,10 @@
+<style>
+	.wrapper{position:relative; max-width: 15cm;}
+	.right,.left{width:50%; position:absolute;}
+	.right{right:0;}
+	.left{left:0;}
+</style>
+
 <div class="overlay-content">
 	<div class="page-header">
 		<h1>
@@ -5,7 +12,12 @@
 			<small class="subtitle"></small>
 		</h1>
 	</div>
-	<div class="text"></div>
+	<div class="text">
+	</div>
+	<div class="wrapper">
+		<div class="left" style="display: inline-block;"><h3><span class="leftTitle"></span></h3></div>
+		<div class="right" style="display: inline-block;"><h3><span class="rightTitle"></span></h3></div>
+	</div>
 	<form class="content" autocomplete="off">
 	<div class="inputs" style="clear: both; padding: 30px;"></div>
 	<button type="submit" value="accept" class="btn btn-lg btn-success pull-right accept-button" style="min-width: 10em; display: inline-block;">
@@ -14,5 +26,6 @@
 	<button type="submit" class="btn btn-lg btn-default pull-left cancel-button" style="min-width: 10em; display: inline-block;">
 		<span class="cancel">Cancel</span>
 	</button>
+
 	</form>
 </div>

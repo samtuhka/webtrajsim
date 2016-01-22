@@ -180,11 +180,14 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 "On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>elämäsi aikana</strong>."""
 
+'Gaming' : 'Ajopelit'
+"Gaming history" : "Mikä seuraavista vastaa parhaiten, sitä kuinka usein olet pelannut tietokoneella tai konsolilla ajopelejä (esim Gran Turismo, Need For Speed, Forza...)?"
+
 'Circle driving practice': 'Mutkassa ajo (harjoittelu)'
 '%circleDriving.intro2Color': """
-   		 	<p>Valkoisten ruutujen sisään ilmestyy välillä näkyviin värillisiä kolmioita. Kolmiot ovat joko kaikki punaisia tai yksi niistä on sininen. Jos havaitset sinisen kolmion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse sitä, paina ratin vasemmanpuoleista takapainiketta.
+   		 	<p>Valkoisten ruutujen sisään ilmestyy välillä näkyviin viivakuvioita. Viivakuviot ovat joko kaikki pystyviivakuviota tai yksi niistä on vaakaviivakuvio. Jos havaitset vaakaviivakuvion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse sitä, paina ratin vasemmanpuoleista takapainiketta.
  			<p>Jos et ole varma, arvaa.
-   		 	<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kolmiot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+   		 	<p>Viivakuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka viivakuviot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
    		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
@@ -193,6 +196,12 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
  			<p>Jos et ole varma, arvaa.
    		 	<p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kolmiot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
    		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+   		 	<table class="centered-table" style="width: 100%">
+            <tr><th>Vasen</th><th>Oikea</th></tr>
+            <tr>
+            <td class="leftStim"></td>
+            <td class="rightStim"></td>
+            </table>
 			"""
 
 'Circle driving': 'Mutkassa ajo'
@@ -201,10 +210,10 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
 			"""
 '%circleDriving.intro2': """
-			 <p>Ruutujen sisään ilmestyy nyt kolmioita, joista kaikki tai kaikki paitsi yksi osoittavat vasemmalle. Tehtäväsi on havaita oikealle osoittava kolmio, jos sellainen on näkyvillä. Jos havaitset oikealle osoittavan kolmion, paina ratin oikeanpuoleista takapainiketta. Jos havaitset pelkästään vasemmalle osoittavia kolmioita, paina ratin vasemmanpuoleista takapainiketta.
-			 <p>Jos et ole varma, arvaa.
-			 <p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kolmiot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
-			 <p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+   		 	<p>Valkoisten ruutujen sisään ilmestyy välillä näkyviin viivakuvioita. Viivakuviot ovat joko kaikki pystyviivakuviota tai yksi niistä on vaakaviivakuvio. Jos havaitset vaakaviivakuvion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse sitä, paina ratin vasemmanpuoleista takapainiketta.
+ 			<p>Jos et ole varma, arvaa.
+   		 	<p>Viivakuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka viivakuviot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+   		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
 '%circleDriving.intro2Rev': """
@@ -212,6 +221,12 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			 <p>Jos et ole varma, arvaa.
 			 <p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kolmiot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
 			 <p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+			 <table class="centered-table" style="width: 100%">
+             <tr><th>Vasen</th><th>Oikea</th></tr>
+             <tr>
+             <td class="leftStim"></td>
+             <td class="rightStim"></td>
+             </table>
 			"""
 
 'The experiment is done!': 'Koe on päättynyt'

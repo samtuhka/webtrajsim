@@ -56,6 +56,17 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
 	face.height = faceHeight
 	return face
 
+export SineGrating = ({resolution=512}={}) ->
+	canvas = document.createElement 'canvas'
+	canvas.width = resolution
+	canvas.height = resolution
+	ctx = canvas.getContext '2d'
+
+	image = new Image()
+	image.src = 'res/world/grating_hor.png'
+	ctx.drawImage(image, 0, 0, resolution, resolution)
+	return canvas
+
 export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 	doc = $ yield $.ajax "./res/signs/speedsign.svg", dataType: 'xml'
 	img = $ doc.find "svg"
