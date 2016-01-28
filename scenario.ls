@@ -155,7 +155,7 @@ clearProbes = (scene) ->
 		scene.probes[i].pA.visible = false
 		scene.probes[i].p4.visible = false
 		scene.probes[i].pB.visible = false
-		scene.probes[i].pNoise.visible = false
+		scene.probes[i].pNoise.visible = true
 		scene.targetScreen = false
 		scene.transientScreen = false
 
@@ -333,7 +333,7 @@ addProbe = (scene) ->
 	p4 = new THREE.Mesh geo, matB
 	p4.visible = false
 	pNoise = new THREE.Mesh geo, noise
-	pNoise.visible = false
+	pNoise.visible = true
 
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
