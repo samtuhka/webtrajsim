@@ -145,7 +145,7 @@ transientScreen = (scene) ->
 		scene.probes[i].pA.visible = false
 		scene.probes[i].p4.visible = false
 		scene.probes[i].pB.visible = false
-		scene.probes[i].p8.visible = false
+		scene.probes[i].pNoise.visible = true
 		scene.transientScreen = true
 		scene.targetScreen = false
 
@@ -154,7 +154,7 @@ clearProbes = (scene) ->
 		scene.probes[i].pA.visible = false
 		scene.probes[i].p4.visible = false
 		scene.probes[i].pB.visible = false
-		scene.probes[i].p8.visible = false
+		scene.probes[i].pNoise.visible = false
 		scene.targetScreen = false
 		scene.transientScreen = false
 
@@ -174,7 +174,7 @@ addProbes = (scene) ->
 		scene.probes[i].pA.visible = false
 		scene.probes[i].p4.visible = true
 		scene.probes[i].pB.visible = false
-		scene.probes[i].p8.visible = false
+		scene.probes[i].pNoise.visible = false
 		scene.probes[i].current = "distractor"
 	scene.targetScreen = true
 	scene.transientScreen = false
@@ -204,8 +204,10 @@ futPos = (scene) ->
 
 probeLogic = (scene) ->
 	if (scene.time - scene.dT) >= scene.visibTime && scene.targetScreen == true
-		clearProbes scene
+		transientScreen scene
 		scene.dT = scene.time
+	if (scene.time - scene.dT) >= 0.2 && scene.transientScreen == true
+		clearProbes scene
 	if dif(scene)==true
 		if scene.probeIndx == scene.order.length - 1
 			scene.end = true
@@ -313,6 +315,10 @@ addProbe = (scene) ->
 	textureB = THREE.ImageUtils.loadTexture 'res/world/grating_ver.png'
 	matB = new THREE.MeshBasicMaterial map:textureB, transparent: true, depthTest: false, depthWrite: false
 
+
+	noise = THREE.ImageUtils.loadTexture 'res/world/noise.png'
+	noise = new THREE.MeshBasicMaterial map:noise, transparent: true, depthTest: false, depthWrite: false
+
 	if scene.params.deviant == 1
 		geoA = new THREE.ShapeGeometry(triangles[1])
 		geo4 = new THREE.ShapeGeometry(triangles[0])
@@ -326,24 +332,24 @@ addProbe = (scene) ->
 	pb.visible = false
 	p4 = new THREE.Mesh geo, matB
 	p4.visible = false
-	p8 = new THREE.Mesh geo8, material
-	p8.visible = false
+	pNoise = new THREE.Mesh geo, noise
+	pNoise.visible = false
 
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
 	probe.pA = pa
 	probe.p4 = p4
 	probe.pB = pb
-	probe.p8 = p8
+	probe.pNoise = pNoise
 	probe.heigth = heigth
 	probe.ratio = ratio
-	probes = [pa, p4, pb, p8]
+	probes = [pa, p4, pb, pNoise]
 	probe.add plane
 	plane.position.z = 0
 	probe.add pa
 	probe.add pb
 	probe.add p4
-	probe.add p8
+	probe.add pNoise
 
 	probe.position.y = -1000
 	probe.position.z = -1000
