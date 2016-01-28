@@ -148,6 +148,7 @@ transientScreen = (scene) ->
 		scene.probes[i].pNoise.visible = true
 		scene.transientScreen = true
 		scene.targetScreen = false
+		scene.dT = scene.time
 
 clearProbes = (scene) ->
 	for i from 0 til scene.probes.length
@@ -205,7 +206,6 @@ futPos = (scene) ->
 probeLogic = (scene) ->
 	if (scene.time - scene.dT) >= scene.visibTime && scene.targetScreen == true
 		transientScreen scene
-		scene.dT = scene.time
 	if (scene.time - scene.dT) >= 0.2 && scene.transientScreen == true
 		clearProbes scene
 	if dif(scene)==true
