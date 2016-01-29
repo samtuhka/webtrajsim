@@ -142,20 +142,17 @@ probeOrder = (scene, n) ->
 
 transientScreen = (scene) ->
 	for i from 0 til scene.probes.length
-		scene.probes[i].pA.visible = false
-		scene.probes[i].p4.visible = false
-		scene.probes[i].pB.visible = false
-		scene.probes[i].pNoise.visible = true
-		scene.transientScreen = true
+		if scene.probes[i].stim[1].visible == true
+			scene.probes[i].stim[1].visible = false
+			scene.probes[i].current = 0
+		scene.transientScreen = false
 		scene.targetScreen = false
-		scene.dT = scene.time
 
 clearProbes = (scene) ->
 	for i from 0 til scene.probes.length
-		scene.probes[i].pA.visible = false
-		scene.probes[i].p4.visible = false
-		scene.probes[i].pB.visible = false
-		scene.probes[i].pNoise.visible = true
+		for j from 1 til 7
+			scene.probes[i].stim[j].visible = false
+		scene.probes[i].stim[7].visible = true
 		scene.targetScreen = false
 		scene.transientScreen = false
 
@@ -170,13 +167,14 @@ colorProbes = (scene) ->
 				scene.probes[i].p4.material = mat1
 
 addProbes = (scene) ->
-	scene.reacted = false
+	used = []
+	seed = Math.floor((Math.random() * (6 - 1)) + 2)
 	for i from 0 til scene.probes.length
-		scene.probes[i].pA.visible = false
-		scene.probes[i].p4.visible = true
-		scene.probes[i].pB.visible = false
-		scene.probes[i].pNoise.visible = false
-		scene.probes[i].current = "distractor"
+		scene.probes[i].stim[7].visible = false
+		while seed in used
+			seed = Math.floor((Math.random() * (6 - 1)) + 2)
+		used.push seed
+		scene.probes[i].stim[seed].visible = true
 	scene.targetScreen = true
 	scene.transientScreen = false
 
@@ -199,39 +197,40 @@ dif = (scene) ->
 futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
-		scene.futPos += 2*roadSecond*dir
+		scene.futPos += roadSecond*dir
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	if (scene.time - scene.dT) >= scene.visibTime && scene.targetScreen == true
-		transientScreen scene
-	if (scene.time - scene.dT) >= 0.2 && scene.transientScreen == true
+	if scene.time - scene.dT > 0.9
 		clearProbes scene
 	if dif(scene)==true
-		if scene.probeIndx == scene.order.length - 1
+		clearProbes scene
+		scene.reacted = false
+		if scene.probeIndx == 120
 			scene.end = true
 		else
 			if scene.reacted == false
 				scene.scoring.missed += 1
 				if scene.targetPresent == true
-					prev = scene.order[scene.probeIndx - 1][0]
-					scene.probes[prev].missed += 1
-			if scene.probes[0].p4.visible == false
-				addProbes scene
-				i = scene.probeIndx
-				probe = scene.order[i][0]
-				seed = scene.order[i][1]
-				scene.maxScore += 1
-				if seed == 0
-					scene.probes[probe].p4.visible = false
-					scene.probes[probe].pA.visible = true
-					scene.probes[probe].current = "target"
-					scene.targetPresent = true
-				else
-					scene.targetPresent = false
-				scene.probeIndx += 1
-				futPos scene
+					scene.probes[scene.target].missed += 1
+			addProbes scene
+			i = scene.probeIndx
+			probe = Math.floor((Math.random() * 5))
+			seed = Math.random()
+			scene.maxScore += 1
+			chance = 1.0 - (5.0/6.0)**5
+			if seed >= chance
+				for i from 1 til 7
+					scene.probes[probe].stim[i].visible = false
+				scene.probes[probe].stim[1].visible = true
+				scene.probes[probe].current = 0
+				scene.targetPresent = true
+				scene.target = probe
+			else
+				scene.targetPresent = false
+			scene.probeIndx += 1
+			futPos scene
 		scene.dT = scene.time
 
 
@@ -294,6 +293,44 @@ triangle = (s) ->
 	triB.lineTo(s, s)
 	return [triA, triB]
 
+hexagon = (s) ->
+	r = s/(2*Math.sin(Math.PI/6))
+	h = Math.sin(60*Math.PI/180)*s
+	x = -r*0.5
+	y = -h
+	hex = new THREE.Shape()
+	hex.moveTo(s, y)
+	for i from 0 til 360 by 60
+		angle = i * Math.PI/180
+		x += Math.cos(angle)*s
+		y += Math.sin(angle)*s
+		hex.lineTo(x, y)
+	hex.lineTo(s, y)
+
+	return hex
+
+
+targetMesh = (scene, rotate) ->
+	vFOV = scene.camera.fov
+	angle = (vFOV/2) * Math.PI/180
+	ratio = 1/vFOV
+	s = (Math.tan(angle) * 1000 * 2) * ratio
+	params = {size: s, height: 0, font: "digital-7"}
+	geo = new THREE.TextGeometry("E", params)
+
+	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
+	target = new THREE.Mesh geo, material
+	r = s/(2*Math.sin(Math.PI/6))
+	h = Math.sin(60*Math.PI/180)*s
+	rot = 30 * Math.PI/180
+	target.rotateZ(rot)
+	target.position.x = -0.5*r
+	target.position.y = -h
+
+	return target
+
+
+
 addProbe = (scene) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
@@ -302,54 +339,43 @@ addProbe = (scene) ->
 	ratio =1/vFOV
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth
-	params = {size: s*1.2, height: 0, font: "digital-7"}
-	triangles = triangle(s)
-	geoA = new THREE.ShapeGeometry(triangles[0])
-	geo4 = new THREE.ShapeGeometry(triangles[1])
-	geoB = new THREE.TextGeometry("B", params)
-	geo8 = new THREE.TextGeometry("0", params)
 
-	textureA = THREE.ImageUtils.loadTexture 'res/world/grating_hor.png'
-	matA = new THREE.MeshBasicMaterial map:textureA, transparent: true, depthTest: false, depthWrite: false
-
-	textureB = THREE.ImageUtils.loadTexture 'res/world/grating_ver.png'
-	matB = new THREE.MeshBasicMaterial map:textureB, transparent: true, depthTest: false, depthWrite: false
-
+	geo = new THREE.ShapeGeometry(hexagon(s))
+	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
 
 	noise = THREE.ImageUtils.loadTexture 'res/world/noise.png'
 	noise = new THREE.MeshBasicMaterial map:noise, transparent: true, depthTest: false, depthWrite: false
 
-	if scene.params.deviant == 1
-		geoA = new THREE.ShapeGeometry(triangles[1])
-		geo4 = new THREE.ShapeGeometry(triangles[0])
-	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
-	geo = new THREE.PlaneGeometry(s*2, s*2, 32 )
-	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
-
-	pa = new THREE.Mesh geo, matA
-	pa.visible = false
-	pb = new THREE.Mesh geoB, material
-	pb.visible = false
-	p4 = new THREE.Mesh geo, matB
-	p4.visible = false
-	pNoise = new THREE.Mesh geo, noise
-	pNoise.visible = true
 
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
-	probe.pA = pa
-	probe.p4 = p4
-	probe.pB = pb
-	probe.pNoise = pNoise
+
+	target = targetMesh scene, 30
+
+	p0 = new THREE.Object3D()
+	p0.add plane
+	p0.add target
+
+	p60 = p0.clone()
+	p120 = p0.clone()
+	p180 = p0.clone()
+	p240 = p0.clone()
+	p300 = p0.clone()
+	p360 = p0.clone()
+
+	pNoise = new THREE.Mesh geo, noise
+
+	i = 0
+	probe.stim = [plane, p60, p120, p180, p240, p300, p360, pNoise]
+	for p in probe.stim
+		p.visible = false
+		probe.add p
+		p.rotateZ(i*60 * Math.PI/180)
+		i += 1
+	probe.stim[0].visible = true
+
 	probe.heigth = heigth
 	probe.ratio = ratio
-	probes = [pa, p4, pb, pNoise]
-	probe.add plane
-	plane.position.z = 0
-	probe.add pa
-	probe.add pb
-	probe.add p4
-	probe.add pNoise
 
 	probe.position.y = -1000
 	probe.position.z = -1000
@@ -363,8 +389,15 @@ createProbes = (scene, n) ->
 	x = scene.player.physical.position.x
 	z = scene.player.physical.position.z
 	pos = []
+	used = []
 	for i from 0 til n
 		probe = addProbe(scene)
+		seed = Math.floor((Math.random() * (6 - 1)) + 2)
+		while seed in used
+			seed = Math.floor((Math.random() * (6 - 1)) + 2)
+		used.push seed
+		probe.current = seed
+		probe.stim[seed].visible = true
 		probe.score = 0
 		probe.missed = 0
 		scene.probes.push(probe)
@@ -652,27 +685,12 @@ handleReaction = (env, scene, i) ->
 			if scene.targetPresent == true
 				scene.scoring.trueYes += 1
 				scene.scoring.score += 1
-				prev = scene.order[scene.probeIndx - 1][0]
-				scene.probes[prev].score += 1
+				console.log scene.scoring.score
 				scene.targetPresent = false
 			else
 				scene.scoring.falseYes += 1
-			if scene.targetScreen == true
-				transientScreen scene
-	if pNo == true and scene.controlChange == true
-		if scene.reacted == false
-			scene.reacted = true
-			scene.controlChange = false
-			if scene.targetPresent == true
-				scene.scoring.falseNo += 1
-				scene.targetPresent = false
-				prev = scene.order[scene.probeIndx - 1][0]
-				scene.probes[prev].missed += 1
-			else
-				scene.scoring.trueNo += 1
-				scene.scoring.score += 1
-			if scene.targetScreen == true
-				transientScreen scene
+				scene.scoring.score -= 1
+			clearProbes scene
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
@@ -810,7 +828,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 		unless st == true
 			handleProbeLocs scene, n, r, fut
 
-		i = scene.order[scene.probeIndx][0]
+		i = 0
 
 		handleReaction env, scene, i
 		probeLogic scene, n
