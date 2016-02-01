@@ -324,11 +324,10 @@ hexagon = (s) ->
 	return hex
 
 
-targetMesh = (scene, rotate) ->
+targetMesh = (scene, rotate, s) ->
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 1/vFOV
-	s = (Math.tan(angle) * 1000 * 2) * ratio
 	params = {size: s*0.5, height: 0, font: "snellen"}
 	geo = new THREE.TextGeometry("E", params)
 
@@ -355,7 +354,7 @@ addProbe = (scene) ->
 	angle = (vFOV/2) * Math.PI/180
 	ratio =1/vFOV
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	s = heigth
+	s = heigth*1.25
 
 	geo = new THREE.ShapeGeometry(hexagon(s))
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
@@ -367,7 +366,7 @@ addProbe = (scene) ->
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
 
-	target = targetMesh scene, 30
+	target = targetMesh scene, 30, s
 
 	p0 = new THREE.Object3D()
 	p0.add plane
