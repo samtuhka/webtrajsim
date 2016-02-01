@@ -10,6 +10,7 @@ seqr = require './seqr.ls'
 {circleScene} = require './circleScene.ls'
 assets = require './assets.ls'
 
+require './three.js/examples/fonts/Digital-7_Regular.typeface.js'
 require './three.js/examples/fonts/Snellen_Regular.typeface.js'
 
 ui = require './ui.ls'
@@ -222,7 +223,7 @@ dif = (scene) ->
 futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
-		scene.futPos += roadSecond*dir
+		scene.futPos += roadSecond*dir*1
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -320,7 +321,6 @@ hexagon = (s) ->
 		y += Math.sin(angle)*s
 		hex.lineTo(x, y)
 	hex.lineTo(s, y)
-
 	return hex
 
 
@@ -328,20 +328,21 @@ targetMesh = (scene, rotate, s) ->
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 1/vFOV
-	params = {size: s*0.5, height: 0, font: "snellen"}
+	params = {size: s, height: 0, font: "digital-7"}
 	geo = new THREE.TextGeometry("E", params)
 
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
 	target = new THREE.Mesh geo, material
 	r = s/(2*Math.sin(Math.PI/6))
 	h = Math.sin(60*Math.PI/180)*s
-	rot = 30 * Math.PI/180
-	target.rotateZ(rot)
+	#rot = 30 * Math.PI/180
+	target.rotateZ(90 * Math.PI/180)
+
 	geo.computeBoundingBox()
 	offX = (geo.boundingBox.max.x - geo.boundingBox.min.x) / 2
 	offY = (geo.boundingBox.max.y - geo.boundingBox.min.y) / 2
-	target.position.x = -0.5*r + offX
-	target.position.y = -h  + offY
+	target.position.x = offX*2
+	target.position.y -= offY*0.75
 
 	return target
 
@@ -352,11 +353,12 @@ addProbe = (scene) ->
 	aspect = screen.width / screen.height
 	hFOV = aspect * vFOV
 	angle = (vFOV/2) * Math.PI/180
-	ratio =1/vFOV
+	ratio = 1/vFOV
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth*1.25
 
 	geo = new THREE.ShapeGeometry(hexagon(s))
+
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
 
 	noise = THREE.ImageUtils.loadTexture 'res/world/noise.png'
@@ -371,6 +373,7 @@ addProbe = (scene) ->
 	p0 = new THREE.Object3D()
 	p0.add plane
 	p0.add target
+	#p0.rotateZ(30 * Math.PI/180)
 
 	p60 = p0.clone()
 	p120 = p0.clone()
@@ -381,7 +384,7 @@ addProbe = (scene) ->
 
 	pNoise = new THREE.Mesh geo, noise
 
-	i = 0
+	i = -1
 	probe.stim = [plane, p60, p120, p180, p240, p300, p360, pNoise]
 	for p in probe.stim
 		p.visible = false
@@ -389,6 +392,7 @@ addProbe = (scene) ->
 		p.rotateZ(i*60 * Math.PI/180)
 		i += 1
 	probe.stim[0].visible = true
+	#probe.stim[1].visible = true
 
 	probe.heigth = heigth
 	probe.ratio = ratio
@@ -962,7 +966,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 		unless st == true
 			handleProbeLocs scene, n, r, fut
 
-		i = scene.order[scene.probeIndx][0]
+		i = 0
 
 		handleReaction env, scene, i
 		probeLogic scene, n
