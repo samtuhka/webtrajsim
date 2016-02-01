@@ -10,7 +10,7 @@ seqr = require './seqr.ls'
 {circleScene} = require './circleScene.ls'
 assets = require './assets.ls'
 
-require './three.js/examples/fonts/Digital-7_Regular.typeface.js'
+require './three.js/examples/fonts/Snellen_Regular.typeface.js'
 
 ui = require './ui.ls'
 
@@ -152,7 +152,6 @@ clearProbes = (scene) ->
 	for i from 0 til scene.probes.length
 		for j from 1 til 7
 			scene.probes[i].stim[j].visible = false
-		scene.probes[i].stim[7].visible = true
 		scene.targetScreen = false
 		scene.transientScreen = false
 
@@ -167,6 +166,8 @@ colorProbes = (scene) ->
 				scene.probes[i].p4.material = mat1
 
 addProbes = (scene) ->
+
+	curr = [0,0,0,0,0]
 	used = []
 	seed = Math.floor((Math.random() * (6 - 1)) + 2)
 	for i from 0 til scene.probes.length
@@ -174,7 +175,31 @@ addProbes = (scene) ->
 		while seed in used
 			seed = Math.floor((Math.random() * (6 - 1)) + 2)
 		used.push seed
+		console.log seed
 		scene.probes[i].stim[seed].visible = true
+		curr[i] = seed
+
+
+	probe = Math.floor((Math.random() * 5))
+	seed = Math.random()
+	chance = 0.5
+	if seed >= chance
+		for i from 1 til 7
+			scene.probes[probe].stim[i].visible = false
+		scene.probes[probe].stim[1].visible = true
+		scene.probes[probe].current = 0
+		scene.targetPresent = true
+		scene.target = probe
+		curr[probe] = 1
+	else
+		scene.targetPresent = false
+
+	for i from 0 til 5
+		if curr[i]==scene.prev[i]
+			clearProbes scene
+			addProbes scene
+			return
+	scene.prev = curr
 	scene.targetScreen = true
 	scene.transientScreen = false
 
@@ -215,20 +240,9 @@ probeLogic = (scene) ->
 				if scene.targetPresent == true
 					scene.probes[scene.target].missed += 1
 			addProbes scene
+			if scene.targetPresent
+					scene.maxScore += 1
 			i = scene.probeIndx
-			probe = Math.floor((Math.random() * 5))
-			seed = Math.random()
-			scene.maxScore += 1
-			chance = 1.0 - (5.0/6.0)**5
-			if seed >= chance
-				for i from 1 til 7
-					scene.probes[probe].stim[i].visible = false
-				scene.probes[probe].stim[1].visible = true
-				scene.probes[probe].current = 0
-				scene.targetPresent = true
-				scene.target = probe
-			else
-				scene.targetPresent = false
 			scene.probeIndx += 1
 			futPos scene
 		scene.dT = scene.time
@@ -315,7 +329,7 @@ targetMesh = (scene, rotate) ->
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 1/vFOV
 	s = (Math.tan(angle) * 1000 * 2) * ratio
-	params = {size: s, height: 0, font: "digital-7"}
+	params = {size: s*0.5, height: 0, font: "snellen"}
 	geo = new THREE.TextGeometry("E", params)
 
 	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
@@ -324,8 +338,11 @@ targetMesh = (scene, rotate) ->
 	h = Math.sin(60*Math.PI/180)*s
 	rot = 30 * Math.PI/180
 	target.rotateZ(rot)
-	target.position.x = -0.5*r
-	target.position.y = -h
+	geo.computeBoundingBox()
+	offX = (geo.boundingBox.max.x - geo.boundingBox.min.x) / 2
+	offY = (geo.boundingBox.max.y - geo.boundingBox.min.y) / 2
+	target.position.x = -0.5*r + offX
+	target.position.y = -h  + offY
 
 	return target
 
@@ -397,7 +414,7 @@ createProbes = (scene, n) ->
 			seed = Math.floor((Math.random() * (6 - 1)) + 2)
 		used.push seed
 		probe.current = seed
-		probe.stim[seed].visible = true
+		#probe.stim[seed].visible = true
 		probe.score = 0
 		probe.missed = 0
 		scene.probes.push(probe)
@@ -851,11 +868,12 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 
 		if scene.end == true || (scene.time - startTime) > 180
 			trialTime = scene.time - startTime
+			correct = scene.scoring.score/scene.maxScore * 100
 			listener.remove()
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Sait vastauksista #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2} oikein.</p>
+				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
 				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
 				 """
 			return false
@@ -966,11 +984,12 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 
 		if scene.end == true || (scene.time - startTime) > 180
 			listener.remove()
+			correct = scene.scoring.score/scene.maxScore*100
 			trialTime = scene.time - startTime
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Sait vastauksista #{(scene.scoring.score).toFixed 2}/#{(scene.maxScore).toFixed 2} oikein.</p>
+				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
 				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
 				 """
 			return false
