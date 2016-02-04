@@ -248,53 +248,6 @@ probeLogic = (scene) ->
 			futPos scene
 		scene.dT = scene.time
 
-
-probeLogicAlt = (scene, n) ->
-	if (scene.time - scene.dT) > 1
-		i = scene.probeIndx
-		if i >= 0
-			probe = scene.order[i][0]
-			seed = scene.order[i][1]
-			if scene.maxScore == n*10
-				scene.end = true
-			if scene.probes[probe].pA.visible == true
-				scene.scoring.missed += 1
-				scene.probes[probe].missed += 1
-				scene.probes[probe].pA.visible = false
-				scene.probes[probe].p4.visible = true
-				scene.probes[probe].current = "4"
-			if scene.probes[probe].pB.visible == true
-				scene.scoring.missed += 1
-				scene.probes[probe].missed += 1
-				scene.probes[probe].pB.visible = false
-				scene.probes[probe].p8.visible = true
-				scene.probes[probe].current = "8"
-		scene.probeIndx += 1
-		i = scene.probeIndx
-		if scene.end == false && i >=0
-			probe = scene.order[i][0]
-			seed = scene.order[i][1]
-			scene.probes[probe].pA.visible = false
-			scene.probes[probe].p4.visible = false
-			scene.probes[probe].p8.visible = false
-			scene.probes[probe].pB.visible = false
-			if seed == 0
-				scene.probes[probe].pA.visible = true
-				scene.probes[probe].current = "A"
-				scene.maxScore += 1
-			if seed == 1
-				scene.probes[probe].p4.visible = true
-				scene.probes[probe].current = "4"
-			if seed == 2
-				scene.probes[probe].pB.visible = true
-				scene.probes[probe].current = "B"
-				scene.maxScore += 1
-			if seed == 3
-				scene.probes[probe].p8.visible = true
-				scene.probes[probe].current = "8"
-		scene.dT = scene.time
-
-
 triangle = (s) ->
 	triA = new THREE.Shape()
 	triA.moveTo(0,0)
