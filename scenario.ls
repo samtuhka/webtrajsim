@@ -588,15 +588,6 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		if scene.params.deviant == 1
 			text = "%circleDriving.intro2ColorRev"
 
-	gratingVer = assets.SineGrating resolution: 512
-	gratingVer = $(gratingVer)
-		.css width: '25%', height: 'auto', display: 'inline-block'
-		.css transform: 'rotate(90deg)'
-
-	gratingHor = assets.SineGrating resolution: 512
-	gratingHor = $(gratingHor)
-		.css width: '25%', height: 'auto', display: 'inline-block'
-
 	dialogs =
 		->
 			@ \title .text L title
@@ -606,11 +597,6 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		->
 			@ \title .text L title
 			@ \text .append L text
-			@ \wrapper .0.style.height="2.5cm"
-			@ \rightTitle   .append L "Vaakaviivakuvio (oikea)"
-			@ \right   .append L gratingHor
-			@ \leftTitle   .append L "Pystyviivakuvio (vasen)"
-			@ \left   .append L gratingVer
 			@ \cancel .text L "Previous"
 			@ \accept .text L "Ok"
 	i = 0

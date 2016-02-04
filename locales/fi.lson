@@ -185,9 +185,8 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 
 'Circle driving practice': 'Mutkassa ajo (harjoittelu)'
 '%circleDriving.intro2Color': """
-   		 	<p>Valkoisten ruutujen sisään ilmestyy välillä näkyviin viivakuvioita. Viivakuviot ovat joko kaikki pystyviivakuviota tai yksi niistä on vaakaviivakuvio. Jos havaitset vaakaviivakuvion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse sitä, paina ratin vasemmanpuoleista takapainiketta.
- 			<p>Jos et ole varma, arvaa.
-   		 	<p>Viivakuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka viivakuviot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+   		 	<p>Kuusikulmioiden sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita. Tehtäväsi on havaita ylöspäin osoittava E-kuvio (katso alla), jos sellainen on näkyvillä. Aina jos havaitset ylöspäin osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
+   		 	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
    		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
@@ -207,26 +206,18 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 'Circle driving': 'Mutkassa ajo'
 '%circleDriving.intro': """
 			<p>Tulet ohjaamaan autoa mutkaisella tiellä. Polkimia ei käytetä.
-			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
+			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia kuusikulmioita. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
 			"""
 '%circleDriving.intro2': """
-   		 	<p>Valkoisten ruutujen sisään ilmestyy välillä näkyviin viivakuvioita. Viivakuviot ovat joko kaikki pystyviivakuviota tai yksi niistä on vaakaviivakuvio. Jos havaitset vaakaviivakuvion, paina ratin oikeanpuoleista takapainiketta. Jos et havaitse sitä, paina ratin vasemmanpuoleista takapainiketta.
- 			<p>Jos et ole varma, arvaa.
-   		 	<p>Viivakuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka viivakuviot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+   		 	<p>Kuusikulmioiden sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita. Tehtäväsi on havaita ylöspäin osoittava E-kuvio (katso alla), jos sellainen on näkyvillä. Aina jos havaitset ylöspäin osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
+   		 	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
    		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
 '%circleDriving.intro2Rev': """
-			 <p>Ruutujen sisään ilmestyy nyt kolmioita, joista kaikki tai kaikki paitsi yksi osoittavat oikealle. Tehtäväsi on havaita vasemalle osoittava kolmio, jos sellainen on näkyvillä. Jos havaitset vasemalle osoittavan kolmion, paina ratin vasemmanpuoleista takapainiketta. Jos havaitset pelkästään oikealle osoittavia kolmioita, paina ratin oikeanpuoleista takapainiketta.
-			 <p>Jos et ole varma, arvaa.
-			 <p>Kolmiot ovat näkyvillä ruudulla vain hetken, mutta voit vastata vaikka kolmiot olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kolmiot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
-			 <p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
-			 <table class="centered-table" style="width: 100%">
-             <tr><th>Vasen</th><th>Oikea</th></tr>
-             <tr>
-             <td class="leftStim"></td>
-             <td class="rightStim"></td>
-             </table>
+   		 	<p>Kuusikulmioiden sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita. Tehtäväsi on havaita ylöspäin osoittava E-kuvio (katso alla), jos sellainen on näkyvillä. Aina jos havaitset ylöspäin osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
+   		 	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+   		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
 
 'The experiment is done!': 'Koe on päättynyt'
