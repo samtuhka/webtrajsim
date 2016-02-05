@@ -151,6 +151,7 @@ transientScreen = (scene) ->
 
 clearProbes = (scene) ->
 	for i from 0 til scene.probes.length
+		scene.probes[i].current = 0
 		for j from 1 til 7
 			scene.probes[i].stim[j].visible = false
 		scene.targetScreen = false
@@ -176,8 +177,8 @@ addProbes = (scene) ->
 		while seed in used
 			seed = Math.floor((Math.random() * (6 - 1)) + 2)
 		used.push seed
-		console.log seed
 		scene.probes[i].stim[seed].visible = true
+		scene.probes[i].current = seed
 		curr[i] = seed
 
 
@@ -188,7 +189,7 @@ addProbes = (scene) ->
 		for i from 1 til 7
 			scene.probes[probe].stim[i].visible = false
 		scene.probes[probe].stim[1].visible = true
-		scene.probes[probe].current = 0
+		scene.probes[probe].current = 1
 		scene.targetPresent = true
 		scene.target = probe
 		curr[probe] = 1
@@ -223,12 +224,12 @@ dif = (scene) ->
 futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
-		scene.futPos += roadSecond*dir*1
+		scene.futPos += roadSecond*dir*2
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	if scene.time - scene.dT > 0.9
+	if scene.time - scene.dT > 1
 		clearProbes scene
 	if dif(scene)==true
 		clearProbes scene
@@ -369,7 +370,7 @@ createProbes = (scene, n) ->
 		while seed in used
 			seed = Math.floor((Math.random() * (6 - 1)) + 2)
 		used.push seed
-		probe.current = seed
+		probe.current = 0
 		#probe.stim[seed].visible = true
 		probe.score = 0
 		probe.missed = 0
@@ -644,7 +645,7 @@ handleReaction = (env, scene, i) ->
 			if scene.targetPresent == true
 				scene.scoring.trueYes += 1
 				scene.scoring.score += 1
-				console.log scene.scoring.score
+				scene.probes[scene.target].score += 1
 				scene.targetPresent = false
 			else
 				scene.scoring.falseYes += 1
