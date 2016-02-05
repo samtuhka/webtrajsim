@@ -229,7 +229,7 @@ futPos = (scene) ->
 			scene.futPos -= dir
 
 probeLogic = (scene) ->
-	if scene.time - scene.dT > 1
+	if scene.time - scene.dT > scene.visibTime
 		clearProbes scene
 	if dif(scene)==true
 		clearProbes scene
