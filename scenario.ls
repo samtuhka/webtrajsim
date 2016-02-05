@@ -557,6 +557,12 @@ export instructions = seqr.bind (env, inst, scene) ->*
 	while i < dialogs.length
 		result = yield ui.inputDialog env, dialogs[i]
 		console.log result
+		if i == 0
+			for j from 0 til 5
+				scene.probes[j].stim[j+1].visible = true
+		else
+			for j from 0 til 5
+				scene.probes[j].stim[j+1].visible = false
 		if result.canceled
 			i -= 2
 		i += 1
