@@ -210,9 +210,13 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 '%circleDriving.intro2': """
    		 	<p>Kuusikulmioiden sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita. Tehtäväsi on havaita ylöspäin osoittava E-kuvio, jos sellainen on näkyvillä. Aina jos havaitset ylöspäin osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
-   		 	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
-   		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
+
+'%circleDriving.intro3': """
+			   	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+               	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
+               	"""
+
 
 '%circleDriving.intro2Rev': """
    		 	<p>Kuusikulmioiden sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita. Tehtäväsi on havaita ylöspäin osoittava E-kuvio, jos sellainen on näkyvillä. Aina jos havaitset ylöspäin osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.

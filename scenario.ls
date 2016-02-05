@@ -546,18 +546,26 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		->
 			@ \title .text L title
 			@ \text .append L "%circleDriving.intro"
+			@ \wrapper .0.style.height="4.0cm"
 			@ \accept .text L "Next"
 			@ \cancel-button .hide!
 		->
 			@ \title .text L title
-			@ \text .append L text
+			@ \text .append L "%circleDriving.intro2"
+			@ \wrapper .0.style.height="3.5cm"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "Next"
+		->
+			@ \title .text L title
+			@ \text .append L "%circleDriving.intro3"
+			@ \wrapper .0.style.height="2.8cm"
 			@ \cancel .text L "Previous"
 			@ \accept .text L "Ok"
 	i = 0
 	while i < dialogs.length
 		result = yield ui.inputDialog env, dialogs[i]
 		console.log result
-		if i == 0
+		if i == 0 || i == 2
 			for j from 0 til 5
 				scene.probes[j].stim[j+1].visible = true
 		else
@@ -566,6 +574,8 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		if result.canceled
 			i -= 2
 		i += 1
+	for j from 0 til 5
+		scene.probes[j].stim[j+1].visible = false
 
 export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
 	env = env with
