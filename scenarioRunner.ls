@@ -217,7 +217,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	scene = yield scenario.get \scene
 
 	env.logger.write scenarioParameters: scene.params
-	env.logger.write probeOrder: scene.order
+	#env.logger.write probeOrder: scene.order
 
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	@finally ->
