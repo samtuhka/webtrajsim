@@ -670,7 +670,7 @@ handleReaction = (env, scene, i) ->
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
-addFixationCross = (scene) ->
+addFixationCross = (scene, c = 0x000000) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
 	angle = (vFOV/2) * Math.PI/180
@@ -681,7 +681,7 @@ addFixationCross = (scene) ->
 	#horCross = new THREE.PlaneGeometry(size, size * 0.05)
 	#verCross = new THREE.PlaneGeometry(size * 0.05, size)
 	#horCross.merge(verCross)
-	material = new THREE.MeshBasicMaterial color: 0x000000, transparent: true, depthTest: false, depthWrite: false
+	material = new THREE.MeshBasicMaterial color: c, transparent: true, depthTest: false, depthWrite: false
 	crossMesh = new THREE.Mesh circleGeometry, material
 	cross = new THREE.Object3D()
 	cross.add crossMesh
