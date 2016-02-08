@@ -234,7 +234,7 @@ probeLogic = (scene) ->
 	if dif(scene)==true
 		clearProbes scene
 		scene.reacted = false
-		if scene.probeIndx == 120
+		if scene.probeIndx == 60
 			scene.end = true
 		else
 			if scene.reacted == false
