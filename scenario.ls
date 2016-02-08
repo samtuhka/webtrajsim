@@ -531,21 +531,18 @@ n = 5
 export instructions = seqr.bind (env, inst, scene) ->*
 	L = env.L
 	title = "Circle driving"
-	text = "%circleDriving.intro2"
+	text = "%circleDriving.intro"
 	if scene.params.deviant == 1
 		text = "%circleDriving.intro2Rev"
 	if inst == "prac"
 		title = "Circle driving practice"
-	if inst == "colPrac"
-		title = "Circle driving practice"
-		text = "%circleDriving.intro2Color"
-		if scene.params.deviant == 1
-			text = "%circleDriving.intro2ColorRev"
-
+	if inst == "dark"
+		title = "Dark driving practice"
+		text = "%darkDriving.intro"
 	dialogs =
 		->
 			@ \title .text L title
-			@ \text .append L "%circleDriving.intro"
+			@ \text .append L text
 			@ \wrapper .0.style.height="4.0cm"
 			@ \accept .text L "Next"
 			@ \cancel-button .hide!
@@ -577,10 +574,10 @@ export instructions = seqr.bind (env, inst, scene) ->*
 	for j from 0 til 5
 		scene.probes[j].stim[j+1].visible = false
 
-export basecircleDriving = seqr.bind (env, rx, ry, l) ->*
+export basecircleDriving = seqr.bind (env, rx, ry, l, sky) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
-	scene = yield circleScene env, rx, ry, l
+	scene = yield circleScene env, rx, ry, l, sky
 	return scene
 
 onInnerLane = (scene) ->
@@ -1137,6 +1134,238 @@ exportScenario \circleDrivingRevFree, (env, rx, ry, l, s, r, st, col, fut, inst,
 			return false
 
 	return yield @get \done
+
+exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*
+
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
+	if r == undefined
+		r = rev
+	if st == undefined
+		st = stat
+	if fr == undefined
+		fr = four
+	if fut == undefined
+		fut = future
+	if visib == undefined
+		visib = 0.15
+
+	aut = 1
+
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+
+	scene = yield basecircleDriving env, rx, ry, l, false
+
+	scene.params = settingParams
+	addFixationCross scene, 0xffffff
+	addMarkerScreen scene, env
+	console.log scene
+	probeOrder scene, n
+	createProbes scene, n
+	if col == true
+		colorProbes scene
+
+	startPoint = 0.5*l/scene.centerLine.getLength()
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z = -0.5*l
+	scene.playerControls.throttle = 0
+	#startLight = yield assets.TrafficLight()
+	#lightX = (rx ^ 2 - 5 ^ 2)^0.5 - 0.25
+	#startLight.position.x = lightX
+	#startLight.position.z = 7.5
+	#startLight.addTo scene
+	rw = scene.centerLine.width
+	@let \scene, scene
+	yield @get \run
+
+	calculateFuture scene, 1, s/3.6
+	handleProbeLocs scene, n, r, fut
+	markersVisible scene
+
+	scene.visibTime = visib
+
+	unless inst == false
+		yield instructions env, "dark", scene
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+	#yield startLight.switchToGreen()
+
+	startTime = scene.time
+	scene.dT = startTime
+	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+	scene.beforePhysics.add ->
+			if aut == 1
+				handleSteering scene, env
+
+	scene.onTickHandled ~>
+		handleSpeed scene, s
+		calculateFuture scene, 1, s/3.6
+		unless st == true
+			handleProbeLocs scene, n, r, fut
+
+		i = 0
+
+		handleReaction env, scene, i
+		probeLogic scene, n
+
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		cnt = onInnerLane scene
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
+
+		handleSound annoyingSound, scene, cnt
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > 180
+			trialTime = scene.time - startTime
+			correct = scene.scoring.score/scene.maxScore * 100
+			listener.remove()
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
+exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*
+
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
+	if r == undefined
+		r = -rev
+	if st == undefined
+		st = stat
+	if fr == undefined
+		fr = four
+	if fut == undefined
+		fut = future
+	if visib == undefined
+		visib = 0.15
+
+	aut = 1
+
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+
+	scene = yield basecircleDriving env, rx, ry, l, false
+
+	scene.params = settingParams
+	addFixationCross scene, 0xffffff
+	addMarkerScreen scene, env
+
+	probeOrder scene, n
+	createProbes scene, n
+	if col == true
+		colorProbes scene
+
+	startPoint = 1 -((scene.centerLine.curves[1].getLength()*2 + 1.5*l)/scene.centerLine.getLength())
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z =  -0.5*l
+	scene.playerControls.throttle = 0
+	#startLight = yield assets.TrafficLight()
+	#lightX = (rx  ^ 2 - 5 ^ 2)^0.5 - 0.25
+	#startLight.position.x = -lightX
+	#startLight.position.z = 7.5
+	#startLight.addTo scene
+	rw = scene.centerLine.width
+	markersVisible scene
+
+	@let \scene, scene
+	yield @get \run
+
+	calculateFuture scene, -1, s/3.6
+	handleProbeLocs scene, n, r, fut
+
+	scene.visibTime = visib
+
+
+	unless inst == false
+		yield instructions env, "dark", scene
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+	#yield startLight.switchToGreen()
+
+	startTime = scene.time
+	scene.dT = startTime
+	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+
+	scene.beforePhysics.add ->
+		if aut == 1
+			handleSteering scene, env
+
+	scene.onTickHandled ~>
+		handleSpeed scene, s
+		calculateFuture scene, -1, s/3.6
+		unless st == true
+			handleProbeLocs scene, n, r, fut
+
+		i = 0
+
+		handleReaction env, scene, i
+		probeLogic scene, n
+
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		cnt = onInnerLane scene
+		handleSound annoyingSound, scene, cnt
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > 180
+			listener.remove()
+			correct = scene.scoring.score/scene.maxScore*100
+			trialTime = scene.time - startTime
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
 
 export basePedalScene = (env) ->
 	env = env with
