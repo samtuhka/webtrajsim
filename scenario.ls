@@ -234,7 +234,7 @@ probeLogic = (scene) ->
 	if dif(scene)==true
 		clearProbes scene
 		scene.reacted = false
-		if scene.probeIndx == 60
+		if scene.probeIndx == scene.params.duration
 			scene.end = true
 		else
 			if scene.reacted == false
@@ -744,14 +744,14 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	if visib == undefined
 		visib = 0.15
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
 	scene.params = settingParams
 	addFixationCross scene
 	addMarkerScreen scene, env
-	console.log scene
+
 	probeOrder scene, n
 	createProbes scene, n
 	if col == true
@@ -859,7 +859,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	if visib == undefined
 		visib = 0.15
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -1158,7 +1158,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 30}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -1273,7 +1273,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 30}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 

@@ -52,11 +52,11 @@ export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
 	scene.reacted = true
 	scene.controlChange = false
 	scene.prev = [0,0,0,0,0]
-	#scene.player.scoremeter = ui.gauge env,
-	#	name: L "False negative"
-	#	unit: L "times"
-	#	value: ->
-	#		score = scene.scoring.falseNo
+	scene.player.scoremeter = ui.gauge env,
+		name: L "Score"
+		unit: L "times"
+		value: ->
+			score = scene.scoring.score
 	#scene.player.scoremeter = ui.gauge env,
 	#	name: L "True negative"
 	#	unit: L "times"
@@ -95,8 +95,9 @@ export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
 		gain = (gain + 0.5)/1.5
 		gainNode.gain.value = gain
 		engineSounds.setPitch rev*2000
-	scene.onStart.add engineSounds.start
-	scene.onExit.add engineSounds.stop
+	if sky
+		scene.onStart.add engineSounds.start
+		scene.onExit.add engineSounds.stop
 
 	scene.preroll = ->
 		# Tick a couple of frames for the physics to settle
