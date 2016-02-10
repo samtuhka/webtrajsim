@@ -52,11 +52,11 @@ export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
 	scene.reacted = true
 	scene.controlChange = false
 	scene.prev = [0,0,0,0,0]
-	scene.player.scoremeter = ui.gauge env,
-		name: L "Score"
-		unit: L "times"
-		value: ->
-			score = scene.scoring.score
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "Score"
+	#	unit: L "times"
+	#	value: ->
+	#		score = scene.scoring.score
 	#scene.player.scoremeter = ui.gauge env,
 	#	name: L "True negative"
 	#	unit: L "times"

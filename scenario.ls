@@ -171,11 +171,9 @@ addProbes = (scene) ->
 
 	curr = [0,0,0,0,0]
 	used = []
-	seed = Math.floor((Math.random() * (6 - 1)) + 2)
 	for i from 0 til scene.probes.length
 		scene.probes[i].stim[7].visible = false
-		while seed in used
-			seed = Math.floor((Math.random() * (6 - 1)) + 2)
+		seed = Math.floor((Math.random() * (4 - 1)) + 2)
 		used.push seed
 		scene.probes[i].stim[seed].visible = true
 		scene.probes[i].current = seed
@@ -278,7 +276,7 @@ hexagon = (s) ->
 	return hex
 
 
-targetMesh = (scene, rotate, s) ->
+createTargetMesh = (scene, rotate, s) ->
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 1/vFOV
@@ -290,13 +288,13 @@ targetMesh = (scene, rotate, s) ->
 	r = s/(2*Math.sin(Math.PI/6))
 	h = Math.sin(60*Math.PI/180)*s
 	#rot = 30 * Math.PI/180
-	target.rotateZ(90 * Math.PI/180)
+	#target.rotateZ(90 * Math.PI/180)
 
 	geo.computeBoundingBox()
 	offX = (geo.boundingBox.max.x - geo.boundingBox.min.x) / 2
 	offY = (geo.boundingBox.max.y - geo.boundingBox.min.y) / 2
-	target.position.x = offX*2
-	target.position.y -= offY*0.75
+	target.position.x = -offX
+	target.position.y = -offY
 
 	return target
 
@@ -311,7 +309,7 @@ addProbe = (scene) ->
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	s = heigth*1.25
 
-	geo = new THREE.ShapeGeometry(hexagon(s))
+	geo = new THREE.PlaneGeometry(s*2, s*2, 32)
 
 	mat = new THREE.MeshBasicMaterial color: 0xFFFFFF, depthTest: false, depthWrite: false
 
@@ -322,12 +320,12 @@ addProbe = (scene) ->
 	probe = new THREE.Object3D()
 	plane = new THREE.Mesh geo, mat
 
-	target = targetMesh scene, 30, s
+	target = createTargetMesh scene, 30, s
 
 	p0 = new THREE.Object3D()
 	p0.add plane
 	p0.add target
-	#p0.rotateZ(30 * Math.PI/180)
+	p0.rotateZ(45 * Math.PI/180)
 
 	p60 = p0.clone()
 	p120 = p0.clone()
@@ -336,6 +334,8 @@ addProbe = (scene) ->
 	p300 = p0.clone()
 	p360 = p0.clone()
 
+	plane.rotateZ(45 * Math.PI/180)
+
 	pNoise = new THREE.Mesh geo, noise
 
 	i = -1
@@ -343,7 +343,7 @@ addProbe = (scene) ->
 	for p in probe.stim
 		p.visible = false
 		probe.add p
-		p.rotateZ(i*60 * Math.PI/180)
+		p.rotateZ(i*90 * Math.PI/180)
 		i += 1
 	probe.stim[0].visible = true
 	#probe.stim[1].visible = true
@@ -563,16 +563,20 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		result = yield ui.inputDialog env, dialogs[i]
 		console.log result
 		if i == 0 || i == 2
-			for j from 0 til 5
-				scene.probes[j].stim[j+1].visible = true
+			scene.probes[0].stim[1].visible = true
+			for j from 1 til 5
+				seed = Math.min j+1, 4
+				scene.probes[j].stim[seed].visible = true
 		else
 			for j from 0 til 5
-				scene.probes[j].stim[j+1].visible = false
+				for k from 1 til 6
+					scene.probes[j].stim[k].visible = false
 		if result.canceled
 			i -= 2
 		i += 1
 	for j from 0 til 5
-		scene.probes[j].stim[j+1].visible = false
+		for k from 1 til 6
+			scene.probes[j].stim[k].visible = false
 
 export basecircleDriving = seqr.bind (env, rx, ry, l, sky) ->*
 	env = env with
