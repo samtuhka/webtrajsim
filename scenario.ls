@@ -236,8 +236,8 @@ probeLogic = (scene) ->
 			scene.end = true
 		else
 			if scene.reacted == false
-				scene.scoring.missed += 1
 				if scene.targetPresent == true
+					scene.scoring.missed += 1
 					scene.probes[scene.target].missed += 1
 			addProbes scene
 			if scene.targetPresent
