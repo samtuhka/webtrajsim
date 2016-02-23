@@ -113,7 +113,16 @@ loadViva = Co ->*
 		lights.push light
 
 	body.add ...lights*/
+
+
 	body = mergeObject body
+	brakeLightMaterials = []
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'Red'
+				brakeLightMaterials.push material
+
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1
@@ -129,9 +138,16 @@ loadViva = Co ->*
 	body: body
 	wheels: wheels
 	eye: eye
+	setBrakelight: (isOn) ->
+		for material in brakeLightMaterials
+			if isOn
+				material.emissive.r = 200
+			else
+				material.emissive.r = 0
+			material.needsUpdate = true
 
 export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
-	{body, wheels, eye} = yield loadViva()
+	{body, wheels, eye, setBrakelight} = yield loadViva()
 
 	syncModels = new Signal
 
@@ -203,6 +219,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 			wheel.quaternion.copy wi.worldTransform.quaternion
 
 		scene.beforePhysics.add ->
+			setBrakelight controls.brake > 0
 			mag = Math.abs controls.steering
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
