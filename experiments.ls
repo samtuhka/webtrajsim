@@ -176,15 +176,27 @@ export circleDriving = seqr.bind ->*
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
+
+	rightParamsDark = [2,3]
+	leftParamsDark = rightParamsDark.slice()
+	rightParamsDark = shuffleArray rightParamsDark
+	leftParamsDark = shuffleArray leftParamsDark
+
+
 	s = 80
 	rx = ((s/3.6)*22 / Math.PI)
 	ry = rx
 	l = (s/3.6)*8
 	i = 0
 	j = 0
+	k = 0
+	h = 0
+
 	scenarios = []
 		.concat([scenario.circleDriving]*ntrials)
 		.concat([scenario.circleDrivingRev]*ntrials)
+		.concat([scenario.darkDriving]*2)
+		.concat([scenario.darkDrivingRev]*2)
 	scenarios = shuffleArray scenarios
 
 	task = runScenarioCurve scenario.darkDriving, rx, ry, l, s, 1, false, false, 2 , "prac", dev, 0, 1
@@ -206,15 +218,19 @@ export circleDriving = seqr.bind ->*
 	yield task
 
 	for scn in scenarios
-		inst = false
-		if i==0 && j==0
-			inst = "real"
+		inst = "real"
 		if scn.scenarioName == "circleDriving"
 			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst, dev, 0, 1
 			i += 1
-		else
+		if scn.scenarioName == "circleDrivingRev"
 			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst, dev, 0, 1
 			j += 1
+		if scn.scenarioName == "darkDriving"
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParamsDark[k], inst, dev, 0, 1
+			k += 1
+		if scn.scenarioName == "darkDrivingRev"
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParamsDark[h], inst, dev, 0, 1
+			h += 1
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
 		yield task
