@@ -199,13 +199,13 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.darkDrivingRev]*2)
 	scenarios = shuffleArray scenarios
 
-	task = runScenarioCurve scenario.darkDriving, rx, ry, l, s, 1, false, false, 2 , "prac", dev, 0, 1
+	task = runScenarioCurve scenario.darkDriving, rx, ry, l, s, 1, false, false, 2 , "dark prac", dev, 0, 1
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
 
-	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 3, false, dev, 0, 1
+	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 3, "dark prac", dev, 0, 1
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
@@ -218,18 +218,17 @@ export circleDriving = seqr.bind ->*
 	yield task
 
 	for scn in scenarios
-		inst = "real"
 		if scn.scenarioName == "circleDriving"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], inst, dev, 0, 1
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], "real", dev, 0, 1
 			i += 1
 		if scn.scenarioName == "circleDrivingRev"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], inst, dev, 0, 1
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], "real", dev, 0, 1
 			j += 1
 		if scn.scenarioName == "darkDriving"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParamsDark[k], inst, dev, 0, 1
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParamsDark[k], "dark", dev, 0, 1
 			k += 1
 		if scn.scenarioName == "darkDrivingRev"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParamsDark[h], inst, dev, 0, 1
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParamsDark[h], "dark", dev, 0, 1
 			h += 1
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"

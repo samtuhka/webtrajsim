@@ -121,7 +121,7 @@
 
 'Welcome to the experiment': 'Tervetuloa kokeeseen!'
 '%intro.introduction': """
-<p>Tämän kokeen tarkoituksena on tutkia auton ohjaamista ja kuljettajan tarkkavaisuutta.
+<p>Tämän kokeen tarkoituksena on tutkia auton ohjaamista, tarkkavaisuutta ja ääreisnäön käyttöä.
 
 <p>Koe koostuu useasta osakokeesta. Koe kestää kokonaisuudessaan noin tunnin.
 Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
@@ -204,8 +204,9 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 
 'Circle driving': 'Mutkassa ajo'
+'Dark driving' : 'Ärsykkeen tunnistaminen'
 
-'Dark driving practice': 'Harjoittelu'
+'Dark driving practice': 'Ärsykkeen tunnistaminen (harjoittelu)'
 
 '%darkDriving.intro': """
 			<p>Ruudulla on näkyvissä valkoinen ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>

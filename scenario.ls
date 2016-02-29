@@ -532,11 +532,12 @@ export instructions = seqr.bind (env, inst, scene) ->*
 	L = env.L
 	title = "Circle driving"
 	text = "%circleDriving.intro"
-	if scene.params.deviant == 1
-		text = "%circleDriving.intro2Rev"
 	if inst == "prac"
 		title = "Circle driving practice"
 	if inst == "dark"
+		title = "Dark driving"
+		text = "%darkDriving.intro"
+	if inst == "dark prac"
 		title = "Dark driving practice"
 		text = "%darkDriving.intro"
 	dialogs =
@@ -1195,7 +1196,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 	scene.visibTime = visib
 
 	unless inst == false
-		yield instructions env, "dark", scene
+		yield instructions env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -1312,7 +1313,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 
 
 	unless inst == false
-		yield instructions env, "dark", scene
+		yield instructions env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100
