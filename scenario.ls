@@ -747,7 +747,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	if aut == undefined
 		aut = automatic
 	if visib == undefined
-		visib = 0.15
+		visib = 1.0
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
 
@@ -862,7 +862,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	if aut == undefined
 		aut = automatic
 	if visib == undefined
-		visib = 0.15
+		visib = 1,0
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
 
