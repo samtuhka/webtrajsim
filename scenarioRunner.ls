@@ -27,7 +27,7 @@ eachFrame = (f) -> new P (accept, reject) ->
 		result = f dt
 		if result?
 			accept result
-			stopped = true
+			stopped := true
 	tick()
 
 audioContext = new AudioContext
