@@ -699,6 +699,14 @@ markersVisible = (scene) ->
 	for marker in scene.markers
 		marker.visible = true
 
+
+addBackgroundColor = (scene) ->
+	geo = new THREE.PlaneGeometry 2000, 2000
+	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: false
+	mesh = new THREE.Mesh geo, mat
+	mesh.position.z = -1100
+	scene.camera.add mesh
+
 addMarkerScreen = (scene, env) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
@@ -1168,7 +1176,8 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 	scene = yield basecircleDriving env, rx, ry, l, false
 
 	scene.params = settingParams
-	addFixationCross scene, 0xffffff
+	addFixationCross scene
+	addBackgroundColor scene
 	addMarkerScreen scene, env
 	console.log scene
 	probeOrder scene, n
@@ -1283,7 +1292,8 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
 	scene.params = settingParams
-	addFixationCross scene, 0xffffff
+	addFixationCross scene
+	addBackgroundColor scene
 	addMarkerScreen scene, env
 
 	probeOrder scene, n
