@@ -171,17 +171,16 @@ export circleDriving = seqr.bind ->*
 	#env.let \destroy
 	#yield env
 	dev = 0
-	ntrials = 4
-	rightParams = [2,2,3,3]
+	ntrials = 3
+	rightParams = [2,2,2]
 	leftParams = rightParams.slice()
 	rightParams = shuffleArray rightParams
 	leftParams = shuffleArray leftParams
 
-	rightParamsDark = [2,3]
+	rightParamsDark = [2,2]
 	leftParamsDark = rightParamsDark.slice()
 	rightParamsDark = shuffleArray rightParamsDark
 	leftParamsDark = shuffleArray leftParamsDark
-
 
 	s = 80
 	rx = ((s/3.6)*22 / Math.PI)
@@ -199,13 +198,18 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.darkDrivingRev]*2)
 	scenarios = shuffleArray scenarios
 
+	env = newEnv!
+	yield scenario.calibration yield env.get \env
+	env.let \destroy
+	yield env
+
 	task = runScenarioCurve scenario.darkDriving, rx, ry, l, s, 1, false, false, 2 , "dark prac", dev, 0, 1
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
 
-	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 3, "dark prac", dev, 0, 1
+	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 2, "dark prac", dev, 0, 1
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"

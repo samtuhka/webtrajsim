@@ -206,10 +206,17 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 'Circle driving': 'Mutkassa ajo'
 'Dark driving' : 'Ärsykkeen tunnistaminen'
 
+'Calibration': 'Silmänliikekameran kalibraatio'
+'%calib.inst' : """
+			<p>Nyt kalibroidaan silmänliikekamera. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
+			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+            <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
+			"""
+
 'Dark driving practice': 'Ärsykkeen tunnistaminen (harjoittelu)'
 
 '%darkDriving.intro': """
-			<p>Ruudulla on näkyvissä valkoinen ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
+			<p>Ruudulla on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
 			"""
 
 '%circleDriving.intro': """

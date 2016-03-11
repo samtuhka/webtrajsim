@@ -211,7 +211,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
 			mag = Math.max mag, 0
-			steering = mag*dir*maxSteer
+			steering = mag*dir*maxSteer*0.8
 			if z > 0
 				# Front wheels
 				wi.brake = brakeResponse controls.brake

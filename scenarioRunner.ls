@@ -298,7 +298,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	{passed, outro} = yield scenario
 	el.remove()
 
-	prog = trial/15.0*100
+	prog = trial/13.0*100
 	prog = Math.max prog, 1
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title

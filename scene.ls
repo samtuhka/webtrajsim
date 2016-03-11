@@ -320,7 +320,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		xi = x - terrainSize/4
 		if z <= 0 && z >= -length && xi < rx + rW && xi > rx - rW
 				cnt = true
-		for i from 0 til 3
+		for i from 0 til 4
 			xi = x + i*rx*4 -terrainSize/4
 			if (((xi ^ 2 / ((rx + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((xi ^ 2 / ((rx - rW) ^ 2)  + (z ^ 2 / ((rY - rW) ^ 2))) > 1) && z >= 0)
 				cnt = true

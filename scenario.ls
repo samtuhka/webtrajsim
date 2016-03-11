@@ -1167,11 +1167,11 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 	if fut == undefined
 		fut = future
 	if visib == undefined
-		visib = 0.15
+		visib = 1.0
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 30}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -1283,11 +1283,11 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 	if fut == undefined
 		fut = future
 	if visib == undefined
-		visib = 0.15
+		visib = 1.0
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 30}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -2099,6 +2099,16 @@ exportScenario \experimentOutro, (env) ->*
 	yield ui.instructionScreen env, ->
 		@ \title .append L "The experiment is done!"
 		@ \content .append L '%experimentOutro'
+		@ \accept-button .hide()
+		@ \progress .hide()
+		@ \progressTitle .hide()
+
+
+exportScenario \calibration, (env) ->*
+	L = env.L
+	yield ui.instructionScreen env, ->
+		@ \title .append L "Calibration"
+		@ \content .append L '%calib.inst'
 		@ \accept-button .hide()
 		@ \progress .hide()
 		@ \progressTitle .hide()
