@@ -208,7 +208,7 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 
 'Calibration': 'Silmänliikekameran kalibraatio'
 '%calib.inst' : """
-			<p>Nyt kalibroidaan silmänliikekamera. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
+			<p>Seuraavaksi kalibroidaan silmänliikekamera. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
 			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
             <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
 			"""
@@ -220,12 +220,22 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 
 '%circleDriving.intro': """
-			<p>Tulet ohjaamaan autoa mutkaisella tiellä. Polkimia ei käytetä.
-			<p>Tiellä on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
+			<p>Tehtävä on sama kuin äsken. Kun havaitet ääreisnäölläsi oikealle ylöspäin osoittavan E kirjaimen, paina oikeaa takapainiketta.
+			<p>Mutta nyt lisäksi käytät ohjauspyörää ohjaamiseen. Polkimia ei käytetä, nopeus säätyy automaattisesti.
+			<p>Tehtävä on siis havaita kohteet ääreisnäöllä ja samalla pysyä tiellä. Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
+			<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi, jos "fuskasit" katsomalla kohdetta suoraan.
 			"""
 '%circleDriving.intro2': """
    		 	<p>Ruutujen  sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita.
-   		 	<p>Tehtäväsi on havaita oikealle-ylös osoittava E-kuvio (katso alin ruutu), jos sellainen on näkyvillä. Kuvio voi ilmestyä mihin tahansa ruutuun. Aina jos havaitset tämän oikealle-ylös osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
+   		 	<p>Tehtäväsi on havaita oikealle-ylös osoittava E-kuvio (katso alin ruutu) käyttäen ääreisnäköä. Kuvio voi ilmestyä mihin tahansa ruutuun. Aina jos havaitset tämän oikealle-ylös osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
+   		 	<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi jos "fuskasit" katsomalla kohdetta suoraan.
+			"""
+
+'%circleDriving.afterintro': """
+			<p>Kun havaitet ääreisnäölläsi oikealle ylöspäin osoittavan E-kirjaimen, paina oikeaa takapainiketta.
+			<p>Lisäksi käytät ohjauspyörää ohjaamiseen. Polkimia ei käytetä, nopeus säätyy automaattisesti.
+			<p>Tehtävänä on siis havaita kohteet ääreisnäöllä ja samalla pysyä tiellä. Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
+			<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi, jos "fuskasit" katsomalla kohdetta suoraan.
 			"""
 
 '%circleDriving.intro3': """

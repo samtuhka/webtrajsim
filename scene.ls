@@ -46,7 +46,7 @@ export class Scene
 
 		@visual ?= new THREE.Scene
 		aspect = screen.width / screen.height
-		@camera ?= new THREE.PerspectiveCamera 65/aspect, 1, 0.01, 450000
+		@camera ?= new THREE.PerspectiveCamera 70/aspect, 1, 0.01, 450000
 
 		@time = 0
 
