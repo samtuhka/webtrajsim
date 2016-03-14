@@ -190,7 +190,7 @@ export circleDriving = seqr.bind ->*
 	j = 0
 	k = 0
 	h = 0
-	v = 1
+	v = 0.5
 
 	scenarios = []
 		.concat([scenario.circleDriving]*ntrials)
