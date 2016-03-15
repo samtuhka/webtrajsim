@@ -259,6 +259,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
 				projectionMatrix: scene.camera.projectionMatrix.toArray()
 			telemetry: env.controls{throttle, brake, steering, direction, pYes, pNo}
+			robotTelemetry: {throttle: scene.playerControls.throttle, brake: scene.playerControls.brake, steering: scene.playerControls.steering}
 			scoring: scene.scoring
 			outside: scene.outside
 			probes: probeData scene
