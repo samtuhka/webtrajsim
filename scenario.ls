@@ -579,6 +579,28 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		for k from 1 til 6
 			scene.probes[j].stim[k].visible = false
 
+export briefInst = seqr.bind (env, inst, scene) ->*
+	L = env.L
+	title = "Circle driving"
+	text = "%circleDriving.afterintro"
+	if inst == "first"
+		title = "Circle driving practice"
+		text = "%circleDriving.intro"
+	if inst == "dark"
+		title = "Dark driving"
+		text = "%darkDriving.afterintro"
+	if inst == "dark still prac"
+		title = "Dark driving practice"
+		text = "%darkDriving.pracintro"
+	dialogs =
+		->
+			@ \title .text L title
+			@ \text .append L text
+			@ \wrapper .0.style.height="4.0cm"
+			@ \accept .text L "Ok"
+			@ \cancel-button .hide!
+	result = yield ui.inputDialog env, dialogs
+
 export basecircleDriving = seqr.bind (env, rx, ry, l, sky) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
@@ -790,7 +812,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	scene.visibTime = visib
 
 	unless inst == false
-		yield instructions env, inst, scene
+		yield briefInst env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -907,7 +929,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 
 
 	unless inst == false
-		yield instructions env, inst, scene
+		yield briefInst env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -1205,7 +1227,11 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 	scene.visibTime = visib
 
 	unless inst == false
-		yield instructions env, inst, scene
+		if inst == "dark prac"
+			yield instructions env, inst, scene
+		else
+			yield briefInst env, inst, scene
+
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -1323,7 +1349,10 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 
 
 	unless inst == false
-		yield instructions env, inst, scene
+		if inst == "dark prac"
+			yield instructions env, inst, scene
+		else
+			yield briefInst env, inst, scene
 
 	while not env.controls.catch == true
 			yield P.delay 100
@@ -2109,7 +2138,7 @@ exportScenario \calibration, (env) ->*
 	yield ui.instructionScreen env, ->
 		@ \title .append L "Calibration"
 		@ \content .append L '%calib.inst'
-		@ \accept-button .hide()
+		@ \accept .text L "Ready"
 		@ \progress .hide()
 		@ \progressTitle .hide()
 

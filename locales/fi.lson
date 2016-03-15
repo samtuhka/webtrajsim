@@ -119,6 +119,8 @@
 'Previous': 'Edellinen'
 'I wish to participate': 'Haluan osallistua kokeeseen'
 
+'Ready': 'Kalibraatio valmis'
+
 'Welcome to the experiment': 'Tervetuloa kokeeseen!'
 '%intro.introduction': """
 <p>Tämän kokeen tarkoituksena on tutkia auton ohjaamista, tarkkavaisuutta ja ääreisnäön käyttöä.
@@ -220,9 +222,9 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 
 '%circleDriving.intro': """
-			<p>Tehtävä on sama kuin äsken. Kun havaitet ääreisnäölläsi oikealle ylöspäin osoittavan E kirjaimen, paina oikeaa takapainiketta.
+			<p>Tehtävä on sama kuin äsken. Kun havaitet ääreisnäölläsi oikealle ylöspäin osoittavan E-kirjaimen, paina ratin oikeaa takapainiketta.
 			<p>Mutta nyt lisäksi käytät ohjauspyörää ohjaamiseen. Polkimia ei käytetä, nopeus säätyy automaattisesti.
-			<p>Tehtävä on siis havaita kohteet ääreisnäöllä ja samalla pysyä tiellä. Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
+			<p>Tehtävänä on siis havaita kohteet ääreisnäöllä ja samalla pysyä tiellä. Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 			<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi, jos "fuskasit" katsomalla kohdetta suoraan.
 			"""
 '%circleDriving.intro2': """
@@ -232,11 +234,20 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 
 '%circleDriving.afterintro': """
-			<p>Kun havaitet ääreisnäölläsi oikealle ylöspäin osoittavan E-kirjaimen, paina oikeaa takapainiketta.
+			<p>Kun havaitet ääreisnäölläsi oikealle ylöspäin osoittavan E-kirjaimen, paina ratin oikeaa takapainiketta.
 			<p>Lisäksi käytät ohjauspyörää ohjaamiseen. Polkimia ei käytetä, nopeus säätyy automaattisesti.
 			<p>Tehtävänä on siis havaita kohteet ääreisnäöllä ja samalla pysyä tiellä. Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 			<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi, jos "fuskasit" katsomalla kohdetta suoraan.
 			"""
+'%darkDriving.pracintro': """
+						<p>Tehtävä on sama kuin äsken. Tehtäväsi on havaita oikealle-ylös osoittava E-kuvio käyttäen ääreisnäköä.
+        				<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi, jos "fuskasit" katsomalla kohdetta suoraan.
+        				"""
+
+'%darkDriving.afterintro': """
+						<p>Tehtäväsi on havaita oikealle-ylös osoittava E-kuvio käyttäen ääreisnäköä.
+						<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi, jos "fuskasit" katsomalla kohdetta suoraan.
+						"""
 
 '%circleDriving.intro3': """
 			   	<p>Pyri vastaamaan mahdollisimman nopeasti. Kuviot ovat näkyvillä ruudulla vain pienen hetken ajan.

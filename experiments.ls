@@ -166,10 +166,11 @@ export freeDrivingCurve = seqr.bind ->*
 			yield runScenario scenario.circleDrivingRevFree, rx, ry, l, s, 1, false, false, 2, false, 0
 
 export circleDriving = seqr.bind ->*
-	#env = newEnv!
-	#yield scenario.participantInformation yield env.get \env
-	#env.let \destroy
-	#yield env
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
+
 	dev = 0
 	ntrials = 3
 	rightParams = [2,2,2]
@@ -210,24 +211,29 @@ export circleDriving = seqr.bind ->*
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
 
-	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 2, "dark prac", dev, 0, v
+	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 2, "dark still prac", dev, 0, v
 	result = yield task.get \done
 	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
 
-	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2 , "prac", dev, 0, v
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2 , "first", dev, 0, v
 	result = yield task.get \done
-	result.outro \content .append $ L "<p>Varsinainen koe alkaa seuraavaksi.</p>"
+	result.outro \content .append $ L "<p>Seuraavaksi kalibroidaan silmänliikekamera uudelleen, jonka jälkeen varsinainen koe alkaa.</p>"
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
 
+	env = newEnv!
+	yield scenario.calibration yield env.get \env
+	env.let \destroy
+	yield env
+
 	for scn in scenarios
 		if scn.scenarioName == "circleDriving"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], "real", dev, 0, v
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], "brief", dev, 0, v
 			i += 1
 		if scn.scenarioName == "circleDrivingRev"
-			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], "real", dev, 0, v
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], "brief", dev, 0, v
 			j += 1
 		if scn.scenarioName == "darkDriving"
 			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParamsDark[k], "dark", dev, 0, v
@@ -238,6 +244,12 @@ export circleDriving = seqr.bind ->*
 		result = yield task.get \done
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
 		yield task
+
+	env = newEnv!
+	yield scenario.calibration yield env.get \env
+	env.let \destroy
+	yield env
+
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env
 	env.let \destroy
