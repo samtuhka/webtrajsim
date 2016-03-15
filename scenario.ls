@@ -736,7 +736,7 @@ addMarkerScreen = (scene, env) ->
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	scene.markers = []
-	pos = [[0.5 0.8], [1 - 0.0625, 0.8], [0.0625, 0.1], [1 - 0.0625, 0.1], [1 - 0.0625, 0.1], [0.0625, 0.8], [0.5, 0.8]]
+	pos = [[0.5 0.8], [1 - 0.0625*1.5, 0.8], [0.0625*1.5, 0.1], [1 - 0.0625*1.5, 0.1], [1 - 0.0625*1.5, 0.1], [0.0625*1.5, 0.8], [0.5, 0.8]]
 	for i from 0 til 6
 		path = 'res/markers/' + (i) + '_marker.png'
 		texture = THREE.ImageUtils.loadTexture path
