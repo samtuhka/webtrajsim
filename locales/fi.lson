@@ -183,7 +183,12 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>elämäsi aikana</strong>."""
 
 'Gaming' : 'Ajopelit'
-"Gaming history" : "Mikä seuraavista vastaa parhaiten, sitä kuinka usein olet pelannut tietokoneella tai konsolilla ajopelejä (esim Gran Turismo, Need For Speed, Forza...)?"
+"Gaming history" : "Mikä seuraavista vastaa parhaiten, sitä kuinka usein pelaat tietokoneella tai konsolilla erinäisiä ajopelejä (esim Gran Turismo, Need For Speed, Forza...)."
+'Daily': 'Päivittäin'
+'Weekly': 'Muutamia kertoja viikossa'
+'Montly': 'Muutaman kerran kuukaudessa'
+'Rarely': 'Hyvin harvoin'
+
 
 'Circle driving practice': 'Mutkassa ajo (harjoittelu)'
 '%circleDriving.intro2Color': """

@@ -2107,6 +2107,17 @@ exportScenario \participantInformation, (env) ->*
 				* value: 'monthly', label: L "Most months"
 				* value: 'yearly', label: L "Few times a year"
 				* value: 'none', label: L "Not at all"
+		->
+			@ \title .text L "Gaming"
+			@ \text .append L "Gaming history"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "gamingFreg",
+				* value: 'daily', label: L "Daily"
+				* value: 'weekly', label: L "Weekly"
+				* value: 'monthly', label: L "Montly"
+				* value: 'yearly', label: L "Rarely"
+				* value: 'none', label: L "Not at all"
 
 	i = 0
 	while i < dialogs.length
