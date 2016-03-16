@@ -756,6 +756,7 @@ addMarkerScreen = (scene, env) ->
 listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
+annoyingSound.setVolume(0.5)
 
 exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*
 
