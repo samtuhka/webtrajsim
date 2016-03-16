@@ -209,8 +209,20 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 'Dark driving' : 'Ärsykkeen tunnistaminen'
 
 'Calibration': 'Silmänliikekameran kalibraatio'
-'%calib.inst' : """
+'%calib.inst1' : """
 			<p>Seuraavaksi kalibroidaan silmänliikekamera. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
+			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+            <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
+			"""
+
+'%calib.inst2' : """
+			<p>Kalibroidaan silmänliikekamera uudestaan. Kuten aikasemmin, ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
+			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+            <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
+			"""
+
+'%calib.inst3' : """
+			<p>Lopuksi tarkistetaan vielä kerran silmänliikekameran kalibraatio. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
 			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
             <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
 			"""

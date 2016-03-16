@@ -780,7 +780,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	if visib == undefined
 		visib = 1.0
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 1}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -895,7 +895,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	if visib == undefined
 		visib = 1.0
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 1}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -1194,7 +1194,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 1}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -1314,7 +1314,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 60}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 1}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -2134,11 +2134,12 @@ exportScenario \experimentOutro, (env) ->*
 		@ \progressTitle .hide()
 
 
-exportScenario \calibration, (env) ->*
+exportScenario \calibration, (env, i) ->*
 	L = env.L
+	text = '%calib.inst' + i.toString()
 	yield ui.instructionScreen env, ->
 		@ \title .append L "Calibration"
-		@ \content .append L '%calib.inst'
+		@ \content .append L text
 		@ \accept .text L "Ready"
 		@ \progress .hide()
 		@ \progressTitle .hide()

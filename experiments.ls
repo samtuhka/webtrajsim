@@ -30,6 +30,7 @@ shuffleArray = (a) ->
 
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
+	env.i = 0
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
@@ -165,11 +166,16 @@ export freeDrivingCurve = seqr.bind ->*
 		else
 			yield runScenario scenario.circleDrivingRevFree, rx, ry, l, s, 1, false, false, 2, false, 0
 
+runWithNewEnv = seqr.bind (scenario, i) ->*
+	envP = newEnv!
+	env = yield envP.get \env
+	ret = yield scenario env, i
+	envP.let \destroy
+	yield envP
+	return ret
+
 export circleDriving = seqr.bind ->*
-	env = newEnv!
-	yield scenario.participantInformation yield env.get \env
-	env.let \destroy
-	yield env
+	yield runWithNewEnv scenario.participantInformation
 
 	dev = 0
 	ntrials = 3
@@ -200,10 +206,7 @@ export circleDriving = seqr.bind ->*
 		.concat([scenario.darkDrivingRev]*2)
 	scenarios = shuffleArray scenarios
 
-	env = newEnv!
-	yield scenario.calibration yield env.get \env
-	env.let \destroy
-	yield env
+	yield runWithNewEnv scenario.calibration, 1
 
 	task = runScenarioCurve scenario.darkDriving, rx, ry, l, s, 1, false, false, 2 , "dark prac", dev, 0, v
 	result = yield task.get \done
@@ -223,10 +226,7 @@ export circleDriving = seqr.bind ->*
 	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
 	yield task
 
-	env = newEnv!
-	yield scenario.calibration yield env.get \env
-	env.let \destroy
-	yield env
+	yield runWithNewEnv scenario.calibration, 2
 
 	for scn in scenarios
 		if scn.scenarioName == "circleDriving"
@@ -245,15 +245,9 @@ export circleDriving = seqr.bind ->*
 		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
 		yield task
 
-	env = newEnv!
-	yield scenario.calibration yield env.get \env
-	env.let \destroy
-	yield env
+	yield runWithNewEnv scenario.calibration, 3
 
-	env = newEnv!
-	yield scenario.experimentOutro yield env.get \env
-	env.let \destroy
-	yield env
+	yield runWithNewEnv scenario.experimentOutro
 
 export defaultExperiment = circleDriving
 
