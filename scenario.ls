@@ -736,7 +736,7 @@ addMarkerScreen = (scene, env) ->
 	ratio = 0.1
 	heigth = (Math.tan(angle) * 1000 * 2) * ratio
 	scene.markers = []
-	pos = [[0.5 0.8], [1 - 0.0625*1.5, 0.8], [0.0625*1.5, 0.1], [1 - 0.0625*1.5, 0.1], [1 - 0.0625*1.5, 0.1], [0.0625*1.5, 0.8], [0.5, 0.8]]
+	pos = [[0.5 0.8], [1 - 0.15/aspect, 0.8], [0.15/aspect, 0.1], [1 - 0.15/aspect, 0.1], [1 - 0.15/aspect, 0.1], [0.15/aspect, 0.8], [0.5, 0.8]]
 	for i from 0 til 6
 		path = 'res/markers/' + (i) + '_marker.png'
 		texture = THREE.ImageUtils.loadTexture path
@@ -744,10 +744,11 @@ addMarkerScreen = (scene, env) ->
 			new THREE.PlaneGeometry heigth, heigth
 			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: false, depthWrite: false
 		marker.position.z = -1000
-		w = aspect/ratio
-		h = (1/aspect) * (w)
-		marker.position.x = (w*pos[i][0] - w/2) * heigth
-		marker.position.y = (h*pos[i][1] - h/2) * heigth
+
+		h = 1/ratio * heigth
+		w = aspect * h
+		marker.position.x = (w*(pos[i][0]) - w/2)
+		marker.position.y = (h*pos[i][1] - h/2)
 		scene.camera.add marker
 		scene.markers.push marker
 		marker.visible = true
@@ -1201,7 +1202,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 	addFixationCross scene
 	addBackgroundColor scene
 	addMarkerScreen scene, env
-	console.log scene
+
 	probeOrder scene, n
 	createProbes scene, n
 	if col == true
