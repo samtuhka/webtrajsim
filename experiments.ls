@@ -174,6 +174,77 @@ runWithNewEnv = seqr.bind (scenario, i) ->*
 	yield envP
 	return ret
 
+export circleDrivingAlternative = seqr.bind ->*
+	yield runWithNewEnv scenario.participantInformation
+
+	dev = 0
+	ntrials = 3
+	rightParams = [2,2,2]
+	leftParams = rightParams.slice()
+	rightParams = shuffleArray rightParams
+	leftParams = shuffleArray leftParams
+
+	rightParamsDark = [2,2]
+	leftParamsDark = rightParamsDark.slice()
+	rightParamsDark = shuffleArray rightParamsDark
+	leftParamsDark = shuffleArray leftParamsDark
+
+	s = 80
+	rx = ((s/3.6)*22 / Math.PI)
+	ry = rx
+	l = (s/3.6)*8
+	i = 0
+	j = 0
+	k = 0
+	h = 0
+	v = 0.5
+
+	scenarios = [scenario.circleDriving, scenario.circleDrivingRev, scenario.darkDriving, scenario.darkDrivingRev, scenario.circleDrivingRev, scenario.circleDriving, scenario.darkDrivingRev, scenario.darkDriving, scenario.circleDriving, scenario.circleDrivingRev]
+
+	yield runWithNewEnv scenario.calibration, 1
+
+	task = runScenarioCurve scenario.darkDriving, rx, ry, l, s, 1, false, false, 2 , "dark prac", dev, 0, v
+	result = yield task.get \done
+	result.outro \content .append $ L "<p>Kokeillaan samaa uudestaan.</p>"
+	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
+	yield task
+
+	task = runScenarioCurve scenario.darkDrivingRev, rx, ry, l, s, 1, false, false, 2, "dark still prac", dev, 0, v
+	result = yield task.get \done
+	result.outro \content .append $ L "<p>Seuraavaksi harjoitellaan kerran varsinaista koeasetelmaa.</p>"
+	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
+	yield task
+
+	task = runScenarioCurve scenario.circleDriving, rx, ry, l, s, 1, false, false, 2 , "first", dev, 0, v
+	result = yield task.get \done
+	result.outro \content .append $ L "<p>Seuraavaksi kalibroidaan silmänliikekamera uudelleen, jonka jälkeen varsinainen koe alkaa.</p>"
+	result.outro \content .append $ L "<p>Kun olet valmis, paina ratin oikeaa punaista painiketta.</p>"
+	yield task
+
+	yield runWithNewEnv scenario.calibration, 2
+
+	for scn in scenarios
+		if scn.scenarioName == "circleDriving"
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParams[i], "brief", dev, 0, v
+			i += 1
+		if scn.scenarioName == "circleDrivingRev"
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParams[j], "brief", dev, 0, v
+			j += 1
+		if scn.scenarioName == "darkDriving"
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, rightParamsDark[k], "dark", dev, 0, v
+			k += 1
+		if scn.scenarioName == "darkDrivingRev"
+			task = runScenarioCurve scn, rx, ry, l, s, 1, false, false, leftParamsDark[h], "dark", dev, 0, v
+			h += 1
+		result = yield task.get \done
+		result.outro \content .append $ L "<p>Kun olet valmis, jatka koetta painamalla ratin oikeaa punaista painiketta.</p>"
+		yield task
+
+	yield runWithNewEnv scenario.calibration, 3
+
+	yield runWithNewEnv scenario.experimentOutro
+
+
 export circleDriving = seqr.bind ->*
 	yield runWithNewEnv scenario.participantInformation
 
