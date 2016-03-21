@@ -174,6 +174,10 @@ runWithNewEnv = seqr.bind (scenario, i) ->*
 	yield envP
 	return ret
 
+deparam = require 'jquery-deparam'
+opts = deparam window.location.search.substring 1
+alt = Math.floor(opts.alt)
+
 export circleDrivingTrue = seqr.bind ->*
 	yield runWithNewEnv scenario.participantInformation
 
@@ -200,6 +204,8 @@ export circleDrivingTrue = seqr.bind ->*
 	v = 0.5
 
 	scenarios = [scenario.circleDriving, scenario.circleDrivingRev, scenario.darkDriving, scenario.darkDrivingRev, scenario.circleDrivingRev, scenario.circleDriving, scenario.darkDrivingRev, scenario.darkDriving]
+	if alt == 1
+		scenarios.reverse()
 
 	yield runWithNewEnv scenario.calibration, 1
 
