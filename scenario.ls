@@ -1329,7 +1329,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 	if col == true
 		colorProbes scene
 
-  startPoint = 1 -(0.5*l/scene.centerLine.getLength())
+	startPoint = 1 -(0.5*l/scene.centerLine.getLength())
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z =  -0.5*l
 	scene.playerControls.throttle = 0
