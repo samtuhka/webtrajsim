@@ -195,7 +195,7 @@ export addGround = (scene) ->
 
 export addCircleGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 2000
+	terrainSize = 4000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
@@ -239,11 +239,11 @@ export addCircleGround = (scene, rx, ry, length) ->
 		ox = rX * c
 		oy = rY * c
 		dy = -2*rY
-		k = terrainSize/4
+		k = (terrainSize/2 - rX - 1.75) - 600
 		circle = new THREE.CurvePath()
 		straight = new THREE.LineCurve3(new THREE.Vector3(-s, rX + k, 0), new THREE.Vector3(0, rX + k, 0))
 		circle.add(straight)
-		for i from 0 til 3
+		for i from 0 til 4
 			curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
 			curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
 			straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
@@ -258,12 +258,19 @@ export addCircleGround = (scene, rx, ry, length) ->
 			circle.add(curve4)
 			circle.add(straight2)
 			k += 2*dy
+		curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
+		curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
+		straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
+		circle.add(curve1)
+		circle.add(curve2)
+		circle.add(straight1)
+
 		return circle
 
 	circle = generateCircle(rx, ry, length)
 	scene.centerLine = generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 1000, steps: 1000, bevelEnabled: false, extrudePath: circle}
+	extrudeSettings = {curveSegments: 2000, steps: 2000, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_broken.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
@@ -317,11 +324,11 @@ export addCircleGround = (scene, rx, ry, length) ->
 		z = zDist.sample()
 		cnt = false
 		rW = roadWidth + 2
-		xi = x - terrainSize/4
+		xi = x - ((terrainSize/2 - rX - 1.75) - 600)
 		if z <= 0 && z >= -length && xi < rx + rW && xi > rx - rW
 				cnt = true
-		for i from 0 til 4
-			xi = x + i*rx*4 -terrainSize/4
+		for i from 0 til 5
+			xi = x + i*rx*4 -((terrainSize/2 - rX - 1.75) - 600)
 			if (((xi ^ 2 / ((rx + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((xi ^ 2 / ((rx - rW) ^ 2)  + (z ^ 2 / ((rY - rW) ^ 2))) > 1) && z >= 0)
 				cnt = true
 			if ((((xi - 2*rx) ^ 2 / ((rx + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && (((xi - 2*rx) ^ 2 / ((rx - rW) ^ 2)  + ((z+length) ^ 2 / ((rY - rW) ^ 2))) > 1) && z <= -length)
