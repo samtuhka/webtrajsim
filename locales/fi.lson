@@ -125,7 +125,8 @@
 '%intro.introduction': """
 <p>Tämän kokeen tarkoituksena on tutkia auton ohjaamista, tarkkavaisuutta ja ääreisnäön käyttöä.
 
-<p>Koe koostuu useasta osakokeesta. Koe kestää kokonaisuudessaan noin tunnin.
+<p>Koe koostuu useasta osatehtävästä,
+jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin tunnin.
 Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
 """
 
@@ -161,10 +162,12 @@ siihen lähetetä tähän kokeeseen liittymätöntä viestintää."""
 'Female': 'Nainen'
 'Male': 'Mies'
 
+'Driving license': 'Ajokorttiluokka'
+"What class is your driver's licence?": """Sallitut ajoneuvoluokat"""
+
 'Driving license year': 'Kuljettajatutkinnon suoritus'
 '%intro.license': """Anna vuosi, jona olet saanut B-luokan ajo-oikeuden (henkilöauto).
-Jos sinulla ei ole kyseisen luokan ajo-oikeutta, jätä kenttä tyhjäksi. Tiedot löytyvät
-ajokortin kääntöpuolelta."""
+Tiedot löytyvät ajokortin kääntöpuolelta."""
 
 'Past year driving': 'Viimeisen vuoden ajaminen'
 "On average, how frequently have you driven during the <strong>past year</strong>.": """
@@ -180,22 +183,21 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 
 'Lifetime driving': 'Ajohistoria'
 "On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
-<strong>elämäsi aikana</strong>."""
+<strong>ajokortin saatuasi</strong>."""
 
-'Gaming' : 'Ajopelit'
-"Gaming history" : "Mikä seuraavista vastaa parhaiten, sitä kuinka usein pelaat tietokoneella tai konsolilla ajopelejä (esim Gran Turismo, Need For Speed, Forza...)."
-'Daily': 'Päivittäin'
-'Weekly': 'Muutamia kertoja viikossa'
-'Montly': 'Muutaman kerran kuukaudessa'
-'Rarely': 'Hyvin harvoin'
+'Past 12 month kilometrage': 'Ajokilometrit viimeisten 12 kk aikana'
+"Give out an estimate on how many kilometres have you driven during the past 12 months.": """Anna arviosi siitä, montako ajokilometriä olet ajanut viimeisen 12 kuukauden aikana."""
+'not driven': 'en yhtään'
 
+'Driving games' : 'Ajopelit'
+"Driving game history" : "Mikä seuraavista vastaa parhaiten, sitä kuinka usein pelaat tietokoneella tai konsolilla ajopelejä (esim Gran Turismo, Need For Speed, Forza...)."
 
-'Circle driving practice': 'Mutkassa ajo (harjoittelu)'
-'%circleDriving.intro2Color': """
-   		 	<p>Kuusikulmioiden sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita. Tehtäväsi on havaita ylöspäin osoittava E-kuvio, jos sellainen on näkyvillä. Aina jos havaitset ylöspäin osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
-   		 	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
-   		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
-			"""
+'Lifetime kilometrage': 'Ajokilometrit eliniän aikana'
+"Give out an estimate on how many kilometres have you driven during your lifetime.": """Anna arviosi siitä, montako ajokilometriä olet ajanut koko elämäsi aikana."""
+
+'Video games': 'Tietokonepelaaminen'
+"How frequently do you play video games?": """Kuinka usein pelaat tietokonepelejä?"""
+'I have played, but not anymore': 'Olen pelannut, mutta en tätä nykyä.'
 
 '%circleDriving.intro2ColorRev': """
    		 	<p>Valkoisten ruutujen sisään ilmestyy välillä näkyviin värillisiä kolmioita. Kolmiot ovat joko kaikki sinisiä tai yksi niistä on punainen. Jos havaitset punaisen kolmion, paina ratin vasemmanpuoleista takapainiketta. Jos et havaitse sitä, paina ratin oikeanpuoleista takapainiketta.
