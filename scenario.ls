@@ -167,7 +167,7 @@ colorProbes = (scene) ->
 				scene.probes[i].pA.material = mat2
 				scene.probes[i].p4.material = mat1
 
-addProbes = (scene) ->
+addProbes = (scene, savedSeed) ->
 
 	curr = [0,0,0,0,0]
 	used = []
@@ -181,7 +181,10 @@ addProbes = (scene) ->
 
 
 	probe = Math.floor((Math.random() * 5))
-	seed = Math.random()
+	if savedSeed == undefined
+		seed = Math.random()
+	else
+		seed = savedSeed
 	chance = 0.5
 	if seed >= chance
 		for i from 1 til 7
@@ -197,7 +200,7 @@ addProbes = (scene) ->
 	for i from 0 til 5
 		if curr[i]==scene.prev[i]
 			clearProbes scene
-			addProbes scene
+			addProbes scene, seed
 			return
 	scene.prev = curr
 	scene.targetScreen = true
