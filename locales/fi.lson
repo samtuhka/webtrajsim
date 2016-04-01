@@ -270,7 +270,7 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 
 '%circleDriving.intro3': """
 			   	<p>Pyri vastaamaan mahdollisimman nopeasti. Kuviot ovat näkyvillä ruudulla vain pienen hetken ajan.
-			   	<p>Voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin verran, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
+			   	<p>Voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin verran, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka tehtävää normaalisti ja koeta vastata seuraavilla kerroilla.
                	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
                	"""
 
