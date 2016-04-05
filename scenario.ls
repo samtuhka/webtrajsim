@@ -244,7 +244,7 @@ probeLogic = (scene) ->
 					scene.probes[scene.target].missed += 1
 			addProbes scene
 			if scene.targetPresent
-					scene.maxScore += 1
+					scene.scoring.maxScore += 1
 			i = scene.probeIndx
 			scene.probeIndx += 1
 			futPos scene
@@ -479,6 +479,7 @@ search = (scene) ->
 			else
 				r = rT
 	scene.player.pos = minPos
+	scene.player.posXY = scene.centerLine.getPointAt(minPos)
 	return minPos
 
 calculateFuture = (scene, r, speed) ->
@@ -864,7 +865,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 
 		if scene.end == true || (scene.time - startTime) > 240
 			trialTime = scene.time - startTime
-			correct = scene.scoring.score/scene.maxScore * 100
+			correct = scene.scoring.score/scene.scoring.maxScore * 100
 			listener.remove()
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
@@ -980,7 +981,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 
 		if scene.end == true || (scene.time - startTime) > 240
 			listener.remove()
-			correct = scene.scoring.score/scene.maxScore*100
+			correct = scene.scoring.score/scene.scoring.maxScore*100
 			trialTime = scene.time - startTime
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
@@ -1283,7 +1284,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 
 		if scene.end == true || (scene.time - startTime) > 240
 			trialTime = scene.time - startTime
-			correct = scene.scoring.score/scene.maxScore * 100
+			correct = scene.scoring.score/scene.scoring.maxScore * 100
 			listener.remove()
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
@@ -1403,7 +1404,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 
 		if scene.end == true || (scene.time - startTime) > 240
 			listener.remove()
-			correct = scene.scoring.score/scene.maxScore*100
+			correct = scene.scoring.score/scene.scoring.maxScore*100
 			trialTime = scene.time - startTime
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
