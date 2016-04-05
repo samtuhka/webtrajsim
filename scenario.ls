@@ -229,7 +229,52 @@ futPos = (scene) ->
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
+roadPosition = (scene) ->
+	road = 1/scene.roadSecond
+	pos = scene.futPos*road
+	while pos >= 60
+		pos -= 60
+
+	pos = Math.round(pos)
+	dir = scene.params.direction
+
+	if dir == -1
+		if (pos > 0 && pos < 8) ||  (pos > 30 && pos < 38)
+			location = "straight"
+		else if pos == 0 || pos == 30
+			location = "approach"
+		else if pos == 8 || pos == 38
+			location = "exit"
+		else
+			location = "cornering"
+
+		if pos >= 38 || pos < 8
+			direction = "left"
+		else
+			direction = "right"
+
+	if dir == 1
+		if (pos > 0 && pos < 8) ||  (pos > 30 && pos < 38)
+			location = "straight"
+		else if pos == 8 || pos == 38
+			location = "approach"
+		else if pos == 0 || pos == 30
+			location = "exit"
+		else
+			location = "cornering"
+
+		if pos > 0 && pos <= 30
+			direction = "right"
+		else
+			direction = "left"
+
+	scene.player.roadPhase.direction = direction
+	scene.player.roadPhase.phase = location
+
+
+
 probeLogic = (scene) ->
+	roadPosition scene
 	if scene.time - scene.dT > scene.visibTime
 		clearProbes scene
 	if dif(scene)==true

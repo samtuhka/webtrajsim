@@ -39,6 +39,7 @@ export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
 	scene.dT = 0
 	scene.outside = {out: false, totalTime: 0}
 	scene.scoring = {score: 0, missed: 0, trueYes: 0, falseYes: 0, trueNo: 0, falseNo: 0, maxScore: 0}
+	scene.player.roadPhase = {direction: "None", phase: "None"}
 	scene.end = false
 	scene.player.pos = 0
 	scene.player.react = false
