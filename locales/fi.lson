@@ -248,7 +248,7 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 '%circleDriving.intro2': """
    		 	<p>Ruutujen  sisään ilmestyy välillä näkyviin eri suuntiin orientoituneita E-kirjainta esittäviä kuvioita.
-   		 	<p>Tehtäväsi on havaita oikealle-ylös osoittava E-kuvio (katso alin ruutu) käyttäen ääreisnäköä. Kuvio voi ilmestyä mihin tahansa ruutuun. Aina jos havaitset tämän oikealle-ylös osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
+   		 	<p>Tehtäväsi on havaita oikealle-ylös osoittava E-kuvio (katso alhaalla oikealla oleva ruutu) käyttäen ääreisnäköä. Kuvio voi ilmestyä mihin tahansa ruutuun. Aina jos havaitset tämän oikealle-ylös osoittavan E-kuvion, paina ratin oikeanpuoleista takapainiketta.
    		 	<p>Muista pitää katse koko ajan ympyrän sisällä! Silmänliikekamera rekisteröi jos "fuskasit" katsomalla kohdetta suoraan.
 			"""
 

@@ -180,7 +180,7 @@ addProbes = (scene, savedSeed) ->
 		curr[i] = seed
 
 
-	probe = Math.floor((Math.random() * 5))
+	probe = Math.floor((Math.random() * 4))
 	if savedSeed == undefined
 		seed = Math.random()
 	else
@@ -197,7 +197,7 @@ addProbes = (scene, savedSeed) ->
 	else
 		scene.targetPresent = false
 
-	for i from 0 til 5
+	for i from 0 til scene.probes.length
 		if curr[i]==scene.prev[i]
 			clearProbes scene
 			addProbes scene, seed
@@ -439,7 +439,7 @@ handleProbeLocs = (scene, n, rev, i) ->
 	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
 	xFix = lis[i][0]
 	yFix = lis[i][1]
-	pos = [[xFix, yFix - ry], [xFix - rx, yFix], [xFix + rx, yFix],  [xFix - x, yFix - y],[xFix + x, yFix - y]]
+	pos = [[xFix - rx, yFix], [xFix + rx, yFix],  [xFix - x, yFix - y],[xFix + x, yFix - y]]
 	for i from 0 til n
 		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
 	objectLoc scene.cross, xFix, yFix
@@ -529,7 +529,7 @@ else
 	four = false
 if future === NaN
 	future = 2
-n = 5
+n = 4
 
 export instructions = seqr.bind (env, inst, scene) ->*
 	L = env.L
@@ -567,18 +567,18 @@ export instructions = seqr.bind (env, inst, scene) ->*
 		result = yield ui.inputDialog env, dialogs[i]
 		console.log result
 		if i == 0 || i == 2
-			scene.probes[0].stim[1].visible = true
-			for j from 1 til 5
-				seed = Math.min j+1, 4
+			scene.probes[3].stim[1].visible = true
+			for j from 0 til 3
+				seed = j+2
 				scene.probes[j].stim[seed].visible = true
 		else
-			for j from 0 til 5
+			for j from 0 til 4
 				for k from 1 til 6
 					scene.probes[j].stim[k].visible = false
 		if result.canceled
 			i -= 2
 		i += 1
-	for j from 0 til 5
+	for j from 0 til 4
 		for k from 1 til 6
 			scene.probes[j].stim[k].visible = false
 
