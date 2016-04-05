@@ -453,9 +453,9 @@ search = (scene) ->
 	z = scene.player.physical.position.z
 	x = scene.player.physical.position.x
 	t = true
-	for i from 0 til 6
-		l = 0 + i*(1/6)
-		r = 1/6 + i*(1/6)
+	for i from 0 til 8
+		l = 0 + i*(1/8)
+		r = 1/8 + i*(1/8)
 		while t == true
 			if Math.abs(r - l) <= d
 				pos = ((l + r) / 2)
@@ -785,7 +785,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 	if visib == undefined
 		visib = 1.0
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 90}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 120}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -863,7 +863,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
-		if scene.end == true || (scene.time - startTime) > 240
+		if scene.end == true || (scene.time - startTime) > 300
 			trialTime = scene.time - startTime
 			correct = scene.scoring.score/scene.scoring.maxScore * 100
 			listener.remove()
@@ -900,7 +900,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 	if visib == undefined
 		visib = 1.0
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 90}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 120}
 
 	scene = yield basecircleDriving env, rx, ry, l
 
@@ -979,7 +979,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
-		if scene.end == true || (scene.time - startTime) > 240
+		if scene.end == true || (scene.time - startTime) > 300
 			listener.remove()
 			correct = scene.scoring.score/scene.scoring.maxScore*100
 			trialTime = scene.time - startTime
@@ -1199,7 +1199,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 90}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 120}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -1282,7 +1282,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
-		if scene.end == true || (scene.time - startTime) > 240
+		if scene.end == true || (scene.time - startTime) > 300
 			trialTime = scene.time - startTime
 			correct = scene.scoring.score/scene.scoring.maxScore * 100
 			listener.remove()
@@ -1319,7 +1319,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 
 	aut = 1
 
-	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 90}
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: -1, static_probes: st, four: fr, future: fut, automatic: aut, deviant: dev, duration: 120}
 
 	scene = yield basecircleDriving env, rx, ry, l, false
 
@@ -1402,7 +1402,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
-		if scene.end == true || (scene.time - startTime) > 240
+		if scene.end == true || (scene.time - startTime) > 300
 			listener.remove()
 			correct = scene.scoring.score/scene.scoring.maxScore*100
 			trialTime = scene.time - startTime
