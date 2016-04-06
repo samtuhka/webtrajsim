@@ -314,7 +314,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		return new THREE.Mesh rock.geometry, rock.material
 	nRocks = Math.round(terrainSize*(2*200)/500)
 	sizeDist = jStat.uniform(0.1, 0.6)
-	zDist = jStat.uniform(-terrainSize/3, terrainSize/3)
+	zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
 	xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
 	rX = rx - 1
 	rY = ry - 1
