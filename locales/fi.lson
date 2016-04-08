@@ -235,6 +235,7 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 
 'Dark driving practice': 'Ärsykkeen tunnistaminen (harjoittelu)'
+"Circle driving practice": 'Mutkassa ajo (harjoittelu)'
 
 '%darkDriving.intro': """
 			<p>Ruudulla on näkyvissä musta ympyrä, jonka ympärillä on valkoisia ruutuja. <strong>Pyri koko kokeen ajan pitämään katse ympyrän sisällä.</strong>
