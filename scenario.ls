@@ -772,7 +772,7 @@ markersVisible = (scene) ->
 
 
 addBackgroundColor = (scene) ->
-	geo = new THREE.PlaneGeometry 2000, 2000
+	geo = new THREE.PlaneGeometry 4000, 4000
 	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: false
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.z = -1100

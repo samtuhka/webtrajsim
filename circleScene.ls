@@ -14,12 +14,13 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
+export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
 	yield P.resolve addCircleGround scene, rx, ry, length
-	if sky
-		sky = yield P.resolve assets.addSky scene
+
+	sky = yield P.resolve assets.addSky scene
+
 	scene.playerControls = controls
 	player = yield addVehicle scene, controls, objectName: 'player'
 	player.eye.add scene.camera
@@ -27,11 +28,12 @@ export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
 	for i from 0 til player.body.children.length - 1
 		player.body.children[i].visible = false
 	scene.player = player
-	if sky
-		scene.visual.children[7].visible = false
-		scene.visual.children[6].visible = false
-		scene.visual.children[5].visible = false
-		scene.visual.children[4].visible = false
+
+	scene.visual.children[7].visible = false
+	scene.visual.children[6].visible = false
+	scene.visual.children[5].visible = false
+	scene.visual.children[4].visible = false
+
 	scene.soundPlay = false
 	scene.soundTs = 0
 	scene.prevTime = 0
@@ -95,7 +97,7 @@ export circleScene = seqr.bind (env, rx, ry, length, sky = true) ->*
 		gain = (gain + 0.5)/1.5
 		gainNode.gain.value = gain
 		engineSounds.setPitch rev*2000
-	if sky
+	if control
 		scene.onStart.add engineSounds.start
 		scene.onExit.add engineSounds.stop
 
