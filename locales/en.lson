@@ -29,10 +29,10 @@
 	limit. The final score is #{(timePenalty + time).toFixed 2} seconds.
 	"""
 
-'%blinderIntro': <p>In this task also your level of anticipation is measured by
+'%blinderIntro': """<p>In this task also your level of anticipation is measured by
 the number of glances you have to take. To briefly see the road,
 press the left lever. Try to accomplish the task as well as you can,
-while taking as few glances as you can.
+while taking as few glances as you can."""
 
 '%blindSpeedControl.intro': -> """
 	<p>#{@ '%speedControl.intro'}
@@ -50,7 +50,7 @@ while taking as few glances as you can.
 	<p>There are no speed limits in this task.
 	"""
 
-'%followInTraffic.outro': {{consumption}) ->
+'%followInTraffic.outro': ({consumption}) ->
 	"Your consumption was #{consumption.avgLitersPer100km!.toFixed 2} l/100km."
 
 '%blindFollowInTraffic.intro': -> """
