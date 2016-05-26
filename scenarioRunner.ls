@@ -12,7 +12,7 @@ ui = require './ui.ls'
 
 localizer = require './localizer.ls'
 
-window.THREE = THREE
+window.THREE = THREE = require 'three'
 window.CANNON = require 'cannon'
 require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
 
