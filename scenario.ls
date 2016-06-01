@@ -2333,6 +2333,7 @@ exportScenario \circle, (env, rx, s, dur) ->*
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = 0
 	
+	
 	scene.playerControls.throttle = 0
 
 	rw = scene.centerLine.width
@@ -2398,7 +2399,8 @@ exportScenario \circleRev, (env, rx, s, dur) ->*
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y*-1
 	scene.player.physical.position.z = 0
-	
+
+
 	scene.playerControls.throttle = 0
 
 	rw = scene.centerLine.width

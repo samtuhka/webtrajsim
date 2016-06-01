@@ -58,6 +58,13 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = t
 	scene.reacted = true
 	scene.controlChange = false
 	scene.prev = [0,0,0,0,0]
+
+	scene.player.scoremeter = ui.gauge env,
+		name: L "Speed"
+		unit: L "km/h"
+		value: ->
+			score = scene.player.getSpeed()*3.6
+			Math.round score
 	#scene.player.scoremeter = ui.gauge env,
 	#	name: L "Score"
 	#	unit: L "times"
