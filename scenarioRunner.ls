@@ -16,14 +16,17 @@ window.CANNON = require 'cannon'
 require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
 
 eachFrame = (f) -> new P (accept, reject) ->
+	stopped = false
 	clock = new THREE.Clock
 	tick = ->
+		if stopped
+			return
+		requestAnimationFrame tick
 		dt = clock.getDelta()
 		result = f dt
 		if result?
 			accept result
-		else
-			requestAnimationFrame tick
+			stopped := true
 	tick()
 
 audioContext = new AudioContext

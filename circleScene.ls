@@ -3,7 +3,7 @@ Co = P.coroutine
 $ = require 'jquery'
 seqr = require './seqr.ls'
 
-{addCircleGround, Scene} = require './scene.ls'
+{addCircleGround, addCurveGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
 {DefaultEngineSound} = require './sounds.ls'
@@ -14,10 +14,14 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
+export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = true) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
-	yield P.resolve addCircleGround scene, rx, ry, length
+	
+	if ellipse == true
+		yield P.resolve addCurveGround scene, rx, ry, length
+	else
+		yield P.resolve addCircleGround scene, rx, ry, length
 
 	sky = yield P.resolve assets.addSky scene
 
