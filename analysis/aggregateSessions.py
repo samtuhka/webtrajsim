@@ -65,6 +65,9 @@ def trialToNumpy(data, sid, block, experiment):
     if len(positions) == 0:
         return None
     positions = np.rec.fromrecords(positions, names='sessionId,block,experiment,ts,player,leader,absTs,blind,throttle,brake')
+    # There's a bug in the simulator that causes the ts to increment
+    # twice. Correct it here, so it's right for the analysis scripts.
+    positions['ts'] /= 2.0
     return positions
 
 def rowstack(arrays):
