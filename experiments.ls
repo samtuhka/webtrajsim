@@ -66,18 +66,45 @@ export mulsimco2015 = seqr.bind ->*
 export freeDriving = seqr.bind ->*
 	yield runScenario scenario.freeDriving
 
-export blindPursuit = seqr.bind ->*
-	nTrials = 50
-	yield runScenario scenario.blindPursuit,
-		nTrials: nTrials
-		oddballRate: 0.0
+runWithNewEnv = seqr.bind (scenario, ...args) ->*
+	envP = newEnv!
+	env = yield envP.get \env
+	ret = yield scenario env, ...args
+	envP.let \destroy
+	yield envP
+	return ret
 
-	for i from 0 til 10
-		yield runScenario scenario.blindPursuit,
-			nTrials: nTrials
-			oddballRate: 0.1
+export blindPursuit = seqr.bind ->*
+	yield runWithNewEnv scenario.participantInformationBlindPursuit
+	totalScore =
+		correct: 0
+		incorrect: 0
+	yield runWithNewEnv scenario.soundSpook, preIntro: true
+
+	runPursuitScenario = seqr.bind (...args) ->*
+		task = runScenario ...args
+		env = yield task.get \env
+		res = yield task.get \done
+
+		totalScore.correct += res.result.score.correct
+		totalScore.incorrect += res.result.score.incorrect
+		totalPercentage = totalScore.correct/(totalScore.correct + totalScore.incorrect)*100
+		res.outro \content .append $ env.L "%blindPursuit.totalScore", score: totalPercentage
+		yield task
+		return res
+	res = yield runPursuitScenario scenario.pursuitDiscriminationPractice
+	frequency = res.result.estimatedFrequency
+	nBlocks = 2
+	trialsPerBlock = 2
+	for block from 0 til nBlocks
+		for trial from 0 til trialsPerBlock
+			yield runPursuitScenario scenario.pursuitDiscrimination, frequency: frequency
+		yield runWithNewEnv scenario.soundSpook
+
 	env = newEnv!
-	yield scenario.experimentOutro yield env.get \env
+	yield scenario.experimentOutro (yield env.get \env), (env) ->
+		totalPercentage = totalScore.correct/(totalScore.correct + totalScore.incorrect)*100
+		@ \content .append env.L '%blindPursuit.finalScore', score: totalPercentage
 	env.let \destroy
 	yield env
 

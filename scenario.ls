@@ -6,9 +6,12 @@ seqr = require './seqr.ls'
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl, NonThrottleControl} = require './controls.ls'
-{DefaultEngineSound} = require './sounds.ls'
+{DefaultEngineSound, BellPlayer, NoisePlayer} = require './sounds.ls'
 {circleScene} = require './circleScene.ls'
+{NonSteeringControl} = require './controls.ls'
+{DefaultEngineSound, BellPlayer, NoisePlayer} = require './sounds.ls'
 assets = require './assets.ls'
+prelude = require 'prelude-ls'
 
 require './three.js/examples/fonts/Digital-7_Regular.typeface.js'
 require './three.js/examples/fonts/Snellen_Regular.typeface.js'
@@ -1550,46 +1553,6 @@ addForcedBlinderTask = (scene, env, {interval=2}={}) ->
 		clearInterval id
 
 	return self
-
-addPursuitTask = (scene, env) ->
-	mask = new THREE.Mesh do
-		new THREE.PlaneGeometry 0.1*16/9, 0.1
-		new THREE.MeshBasicMaterial color: 0x000000
-	mask.position.z = -0.3
-	mask.position.x = 0.03
-	mask.position.y = -0.03
-	scene.camera.add mask
-
-	self =
-		change: Signal!
-		glances: 0
-
-	showMask = ->
-		mask.visible = true
-		self.change.dispatch true
-		env.logger.write blinder: true
-	showMask()
-
-	#ui.gauge env,
-	#	name: env.L "Glances"
-	#	unit: ""
-	#	value: ->
-	#		self.glances
-
-
-	#env.controls.change (btn, isOn) ->
-	#	return if btn != 'blinder'
-	#	return if isOn != true
-	#	return if not mask.visible
-	#	mask.visible = false
-	#	self.glances += 1
-	#	self.change.dispatch false
-	#	env.logger.write blinder: false
-	#	setTimeout showMask, 300
-
-	return self
-
-
 
 exportScenario \runTheLight, (env) ->*
 	@let \intro,

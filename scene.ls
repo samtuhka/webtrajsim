@@ -6,7 +6,8 @@ Co = P.coroutine
 seqr = require './seqr.ls'
 {loadCollada, mergeObject} = require './utils.ls'
 
-{perlin=noise} = require './vendor/perlin.js'
+perlin = require './vendor/perlin.js'
+console.log perlin
 
 # Todo: ugly
 window.THREE = THREE = require 'three'
