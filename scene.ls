@@ -598,38 +598,6 @@ export addCircleGround = (scene, rx, ry, length) ->
 		circle.add(straight2)
 		return circle
 
-	generateCircleOld = (rX, rY, s) ->
-		c = 0.5522847498307933984022516322796
-		ox = rX * c
-		oy = rY * c
-		dy = -2*rY
-		k = (terrainSize/2 - rX - 1.75) - 500
-		circle = new THREE.CurvePath()
-		straight = new THREE.LineCurve3(new THREE.Vector3(-s, rX + k, 0), new THREE.Vector3(0, rX + k, 0))
-		circle.add(straight)
-		for i from 0 til 5
-			curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
-			curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
-			straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
-			curveAlt = new THREE.CubicBezierCurve3(new THREE.Vector3(-s, -rX + k, 0), new THREE.Vector3(-s, -c*rX + k, 0), new THREE.Vector3(-c*rY - s, dy + k, 0), new THREE.Vector3(-rY - s, dy + k, 0))
-			curve3 = new THREE.CubicBezierCurve3(new THREE.Vector3(-s, rX + dy + k, 0), new THREE.Vector3(-c*rY - s, rX + dy + k, 0),  new THREE.Vector3(-rY - s, c*rX + dy + k, 0), new THREE.Vector3(-rY - s, 0 + dy + k, 0))
-			curve4 = new THREE.CubicBezierCurve3(new THREE.Vector3(-rY - s, 0 + dy + k, 0), new THREE.Vector3(-rY - s, -c*rX + dy + k, 0),  new THREE.Vector3(-c*rY - s, -rX + dy + k, 0), new THREE.Vector3(-s, -rX + dy + k, 0))
-			straight2 = new THREE.LineCurve3(new THREE.Vector3(-s, rX + 2*dy + k, 0), new THREE.Vector3(0, rX + 2*dy + k, 0))
-			circle.add(curve1)
-			circle.add(curve2)
-			circle.add(straight1)
-			circle.add(curve3)
-			circle.add(curve4)
-			circle.add(straight2)
-			k += 2*dy
-		curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
-		curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
-		straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
-		circle.add(curve1)
-		circle.add(curve2)
-		circle.add(straight1)
-
-		return circle
 
 	circle = generateCircle(rx, ry, length)
 	scene.centerLine = generateCircle(rx, ry, length)
