@@ -352,3 +352,13 @@ export defaultExperiment = circleDrivingTrue
 export paavoDriving = seqr.bind ->*
 	yield runScenario scenario.circle, 25, 14, 20
 	yield runScenario scenario.circleRev, 25, 14, 20
+
+export paavoDrivingRandom = seqr.bind ->*
+	scenarios = []
+		.concat({'scene': scenario.circle, 'rx': 25, 's': 14, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 25, 's': 14, 'dur': 20})
+	scenarios = shuffleArray scenarios
+	for scn in scenarios
+		yield runScenario scn.scene, scn.rx, scn.s, scn.dur
+
+
