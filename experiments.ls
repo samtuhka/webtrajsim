@@ -27,7 +27,6 @@ shuffleArray = (a) ->
 		[a[i], a[j]] = [a[j], a[i]]
 	return a
 
-
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
 	env.i = 0
@@ -349,3 +348,7 @@ export circleDriving = seqr.bind ->*
 
 export defaultExperiment = circleDrivingTrue
 
+
+export paavoDriving = seqr.bind ->*
+	yield runScenario scenario.circle, 25, 14, 20
+	yield runScenario scenario.circleRev, 25, 14, 20
