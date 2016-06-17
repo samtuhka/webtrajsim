@@ -414,3 +414,15 @@ export paavoDrivingRandom = seqr.bind ->*
 		yield runScenario scn.scene, scn.rx, scn.s, scn.dur
 
 
+export paavoDrivingAccelerate = seqr.bind ->*
+
+# säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus
+#jätä aikaa niin että ehtii ajaa max nopeudella hetken
+
+	yield runScenario scenario.circle, 25, 60, 60, 30
+	yield runScenario scenario.circleRev, 35, 70, 70, 40
+	yield runScenario scenario.circleRev, 50, 120, 80, 55
+
+
+
+

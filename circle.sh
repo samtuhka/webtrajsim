@@ -4,8 +4,8 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-BROWSER="chromium-browser --user-data-dir=chromium-data --allow-file-access-from-files"
-#BROWSER="primusrun ./firefox/firefox/firefox"
+#BROWSER="chromium-browser --user-data-dir=chromium-data --allow-file-access-from-files"
+BROWSER="primusrun ./firefox/firefox/firefox"
 #BROWSER="primusrun ./chrome/full-build-linux/chrome \
 #	--test-type \
 #	--ignore-gpu-blacklist \
@@ -27,6 +27,6 @@ WPORT=10101
 #export vblank_mode=0
 #export __GL_FSAA_MODE=11
 #$BROWSER "http://$SHOST:$SPORT/index.html?controller=ws://$WHOST:$WPORT/"
-$BROWSER "file://$PWD/index.html?controller=ws://$WHOST:$WPORT/&experiment=paavoDriving"
+$BROWSER "file://$PWD/index.html?experiment=paavoDrivingAccelerate"
 #$BROWSER "file://$PWD/index.html"
 #$BROWSER "http://$SHOST:$SPORT/index.html"
