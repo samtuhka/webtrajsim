@@ -539,7 +539,7 @@ export addCurveGround = (scene, rx, ry, length) ->
 		terrain.position.z = nTerrains*terrainSize
 
 #horrible copy-pasting
-export addCircleGround = (scene, rx, ry, length) ->
+export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
 	terrainSize = 1000
 	textureSize = 5
@@ -599,9 +599,132 @@ export addCircleGround = (scene, rx, ry, length) ->
 		circle.add(straight2)
 		return circle
 
+	generateStraight = ->
+		straight = new THREE.LineCurve3(new THREE.Vector3(-500, 0, 0), new THREE.Vector3(500, 0, 0))
+		path = new THREE.CurvePath()
+		path.add(straight)
+		return path
+
+	generateRocks = (terrainSize) ->
+		rocks = new THREE.Object3D()
+		nRockTypes = 10
+		rockPool = for i from 0 til nRockTypes
+			generateRock()
+		randomRock = ->
+			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
+			return new THREE.Mesh rock.geometry, rock.material
+		nRocks = Math.round(terrainSize*(100)/500)
+		sizeDist = jStat.uniform(0.1, 0.6)
+		zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
+		xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
+		rX = rx - 1
+		rY = ry - 1
+		for i from 0 til nRocks
+			x = xDist.sample()
+			size = sizeDist.sample()
+			z = zDist.sample()
+			cnt = false
+			rW = 3.5 + 2
+			if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + (z ^ 2 / ((rY - 2) ^ 2))) > 1) && z >= 0)
+				cnt = true
+			if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + ((z+length) ^ 2 / ((rY - 2) ^ 2))) > 1) && z <= -length)
+				cnt = true
+			if z <= 0 && z >= -length && x > (rX - 2) && x < rX + rW
+				cnt = true
+			if z <= 0 && z >= -length && x < -(rX - 2) && x > -rX - rW
+				cnt = true
+			if cnt == true
+				continue
+			rock = randomRock()
+			rock.position.x = x
+			rock.position.z = z
+			rock.scale.multiplyScalar size
+			rock.scale.y *= 0.8
+			rock.updateMatrix()
+			rock.matrixAutoUpdate = false
+			rocks.add rock
+		return rocks
+
+	generateRocksOnPath = (path) ->
+		rocks = new THREE.Object3D()
+		console.log path
+		nRockTypes = 10
+		rockPool = for i from 0 til nRockTypes
+			generateRock()
+		randomRock = ->
+			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
+			return new THREE.Mesh rock.geometry, rock.material
+		nRocks = 10
+		sizeDist = jStat.uniform(0.1, 0.6)
+		zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
+		xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
+		rX = rx - 1
+		rY = ry - 1
+		for i from 0 til nRocks
+			x = path.getPointAt(i/10.0).y
+			z = path.getPointAt(i/10.0).x
+
+			size = sizeDist.sample()
+			cnt = false
+			rock = randomRock()
+			rock.position.x = x
+			rock.position.z = z
+			rock.scale.multiplyScalar size
+			rock.scale.y *= 0.8
+			rock.updateMatrix()
+			rock.matrixAutoUpdate = false
+			rocks.add rock
+		return rocks
+
+
+	generateRocks = (terrainSize) ->
+		rocks = new THREE.Object3D()
+		nRockTypes = 10
+		rockPool = for i from 0 til nRockTypes
+			generateRock()
+		randomRock = ->
+			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
+			return new THREE.Mesh rock.geometry, rock.material
+		nRocks = Math.round(terrainSize*(100)/500)
+		sizeDist = jStat.uniform(0.1, 0.6)
+		zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
+		xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
+		rX = rx - 1
+		rY = ry - 1
+		for i from 0 til nRocks
+			x = xDist.sample()
+			size = sizeDist.sample()
+			z = zDist.sample()
+			cnt = false
+			rW = 3.5 + 2
+			if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + (z ^ 2 / ((rY - 2) ^ 2))) > 1) && z >= 0)
+				cnt = true
+			if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + ((z+length) ^ 2 / ((rY - 2) ^ 2))) > 1) && z <= -length)
+				cnt = true
+			if z <= 0 && z >= -length && x > (rX - 2) && x < rX + rW
+				cnt = true
+			if z <= 0 && z >= -length && x < -(rX - 2) && x > -rX - rW
+				cnt = true
+			if cnt == true
+				continue
+			rock = randomRock()
+			rock.position.x = x
+			rock.position.z = z
+			rock.scale.multiplyScalar size
+			rock.scale.y *= 0.8
+			rock.updateMatrix()
+			rock.matrixAutoUpdate = false
+			rocks.add rock
+		return rocks
+
 
 	circle = generateCircle(rx, ry, length)
 	scene.centerLine = generateCircle(rx, ry, length)
+
+	if straight == true
+		circle = generateStraight(rx, ry, length)
+		scene.centerLine = generateStraight(rx, ry, length)
+
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
@@ -637,51 +760,20 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
 	terrain.add road
-
-	rocks = new THREE.Object3D()
-	nRockTypes = 10
-	rockPool = for i from 0 til nRockTypes
-		generateRock()
-	randomRock = ->
-		rock = rockPool[Math.floor(Math.random()*rockPool.length)]
-		return new THREE.Mesh rock.geometry, rock.material
-	nRocks = Math.round(terrainSize*(100)/500)
-	sizeDist = jStat.uniform(0.1, 0.6)
-	zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
-	xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
-	rX = rx - 1
-	rY = ry - 1
-	for i from 0 til nRocks
-		x = xDist.sample()
-		size = sizeDist.sample()
-		z = zDist.sample()
-		cnt = false
-		rW = roadWidth + 2
-		if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + (z ^ 2 / ((rY - 2) ^ 2))) > 1) && z >= 0)
-			cnt = true
-		if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + ((z+length) ^ 2 / ((rY - 2) ^ 2))) > 1) && z <= -length)
-			cnt = true
-		if z <= 0 && z >= -length && x > (rX - 2) && x < rX + rW
-			cnt = true
-		if z <= 0 && z >= -length && x < -(rX - 2) && x > -rX - rW
-			cnt = true
-		if cnt == true
-			continue
-		rock = randomRock()
-		rock.position.x = x
-		rock.position.z = z
-		rock.scale.multiplyScalar size
-		rock.scale.y *= 0.8
-		rock.updateMatrix()
-		rock.matrixAutoUpdate = false
-		rocks.add rock
+	if rocksOnPath == true
+		rocks = generateRocksOnPath(scene.centerLine)
+	else
+		rocks = generateRocks(terrainSize)
 
 	terrain.add mergeObject rocks
 
 	scene.visual.add terrain
+	ahead = terrain.clone()
+	scene.visual.add ahead
 
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		nTerrains = Math.floor (position.z+terrainSize/2.0)/terrainSize
 		terrain.position.z = nTerrains*terrainSize
+		ahead.position.z = terrain.position.z + terrainSize
