@@ -425,4 +425,10 @@ export paavoDrivingAccelerate = seqr.bind ->*
 
 
 
-
+export rocksOnPath = seqr.bind ->*
+	scenarios = []
+		.concat([scenario.rocksOnCircle]*2)
+		.concat([scenario.rocksOnStraight]*2)
+	scenarios = shuffleArray scenarios
+	for scn in scenarios
+		yield runScenario scn

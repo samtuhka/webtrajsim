@@ -167,6 +167,8 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 	scene = yield scenario.get \scene
 
+	env.logger.write rocks: scene.rocks
+
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	@finally ->
 		THREE.Cache.clear()
@@ -258,6 +260,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 
 	env.logger.write scenarioParameters: scene.params
 	#env.logger.write probeOrder: scene.order
+	env.logger.write rocks: scene.rocks
 
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	@finally ->
