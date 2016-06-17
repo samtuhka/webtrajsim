@@ -655,22 +655,25 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
 			return new THREE.Mesh rock.geometry, rock.material
 		nRocks = 10
-		sizeDist = jStat.uniform(0.1, 0.6)
-		zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
-		xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nRocks
 			x = path.getPointAt(i/10.0).y
 			z = path.getPointAt(i/10.0).x
+			size = 1
 
-			size = sizeDist.sample()
-			cnt = false
-			rock = randomRock()
+			geo = new THREE.IcosahedronGeometry 0.5, 3
+			geo.verticesNeedUpdate = true
+			geo.computeVertexNormals()
+			geo.computeFaceNormals()
+			rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+				color: 0x696969
+			rock.castShadow = true
+			rock.receiveShadow = true
+
 			rock.position.x = x
 			rock.position.z = z
 			rock.scale.multiplyScalar size
-			rock.scale.y *= 0.8
 			rock.updateMatrix()
 			rock.matrixAutoUpdate = false
 			rocks.add rock
