@@ -707,12 +707,14 @@ handleSteering = (scene, env) ->
 	scene.playerControls.steering = -angle
 
 
-handleSpeed = (scene, target) ->
+handleSpeed = (scene, target, t) ->
 	speed = scene.player.getSpeed()*3.6
 	force = scene.playerControls.throttle - scene.playerControls.brake
 	dt = scene.time - scene.prevTime
 	accel = (speed - scene.player.prevSpeed) / dt
-	t = 1/(Math.abs(target - speed) ^ 0.5*3)
+	console.log accel
+	if t == undefined
+		t = 1/(Math.abs(target - speed) ^ 0.5*3)
 	accelTarget = (target - speed) / t
 	delta = accelTarget - accel
 	newForce = force + delta/50
@@ -2277,7 +2279,7 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 
 
 
-exportScenario \circle, (env, rx, s, dur) ->*
+exportScenario \circle, (env, rx, s, dur, t) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -2321,7 +2323,7 @@ exportScenario \circle, (env, rx, s, dur) ->*
 				handleSteering scene, env
 
 	scene.onTickHandled ~>
-		handleSpeed scene, s
+		handleSpeed scene, s, t
 		calculateFuture scene, 1, s/3.6
 
 		z = scene.player.physical.position.z
@@ -2344,7 +2346,7 @@ exportScenario \circle, (env, rx, s, dur) ->*
 
 
 
-exportScenario \circleRev, (env, rx, s, dur) ->*
+exportScenario \circleRev, (env, rx, s, dur, t) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -2388,7 +2390,7 @@ exportScenario \circleRev, (env, rx, s, dur) ->*
 				handleSteering scene, env
 
 	scene.onTickHandled ~>
-		handleSpeed scene, s
+		handleSpeed scene, s, t
 		calculateFuture scene, 1, s/3.6
 
 		z = scene.player.physical.position.z
