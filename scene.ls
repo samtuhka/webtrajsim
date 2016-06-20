@@ -654,12 +654,12 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		randomRock = ->
 			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
 			return new THREE.Mesh rock.geometry, rock.material
-		nRocks = 10
+		nRocks = 20
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nRocks
-			x = path.getPointAt(i/10.0).y
-			z = path.getPointAt(i/10.0).x
+			x = path.getPointAt(i/20.0).y
+			z = path.getPointAt(i/20.0).x
 			size = 1
 
 			geo = new THREE.IcosahedronGeometry 0.5, 3

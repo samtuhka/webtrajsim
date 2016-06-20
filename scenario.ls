@@ -458,6 +458,7 @@ handleProbeLocs = (scene, n, rev, i) ->
 	p1000 = scene.predict[1]
 	p2000 = scene.predict[2]
 	p4000 = scene.predict[3]
+	console.log i
 
 	v1 = new THREE.Vector3(p500.y, 0, p500.x)
 	v1.project(scene.camera)
