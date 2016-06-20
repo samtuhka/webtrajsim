@@ -419,9 +419,9 @@ export paavoDrivingAccelerate = seqr.bind ->*
 # säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus
 #jätä aikaa niin että ehtii ajaa max nopeudella hetken
 
-	yield runScenario scenario.circle, 25, 60, 60, 30
-	yield runScenario scenario.circleRev, 35, 70, 70, 40
-	yield runScenario scenario.circleRev, 50, 120, 80, 55
+	yield runScenario scenario.circle, 25, 62, 60, 33
+	yield runScenario scenario.circleRev, 35, 83, 70, 43
+	yield runScenario scenario.circle, 50, 130, 80, 60 #max nopeus 68
 
 
 
