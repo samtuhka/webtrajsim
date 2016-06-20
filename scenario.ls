@@ -2423,7 +2423,7 @@ exportScenario \rocksOnCircle, (env, rx, s, dur) ->*
 		dur = 60
 
 	ry = rx
-	aut = 0
+	aut = 1
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
@@ -2489,7 +2489,7 @@ exportScenario \rocksOnStraight, (env, rx, s, dur) ->*
 		dur = 60
 
 	ry = rx
-	aut = 0
+	aut = 1
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
