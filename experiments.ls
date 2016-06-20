@@ -362,9 +362,7 @@ export paavoDrivingRandom = seqr.bind ->*
 		yield runScenario scn.scene, scn.rx, scn.s, scn.dur
 
 export rocksOnPath = seqr.bind ->*
-	scenarios = []
-		.concat([scenario.rocksOnCircle]*2)
-		.concat([scenario.rocksOnStraight]*2)
-	scenarios = shuffleArray scenarios
-	for scn in scenarios
-		yield runScenario scn
+	yield runScenario scenario.rocksOnCircle, 160, 80
+	yield runScenario scenario.rocksOnStraight, 160, 80
+	yield runScenario scenario.rocksOnCircle, 160, 50
+	yield runScenario scenario.rocksOnStraight, 160, 50
