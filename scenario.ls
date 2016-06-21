@@ -2460,7 +2460,7 @@ exportScenario \rocksOnCircle, (env, rx, s, dur) ->*
 	scene.onTickHandled ~>
 		handleSpeed scene, s
 		calculateFuture scene, 1, s/3.6
-
+		debugger
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 

@@ -33,10 +33,11 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = t
 		player.body.children[i].visible = false
 	scene.player = player
 
-	scene.visual.children[7].visible = false
-	scene.visual.children[6].visible = false
-	scene.visual.children[5].visible = false
-	scene.visual.children[4].visible = false
+	#lt = scene.visual.children.length - 1
+	#scene.visual.children[lt - 1].visible = false
+	#scene.visual.children[lt - 2].visible = false
+	#scene.visual.children[lt - 3].visible = false
+	#scene.visual.children[lt - 4].visible = false
 
 	scene.soundPlay = false
 	scene.soundTs = 0
