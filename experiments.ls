@@ -468,7 +468,10 @@ export paavoMixed = seqr.bind ->*
 
 
 export rocksOnPath = seqr.bind ->*
-	yield runScenario scenario.rocksOnCircle, 160, 80
-	yield runScenario scenario.rocksOnStraight, 160, 80
-	yield runScenario scenario.rocksOnCircle, 160, 50
-	yield runScenario scenario.rocksOnStraight, 160, 50
+	s = 80
+	rx = ((s/3.6)*22.5 / Math.PI)
+
+	yield runScenario scenario.rocksOnCircle, rx, s, 45
+	yield runScenario scenario.rocksOnStraight, rx, s, 45
+	yield runScenario scenario.rocksOnCircle, rx, 60, 60
+	yield runScenario scenario.rocksOnStraight, rx, 60, 60
