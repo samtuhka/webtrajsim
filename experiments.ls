@@ -367,5 +367,5 @@ export rocksOnPath = seqr.bind ->*
 
 	yield runScenario scenario.rocksOnCircle, rx, s, 45
 	yield runScenario scenario.rocksOnStraight, rx, s, 45
-	yield runScenario scenario.rocksOnCircle, rx, s, 45
-	yield runScenario scenario.rocksOnStraight, rx, s, 45
+	yield runScenario scenario.rocksOnCircle, rx, 60, 60
+	yield runScenario scenario.rocksOnStraight, rx, 60, 60
