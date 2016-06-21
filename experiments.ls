@@ -429,17 +429,15 @@ export paavoDrivingAccelerate = seqr.bind ->*
 
 export paavoKoekoe = seqr.bind ->*
 
+	yield runScenario scenario.circle, 50, 115, 60, 50 
+	yield runScenario scenario.circleRev, 50, 115, 60, 50 
+
 	yield runScenario scenario.circle, 50, 40, 20
 	yield runScenario scenario.circleRev, 50, 40, 20
 	yield runScenario scenario.circle, 50, 52.5, 20
 	yield runScenario scenario.circleRev, 50, 52.5, 20
 	yield runScenario scenario.circle, 50, 65, 20
 	yield runScenario scenario.circleRev, 50, 65, 20
-
-	yield runScenario scenario.circle, 50, 115, 60, 50 
-	yield runScenario scenario.circleRev, 50, 115, 60, 50 
-
-
 
 
 export rocksOnPath = seqr.bind ->*
