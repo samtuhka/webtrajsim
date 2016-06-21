@@ -541,7 +541,7 @@ export addCurveGround = (scene, rx, ry, length) ->
 #horrible copy-pasting
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 1000
+	terrainSize = 2000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
@@ -600,7 +600,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		return circle
 
 	generateStraight = ->
-		straight = new THREE.LineCurve3(new THREE.Vector3(-500, 0, 0), new THREE.Vector3(500, 0, 0))
+		straight = new THREE.LineCurve3(new THREE.Vector3(-1000, 0, 0), new THREE.Vector3(1000, 0, 0))
 		path = new THREE.CurvePath()
 		path.add(straight)
 		return path
@@ -647,22 +647,23 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 
 	generateRocksOnPath = (path) ->
 		rocks = new THREE.Object3D()
-		console.log path
 		nRockTypes = 10
 		rockPool = for i from 0 til nRockTypes
 			generateRock()
 		randomRock = ->
 			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
 			return new THREE.Mesh rock.geometry, rock.material
-		nRocks = 20
+
+		length = path.getLength()
+		nRocks = length/(80/3.6)
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nRocks
-			x = path.getPointAt(i/20.0).y
-			z = path.getPointAt(i/20.0).x
+			x = path.getPointAt(i/nRocks).y
+			z = path.getPointAt(i/nRocks).x
 			size = 1
 
-			geo = new THREE.IcosahedronGeometry 0.5, 3
+			geo = new THREE.CylinderGeometry 0.025, 0.025, 2, 100
 			geo.verticesNeedUpdate = true
 			geo.computeVertexNormals()
 			geo.computeFaceNormals()
