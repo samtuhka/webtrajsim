@@ -4,7 +4,7 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-#BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files"
+#BROWSER="chromium-browser --user-data-dir=chromium-data --allow-file-access-from-files"
 #BROWSER="primusrun ./firefox/firefox/firefox"
 BROWSER="primusrun ./chrome/full-build-linux/chrome \
 	--test-type \

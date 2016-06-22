@@ -350,16 +350,95 @@ export defaultExperiment = circleDrivingTrue
 
 
 export paavoDriving = seqr.bind ->*
-	yield runScenario scenario.circle, 25, 14, 20
-	yield runScenario scenario.circleRev, 25, 14, 20
+
+#  s1r1 = kiertonopeus 1 radalla 1
+
+	s1r1 = 20
+	s1r2 = 41
+
+	s2r1 = 31
+	s2r2 = 61
+
+	s3r1 = 41
+	s3r2 = 82
+
+	yield runScenario scenario.circle, 25, s1r1, 20
+	yield runScenario scenario.circleRev, 25, s1r1, 20
+	yield runScenario scenario.circle, 50, s1r2, 20
+	yield runScenario scenario.circleRev, 50, s1r2, 20
+
+	yield runScenario scenario.circle, 25, s2r1, 20
+	yield runScenario scenario.circleRev, 25, s2r1, 20
+	yield runScenario scenario.circle, 50, s2r2, 20
+	yield runScenario scenario.circleRev, 50, s2r2, 20
+
+	yield runScenario scenario.circle, 25, s3r1, 20
+	yield runScenario scenario.circleRev, 25, s3r1, 20
+	yield runScenario scenario.circle, 50, s3r2, 20
+	yield runScenario scenario.circleRev, 50, s3r2, 20
+
 
 export paavoDrivingRandom = seqr.bind ->*
+
+#  s1r1 = kiertonopeus 1 radalla 1
+
+
+	s1r1 = 20
+	s1r2 = 41
+
+	s2r1 = 31
+	s2r2 = 61
+
+	s3r1 = 41
+	s3r2 = 82
+
+
 	scenarios = []
-		.concat({'scene': scenario.circle, 'rx': 25, 's': 14, 'dur': 20})
-		.concat({'scene': scenario.circleRev, 'rx': 25, 's': 14, 'dur': 20})
+		.concat({'scene': scenario.circle, 'rx': 25, 's': s1r1, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 25, 's': s1r1, 'dur': 20})
+		.concat({'scene': scenario.circle, 'rx': 50, 's': s1r2, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 50, 's': s1r2, 'dur': 20})
+
+		.concat({'scene': scenario.circle, 'rx': 25, 's': s2r1, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 25, 's': s2r1, 'dur': 20})
+		.concat({'scene': scenario.circle, 'rx': 50, 's': s2r2, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 50, 's': s2r2, 'dur': 20})
+
+		.concat({'scene': scenario.circle, 'rx': 25, 's': s3r1, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 25, 's': s3r1, 'dur': 20})
+		.concat({'scene': scenario.circle, 'rx': 50, 's': s3r2, 'dur': 20})
+		.concat({'scene': scenario.circleRev, 'rx': 50, 's': s3r2, 'dur': 20})
+
 	scenarios = shuffleArray scenarios
 	for scn in scenarios
 		yield runScenario scn.scene, scn.rx, scn.s, scn.dur
+
+
+export paavoDrivingAccelerate = seqr.bind ->*
+
+# säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus
+#jätä aikaa niin että ehtii ajaa max nopeudella hetken
+
+	yield runScenario scenario.circle, 25, 62, 60, 33
+	yield runScenario scenario.circleRev, 25, 62, 60, 33
+	yield runScenario scenario.circle, 35, 83, 70, 43
+	yield runScenario scenario.circleRev, 35, 83, 70, 43
+	yield runScenario scenario.circle, 50, 130, 80, 60 #max nopeus 68
+	yield runScenario scenario.circleRev, 50, 130, 80, 60 #max nopeus 68
+
+
+export paavoKoekoe = seqr.bind ->*
+
+	yield runScenario scenario.circle, 50, 115, 60, 50 
+	yield runScenario scenario.circleRev, 50, 115, 60, 50 
+
+	yield runScenario scenario.circle, 50, 40, 20
+	yield runScenario scenario.circleRev, 50, 40, 20
+	yield runScenario scenario.circle, 50, 52.5, 20
+	yield runScenario scenario.circleRev, 50, 52.5, 20
+	yield runScenario scenario.circle, 50, 65, 20
+	yield runScenario scenario.circleRev, 50, 65, 20
+
 
 export rocksOnPath = seqr.bind ->*
 	s = 80
