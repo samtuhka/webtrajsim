@@ -2499,7 +2499,7 @@ exportScenario \rocksOnStraight, (env, rx, s, dur) ->*
 
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
-	scene.player.physical.position.z = 0
+	scene.player.physical.position.z = -500
 
 
 	scene.playerControls.throttle = 0

@@ -541,7 +541,7 @@ export addCurveGround = (scene, rx, ry, length) ->
 #horrible copy-pasting
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 2000
+	terrainSize = 1200
 	textureSize = 5
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
@@ -600,50 +600,10 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		return circle
 
 	generateStraight = ->
-		straight = new THREE.LineCurve3(new THREE.Vector3(-1000, 0, 0), new THREE.Vector3(1000, 0, 0))
+		straight = new THREE.LineCurve3(new THREE.Vector3(-600, 0, 0), new THREE.Vector3(600, 0, 0))
 		path = new THREE.CurvePath()
 		path.add(straight)
 		return path
-
-	generateRocks = (terrainSize) ->
-		rocks = new THREE.Object3D()
-		nRockTypes = 10
-		rockPool = for i from 0 til nRockTypes
-			generateRock()
-		randomRock = ->
-			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
-			return new THREE.Mesh rock.geometry, rock.material
-		nRocks = Math.round(terrainSize*(100)/500)
-		sizeDist = jStat.uniform(0.1, 0.6)
-		zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
-		xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
-		rX = rx - 1
-		rY = ry - 1
-		for i from 0 til nRocks
-			x = xDist.sample()
-			size = sizeDist.sample()
-			z = zDist.sample()
-			cnt = false
-			rW = 3.5 + 2
-			if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + (z ^ 2 / ((rY - 2) ^ 2))) > 1) && z >= 0)
-				cnt = true
-			if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + ((z+length) ^ 2 / ((rY - 2) ^ 2))) > 1) && z <= -length)
-				cnt = true
-			if z <= 0 && z >= -length && x > (rX - 2) && x < rX + rW
-				cnt = true
-			if z <= 0 && z >= -length && x < -(rX - 2) && x > -rX - rW
-				cnt = true
-			if cnt == true
-				continue
-			rock = randomRock()
-			rock.position.x = x
-			rock.position.z = z
-			rock.scale.multiplyScalar size
-			rock.scale.y *= 0.8
-			rock.updateMatrix()
-			rock.matrixAutoUpdate = false
-			rocks.add rock
-		return rocks
 
 	generateRocksOnPath = (path) ->
 		rocks = new THREE.Object3D()
@@ -662,7 +622,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 			x = path.getPointAt(i/nRocks).y
 			z = path.getPointAt(i/nRocks).x
 			size = 1
-
+			console.log x, z
 			geo = new THREE.CylinderGeometry 0.025, 0.025, 2, 100
 			geo.verticesNeedUpdate = true
 			geo.computeVertexNormals()
@@ -674,6 +634,23 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 
 			rock.position.x = x
 			rock.position.z = z
+			rock.scale.multiplyScalar size
+			rock.updateMatrix()
+			rock.matrixAutoUpdate = false
+			rocks.add rock
+
+			geo = new THREE.CylinderGeometry 0.027, 0.027, 0.25, 100
+			geo.verticesNeedUpdate = true
+			geo.computeVertexNormals()
+			geo.computeFaceNormals()
+			rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+				color: 0xffffff
+			rock.castShadow = false
+			rock.receiveShadow = false
+
+			rock.position.x = x
+			rock.position.z = z
+			rock.position.y = -0.15
 			rock.scale.multiplyScalar size
 			rock.updateMatrix()
 			rock.matrixAutoUpdate = false
