@@ -2565,13 +2565,19 @@ exportScenario \beepsAndPoles, (env, rx, s, dur) ->*
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, 0, true, false, true
+	scene = yield basecircleDriving env, rx, ry, 0, true, false, 2
 	scene.params = settingParams
 	addMarkerScreen scene, env
+
+	L = env.L
+	@let \intro,
+		title: env.L "%beepsAndPoles.title"
+		content: env.L "%beepsAndPoles"
 
 	startPoint = 0.0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = 0
+
 
 	scene.playerControls.throttle = 0
 
@@ -2586,7 +2592,7 @@ exportScenario \beepsAndPoles, (env, rx, s, dur) ->*
 
 	scene.seed = Math.random() - 0.5
 	startTime = scene.time
-	scene.dT = startTime
+	scene.soundTime = startTime
 	scene.probeIndx = 0
 	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
 	scene.futPos = startPoint
@@ -2596,12 +2602,10 @@ exportScenario \beepsAndPoles, (env, rx, s, dur) ->*
 				handleSteering scene, env
 
 	scene.onTickHandled ~>
-		#handleSpeed scene, s
-		#calculateFuture scene, 1, s/3.6
-		if scene.time - scene.dT >= 2 + scene.seed
+		if scene.time - scene.soundTime >= 2 + scene.seed
 			scene.seed = Math.random() - 0.5
 			dumbSound.play()
-			scene.dT = scene.time
+			scene.soundTime = scene.time
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
 

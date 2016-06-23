@@ -307,6 +307,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 			outside: scene.outside
 			probes: probeData scene
 			player: {position: scene.player.physical.position, track_position: scene.player.pos, track_position_xy: scene.player.posXY, speed: scene.player.getSpeed(), road_phase: scene.player.roadPhase}
+			soundTime: scene.soundTime
 			prediction: scene.predict
 			targetScreen: scene.targetScreen
 		env.logger.write dump

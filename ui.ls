@@ -57,6 +57,8 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	btn = api \accept-button
 	btn.prop "disabled", true
 	api \accept .hide()
+	api \progressTitle .hide()
+	api \progress .hide()
 
 	yield waitFor background~fadeIn
 	yield P.resolve api.result

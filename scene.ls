@@ -605,58 +605,93 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		path.add(straight)
 		return path
 
-	generateRocksOnPath = (path) ->
-		rocks = new THREE.Object3D()
-		nRockTypes = 10
-		rockPool = for i from 0 til nRockTypes
-			generateRock()
-		randomRock = ->
-			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
-			return new THREE.Mesh rock.geometry, rock.material
-
+	generatePolesOnPath = (path) ->
+		poles = new THREE.Object3D()
 		length = path.getLength()
-		nRocks = length/(80/3.6)
+		nPoles = length/(80/3.6)
 		rX = rx - 1
 		rY = ry - 1
-		for i from 0 til nRocks
-			x = path.getPointAt(i/nRocks).y
-			z = path.getPointAt(i/nRocks).x
+		for i from 0 til nPoles
+			x = path.getPointAt(i/nPoles).y
+			z = path.getPointAt(i/nPoles).x
 			size = 1
-			console.log x, z
-			geo = new THREE.CylinderGeometry 0.025, 0.025, 2, 100
+			geo = new THREE.CylinderGeometry 0.025, 0.025, 1, 100
 			geo.verticesNeedUpdate = true
 			geo.computeVertexNormals()
 			geo.computeFaceNormals()
-			rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+			pole = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
 				color: 0x696969
-			rock.castShadow = true
-			rock.receiveShadow = true
+			pole.castShadow = true
+			pole.receiveShadow = true
 
-			rock.position.x = x
-			rock.position.z = z
-			rock.scale.multiplyScalar size
-			rock.updateMatrix()
-			rock.matrixAutoUpdate = false
-			rocks.add rock
+			pole.position.x = x
+			pole.position.z = z
+			pole.scale.multiplyScalar size
+			pole.updateMatrix()
+			pole.matrixAutoUpdate = false
+			poles.add pole
 
-			geo = new THREE.CylinderGeometry 0.027, 0.027, 0.25, 100
+			geoEnd = new THREE.CylinderGeometry 0.027, 0.027, 0.25, 100
+			geoEnd.verticesNeedUpdate = true
+			geoEnd.computeVertexNormals()
+			geoEnd.computeFaceNormals()
+			poleEnd = new THREE.Mesh geoEnd, new THREE.MeshLambertMaterial do
+				color: 0xffffff
+			poleEnd.castShadow = false
+			poleEnd.receiveShadow = false
+
+			poleEnd.position.x = x
+			poleEnd.position.z = z
+			poleEnd.position.y = -0.15
+			poleEnd.scale.multiplyScalar size
+			poleEnd.updateMatrix()
+			poleEnd.matrixAutoUpdate = false
+			poles.add poleEnd
+		return poles
+
+	generatePollsStill = (path) ->
+		poles = new THREE.Object3D()
+		length = path.getLength()
+		nPoles = length/(80/3.6)*2
+		rX = rx - 1
+		rY = ry - 1
+		for i from 1 til 4
+			x = path.getPointAt(i/nPoles).y
+			z = path.getPointAt(i/nPoles).x
+			size = 1
+			geo = new THREE.CylinderGeometry 0.025, 0.025, 1, 100
 			geo.verticesNeedUpdate = true
 			geo.computeVertexNormals()
 			geo.computeFaceNormals()
-			rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+			pole = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+				color: 0x696969
+			pole.castShadow = true
+			pole.receiveShadow = true
+
+			pole.position.x = x
+			pole.position.z = z
+			pole.scale.multiplyScalar size
+			pole.updateMatrix()
+			pole.matrixAutoUpdate = false
+			poles.add pole
+
+			geoEnd = new THREE.CylinderGeometry 0.027, 0.027, 0.25, 100
+			geoEnd.verticesNeedUpdate = true
+			geoEnd.computeVertexNormals()
+			geoEnd.computeFaceNormals()
+			poleEnd = new THREE.Mesh geoEnd, new THREE.MeshLambertMaterial do
 				color: 0xffffff
-			rock.castShadow = false
-			rock.receiveShadow = false
+			poleEnd.castShadow = false
+			poleEnd.receiveShadow = false
 
-			rock.position.x = x
-			rock.position.z = z
-			rock.position.y = -0.15
-			rock.scale.multiplyScalar size
-			rock.updateMatrix()
-			rock.matrixAutoUpdate = false
-			rocks.add rock
-		return rocks
-
+			poleEnd.position.x = x
+			poleEnd.position.z = z
+			poleEnd.position.y = -0.15
+			poleEnd.scale.multiplyScalar size
+			poleEnd.updateMatrix()
+			poleEnd.matrixAutoUpdate = false
+			poles.add poleEnd
+		return poles
 
 	generateRocks = (terrainSize) ->
 		rocks = new THREE.Object3D()
@@ -741,8 +776,20 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
 	terrain.add road
-	if rocksOnPath == true
-		rocks = generateRocksOnPath(scene.centerLine)
+	if rocksOnPath > 1
+		path = generateCircle(rx - 1.75, ry - 1.75, length)
+		rocks = generatePollsStill(path)
+		terrain.add mergeObject rocks
+
+		path = generateCircle(rx + 1.75, ry + 1.75, length)
+		rocks = generatePollsStill(path)
+		terrain.add mergeObject rocks
+
+		path = generateCircle(rx, ry, length)
+		rocks = generatePollsStill(path)
+		terrain.add mergeObject rocks
+	else if rocksOnPath == true
+		rocks = generatePolesOnPath(scene.centerLine)
 	else
 		rocks = generateRocks(terrainSize)
 
