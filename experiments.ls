@@ -448,3 +448,8 @@ export rocksOnPath = seqr.bind ->*
 	yield runScenario scenario.rocksOnStraight, rx, s, 45
 	yield runScenario scenario.rocksOnCircle, rx, 60, 60
 	yield runScenario scenario.rocksOnStraight, rx, 60, 60
+
+export beepsAndPoles = seqr.bind ->*
+	s = 80
+	rx = ((s/3.6)*22.5 / Math.PI)
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 240
