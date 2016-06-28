@@ -303,13 +303,13 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 				projectionMatrix: scene.camera.projectionMatrix.toArray()
 			telemetry: env.controls{throttle, brake, steering, direction, pYes, pNo}
 			robotTelemetry: {throttle: scene.playerControls.throttle, brake: scene.playerControls.brake, steering: scene.playerControls.steering}
-			scoring: scene.scoring
-			outside: scene.outside
-			probes: probeData scene
+			#scoring: scene.scoring
+			#outside: scene.outside
+			#probes: probeData scene
 			player: {position: scene.player.physical.position, track_position: scene.player.pos, track_position_xy: scene.player.posXY, speed: scene.player.getSpeed(), road_phase: scene.player.roadPhase}
 			soundTime: scene.soundTime
-			prediction: scene.predict
-			targetScreen: scene.targetScreen
+			#prediction: scene.predict
+			#targetScreen: scene.targetScreen
 		env.logger.write dump
 
 	env.onSize (w, h) ->
