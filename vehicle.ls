@@ -36,7 +36,7 @@ loadCorolla = Co ->*
 	wheels: scene.getObjectByName "Wheels"
 	eye: eye
 
-loadViva = Co (camera_horizontal) ->*
+loadViva = Co ->*
 	vehicle = yield loadCollada "res/viva/2006-VIVA-VT3-Sedan-SE.dae"
 	scene = vehicle.scene
 	car = scene.getObjectByName "Car"
@@ -126,7 +126,7 @@ loadViva = Co (camera_horizontal) ->*
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1
-	eye.position.x = camera_horizontal
+	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
 	#eye.position.y = 2.00
 	#eye.position.z = -1.1
@@ -150,8 +150,8 @@ loadViva = Co (camera_horizontal) ->*
 				material.emissive.r = 0
 			material.needsUpdate = true
 
-export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}, camera_horizontal = 0.37) ->*
-	{body, wheels, eye, setBrakelight} = yield loadViva(camera_horizontal)
+export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
+	{body, wheels, eye, setBrakelight} = yield loadViva()
 
 	syncModels = new Signal
 
