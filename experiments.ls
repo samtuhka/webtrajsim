@@ -429,15 +429,21 @@ export paavoDrivingAccelerate = seqr.bind ->*
 
 export paavoKoekoe = seqr.bind ->*
 
-	yield runScenario scenario.circle, 50, 115, 60, 50 
-	yield runScenario scenario.circleRev, 50, 115, 60, 50 
+# säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus
 
-	yield runScenario scenario.circle, 50, 40, 20
-	yield runScenario scenario.circleRev, 50, 40, 20
-	yield runScenario scenario.circle, 50, 52.5, 20
-	yield runScenario scenario.circleRev, 50, 52.5, 20
-	yield runScenario scenario.circle, 50, 65, 20
-	yield runScenario scenario.circleRev, 50, 65, 20
+	#yield runScenario scenario.circle, 50, 104, 60, 50 
+	#yield runScenario scenario.circleRev, 50, 104, 60, 50 
+	
+	v1 = 34.6
+	v2 = 47.1
+	v3 = 59.7
+	
+	yield runScenario scenario.circle, 50, v1, 20
+	yield runScenario scenario.circleRev, 50, v1, 20
+	yield runScenario scenario.circle, 50, v2, 20
+	yield runScenario scenario.circleRev, 50, v2, 20
+	yield runScenario scenario.circle, 50, v3, 20
+	yield runScenario scenario.circleRev, 50, v3, 20
 
 
 export rocksOnPath = seqr.bind ->*
@@ -448,3 +454,8 @@ export rocksOnPath = seqr.bind ->*
 	yield runScenario scenario.rocksOnStraight, rx, s, 45
 	yield runScenario scenario.rocksOnCircle, rx, 60, 60
 	yield runScenario scenario.rocksOnStraight, rx, 60, 60
+
+export beepsAndPoles = seqr.bind ->*
+	s = 80
+	rx = ((s/3.6)*22.5 / Math.PI)
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 240

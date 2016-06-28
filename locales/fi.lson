@@ -338,6 +338,10 @@ ja rentoutumaan. Kun kuulet merkkiäänen ensimmäisen kerran, sulje
 silmäsi. Pidä silmäsi suljettuna, kunnes kuulet merkkiäänen uudelleen.
 """
 
+'%beepsAndPoles': """
+Kokeen aikana sinun tulee ajoittain siirtää katseesi yhdestä tolpasta toiseen. Pyri katsomaan aina tolpan alaosaa, joka on merkitty valkoisella. Siirä katseesi yhdestä tolpasta toiseen aina kun kuulet merkkiäänen. Aloita lähimmästä tolpasta ja siirry aina tiellä seuraavaan tolppaan. Viimeisen tolpan jälkeen palaa ensimmäiseen tolppaan. 
+"""
+
 'Noise sound': 'Ääniärsyke'
 
 '%soundSpook.noiseSound': """
