@@ -2440,7 +2440,8 @@ exportScenario \rocksOnCircle, (env, rx, s, dur) ->*
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = 0
-
+	scene.player.eye.position.x = 0.0
+	
 	scene.playerControls.throttle = 0
 
 	rw = scene.centerLine.width
@@ -2484,6 +2485,72 @@ exportScenario \rocksOnCircle, (env, rx, s, dur) ->*
 
 	return yield @get \done
 
+exportScenario \rocksOnCircleRev, (env, rx, s, dur) ->*
+
+	if rx == undefined
+		rx = 160
+	if s == undefined
+		s = 80
+	if dur == undefined
+		dur = 60
+
+	ry = rx
+	aut = 1
+
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: -1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
+
+	scene = yield basecircleDriving env, rx, ry, 0, true, false, true
+	scene.params = settingParams
+	addMarkerScreen scene, env
+
+	startPoint = 0.50
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).z
+	scene.player.eye.position.x = 0.0
+	
+	scene.playerControls.throttle = 0
+
+	rw = scene.centerLine.width
+
+	@let \scene, scene
+	yield @get \run
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+
+	startTime = scene.time
+	scene.dT = startTime
+	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+	scene.beforePhysics.add ->
+			if aut == 1
+				handleSteering scene, env
+
+	scene.onTickHandled ~>
+		handleSpeed scene, s
+		calculateFuture scene, -1, s/3.6
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > dur
+			trialTime = scene.time - startTime
+			listener.remove()
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
 exportScenario \rocksOnStraight, (env, rx, s, dur) ->*
 
 	if rx == undefined
@@ -2505,7 +2572,7 @@ exportScenario \rocksOnStraight, (env, rx, s, dur) ->*
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = -500
-
+	scene.player.eye.position.x = 0.0
 
 	scene.playerControls.throttle = 0
 
@@ -2577,6 +2644,82 @@ exportScenario \beepsAndPoles, (env, rx, s, dur) ->*
 	startPoint = 0.0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = 0
+	scene.player.eye.position.x = 0.0
+
+
+	scene.playerControls.throttle = 0
+
+	rw = scene.centerLine.width
+
+	@let \scene, scene
+	yield @get \run
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+	scene.seed = Math.random() - 0.5
+	startTime = scene.time
+	scene.soundTime = startTime
+	scene.probeIndx = 0
+	scene.roadSecond = (scene.params.target_speed/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+	scene.beforePhysics.add ->
+			if aut == 1
+				handleSteering scene, env
+
+	scene.onTickHandled ~>
+		if scene.time - scene.soundTime >= 2 + scene.seed
+			scene.seed = Math.random() - 0.5
+			dumbSound.play()
+			scene.soundTime = scene.time
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > dur
+			trialTime = scene.time - startTime
+			listener.remove()
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
+
+exportScenario \beepsAndPolesRev, (env, rx, s, dur) ->*
+
+	if rx == undefined
+		rx = 160
+	if s == undefined
+		s = 80
+	if dur == undefined
+		dur = 60
+
+	ry = rx
+	aut = 1
+
+	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: -1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
+
+	scene = yield basecircleDriving env, rx, ry, 0, true, false, 2
+	scene.params = settingParams
+	addMarkerScreen scene, env
+
+	L = env.L
+	@let \intro,
+		title: env.L "%beepsAndPoles.title"
+		content: env.L "%beepsAndPoles"
+
+	startPoint = 0.5
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).z
+	scene.player.eye.position.x = 0.0
 
 
 	scene.playerControls.throttle = 0

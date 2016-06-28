@@ -441,15 +441,19 @@ export paavoKoekoe = seqr.bind ->*
 
 
 export rocksOnPath = seqr.bind ->*
-	s = 80
-	rx = ((s/3.6)*22.5 / Math.PI)
+	s = 50
+	rx = ((s/3.6)*15 / Math.PI)
 
-	yield runScenario scenario.rocksOnCircle, rx, s, 45
-	yield runScenario scenario.rocksOnStraight, rx, s, 45
-	yield runScenario scenario.rocksOnCircle, rx, 60, 60
-	yield runScenario scenario.rocksOnStraight, rx, 60, 60
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 60
+	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 60
+
+	yield runScenario scenario.rocksOnCircle, rx, s, 30
+	yield runScenario scenario.rocksOnStraight, rx, s, 30
+	yield runScenario scenario.rocksOnCircleRev, rx, s, 30
+	yield runScenario scenario.rocksOnStraight, rx, s, 30
 
 export beepsAndPoles = seqr.bind ->*
-	s = 80
-	rx = ((s/3.6)*22.5 / Math.PI)
-	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 240
+	s = 50
+	rx = ((s/3.6)*15 / Math.PI)
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 60
+	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 60
