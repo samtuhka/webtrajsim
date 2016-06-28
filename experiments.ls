@@ -444,13 +444,13 @@ export rocksOnPath = seqr.bind ->*
 	s = 50
 	rx = ((s/3.6)*15 / Math.PI)
 
-	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 60
-	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 60
-
 	yield runScenario scenario.rocksOnCircle, rx, s, 30
 	yield runScenario scenario.rocksOnStraight, rx, s, 30
 	yield runScenario scenario.rocksOnCircleRev, rx, s, 30
 	yield runScenario scenario.rocksOnStraight, rx, s, 30
+
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 60
+	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 60
 
 export beepsAndPoles = seqr.bind ->*
 	s = 50
