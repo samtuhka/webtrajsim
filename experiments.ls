@@ -431,19 +431,23 @@ export paavoKoekoe = seqr.bind ->*
 
 # säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus
 
-	#yield runScenario scenario.circle, 50, 104, 60, 50 
-	#yield runScenario scenario.circleRev, 50, 104, 60, 50 
+	yield runScenario scenario.circle, 50, 104, 60, 50 
+	yield runScenario scenario.circleRev, 50, 104, 60, 50 
 	
 	v1 = 34.6
 	v2 = 47.1
 	v3 = 59.7
+
+	t1 = 32.7
+	t2 = 24.0
+	t3 = 18.9
 	
-	yield runScenario scenario.circle, 50, v1, 20
-	yield runScenario scenario.circleRev, 50, v1, 20
-	yield runScenario scenario.circle, 50, v2, 20
-	yield runScenario scenario.circleRev, 50, v2, 20
-	yield runScenario scenario.circle, 50, v3, 20
-	yield runScenario scenario.circleRev, 50, v3, 20
+	yield runScenario scenario.circle, 50, v1, t1
+	yield runScenario scenario.circleRev, 50, v1, t1
+	yield runScenario scenario.circle, 50, v2, t2
+	yield runScenario scenario.circleRev, 50, v2, t2
+	yield runScenario scenario.circle, 50, v3, t3
+	yield runScenario scenario.circleRev, 50, v3, t3
 
 
 export rocksOnPath = seqr.bind ->*
