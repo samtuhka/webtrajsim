@@ -2285,15 +2285,13 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 
 
 
-exportScenario \circle, (env, rx, s, dur, t) ->*
+exportScenario \circle, (env, rx, s, dur, t, aut) ->*
 
 	if rx == undefined
 		rx = xrad
 	if s == undefined
-		s = speed
-	
+		s = speed	
 	ry = rx
-	aut = 0
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
@@ -2362,15 +2360,14 @@ exportScenario \circle, (env, rx, s, dur, t) ->*
 
 
 
-exportScenario \circleRev, (env, rx, s, dur, t) ->*
+exportScenario \circleRev, (env, rx, s, dur, t, aut) ->*
 
 	if rx == undefined
 		rx = xrad
 	if s == undefined
 		s = speed
-	
 	ry = rx
-	aut = 0
+
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
@@ -2416,7 +2413,7 @@ exportScenario \circleRev, (env, rx, s, dur, t) ->*
 
 	scene.onTickHandled ~>
 		handleSpeed scene, s, t
-		calculateFuture scene, 1, s/3.6
+		calculateFuture scene, -1, s/3.6
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
