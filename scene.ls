@@ -470,7 +470,11 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	generatePolesOnPath = (path) ->
 		poles = new THREE.Object3D()
 		length = path.getLength()
-		nPoles = length/(50/3.6)
+
+		rx = 50
+		s = (rx * 2 * Math.PI * 15 / 360.0)
+
+		nPoles = length/(s)
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nPoles
@@ -486,7 +490,11 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	generatePollsStill = (path) ->
 		poles = new THREE.Object3D()
 		length = path.getLength()
-		nPoles = length/(50/3.6)*2
+		
+		rx = 50
+		s = (rx * 2 * Math.PI * 15 / 360.0)
+
+		nPoles = length/(s)*2
 		rX = rx - 1
 		rY = ry - 1
 		for i from 1 til 3

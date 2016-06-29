@@ -441,16 +441,16 @@ export paavoKoekoe = seqr.bind ->*
 
 
 export rocksOnPath = seqr.bind ->*
-	s = 50
-	rx = ((s/3.6)*15 / Math.PI)
+	rx = 50
+	s = (rx * 2 * Math.PI * 15 / 360.0)*3.6 #47.1238898038 km/h
 
-	yield runScenario scenario.rocksOnCircle, rx, s, 30
-	yield runScenario scenario.rocksOnStraight, rx, s, 30
-	yield runScenario scenario.rocksOnCircleRev, rx, s, 30
-	yield runScenario scenario.rocksOnStraight, rx, s, 30
+	yield runScenario scenario.rocksOnCircle, rx, s, 25
+	yield runScenario scenario.rocksOnStraight, rx, s, 25
+	yield runScenario scenario.rocksOnCircleRev, rx, s, 25
+	yield runScenario scenario.rocksOnStraight, rx, s, 25
 
-	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 60
-	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 60
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 50
+	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 50
 
 export beepsAndPoles = seqr.bind ->*
 	s = 50
