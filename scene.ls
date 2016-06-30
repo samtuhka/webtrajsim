@@ -7,7 +7,6 @@ seqr = require './seqr.ls'
 {loadCollada, mergeObject} = require './utils.ls'
 
 perlin = require './vendor/perlin.js'
-console.log perlin
 
 # Todo: ugly
 window.THREE = THREE = require 'three'

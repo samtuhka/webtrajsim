@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "db.js": "aaronpowell/db.js",
+    "db.js": "git+https://github.com/aaronpowell/db.js#4ccde49d7e28eee752db1e428a83740de26e2f7e",
     "jquery-elementresize": "^0.2.1",
     "json-loader": "^0.5.2",
     "jstat": "^1.1.5",
