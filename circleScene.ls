@@ -17,7 +17,7 @@ ui = require './ui.ls'
 export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = true, rocksOnPath = false, straight = false) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
-	
+
 	if ellipse == true
 		yield P.resolve addCurveGround scene, rx, ry, length
 	else

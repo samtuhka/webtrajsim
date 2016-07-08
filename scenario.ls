@@ -654,10 +654,10 @@ export briefInst = seqr.bind (env, inst, scene) ->*
 			@ \cancel-button .hide!
 	result = yield ui.inputDialog env, dialogs
 
-export basecircleDriving = seqr.bind (env, rx, ry, l, sky, ellipse, rocksOnPath, straight) ->*
+export basecircleDriving = seqr.bind (env, rx, ry, l, sky, ellipse, rocksOnPath, roadShape) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
-	scene = yield circleScene env, rx, ry, l, sky, ellipse, rocksOnPath, straight
+	scene = yield circleScene env, rx, ry, l, sky, ellipse, rocksOnPath, roadShape
 	return scene
 
 onInnerLane = (scene) ->
@@ -712,7 +712,6 @@ handleSpeed = (scene, target, t) ->
 	force = scene.playerControls.throttle - scene.playerControls.brake
 	dt = scene.time - scene.prevTime
 	accel = (speed - scene.player.prevSpeed) / dt
-	console.log accel
 	if t == undefined
 		t = 1/(Math.abs(target - speed) ^ 0.5*3)
 	accelTarget = (target - speed) / t
@@ -2285,7 +2284,7 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 
 
 
-exportScenario \circle, (env, rx, s, dur, t, aut) ->*
+exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -2295,21 +2294,22 @@ exportScenario \circle, (env, rx, s, dur, t, aut) ->*
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, 0, true, false
+	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape
 	scene.params = settingParams
 	addMarkerScreen scene, env
+	
 	#adding speedmeter & localisation
-	L = env.L
-	scene.player.scoremeter = ui.gauge env,
-		name: L "Speed"
-		unit: L "km/h"
-		value: ->
-			score = scene.player.getSpeed()*3.6
-			Math.round score
+	#L = env.L
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "Speed"
+	#	unit: L "km/h"
+	#	value: ->
+	#		score = scene.player.getSpeed()*3.6
+	#		Math.round score
 
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
-	scene.player.physical.position.z = 0
+	scene.player.physical.position.z = -straightLength
 	
 	#putting the camera in the middle
 	scene.player.eye.position.x = 0.0
@@ -2352,7 +2352,7 @@ exportScenario \circle, (env, rx, s, dur, t, aut) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 1} sekunttia.</p>
 				 """
 			return false
 
@@ -2360,7 +2360,7 @@ exportScenario \circle, (env, rx, s, dur, t, aut) ->*
 
 
 
-exportScenario \circleRev, (env, rx, s, dur, t, aut) ->*
+exportScenario \circleRev, (env, rx, s, dur, t, aut, shape, straightLength) ->*
 
 	if rx == undefined
 		rx = xrad
@@ -2371,20 +2371,24 @@ exportScenario \circleRev, (env, rx, s, dur, t, aut) ->*
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, 0, true, false
+	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape
 	scene.params = settingParams
 	addMarkerScreen scene, env
+	
 	#adding speedmeter
-	L = env.L
-	scene.player.scoremeter = ui.gauge env,
-		name: L "Speed"
-		unit: L "km/h"
-		value: ->
-			score = scene.player.getSpeed()*3.6
-			Math.round score
-	startPoint = 0
-	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y*-1
-	scene.player.physical.position.z = 0
+	#L = env.L
+	#scene.player.scoremeter = ui.gauge env,
+	#	name: L "Speed"
+	#	unit: L "km/h"
+	#	value: ->
+	#		score = scene.player.getSpeed()*3.6
+	#		Math.round score
+
+	startPoint = 1
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	if shape == 2
+		scene.player.physical.position.x *= -1
+	scene.player.physical.position.z = -straightLength
 
 	#putting the camera in the middle
 	scene.player.eye.position.x = 0.0
@@ -2435,7 +2439,7 @@ exportScenario \circleRev, (env, rx, s, dur, t, aut) ->*
 
 
 
-exportScenario \rocksOnCircle, (env, rx, s, dur) ->*
+exportScenario \rocksOnCircle, (env, rx, s, dur, t, aut, shape, straightLength) ->*
 
 	if rx == undefined
 		rx = 160
@@ -2443,20 +2447,20 @@ exportScenario \rocksOnCircle, (env, rx, s, dur) ->*
 		s = 80
 	if dur == undefined
 		dur = 60
-
 	ry = rx
-	aut = 1
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, 0, true, false, true
+	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 1, shape
 	scene.params = settingParams
 	addMarkerScreen scene, env
 
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
-	scene.player.physical.position.z = 0
-
+	scene.player.physical.position.z = -straightLength
+	
+	scene.player.eye.position.x = 0.0
+	
 	scene.playerControls.throttle = 0
 
 	rw = scene.centerLine.width
@@ -2514,7 +2518,7 @@ exportScenario \rocksOnStraight, (env, rx, s, dur) ->*
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, 0, true, false, true, true
+	scene = yield basecircleDriving env, rx, ry, 0, true, false, true, 1
 	scene.params = settingParams
 	addMarkerScreen scene, env
 

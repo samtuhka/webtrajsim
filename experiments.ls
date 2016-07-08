@@ -429,43 +429,30 @@ export paavoDrivingAccelerate = seqr.bind ->*
 
 export paavoKoekoe = seqr.bind ->*
 
-# säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus, automaattinen ohjaus
+# säde, tavoitenopeus(ei tavoita), aika, kiihtymishitaus, automaattinen ohjaus, (serpenttiini=0 ja ympyra=2)
 	
-	r = 40.0
+	r = 50.0
 	yaw1 = 11.0
-	yaw2 = 15.0
-	yaw3 = 19.0
+	yaw2 = 16.0
+	yaw3 = 21.0
 
 	v1 = (yaw1/360*2*Math.PI*r*3.6)
 	v2 = (yaw2/360*2*Math.PI*r*3.6)
-	v3 = (yaw3/360*2*Math.Pi*r*3.6)
+	v3 = (yaw3/360*2*Math.PI*r*3.6)
 
-	t1 = (360.0/yaw1)
-	t2 = (360.0/yaw2)
-	t3 = (360.0/yaw3)
+	t1 = (360.0/yaw1)*2.1
+	t2 = (360.0/yaw2)*3.15
+	t3 = (360.0/yaw3)*4.2
 
-	yield runScenario scenario.circle, r, 102, 60, 50 
-	yield runScenario scenario.circleRev, r, 102, 60, 50 	
 
-	yield runScenario scenario.circle, r, v1, t1
-	yield runScenario scenario.circleRev, r, v1, t1
-	yield runScenario scenario.circle, r, v2, t2
-	yield runScenario scenario.circleRev, r, v2, t2
-	yield runScenario scenario.circle, r, v3, t3
-	yield runScenario scenario.circleRev, r, v3, t3
+	yield runScenario scenario.circle, r, 103, 60, 53, 0, 2
+	yield runScenario scenario.circleRev, r, 103, 60, 53, 0, 2 	
 
-# sama mutta automaattiohjauksella
+	yield runScenario scenario.circle, r, v1, t1, 0.9
+	yield runScenario scenario.circleRev, r, v2, t2, 0.9
+	yield runScenario scenario.circle, r, v3, t3, 1.3
 
-	yield runScenario scenario.circle, r, 102, 60, 50, 1
-	yield runScenario scenario.circleRev, r, 102, 60, 50, 1 
-	
-	yield runScenario scenario.circle, r, v1, t1, undefined, 1
-	yield runScenario scenario.circleRev, r, v1, t1, undefided, 1
-	yield runScenario scenario.circle, r, v2, t2, undefined, 1
-	yield runScenario scenario.circleRev, r, v2, t2, undefined, 1
-	yield runScenario scenario.circle, r, v3, t3, undefined, 1 
-	yield runScenario scenario.circleRev, r, v3, t3, undefined, 1
-
+	yield runScenario scenario.rocksOnCircle, r, v2, 120, 0.9, 0, 0, 100	
 
 
 export rocksOnPath = seqr.bind ->*

@@ -93,7 +93,7 @@ generateRock = (seed=Math.random()) ->
 	geo.computeVertexNormals()
 	geo.computeFaceNormals()
 	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
-		color: 0x696969
+		color: 0x64675F
 	rock.castShadow = true
 	rock.receiveShadow = true
 	return rock
@@ -193,6 +193,40 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
+generateSnakePath = (rX, rY, s, terrainSize) ->
+	c = 0.5522847498307933984022516322796
+	ox = rX * c
+	oy = rY * c
+	dy = -2*rY
+	if s == 0
+		s = 0.00000000000000001
+	k = (terrainSize/2 - rX - 1.75) - 500
+	circle = new THREE.CurvePath()
+	straight = new THREE.LineCurve3(new THREE.Vector3(-s, rX + k, 0), new THREE.Vector3(0, rX + k, 0))
+	circle.add(straight)
+	for i from 0 til 5
+		curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
+		curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
+		straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
+		curve3 = new THREE.CubicBezierCurve3(new THREE.Vector3(-s, rX + dy + k, 0), new THREE.Vector3(-c*rY - s, rX + dy + k, 0),  new THREE.Vector3(-rY - s, c*rX + dy + k, 0), new THREE.Vector3(-rY - s, 0 + dy + k, 0))
+		curve4 = new THREE.CubicBezierCurve3(new THREE.Vector3(-rY - s, 0 + dy + k, 0), new THREE.Vector3(-rY - s, -c*rX + dy + k, 0),  new THREE.Vector3(-c*rY - s, -rX + dy + k, 0), new THREE.Vector3(-s, -rX + dy + k, 0))
+		straight2 = new THREE.LineCurve3(new THREE.Vector3(-s, rX + 2*dy + k, 0), new THREE.Vector3(0, rX + 2*dy + k, 0))
+		circle.add(curve1)
+		circle.add(curve2)
+		circle.add(straight1)
+		circle.add(curve3)
+		circle.add(curve4)
+		circle.add(straight2)
+		k += 2*dy
+	curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
+	curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
+	straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
+	circle.add(curve1)
+	circle.add(curve2)
+	circle.add(straight1)
+
+	return circle
+
 export addCurveGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
 	terrainSize = 4500
@@ -234,41 +268,8 @@ export addCurveGround = (scene, rx, ry, length) ->
 	shape.lineTo(roadLenght, -0.5*roadWidth)
 	shape.lineTo(0, -0.5*roadWidth)
 
-	generateCircle = (rX, rY, s) ->
-		c = 0.5522847498307933984022516322796
-		ox = rX * c
-		oy = rY * c
-		dy = -2*rY
-		k = (terrainSize/2 - rX - 1.75) - 500
-		circle = new THREE.CurvePath()
-		straight = new THREE.LineCurve3(new THREE.Vector3(-s, rX + k, 0), new THREE.Vector3(0, rX + k, 0))
-		circle.add(straight)
-		for i from 0 til 5
-			curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
-			curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
-			straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
-			curveAlt = new THREE.CubicBezierCurve3(new THREE.Vector3(-s, -rX + k, 0), new THREE.Vector3(-s, -c*rX + k, 0), new THREE.Vector3(-c*rY - s, dy + k, 0), new THREE.Vector3(-rY - s, dy + k, 0))
-			curve3 = new THREE.CubicBezierCurve3(new THREE.Vector3(-s, rX + dy + k, 0), new THREE.Vector3(-c*rY - s, rX + dy + k, 0),  new THREE.Vector3(-rY - s, c*rX + dy + k, 0), new THREE.Vector3(-rY - s, 0 + dy + k, 0))
-			curve4 = new THREE.CubicBezierCurve3(new THREE.Vector3(-rY - s, 0 + dy + k, 0), new THREE.Vector3(-rY - s, -c*rX + dy + k, 0),  new THREE.Vector3(-c*rY - s, -rX + dy + k, 0), new THREE.Vector3(-s, -rX + dy + k, 0))
-			straight2 = new THREE.LineCurve3(new THREE.Vector3(-s, rX + 2*dy + k, 0), new THREE.Vector3(0, rX + 2*dy + k, 0))
-			circle.add(curve1)
-			circle.add(curve2)
-			circle.add(straight1)
-			circle.add(curve3)
-			circle.add(curve4)
-			circle.add(straight2)
-			k += 2*dy
-		curve1 = new THREE.CubicBezierCurve3(new THREE.Vector3(0, rX + k, 0), new THREE.Vector3(c*rY,rX + k, 0), new THREE.Vector3(rY, c*rX + k, 0), new THREE.Vector3(rY, 0 + k, 0))
-		curve2 = new THREE.CubicBezierCurve3(new THREE.Vector3(rY, 0 + k, 0), new THREE.Vector3(rY, -c*rX + k, 0), new THREE.Vector3(c*rY, -rX + k, 0), new THREE.Vector3(0, -rX + k, 0))
-		straight1 = new THREE.LineCurve3(new THREE.Vector3(0, -rX + k, 0), new THREE.Vector3(-s, -rX + k, 0))
-		circle.add(curve1)
-		circle.add(curve2)
-		circle.add(straight1)
-
-		return circle
-
-	circle = generateCircle(rx, ry, length)
-	scene.centerLine = generateCircle(rx, ry, length)
+	circle = generateSnakePath(rx, ry, length, terrainSize)
+	scene.centerLine = generateSnakePath(rx, ry, length, terrainSize)
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
@@ -400,10 +401,10 @@ createPole = (x,z) ->
 
 
 #horrible copy-pasting
-export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
-	terrainSize = 1200
-	textureSize = 5
+export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape) ->
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/smallrocks_new.png'
+	terrainSize = 4500
+	textureSize = 10
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
@@ -431,15 +432,6 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		..quaternion.setFromAxisAngle new Cannon.Vec3(1,0,0), -Math.PI/2.0
 	terrain.add ground
 	scene.physics.add groundBody
-
-	roadWidth = 3.5
-	roadLenght = 20
-	shape = new THREE.Shape()
-	shape.moveTo(0, -0.5*roadWidth)
-	shape.lineTo(0, 0.5*roadWidth)
-	shape.lineTo(roadLenght, 0.5*roadWidth)
-	shape.lineTo(roadLenght, -0.5*roadWidth)
-	shape.lineTo(0, -0.5*roadWidth)
 
 	generateCircle = (rX, rY, s) ->
 		c = 0.5522847498307933984022516322796
@@ -469,7 +461,10 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	generatePolesOnPath = (path) ->
 		poles = new THREE.Object3D()
 		length = path.getLength()
-		nPoles = length/(80/3.6)
+		rx = 50
+		yaw = 16.0
+		s = (yaw/360*2*Math.PI*rx*3.6)
+		nPoles = length/(s/3.6)
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nPoles
@@ -506,10 +501,11 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		randomRock = ->
 			rock = rockPool[Math.floor(Math.random()*rockPool.length)]
 			return new THREE.Mesh rock.geometry, rock.material
-		nRocks = Math.round(terrainSize*(100)/500)
-		sizeDist = jStat.uniform(0.1, 0.6)
-		zDist = jStat.uniform(-terrainSize/4, terrainSize/4)
-		xDist = jStat.uniform(-terrainSize/2, terrainSize/2)
+		nRocks = 0 #Math.round(terrainSize*(200)/500)
+		sizeDist = jStat.uniform(0.05, 0.15)
+		rock_distance = 240
+		zDist = jStat.uniform(-rock_distance, rock_distance)
+		xDist = jStat.uniform(-rock_distance, rock_distance)
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nRocks
@@ -517,7 +513,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 			size = sizeDist.sample()
 			z = zDist.sample()
 			cnt = false
-			rW = 3.5 + 2
+			rW = 3.5 + 1.5
 			if (((x ^ 2 / ((rX + rW) ^ 2)  + (z ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + (z ^ 2 / ((rY - 2) ^ 2))) > 1) && z >= 0)
 				cnt = true
 			if (((x ^ 2 / ((rX + rW) ^ 2)  + ((z+length) ^ 2 / ((rY + rW) ^ 2))) <= 1)  && ((x ^ 2 / ((rX - 2) ^ 2)  + ((z+length) ^ 2 / ((rY - 2) ^ 2))) > 1) && z <= -length)
@@ -537,19 +533,30 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 			rock.matrixAutoUpdate = false
 			rocks.add rock
 		return rocks
+	
+	roadWidth = 3.5
+	roadLenght = 20
+	shape = new THREE.Shape()
+	shape.moveTo(0, -0.5*roadWidth)
+	shape.lineTo(0, 0.5*roadWidth)
+	shape.lineTo(roadLenght, 0.5*roadWidth)
+	shape.lineTo(roadLenght, -0.5*roadWidth)
+	shape.lineTo(0, -0.5*roadWidth)
 
+	circle = generateSnakePath(rx, ry, length, terrainSize)
+	scene.centerLine = generateSnakePath(rx, ry, length, terrainSize)
 
-	circle = generateCircle(rx, ry, length)
-	scene.centerLine = generateCircle(rx, ry, length)
-
-	if straight == true
+	if roadShape == 1
 		circle = generateStraight(rx, ry, length)
 		scene.centerLine = generateStraight(rx, ry, length)
-
+	if roadShape == 2
+		circle = generateCircle(rx, ry, length)
+		scene.centerLine = generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_broken.jpg'
+
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_alpha8.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
 	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
@@ -565,11 +572,9 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
-	a = rx + 0.5 * roadWidth
-	b = ry + 0.5 * roadWidth
-	h = ((a - b) ^ 2) / ((a + b) 	^ 2)
-	circum = Math.round(Math.PI*(a + b)*(1+(3*h/(10+(4-3*h) ^ 0.5))) + 2*length)
-	x = circum / (roadGeo.faces.length)
+
+	circum = Math.round(circle.getLength() / 7)
+	x = circum * 4 / (roadGeo.faces.length / 2)
 	for i in [0 til roadGeo.faces.length/2 ]
 		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
 		roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])
@@ -581,6 +586,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
 	terrain.add road
+
 	if rocksOnPath > 1
 		path = generateCircle(rx - 1.75, ry - 1.75, length)
 		rocks = generatePollsStill(path)
@@ -593,7 +599,8 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 		path = generateCircle(rx, ry, length)
 		rocks = generatePollsStill(path)
 		terrain.add mergeObject rocks
-	else if rocksOnPath == true
+	else if rocksOnPath == 1
+		console.log rocksOnPath
 		rocks = generatePolesOnPath(scene.centerLine)
 	else
 		rocks = generateRocks(terrainSize)
@@ -601,12 +608,12 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	terrain.add mergeObject rocks
 
 	scene.visual.add terrain
-	ahead = terrain.clone()
-	scene.visual.add ahead
+	#ahead = terrain.clone()
+	#scene.visual.add ahead
 
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		nTerrains = Math.floor (position.z+terrainSize/2.0)/terrainSize
 		terrain.position.z = nTerrains*terrainSize
-		ahead.position.z = terrain.position.z + terrainSize
+		#ahead.position.z = terrain.position.z + terrainSize
