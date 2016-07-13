@@ -193,6 +193,7 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
+
 generateSnakePath = (rX, rY, s, terrainSize) ->
 	c = 0.5522847498307933984022516322796
 	ox = rX * c
@@ -226,6 +227,7 @@ generateSnakePath = (rX, rY, s, terrainSize) ->
 	circle.add(straight1)
 
 	return circle
+
 
 export addCurveGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
@@ -401,10 +403,12 @@ createPole = (x,z) ->
 
 
 #horrible copy-pasting
+
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/smallrocks_new.png'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/black_ground.jpg	'
 	terrainSize = 4500
 	textureSize = 10
+
 	textureRep = terrainSize/textureSize
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
@@ -415,7 +419,6 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
-		normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
 	terrain.receiveShadow = true
@@ -461,10 +464,16 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	generatePolesOnPath = (path) ->
 		poles = new THREE.Object3D()
 		length = path.getLength()
+
 		rx = 50
 		yaw = 16.0
 		s = (yaw/360*2*Math.PI*rx*3.6)
 		nPoles = length/(s/3.6)
+
+
+
+
+		nPoles = length/(s)
 		rX = rx - 1
 		rY = ry - 1
 		for i from 0 til nPoles
@@ -480,12 +489,25 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	generatePollsStill = (path) ->
 		poles = new THREE.Object3D()
 		length = path.getLength()
-		nPoles = length/(80/3.6)*2
+
+		rx = 50
+		s = (rx * 2 * Math.PI * 15 / 360.0)
+
+		nPoles = length/(s)*2
+
 		rX = rx - 1
 		rY = ry - 1
 		for i from 1 til 3
 			x = path.getPointAt(i/nPoles).y
 			z = path.getPointAt(i/nPoles).x
+			pole = createPole(x,z)
+			poleEnd = createPoleEnd(x,z)
+			poles.add pole
+			poles.add poleEnd
+
+		for i from 1 til 3
+			x = path.getPointAt(0.5 - (i/nPoles)).y
+			z = path.getPointAt(0.5 - (i/nPoles)).x
 
 			pole = createPole(x,z)
 			poleEnd = createPoleEnd(x,z)
@@ -555,16 +577,18 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-#
+
 	if texture == undefined || texture == 0
 		roadTex = THREE.ImageUtils.loadTexture 'res/world/road_alpha0.png'
 	else 
 		roadTex = THREE.ImageUtils.loadTexture 'res/world/road2_alpha8.png'
-#
+
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/black_road.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
-	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
-	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
-	roadTex.minFilter = THREE.LinearFilter
+	roadTex.anisotropy = 16#renderer.getMaxAnisotropy()
+	roadTex.minFilter = THREE.LinearMipMapLinearFilter
+	#roadTex.minFilter = THREE.LinearFilter
+	#roadTex.magFilter = THREE.LinearFilter
 	roadTex.wrapS = roadTex.wrapT = THREE.RepeatWrapping
 	roadNorm.wrapS = roadNorm.wrapT = THREE.RepeatWrapping
 	#roadTex.repeat.set textureRep/2.0, 1
@@ -572,7 +596,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
 		shininess: 20
-		normalMap: roadNorm
+		#normalMap: roadNorm
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
@@ -603,13 +627,12 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 		path = generateCircle(rx, ry, length)
 		rocks = generatePollsStill(path)
 		terrain.add mergeObject rocks
-	else if rocksOnPath == 1
-		console.log rocksOnPath
+	else if rocksOnPath == true
 		rocks = generatePolesOnPath(scene.centerLine)
 	else
 		rocks = generateRocks(terrainSize)
 
-	terrain.add mergeObject rocks
+	#terrain.add mergeObject rocks
 
 	scene.visual.add terrain
 	#ahead = terrain.clone()

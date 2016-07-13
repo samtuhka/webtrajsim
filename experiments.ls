@@ -478,3 +478,14 @@ export beepsAndPoles = seqr.bind ->*
 	s = 80
 	rx = ((s/3.6)*22.5 / Math.PI)
 	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 240
+	rx = 50
+	s = (rx * 2 * Math.PI * 15 / 360.0)*3.6 #47.1238898038 km/h
+
+	yield runScenario scenario.rocksOnCircle, rx, s, 25
+	yield runScenario scenario.rocksOnStraight, rx, s, 25
+	yield runScenario scenario.rocksOnCircleRev, rx, s, 25
+	yield runScenario scenario.rocksOnStraight, rx, s, 25
+
+	yield runScenarioCurve scenario.beepsAndPoles, rx, s, 50
+	yield runScenarioCurve scenario.beepsAndPolesRev, rx, s, 50
+

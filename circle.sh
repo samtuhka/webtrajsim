@@ -28,9 +28,9 @@ WPORT=10101
 #export __GL_FSAA_MODE=11
 #$BROWSER "http://$SHOST:$SPORT/index.html?controller=ws://$WHOST:$WPORT/"
 
+
 $BROWSER "file://$PWD/index.html?experiment=paavoKoekoe&controller=ws://$WHOST:$WPORT/"
 #$BROWSER "file://$PWD/index.html?experiment=paavoKoekoe&disableDefaultLogger=true"
-
 #$BROWSER "file://$PWD/index.html"
 #$BROWSER "http://$SHOST:$SPORT/index.html"
 #just to remember: &disableDefaultLogger=true
