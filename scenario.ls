@@ -654,10 +654,10 @@ export briefInst = seqr.bind (env, inst, scene) ->*
 			@ \cancel-button .hide!
 	result = yield ui.inputDialog env, dialogs
 
-export basecircleDriving = seqr.bind (env, rx, ry, l, sky, ellipse, rocksOnPath, roadShape) ->*
+export basecircleDriving = seqr.bind (env, rx, ry, l, sky, ellipse, rocksOnPath, roadShape, text) ->*
 	env = env with
 		controls: NonThrottleControl env.controls
-	scene = yield circleScene env, rx, ry, l, sky, ellipse, rocksOnPath, roadShape
+	scene = yield circleScene env, rx, ry, l, sky, ellipse, rocksOnPath, roadShape, text
 	return scene
 
 onInnerLane = (scene) ->
@@ -2284,17 +2284,19 @@ exportScenario \blindPursuit, (env, {nTrials=50, oddballRate=0}={}) ->*
 
 
 
-exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength) ->*
+exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength, texture) ->*
 
 	if rx == undefined
 		rx = xrad
 	if s == undefined
-		s = speed	
+		s = speed
+	if straightLength == undefined
+		straightLength = 0	
 	ry = rx
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape
+	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape, texture
 	scene.params = settingParams
 	addMarkerScreen scene, env
 	
@@ -2360,21 +2362,23 @@ exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength) ->*
 
 
 
-exportScenario \circleRev, (env, rx, s, dur, t, aut, shape, straightLength) ->*
+exportScenario \circleRev, (env, rx, s, dur, t, aut, shape, straightLength, texture) ->*
 
 	if rx == undefined
 		rx = xrad
 	if s == undefined
 		s = speed
+	if straightLength == undefined
+		straightLength = 0
 	ry = rx
 
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
 
-	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape
+	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape, texture
 	scene.params = settingParams
 	addMarkerScreen scene, env
-	
+
 	#adding speedmeter
 	#L = env.L
 	#scene.player.scoremeter = ui.gauge env,
@@ -2447,6 +2451,8 @@ exportScenario \rocksOnCircle, (env, rx, s, dur, t, aut, shape, straightLength) 
 		s = 80
 	if dur == undefined
 		dur = 60
+	if straightLength == undefined
+		straightLength = 0
 	ry = rx
 
 	settingParams = {major_radius: rx, minor_radius: ry, straight_length: 0, target_speed: s, direction: 1, static_probes: 1, four: 1, future: 2, automatic: 0, deviant: 0}
@@ -2460,7 +2466,6 @@ exportScenario \rocksOnCircle, (env, rx, s, dur, t, aut, shape, straightLength) 
 	scene.player.physical.position.z = -straightLength
 	
 	scene.player.eye.position.x = 0.0
-	
 	scene.playerControls.throttle = 0
 
 	rw = scene.centerLine.width

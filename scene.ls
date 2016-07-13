@@ -401,7 +401,7 @@ createPole = (x,z) ->
 
 
 #horrible copy-pasting
-export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape) ->
+export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/smallrocks_new.png'
 	terrainSize = 4500
 	textureSize = 10
@@ -555,8 +555,12 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape) ->
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_alpha8.png'
+#
+	if texture == undefined || texture == 0
+		roadTex = THREE.ImageUtils.loadTexture 'res/world/road_alpha0.png'
+	else 
+		roadTex = THREE.ImageUtils.loadTexture 'res/world/road2_alpha8.png'
+#
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
 	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter

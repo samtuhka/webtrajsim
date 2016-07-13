@@ -128,6 +128,8 @@ loadViva = Co ->*
 	eye.position.z = 0.1
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
+	#eye.rotation.x = Math.PI/2
+	
 	#eye.position.y = 2.00
 	#eye.position.z = -1.1
 	#eye.position.x = 5.7
@@ -228,7 +230,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
 			mag = Math.max mag, 0
-			steering = mag*dir*maxSteer*0.8
+			steering = mag*dir*maxSteer*0.4
 			if z > 0
 				# Front wheels
 				wi.brake = brakeResponse controls.brake

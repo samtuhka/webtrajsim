@@ -14,14 +14,14 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = true, rocksOnPath = false, straight = false) ->*
+export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = true, rocksOnPath = false, straight = false, texture) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
 
 	if ellipse == true
 		yield P.resolve addCurveGround scene, rx, ry, length
 	else
-		yield P.resolve addCircleGround scene, rx, ry, length, rocksOnPath, straight
+		yield P.resolve addCircleGround scene, rx, ry, length, rocksOnPath, straight, texture
 
 	sky = yield P.resolve assets.addSky scene
 
@@ -38,6 +38,7 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true, ellipse = t
 	#scene.visual.children[lt - 2].visible = false
 	#scene.visual.children[lt - 3].visible = false
 	#scene.visual.children[lt - 4].visible = false
+
 
 	scene.soundPlay = false
 	scene.soundTs = 0
