@@ -402,7 +402,7 @@ createPole = (x,z) ->
 
 #horrible copy-pasting
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/black_ground.jpg	'
 	terrainSize = 1200
 	textureSize = 5
 	textureRep = terrainSize/textureSize
@@ -415,7 +415,6 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
-		normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
 	terrain.receiveShadow = true
@@ -567,11 +566,12 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_broken.jpg'
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/black_road.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
-	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
-	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
-	roadTex.minFilter = THREE.LinearFilter
+	roadTex.anisotropy = 16#renderer.getMaxAnisotropy()
+	roadTex.minFilter = THREE.LinearMipMapLinearFilter
+	#roadTex.minFilter = THREE.LinearFilter
+	#roadTex.magFilter = THREE.LinearFilter
 	roadTex.wrapS = roadTex.wrapT = THREE.RepeatWrapping
 	roadNorm.wrapS = roadNorm.wrapT = THREE.RepeatWrapping
 	#roadTex.repeat.set textureRep/2.0, 1
@@ -579,7 +579,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
 		shininess: 20
-		normalMap: roadNorm
+		#normalMap: roadNorm
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
@@ -616,7 +616,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, straight) ->
 	else
 		rocks = generateRocks(terrainSize)
 
-	terrain.add mergeObject rocks
+	#terrain.add mergeObject rocks
 
 	scene.visual.add terrain
 	ahead = terrain.clone()
