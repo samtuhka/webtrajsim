@@ -927,7 +927,7 @@ exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, a
 				title: env.L "Passed"
 				content: """
 				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -1043,7 +1043,7 @@ exportScenario \circleDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev
 				title: env.L "Passed"
 				content: """
 				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -1135,7 +1135,7 @@ exportScenario \circleDrivingFree, (env, rx, ry, l, s, r, st, col, fut, inst, de
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -1226,7 +1226,7 @@ exportScenario \circleDrivingRevFree, (env, rx, ry, l, s, r, st, col, fut, inst,
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -1346,7 +1346,7 @@ exportScenario \darkDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut
 				title: env.L "Passed"
 				content: """
 				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -1466,7 +1466,7 @@ exportScenario \darkDrivingRev, (env, rx, ry, l, s, r, st, col, fut, inst, dev, 
 				title: env.L "Passed"
 				content: """
 				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -2354,7 +2354,7 @@ exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength, texture
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 1} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 1} sekuntia.</p>
 				 """
 			return false
 
@@ -2435,7 +2435,7 @@ exportScenario \circleRev, (env, rx, s, dur, t, aut, shape, straightLength, text
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -2507,7 +2507,7 @@ exportScenario \rocksOnCircle, (env, rx, s, dur, t, aut, shape, straightLength) 
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -2573,7 +2573,7 @@ exportScenario \rocksOnCircleRev, (env, rx, s, dur) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -2642,7 +2642,7 @@ exportScenario \rocksOnStraight, (env, rx, s, dur) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -2717,7 +2717,7 @@ exportScenario \beepsAndPoles, (env, rx, s, dur) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 
@@ -2792,7 +2792,7 @@ exportScenario \beepsAndPolesRev, (env, rx, s, dur) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
 				 """
 			return false
 

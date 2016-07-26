@@ -124,7 +124,7 @@ loadViva = Co ->*
 				brakeLightMaterials.push material
 
 	eye = new THREE.Object3D
-	eye.position.y = 1.23
+	eye.position.y = 1.53
 	eye.position.z = 0.1
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
