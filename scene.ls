@@ -444,7 +444,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	textureSize = 10
 
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/.jpg'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/stony_normal.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
