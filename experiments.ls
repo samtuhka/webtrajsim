@@ -447,19 +447,19 @@ export paavoKoekoe = seqr.bind ->*
 
 #testiajo 
 
-	yield runScenario scenario.circleRev, r, v2, 70, 1.0, 0, 0, 83.8, 0
+	yield runScenario scenario.circleRev, r, v2, 70, 1.1, 0, 0, 83.8, 0
 
 #snake
-	yield runScenario scenario.circle, r, v1, t1, 1.0
-	yield runScenario scenario.circleRev, r, v2, t2, 1.0
-	yield runScenario scenario.circle, r, v3, t3, 1.3
+	yield runScenario scenario.circle, r, v1, t1, 1.1
+	yield runScenario scenario.circleRev, r, v2, t2, 1.2
+	yield runScenario scenario.circle, r, v3, t3, 1.4
 
 #sweep
 	yield runScenario scenario.circle, r, 103, 60, 53, 0, 2
 	yield runScenario scenario.circleRev, r, 103, 60, 53, 0, 2 	
 
 #tolpat
-	yield runScenario scenario.rocksOnCircle, r, v2, 60, 1.0, 0, 0, 0, 2
+	yield runScenario scenario.rocksOnCircle, r, v2, 60, 1.2, 0, 0, 0, 2
 
 
 export rocksOnPath = seqr.bind ->*
