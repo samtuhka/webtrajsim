@@ -374,15 +374,15 @@ export TrafficLight = seqr.bind ->*
 SunCalc = require 'suncalc'
 export addSky = (scene, {location=[60, 0], date}={}) ->
 	if not date?
-		date = new Date 1970, 5, 24, 12
+		date = new Date 1970, 5, 21, 12, 0
 
 	distance = 4500
 	dome = new THREE.Object3D
 	scene.visual.add dome
 	sky = new THREE.Sky
 	dome.add sky.mesh
-
-	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
+	
+	sunlight = new THREE.DirectionalLight 0xffffff, 1.0
 		..castShadow = true
 		..shadowCameraNear = distance/2
 		..shadowCameraFar = distance*2
@@ -393,15 +393,16 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 		..shadowMapWidth = 2048
 		..shadowMapHeight = 2048
 		..shadowBias = 0.0001
-		..shadowDarkness = 1.0
+		..shadowDarkness = 0.8
 		..target = dome
 		#..shadowCameraVisible = true
 		#
+
 	dome.add sunlight
-	#hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.5
-	#	..position.set 0, 4500, 0
-	#scene.visual.add hemiLight
-	scene.visual.add new THREE.AmbientLight 0xa0a0a0
+	hemiLight = new THREE.HemisphereLight 0xEFF2FB, 0xEFF2FB, 0.6
+		..position.set 0, 4500, 0
+	scene.visual.add hemiLight
+	#scene.visual.add new THREE.AmbientLight 0xa0a0a0
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		#if sunlight.shadowCamera
@@ -409,21 +410,22 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		dome.position.z = position.z
 		dome.position.x = position.x
-
-	updatePosition = ->
+	
+	console.log hemiLight
+	updatePosition = (date) ->
 		degs = SunCalc.getPosition date, ...location
-
 		position = new THREE.Vector3 0, 0, distance
-		position.applyEuler new THREE.Euler -degs.altitude, degs.azimuth, 0, "YXZ"
+
+		position.applyEuler new THREE.Euler -degs.altitude, degs.azimuth + 0.9*2.525733747830259, 0, "YXZ"
+
 		#position = new THREE.Vector3 0, distance, 0
 		sky.uniforms.sunPosition.value.copy position
 		sunlight.position.copy position
+	
+	scene.beforePhysics.add ->
+		date = new Date 1970, 5, 21, 8, 40
+		updatePosition(date)
 
-	updatePosition()
-	setDate: (newDate) ->
-		date := new Date newDate.getTime()
-		updatePosition()
-	getDate: -> new Date date.getTime()
 
 export SceneDisplay = seqr.bind ({width=1024, height=1024}={}) ->*
 	rtTexture = new THREE.WebGLRenderTarget width, height,

@@ -403,20 +403,27 @@ createPole = (x,z) ->
 
 createBlock = (x,z) ->
 		size = 1
-		geo = new THREE.CylinderGeometry 0.35, 0.35, 0.35, 20
+		geo = new THREE.CylinderGeometry 0.35, 0.35, 0.35, 100
 		geo.verticesNeedUpdate = true
 		geo.computeVertexNormals()
 		geo.computeFaceNormals()
 		poleTex = THREE.ImageUtils.loadTexture 'res/world/tyre.jpg'
 		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
-		pole = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
+		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
+		poleTex.minFilter = THREE.LinearMipMapLinearFilter
+		poleTex.anisotropy = 16
+		poleNorm = THREE.ImageUtils.loadTexture 'res/world/tyre_normal.jpg'
+		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
+		pole = new THREE.Mesh geo, new THREE.MeshPhongMaterial do
 			#color: 0x696969
 			map: poleTex
-		#poleTex.anisotropy = 16
+			normalMap: poleNorm
+			shininess: 20
+
+
 		pole.castShadow = true
 		pole.receiveShadow = true
 		
-
 		pole.position.x = x
 		pole.position.z = z
 		pole.scale.multiplyScalar size
@@ -429,7 +436,7 @@ createBlock = (x,z) ->
 #horrible copy-pasting
 
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/smallrocks_new.png'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/stony.jpg'
 	roadTextureNorm = 'res/world/road_max.jpg'
 	roadTextureAlt = 'res/world/road2_alpha8.png'
 	
@@ -437,7 +444,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	textureSize = 10
 
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
@@ -446,6 +453,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
+		normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
 	terrain.receiveShadow = true
@@ -483,7 +491,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 		return circle
 
 	generateStraight = ->
-		straight = new THREE.LineCurve3(new THREE.Vector3(-600, 0, 0), new THREE.Vector3(600, 0, 0))
+		straight = new THREE.LineCurve3(new THREE.Vector3(-2600, 0, 0), new THREE.Vector3(2600, 0, 0))
 		path = new THREE.CurvePath()
 		path.add(straight)
 		return path
@@ -625,7 +633,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	else 
 		roadTex = THREE.ImageUtils.loadTexture roadTextureAlt
 
-	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
+	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_max_normal.jpg'
 	roadTex.anisotropy = 16#renderer.getMaxAnisotropy()
 	roadTex.minFilter = THREE.LinearMipMapLinearFilter
 	#roadTex.minFilter = THREE.LinearFilter
@@ -636,8 +644,8 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	#roadNorm.repeat.set textureRep/2.0, 1
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
-		shininess: 20
-		#normalMap: roadNorm
+		shininess: 40
+		normalMap: roadNorm
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
