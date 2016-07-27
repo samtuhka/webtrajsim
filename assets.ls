@@ -374,7 +374,7 @@ export TrafficLight = seqr.bind ->*
 SunCalc = require 'suncalc'
 export addSky = (scene, {location=[60, 0], date}={}) ->
 	if not date?
-		date = new Date 1970, 5, 21, 12, 0
+		date = new Date 1970, 5, 21, 8, 40
 
 	distance = 4500
 	dome = new THREE.Object3D
@@ -393,7 +393,7 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 		..shadowMapWidth = 2048
 		..shadowMapHeight = 2048
 		..shadowBias = 0.0001
-		..shadowDarkness = 0.8
+		..shadowDarkness = 1.0
 		..target = dome
 		#..shadowCameraVisible = true
 		#
@@ -421,10 +421,10 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 		#position = new THREE.Vector3 0, distance, 0
 		sky.uniforms.sunPosition.value.copy position
 		sunlight.position.copy position
-	
-	scene.beforePhysics.add ->
-		date = new Date 1970, 5, 21, 8, 40
-		updatePosition(date)
+	updatePosition(date)
+	#scene.beforePhysics.add ->
+	#	date = new Date 1970, 5, 21, 8, 40, scene.time
+	#	updatePosition(date)
 
 
 export SceneDisplay = seqr.bind ({width=1024, height=1024}={}) ->*

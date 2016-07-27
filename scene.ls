@@ -403,17 +403,17 @@ createPole = (x,z) ->
 
 createBlock = (x,z) ->
 		size = 1
-		geo = new THREE.CylinderGeometry 0.35, 0.35, 0.35, 100
+		geo = new THREE.CylinderGeometry 0.35, 0.35, 0.35, 40
 		geo.verticesNeedUpdate = true
 		geo.computeVertexNormals()
 		geo.computeFaceNormals()
 		poleTex = THREE.ImageUtils.loadTexture 'res/world/tyre.jpg'
 		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
-		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
+
 		poleTex.minFilter = THREE.LinearMipMapLinearFilter
-		poleTex.anisotropy = 16
+		#poleTex.anisotropy = 16
 		poleNorm = THREE.ImageUtils.loadTexture 'res/world/tyre_normal.jpg'
-		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
+		poleNorm.wrapS = poleNorm.wrapT = THREE.RepeatWrapping
 		pole = new THREE.Mesh geo, new THREE.MeshPhongMaterial do
 			#color: 0x696969
 			map: poleTex
@@ -426,10 +426,8 @@ createBlock = (x,z) ->
 		
 		pole.position.x = x
 		pole.position.z = z
-		pole.scale.multiplyScalar size
-		pole.updateMatrix()
-		pole.matrixAutoUpdate = false
 
+		pole.rotation.y = Math.PI*2.0*Math.random()
 		return pole
 
 
@@ -444,7 +442,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	textureSize = 10
 
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/.jpg'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/stony_normal.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
