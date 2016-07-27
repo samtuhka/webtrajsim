@@ -411,7 +411,7 @@ createBlock = (x,z) ->
 		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
 
 		poleTex.minFilter = THREE.LinearMipMapLinearFilter
-		poleTex.anisotropy = 16
+		#poleTex.anisotropy = 16
 		poleNorm = THREE.ImageUtils.loadTexture 'res/world/tyre_normal.jpg'
 		poleNorm.wrapS = poleNorm.wrapT = THREE.RepeatWrapping
 		pole = new THREE.Mesh geo, new THREE.MeshPhongMaterial do
@@ -426,10 +426,8 @@ createBlock = (x,z) ->
 		
 		pole.position.x = x
 		pole.position.z = z
-		pole.scale.multiplyScalar size
-		pole.updateMatrix()
-		pole.matrixAutoUpdate = false
 
+		pole.rotation.y = Math.PI*2.0*Math.random()
 		return pole
 
 
