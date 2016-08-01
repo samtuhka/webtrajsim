@@ -403,27 +403,17 @@ createPole = (x,z) ->
 
 createBlock = (x,z) ->
 		size = 1
-		geo = new THREE.CylinderGeometry 0.35, 0.35, 0.35, 40
-		geo.verticesNeedUpdate = true
-		geo.computeVertexNormals()
-		geo.computeFaceNormals()
+		geo = new THREE.CylinderGeometry 0.35, 0.35, 0.35, 10
+
+
 		poleTex = THREE.ImageUtils.loadTexture 'res/world/tyre.jpg'
-		poleTex.wrapS = poleTex.wrapT = THREE.RepeatWrapping
 
-		poleTex.minFilter = THREE.LinearMipMapLinearFilter
-		#poleTex.anisotropy = 16
-		poleNorm = THREE.ImageUtils.loadTexture 'res/world/tyre_normal.jpg'
-		poleNorm.wrapS = poleNorm.wrapT = THREE.RepeatWrapping
 		pole = new THREE.Mesh geo, new THREE.MeshPhongMaterial do
-			#color: 0x696969
 			map: poleTex
-			normalMap: poleNorm
-			shininess: 20
-
 
 		pole.castShadow = true
 		pole.receiveShadow = true
-		
+
 		pole.position.x = x
 		pole.position.z = z
 
