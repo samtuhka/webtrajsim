@@ -410,7 +410,7 @@ createBlock = (x,z) ->
 
 		pole = new THREE.Mesh geo, new THREE.MeshPhongMaterial do
 			map: poleTex
-
+			shininess: 15
 		pole.castShadow = true
 		pole.receiveShadow = true
 
@@ -632,7 +632,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	#roadNorm.repeat.set textureRep/2.0, 1
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
-		shininess: 40
+		shininess: 15
 		normalMap: roadNorm
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
