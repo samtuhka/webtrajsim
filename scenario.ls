@@ -2115,6 +2115,28 @@ exportScenario \participantInformation, (env) ->*
 			.appendTo @ \inputs
 			setTimeout input~focus, 0
 		->
+			#@ \title .text L "Past year driving"
+			#@ \text .append L "On average, how frequently have you driven during the <strong>past year</strong>."
+			#@ \accept .text L "Next"
+			#@ \cancel .text L "Previous"
+			#@ \inputs .append radioSelect "drivingFreqPastYear",
+			#	* value: 'daily', label: L "Most days"
+			#	* value: 'weekly', label: L "Most weeks"
+			#	* value: 'monthly', label: L "Most months"
+			#	* value: 'yearly', label: L "Few times a year"
+			#	* value: 'none', label: L "Not at all"
+		#->
+			#@ \title .text L "Lifetime driving"
+			#@ \text .append L "On average, how frequently have you driven <strong>since you got your driver's license</strong>."
+			#@ \accept .text L "Next"
+			#@ \cancel .text L "Previous"
+			#@ \inputs .append radioSelect "drivingFreqTotal",
+			#	* value: 'daily', label: L "Most days"
+			#	* value: 'weekly', label: L "Most weeks"
+			#	* value: 'monthly', label: L "Most months"
+			#	* value: 'yearly', label: L "Few times a year"
+			#	* value: 'none', label: L "Not at all"
+		#->
 			@ \title .text L "Past 12 month kilometrage"
 			@ \text .append L "Give out an estimate on how many kilometres have you driven during the past 12 months."
 			@ \accept .text L "Next"
@@ -2148,7 +2170,7 @@ exportScenario \participantInformation, (env) ->*
 			@ \text .append L "How frequently do you play video games?"
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
-			@ \inputs .append radioSelect "gamingFreg",
+			@ \inputs .append radioSelect "gamingFreq",
 				* value: 'daily', label: L "Most days"
 				* value: 'weekly', label: L "Most weeks"
 				* value: 'monthly', label: L "Most months"
@@ -2157,7 +2179,7 @@ exportScenario \participantInformation, (env) ->*
 				* value: 'ex-player', label: L "I have played, but not anymore"
 		->
 			@ \title .text L "Driving games"
-			@ \text .append L "Driving game history"
+			@ \text .append L "How frequently do you play driving games? (e.g. Gran Turismo)"
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
 			@ \inputs .append radioSelect "drivingGameFreq",
@@ -2168,7 +2190,7 @@ exportScenario \participantInformation, (env) ->*
 				* value: 'none', label: L "Not at all"
 				* value: 'ex-player', label: L "I have played, but not anymore"
 
-
+			.appendTo @ \inputs
 
 	i = 0
 	while i < dialogs.length

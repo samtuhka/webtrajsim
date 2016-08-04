@@ -444,6 +444,11 @@ export paavoKoekoe = seqr.bind ->*
 	t2 = (360.0/yaw2)*3.15
 	t3 = (360.0/yaw3)*4.15
 
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	logger = (yield env.get(\env)).logger
+	env.let \destroy
+	yield env
 
 #testiajo 
 
