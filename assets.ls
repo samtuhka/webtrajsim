@@ -372,9 +372,9 @@ export TrafficLight = seqr.bind ->*
 			scene.physics.removeBody watcher
 
 SunCalc = require 'suncalc'
-export addSky = (scene, {location=[60, 0], date}={}) ->
+export addSky = (scene, {location=[0, 0], date}={}) ->
 	if not date?
-		date = new Date 1970, 5, 21, 8, 40
+		date = new Date 1970, 5, 21, 12, 0
 
 	distance = 4500
 	dome = new THREE.Object3D

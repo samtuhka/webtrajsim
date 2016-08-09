@@ -424,15 +424,15 @@ createBlock = (x,z) ->
 #horrible copy-pasting
 
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground.jpg'
-	roadTextureNorm = 'res/world/road_max.jpg'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_bigger.jpg'
+	roadTextureNorm = 'res/world/road_double.png'
 	roadTextureAlt = 'res/world/road2_alpha8.png'
 	
 	terrainSize = 4500
-	textureSize = 10
+	textureSize = 40
 
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_norm.jpg'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_bigger_norm.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
@@ -595,7 +595,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 		return rocks
 	
 	roadWidth = 3.5/1.5*3.5
-	roadLenght = 20
+	roadLenght = 4*roadWidth
 	shape = new THREE.Shape()
 	shape.moveTo(0, -0.5*roadWidth)
 	shape.lineTo(0, 0.5*roadWidth)
@@ -621,7 +621,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	else 
 		roadTex = THREE.ImageUtils.loadTexture roadTextureAlt
 
-	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_max_normal.jpg'
+	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_double_norm.png'
 	roadTex.anisotropy = 16#renderer.getMaxAnisotropy()
 	roadTex.minFilter = THREE.LinearMipMapLinearFilter
 	#roadTex.minFilter = THREE.LinearFilter
@@ -634,11 +634,12 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 		map: roadTex
 		shininess: 15
 		normalMap: roadNorm
+		transparent: true
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
 
-	circum = Math.round(circle.getLength() / (7*3.5/1.5))
+	circum = Math.round(circle.getLength() / (roadLenght))
 	x = circum * 4 / (roadGeo.faces.length / 2)
 	for i in [0 til roadGeo.faces.length/2 ]
 		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
@@ -658,7 +659,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 		#rocks = generateRocks(terrainSize)
 		rocks = generatePolesOnPath(scene.centerLine)
 
-	terrain.add mergeObject rocks
+	#terrain.add mergeObject rocks
 
 	scene.visual.add terrain
 	#ahead = terrain.clone()
