@@ -424,7 +424,7 @@ createBlock = (x,z) ->
 #horrible copy-pasting
 
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_bigger.jpg'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_bigger.png'
 	roadTextureNorm = 'res/world/road_double.png'
 	roadTextureAlt = 'res/world/road2_alpha8.png'
 	
@@ -432,7 +432,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	textureSize = 40
 
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_bigger_norm.jpg'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_bigger_norm.png'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
