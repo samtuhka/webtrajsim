@@ -451,7 +451,6 @@ export paavoKoekoe = seqr.bind ->*
 	#yield env
 
 #testiajo 
-	yield runScenario scenario.circle, r, v3, t3, 1.4
 
 	yield runScenario scenario.circleRev, r, v2, 70, 1.1, 0, 0, 83.8, 0
 
@@ -466,6 +465,7 @@ export paavoKoekoe = seqr.bind ->*
 
 #tolpat
 	yield runScenario scenario.rocksOnCircle, r, v2, 60, 1.2, 0, 0, 0, 2
+
 
 
 export rocksOnPath = seqr.bind ->*
