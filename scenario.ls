@@ -788,7 +788,7 @@ addMarkerScreen = (scene, env) ->
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
-	heigth = (Math.tan(angle) * 2.0 * 2) * ratio
+	heigth = (Math.tan(angle) * 1.7 * 2) * ratio
 	scene.markers = []
 	pos = [[0.5 0.8], [1 - 0.15/aspect, 0.8], [0.15/aspect, 0.1], [1 - 0.15/aspect, 0.1], [1 - 0.15/aspect, 0.1], [0.15/aspect, 0.8], [0.5, 0.8]]
 	for i from 0 til 6
@@ -796,14 +796,14 @@ addMarkerScreen = (scene, env) ->
 		texture = THREE.ImageUtils.loadTexture path
 		marker = new THREE.Mesh do
 			new THREE.PlaneGeometry heigth, heigth
-			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: false, depthWrite: false
-		marker.position.z = -2.0
+			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: true, depthWrite: true, opacity: 1.0
+		marker.position.z = -1.7
 
 		h = 1/ratio * heigth
 		w = aspect * h
 		marker.position.x = (w*(pos[i][0]) - w/2)
 		marker.position.y = (h*pos[i][1] - h/2)
-		scene.camera.add marker
+		scene.player.eye.add marker
 		scene.markers.push marker
 		marker.visible = true
 
