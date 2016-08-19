@@ -451,6 +451,7 @@ export paavoKoekoe = seqr.bind ->*
 	#yield env
 
 #testiajo 
+	yield runScenario scenario.circle, r, v3, t3, 1.4
 
 	yield runScenario scenario.circleRev, r, v2, 70, 1.1, 0, 0, 83.8, 0
 
