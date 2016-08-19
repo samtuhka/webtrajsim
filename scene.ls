@@ -364,12 +364,12 @@ export addCurveGround = (scene, rx, ry, length) ->
 
 createPoleEnd = (x,z) ->
 		size = 1
-		geoEnd = new THREE.CylinderGeometry 0.027, 0.027, 0.25, 100
+		geoEnd = new THREE.CylinderGeometry 0.032, 0.032, 0.25, 100
 		geoEnd.verticesNeedUpdate = true
 		geoEnd.computeVertexNormals()
 		geoEnd.computeFaceNormals()
 		poleEnd = new THREE.Mesh geoEnd, new THREE.MeshLambertMaterial do
-			color: 0x0xffffff
+			color: 0xFF0000
 		poleEnd.castShadow = false
 		poleEnd.receiveShadow = false
 
@@ -384,12 +384,12 @@ createPoleEnd = (x,z) ->
 
 createPole = (x,z) ->
 		size = 1
-		geo = new THREE.CylinderGeometry 0.025, 0.025, 0.35, 20
+		geo = new THREE.CylinderGeometry 0.029, 0.029, 0.45, 20
 		geo.verticesNeedUpdate = true
 		geo.computeVertexNormals()
 		geo.computeFaceNormals()
 		pole = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
-			color: 0x696969
+			color: 0x000000
 		pole.castShadow = true
 		pole.receiveShadow = true
 
@@ -424,7 +424,7 @@ createBlock = (x,z) ->
 #horrible copy-pasting
 
 export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_bigger.png'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
 	roadTextureNorm = 'res/world/road_double.png'
 	roadTextureAlt = 'res/world/road2_alpha8.png'
 	
@@ -432,7 +432,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 	textureSize = 40
 
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_bigger_norm.png'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_moon_norm.png'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
@@ -495,24 +495,24 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 
 		rX = rx - 1
 		rY = ry - 1
-		for i from 0 til nPoles
-			point0 = path.getPointAt(i/nPoles)
-			point1 =  path.getPointAt(i/nPoles + 0.1/length)
-			x0 = (point0.y + point1.y) / 2 
-			z0 = (point0.x + point1.x) / 2 
-			dx = (point1.y - point0.y) 	
-			dy = (point1.x - point0.x)
-			dist = 3.67
-
-			x = x0 - dy*dist*10
-			z = z0 + dx*dist*10	
-			pole = createBlock(x,z)
-			poles.add pole
-
-			x = x0 + dy*dist*10
-			z = z0 - dx*dist*10	
-			pole = createBlock(x,z)
-			poles.add pole
+		#for i from 0 til nPoles
+		#	point0 = path.getPointAt(i/nPoles)
+		#	point1 =  path.getPointAt(i/nPoles + 0.1/length)
+		#	x0 = (point0.y + point1.y) / 2 
+		#	z0 = (point0.x + point1.x) / 2 
+		#	dx = (point1.y - point0.y) 	
+		#	dy = (point1.x - point0.x)
+		#	dist = 3.67
+		#
+		#	x = x0 - dy*dist*10
+		#	z = z0 + dx*dist*10	
+		#	pole = createBlock(x,z)
+		#	poles.add pole
+		#
+		#	x = x0 + dy*dist*10
+		#	z = z0 - dx*dist*10	
+		#	pole = createBlock(x,z)
+		#	poles.add pole
 		nPoles = length/(s/3.6)		
 		if createPoles == true
 			for i from 0 til nPoles
@@ -659,7 +659,7 @@ export addCircleGround = (scene, rx, ry, length, rocksOnPath, roadShape, texture
 		#rocks = generateRocks(terrainSize)
 		rocks = generatePolesOnPath(scene.centerLine)
 
-	#terrain.add mergeObject rocks
+	terrain.add mergeObject rocks
 
 	scene.visual.add terrain
 	#ahead = terrain.clone()
