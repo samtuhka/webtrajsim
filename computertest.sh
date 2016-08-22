@@ -6,7 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 #BROWSER="chromium-browser --user-data-dir=chromium-data --allow-file-access-from-files"
 #BROWSER="primusrun ./firefox/firefox/firefox"
-BROWSER="primusrun ./chrome/chrome \
+BROWSER="./chrome/chrome \
 	--test-type \
 	--ignore-gpu-blacklist \
 	--disable-setuid-sandbox \
