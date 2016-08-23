@@ -777,10 +777,10 @@ markersVisible = (scene) ->
 
 
 addBackgroundColor = (scene) ->
-	geo = new THREE.PlaneGeometry 4000, 4000
-	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: false
+	geo = new THREE.PlaneGeometry 40000, 40000
+	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true
 	mesh = new THREE.Mesh geo, mat
-	mesh.position.z = -1100
+	mesh.position.z = -11000
 	scene.camera.add mesh
 
 addMarkerScreen = (scene, env) ->
@@ -2334,7 +2334,7 @@ exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength, texture
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = -straightLength
-	
+	addBackgroundColor scene
 	#putting the camera in the middle
 	scene.player.eye.position.x = 0.0
 	
@@ -2382,6 +2382,45 @@ exportScenario \circle, (env, rx, s, dur, t, aut, shape, straightLength, texture
 
 	return yield @get \done
 
+exportScenario \vsyncTest, (env) ->*
+	camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+
+	env.onSize (w, h) ->
+		w = w/h
+		h = 1
+		camera.left = -w
+		camera.right = w
+		camera.bottom = -h
+		camera.top = h
+		camera.updateProjectionMatrix!
+
+	scene = new Scene camera: camera
+	scene.preroll = ->
+
+	geo = new THREE.SphereGeometry 1.0, 32, 32
+	cyan = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0x00ffff
+	red = new THREE.Mesh geo, new THREE.MeshBasicMaterial color: 0xff0000
+
+	scene.visual.add cyan
+	scene.visual.add red
+
+	i = 0
+	scene.beforeRender (dt) !->
+		i += 1
+		if i%2 == 0
+			cyan.visible = true
+			red.visible = false
+		else
+			cyan.visible = false
+			red.visible = true
+
+
+	@let \scene, scene
+	yield @get \run
+
+	return yield @get \done
+
 
 
 exportScenario \circleRev, (env, rx, s, dur, t, aut, shape, straightLength, texture) ->*
@@ -2400,7 +2439,7 @@ exportScenario \circleRev, (env, rx, s, dur, t, aut, shape, straightLength, text
 	scene = yield basecircleDriving env, rx, ry, straightLength, true, false, 0, shape, texture
 	scene.params = settingParams
 	addMarkerScreen scene, env
-
+	addBackgroundColor scene
 	#adding speedmeter
 	#L = env.L
 	#scene.player.scoremeter = ui.gauge env,
