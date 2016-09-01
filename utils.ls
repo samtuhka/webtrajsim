@@ -1,6 +1,6 @@
 THREE = require 'three'
 window.THREE = THREE
-require './three.js/examples/js/loaders/ColladaLoader.js'
+require './node_modules/three/examples/js/loaders/ColladaLoader.js'
 P = require 'bluebird'
 {findIndex} = require 'prelude-ls'
 

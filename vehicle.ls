@@ -4,7 +4,7 @@ Co = P.coroutine
 
 THREE = require 'three'
 window.THREE = THREE
-require './three.js/examples/js/loaders/ColladaLoader.js'
+require './node_modules/three/examples/js/loaders/ColladaLoader.js'
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
 
@@ -57,7 +57,7 @@ loadViva = Co ->*
 		if obj.parent?
 			obj.parent.updateMatrixWorld true
 			obj.applyMatrix obj.parent.matrixWorld
-			obj.parent = void
+			obj.parent = null
 		obj.updateMatrixWorld(true)
 		for child in obj.children
 			child.applyMatrix obj.matrix

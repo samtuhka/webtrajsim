@@ -8,9 +8,7 @@ seqr = require './seqr.ls'
 
 perlin = require './vendor/perlin.js'
 
-# Todo: ugly
-window.THREE = THREE = require 'three'
-require './three.js/examples/js/SkyShader.js'
+THREE = require 'three'
 
 # TODO: Find a good fidelity/performance
 # compromise parameters

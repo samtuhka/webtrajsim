@@ -5,6 +5,7 @@ $ = require 'jquery'
 P = require 'bluebird'
 seqr = require './seqr.ls'
 
+require './node_modules/three/examples/js/SkyShader.js'
 
 {loadCollada, mergeObject} = require './utils.ls'
 

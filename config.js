@@ -2,9 +2,6 @@
 (function(){
   module.exports = function(System){
     return System.config({
-      map: {
-        three: './three.js/build/three.js'
-      },
       meta: {
         '*.ls': {
           loader: 'system-livescript'

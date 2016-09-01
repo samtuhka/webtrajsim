@@ -12,7 +12,8 @@
     "system-livescript": "git://github.com/jampekka/system-livescript",
     "system-npmlocator": "git://github.com/jampekka/system-npmlocator",
     "system-text": "^0.1.0",
-    "systemjs": "^0.19.28"
+    "systemjs": "^0.19.28",
+    "three": "^0.78.0"
   },
   "devDependencies": {
     "bluebird": "^3.0.5",
