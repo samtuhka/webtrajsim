@@ -58,3 +58,45 @@ while taking as few glances as you can."""
 	#{@ '%blinderIntro'}
 	"""
 
+'%intro.introduction': """
+<p>The purpose of this experiment is to research speed control, anticipation
+and attention sharing of drivers.
+
+<p>
+The experiment consists of several subtasks which are introduced
+as the experiment progresses. The experiment lasts approximately one
+hour in total. You can ask any questions you have from the experiment conductor
+at any point.
+
+<p>The experiment's principal investigator is prof. Heikki Summala and investigators
+are Jami Pekkanen, Teemu Itkonen and Otto Lappi.
+"""
+
+'%intro.participantRights': """<p>Participating in the experiment is voluntary.
+At any point you can cancel or stop your participation or refuse to take
+any instructed action.
+"""
+
+"%intro.dataUse": """
+<p>Data from your performance will be logged during the experiment.
+The data and results based on the data will be used in scholarly
+reporting (for example scientific articles) in such format that your
+identity is not disclosed.
+"""
+
+'%intro.backgroundInfo': """
+<p>Next we will ask some background information about you.
+If you don't wish to give some information, you can leave
+the field empty.
+"""
+
+'%intro.email': """
+We ask your email because we may request additional information or
+participation in a future study. Your email address will not be
+disclosed to any third parties and we will send only messages that
+concern this experiment.
+"""
+
+'%intro.license': """Please enter the year you got licence to drive a passanger vehicle.
+If you don't have such a license, leave the field empty. The information can be found from
+the backside of your driving license."""

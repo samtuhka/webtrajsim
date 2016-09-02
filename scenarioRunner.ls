@@ -89,7 +89,8 @@ export newEnv = seqr.bind !->*
 	opts <<< deparam window.location.search.substring 1
 
 	env.L = localizer()
-	yield env.L.load 'locales/fi.lson'
+	lang = opts.lang ? 'en'
+	yield env.L.load "locales/#{lang}.lson"
 
 	container = $('#drivesim').empty().fadeIn()
 
