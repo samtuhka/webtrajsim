@@ -4,6 +4,7 @@
 		<meta charset="UTF-8">
 		<title>The Busy Tailgater</title>
 		<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.css">
+		<template id="launch-dynamic">
 		<script src="node_modules/systemjs/dist/system.src.js"></script>
 		<script src="node_modules/system-npmlocator/npmlocator.js"></script>
 		<script>
@@ -12,8 +13,19 @@
 				config(System);
 				System.import('./ui-main.ls');
 			});
-		</script>-
-		<!--<script src="ui-main.ls.js"></script>-->
+		</script>
+		</template>
+		<template id="launch-static">
+		<script src="ui-main.ls.js"></script>
+		</template>
+		<script type="text/javascript">
+			var template = "#launch-static";
+			if(document.location.protocol == "file:") {
+				template = "#launch-dynamic";
+			}
+			template = document.querySelector(template);
+			document.write(template.innerHTML);
+		</script>
 		<style type="text/css">
 			body, html {
 				margin: 0;
