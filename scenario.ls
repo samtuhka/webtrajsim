@@ -110,6 +110,8 @@ exportScenario \freeDriving, (env) ->*
 	yield @get \done
 
 export basePedalScene = (env) ->
+	if env.opts.forceSteering
+		return baseScene env
 	env = env with
 		controls: NonSteeringControl env.controls
 	return baseScene env
