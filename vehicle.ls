@@ -146,7 +146,7 @@ loadViva = Co ->*
 				material.emissive.r = 0
 			material.needsUpdate = true
 
-export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
+export addVehicle = Co (scene, controls=new DummyControls, {objectName, steeringNoise=-> 0.0}={}) ->*
 	{body, wheels, eye, setBrakelight} = yield loadViva()
 
 	syncModels = new Signal
@@ -218,13 +218,14 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 			wheel.position.copy wi.worldTransform.position
 			wheel.quaternion.copy wi.worldTransform.quaternion
 
-		scene.beforePhysics.add ->
+		scene.beforePhysics.add (dt) ->
 			setBrakelight controls.brake > 0
 			mag = Math.abs controls.steering
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
 			mag = Math.max mag, 0
 			steering = mag*dir*maxSteer
+			steering += steeringNoise dt
 			if z > 0
 				# Front wheels
 				wi.brake = brakeResponse controls.brake

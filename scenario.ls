@@ -5,7 +5,7 @@ seqr = require './seqr.ls'
 
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
-{NonSteeringControl} = require './controls.ls'
+{NonSteeringControl, NoisySteering} = require './controls.ls'
 {DefaultEngineSound, BellPlayer, NoisePlayer} = require './sounds.ls'
 assets = require './assets.ls'
 prelude = require 'prelude-ls'
@@ -52,7 +52,16 @@ export baseScene = seqr.bind (env) ->*
 
 	scene.playerControls = controls
 
-	player = yield addVehicle scene, controls, objectName: 'player'
+	caropts =
+		objectName: 'player'
+	
+	if env.opts.steeringNoise
+		_cumnoise = 0.0
+		caropts.steeringNoise = (dt) ->
+			impulse = (Math.random() - 0.5)*2*0.005
+			_cumnoise := 0.01*impulse + 0.99*_cumnoise
+
+	player = yield addVehicle scene, controls, caropts
 	player.eye.add scene.camera
 	player.physical.position.x = -1.75
 	scene.player = player
