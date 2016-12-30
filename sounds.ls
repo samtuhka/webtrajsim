@@ -68,7 +68,7 @@ export DefaultEngineSound = (ctx) ->
 		3000: f '3000rpm'
 	.then (samples) -> SoundInterpolator ctx, samples
 
-export WarningSound = seqr.bind (env, {gain=0.5}={}) ->*
+export WarningSound = seqr.bind (env, {gain=0.1}={}) ->*
 	{audioContext} = env
 	buffer = yield loadAudio audioContext, './res/sounds/beep.wav'
 	source = void
