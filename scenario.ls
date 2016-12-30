@@ -327,6 +327,70 @@ exportScenario \throttleAndBrake, (env) ->*
 
 	return yield @get \done
 
+exportScenario \stayOnLane, (env) ->*
+	L = env.L
+	@let \intro,
+		title: L "Stay on lane"
+		content: L '%stayOnLane.intro'
+
+	scene = yield baseScene env
+
+	goalDistance = 200
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = -4
+	startLight.position.z = 6
+	startLight.addTo scene
+
+	stopSign = yield assets.StopSign!
+		..position.x = -4
+		..position.z = goalDistance + 10
+		..addTo scene
+
+	failOnCollision env, @, scene
+
+	finishSign = yield assets.FinishSign!
+	finishSign.position.z = goalDistance
+	finishSign.addTo scene
+	ui.gauge env,
+		name: L "Time"
+		unit: L "s"
+		value: ->
+			if not startTime?
+				return 0.toFixed 2
+			(scene.time - startTime).toFixed 2
+
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 50
+	barrel.position.x = -0.5
+	barrel.addTo scene
+
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 100
+	barrel.position.x = +0.5 - 7/2.0
+	barrel.addTo scene
+
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 150
+	barrel.position.x = -0.5
+	barrel.addTo scene
+
+	@let \scene, scene
+	yield @get \run
+
+	yield P.delay 2000
+	yield startLight.switchToGreen()
+	startTime = scene.time
+
+	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
+		return if Math.abs(scene.player.getSpeed()) > 0.1
+		time = scene.time - startTime
+		@let \done, passed: true, outro:
+			title: L "Passed"
+			content: L '%throttleAndBrake.outro', time: time
+		return false
+
+	return yield @get \done
+
 speedControl = exportScenario \speedControl, (env) ->*
 	L = env.L
 	@let \intro,

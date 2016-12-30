@@ -87,7 +87,7 @@ laneChecker = (scenario) ->
 		return task
 
 export blindFollow17 = seqr.bind ->*
-	yield runUntilPassed laneChecker scenario.closeTheGap, passes: 3
+	yield runUntilPassed laneChecker scenario.stayOnLane, passes: 3
 	return
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env

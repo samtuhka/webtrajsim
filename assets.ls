@@ -298,6 +298,25 @@ export BallBoard = seqr.bind ->*
 
 	return obj
 
+export ConstructionBarrel = seqr.bind ->*
+	data = yield loadCollada 'res/signs/construction_barrel.dae'
+	model = data.scene.children[0]
+	model.scale.set 0.03, 0.03, 0.03
+
+	bbox = new THREE.Box3().setFromObject model
+	halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
+	phys = new Cannon.Body mass: 0
+		..addShape (new Cannon.Box halfbox)
+		..objectClass = 'barrier'
+
+	addTo: (scene) ->
+		scene.visual.add model
+		scene.physics.add phys
+		scene.bindPhys phys, model
+	position: phys.position
+
+
+
 export TrafficLight = seqr.bind ->*
 	data = yield loadCollada 'res/signs/TrafficLight.dae'
 	mod = data.scene.children[0]
