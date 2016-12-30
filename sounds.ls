@@ -68,6 +68,30 @@ export DefaultEngineSound = (ctx) ->
 		3000: f '3000rpm'
 	.then (samples) -> SoundInterpolator ctx, samples
 
+export WarningSound = seqr.bind (env, {gain=0.5}={}) ->*
+	{audioContext} = env
+	buffer = yield loadAudio audioContext, './res/sounds/beep.wav'
+	source = void
+	self =
+		start: ->
+			return if source?
+			source := audioContext.createBufferSource()
+			source.buffer = buffer
+			source.loop = true
+			gainNode = audioContext.createGain()
+			gainNode.gain.value = gain
+			source.connect gainNode
+			gainNode.connect audioContext.destination
+			source.start()
+		stop: ->
+			return if not source?
+			source.stop()
+			source := void
+
+		isPlaying:~ -> source?
+	return self
+
+
 export BellPlayer = seqr.bind ({audioContext}) ->*
 	ctx = audioContext
 	buffer = yield loadAudio audioContext, './res/sounds/bell.ogg'

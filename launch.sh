@@ -4,17 +4,18 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-#BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files"
+BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files"
+#BROWSER="firefox -no-remote -new-instance -profile firefox-data"
 #BROWSER="primusrun ./firefox/firefox/firefox"
-BROWSER="primusrun ./chrome/full-build-linux/chrome \
-	--test-type \
-	--ignore-gpu-blacklist \
-	--disable-setuid-sandbox \
-	--disable-gpu-sandbox --user-data-dir=chromium-data \
-	--allow-file-access-from-files \
-	--start-fullscreen
-	--js-flags=--expose-gc \
-	--enable-precise-memory-info"
+#BROWSER="primusrun ./chrome/full-build-linux/chrome \
+#	--test-type \
+#	--ignore-gpu-blacklist \
+#	--disable-setuid-sandbox \
+#	--disable-gpu-sandbox --user-data-dir=chromium-data \
+#	--allow-file-access-from-files \
+#	--start-fullscreen
+#	--js-flags=--expose-gc \
+#	--enable-precise-memory-info"
 #BROWSER="primusrun chromium --test-type --ignore-gpu-blacklist --disable-setuid-sandbox --disable-gpu-sandbox --user-data-dir=chromium-data --allow-file-access-from-files"
 
 #SHOST=localhost

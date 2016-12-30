@@ -3,6 +3,7 @@ P = require 'bluebird'
 seqr = require './seqr.ls'
 {runScenario, newEnv} = require './scenarioRunner.ls'
 scenario = require './scenario.ls'
+sounds = require './sounds.ls'
 
 L = (s) -> s
 
@@ -62,6 +63,64 @@ export mulsimco2015 = seqr.bind ->*
 	env.let \destroy
 	yield env
 
+
+laneChecker = (scenario) ->
+	(env, ...args) ->
+		env.opts.forceSteering = true
+		task = scenario env, ...args
+		task.get(\scene).then seqr.bind (scene) ->*
+			return if not scene.player
+			warningSound = yield sounds.WarningSound env
+			lanecenter = scene.player.physical.position.x
+			scene.afterPhysics (dt) ->
+				drift = Math.abs lanecenter - scene.player.physical.position.x
+				if drift < 0.5
+					warningSound.stop()
+				else
+					warningSound.start()
+				return if drift < 1.0
+				task.let \done, passed: false, outro:
+					title: env.L "Oops!"
+					content: env.L "You drove out of your lane."
+			scene.onExit ->
+				warningSound.stop()
+		return task
+
+export blindFollow17 = seqr.bind ->*
+	yield runUntilPassed laneChecker scenario.closeTheGap, passes: 3
+	return
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
+
+	#yield runScenario scenario.runTheLight
+	yield runUntilPassed laneChecker scenario.closeTheGap, passes: 3
+
+	yield runUntilPassed laneChecker scenario.throttleAndBrake
+	yield runUntilPassed laneChecker scenario.speedControl
+	yield runUntilPassed laneChecker scenario.blindSpeedControl
+
+	yield runUntilPassed laneChecker scenario.followInTraffic
+	yield runUntilPassed laneChecker scenario.blindFollowInTraffic
+
+	ntrials = 4
+	scenarios = []
+		.concat([scenario.followInTraffic]*ntrials)
+		.concat([scenario.blindFollowInTraffic]*ntrials)
+	scenarios = shuffleArray scenarios
+
+	for scn in scenarios
+		yield runScenario laneChecker scn
+
+	intervals = shuffleArray [1, 1, 2, 2, 3, 3]
+	for interval in intervals
+		yield runScenario laneChecker scenario.forcedBlindFollowInTraffic, interval: interval
+
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
 
 export defaultExperiment = mulsimco2015
 
