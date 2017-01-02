@@ -43,8 +43,8 @@ export class Scene
 			bodies: []*/
 
 		@visual ?= new THREE.Scene
-
-		@camera ?= new THREE.PerspectiveCamera 65/(16/9), 1, 0.01, 450000
+		FOV = 70.0*(9/16)
+		@camera ?= new THREE.PerspectiveCamera FOV, 1, 0.01, 450000
 
 		@time = 0
 
