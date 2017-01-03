@@ -154,7 +154,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 
 	syncModels = new Signal
 
-	cogY = 0.5
+	cogY = 0.6
 
 	scene.visual.add body
 
@@ -208,7 +208,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 			axleLocal: new Cannon.Vec3 -1, 0, 0
 			suspensionRestLength: wRadius + 0.35
 			chassisConnectionPointLocal: new Cannon.Vec3(x, y, z)
-			suspensionStiffness: 40
+			suspensionStiffness: 100
 			rollInfluence: 1
 			frictionSlip: 1									# Wheel friction
 		wi = car.wheelInfos[wii]
