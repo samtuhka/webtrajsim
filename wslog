@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import sys
+import websockets
+import asyncio
+import argh
+
+def logserver(outfile=sys.stdout):
+    async def logger(sock, path):
+        while True:
+            msg = await sock.recv()
+            outfile.write(msg)
+            outfile.write('\n')
+            outfile.flush()
+    return logger
+
+def main(port=8080, host='0.0.0.0'):
+    start_server = websockets.serve(logserver(), host, port)
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
+
+if __name__ == '__main__':
+    argh.dispatch_command(main)
+
