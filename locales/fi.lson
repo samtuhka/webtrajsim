@@ -41,6 +41,17 @@
 
 '%throttleAndBrake.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
 
+'Stay on lane': 'Pysy kaistalla'
+'%stayOnLane.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
+			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä. Väistä myös tiellä olevat
+			esteet, mutta pysy kaistallasi. Kaistavahti varoittaa äänimerkillä, jos olet lähellä ajautua
+			kaistan ulkopuolelle.
+			"""
+
+'%stayOnLane.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
+
+'You drove out of your lane.': 'Ajoit ulos kaistaltasi.'
+
 'Speed control': 'Nopeuden hallinta'
 '%speedControl.intro':  """
 	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.

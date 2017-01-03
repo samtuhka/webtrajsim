@@ -395,7 +395,7 @@ exportScenario \stayOnLane, (env) ->*
 		time = scene.time - startTime
 		@let \done, passed: true, outro:
 			title: L "Passed"
-			content: L '%throttleAndBrake.outro', time: time
+			content: L '%stayOnLane.outro', time: time
 		return false
 
 	return yield @get \done
