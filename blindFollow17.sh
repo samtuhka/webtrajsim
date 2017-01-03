@@ -37,7 +37,7 @@ mkdir -p $SESSDIR
 #export __GL_FSAA_MODE=11
 #$BROWSER "http://$SHOST:$SPORT/index.html?controller=ws://$WHOST:$WPORT/"
 ARGS="?experiment=blindFollow17"
-#ARGS+="&controller=ws://$WHOST:$WPORT/"
+ARGS+="&controller=ws://$WHOST:$WPORT/"
 ARGS+="&wsLogger=ws://$LOGHOST:$LOGPORT&disableDefaultLogger=true"
 $BROWSER "file://$PWD/index.html$ARGS"
 #$BROWSER "file://$PWD/index.html"
