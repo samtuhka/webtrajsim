@@ -170,8 +170,12 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	@finally ->
 		THREE.Cache.clear()
-		# A hack to clear some caches in Cannon
-		(new CANNON.World).step(1/60)
+		# A hack to clear some caches in Cannon. Doesn't
+		# clear everything.
+		(new CANNON.World).step(1/20)
+		# And similar hack for three.js
+		renderer.render (new THREE.Scene), scene.camera
+		renderer.dispose()
 	#renderer.shadowMapEnabled = true
 	#renderer.shadowMapType = THREE.PCFShadowMap
 	renderer.autoClear = false
@@ -208,6 +212,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	el = $ renderer.domElement
 	el.hide()
 	env.container.append el
+
 
 	# Run
 	yield P.resolve scene.preroll()

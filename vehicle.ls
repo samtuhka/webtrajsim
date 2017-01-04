@@ -236,7 +236,6 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 			else
 				# Back wheels
 				wi.engineForce = -enginePower*controls.throttle*controls.direction
-
 	syncModels.add ->
 		body.position.copy bodyPhys.position
 		body.position.y -= cogY
@@ -253,11 +252,12 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 
 	onCollision = Signal!
 	bodyPhys.addEventListener "collide", (e) ->
-		return if e.body.preventCollisionEvent? e
+		return if e.body.preventCollisionEvent?
 		onCollision.dispatch e
 
 	getSpeed: ->
-		return 0 if not car.currentVehicleSpeedKmHour?
+		if not car.currentVehicleSpeedKmHour? or not isFinite car.currentVehicleSpeedKmHour
+			return 0.0
 		car.currentVehicleSpeedKmHour/3.6
 	eye: eye
 	physical: bodyPhys

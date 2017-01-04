@@ -182,6 +182,7 @@ export singleScenario = seqr.bind ->*
 export memkiller = seqr.bind !->*
 	#loader = scenario.minimalScenario
 	loader = scenario.blindFollowInTraffic
+	#loader = scenario.freeDriving
 	#for i from 1 to 1
 	#	console.log i
 	#	scn = loader()
@@ -209,11 +210,11 @@ export memkiller = seqr.bind !->*
 			yield runner
 			console.log "Done"
 
-		console.log "Memory usage: ", window.performance.memory.totalJSHeapSize/1024/1024
+		console.log "Memory usage: ", window?performance?memory?totalJSHeapSize/1024/1024
 		if window.gc
 			for i from 0 til 10
 				window.gc()
-			console.log "Memory usage (after gc): ", window.performance.memory.totalJSHeapSize/1024/1024
+			console.log "Memory usage (after gc): ", window?performance?memory?totalJSHeapSize/1024/1024
 	return i
 
 export logkiller = seqr.bind !->*
