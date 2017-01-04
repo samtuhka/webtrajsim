@@ -101,7 +101,16 @@ export baseScene = seqr.bind (env) ->*
 export minimalScenario = seqr.bind (env) ->*
 	scene = new Scene
 	addGround scene
+	#leader = yield addVehicle scene
+	sky = yield P.resolve assets.addSky scene
 	scene.preroll = ->
+		# Tick a couple of frames for the physics to settle
+		scene.tick 1/60
+		n = 100
+		t = Date.now()
+		for [0 to n]
+			scene.tick 1/60
+		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	@let \scene, scene
 	yield @get \done
 
@@ -162,7 +171,7 @@ addBlinder = (scene, env) ->
 	mask.position.x = 0.37 - 0.03
 	mask.position.z = 0.75
 	mask.rotation.x = -63.5/180*Math.PI
-	mask.scale.set 0.3, 0.5, 0.3
+	mask.scale.set 0.35, 0.6, 0.5
 
 	#mask.position.z = -0.3
 	#mask.position.x = 0.03
