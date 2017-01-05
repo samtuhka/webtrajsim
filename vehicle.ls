@@ -197,8 +197,10 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 
 
 	wheels = wheels.children
+	wheelModels = []
 	for let wheel in wheels
 		wheel = wheel.clone()
+		wheelModels.push wheel
 		wbb = (new THREE.Box3).setFromObject wheel
 		wRadius = (wbb.max.z - wbb.min.z)/2.0
 		{x, y, z} = wheel.position
@@ -262,6 +264,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 	eye: eye
 	physical: bodyPhys
 	body: body
+	wheels: wheelModels
 	forceModelSync: -> syncModels.dispatch()
 	controls: controls
 	onCollision: onCollision

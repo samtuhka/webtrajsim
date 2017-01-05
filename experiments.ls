@@ -68,17 +68,24 @@ laneChecker = (scenario) ->
 	(env, ...args) ->
 		env.opts.forceSteering = true
 		task = scenario env, ...args
+
 		task.get(\scene).then seqr.bind (scene) ->*
 			return if not scene.player
 			warningSound = yield sounds.WarningSound env
 			lanecenter = scene.player.physical.position.x
+			# This is rather horrible!
 			scene.afterPhysics (dt) ->
-				drift = Math.abs lanecenter - scene.player.physical.position.x
-				if drift < 0.5
+				overedge = -10
+				for wheel in scene.player.wheels
+					overedge = Math.max (wheel.position.x - 0.0), overedge
+					overedge = Math.max ((-7/2.0) - wheel.position.x), overedge
+				if not overedge? or not isFinite overedge
+					return
+				if overedge < -0.3
 					warningSound.stop()
 				else
 					warningSound.start()
-				return if drift < 1.0
+				return if overedge < 0.2
 				task.let \done, passed: false, outro:
 					title: env.L "Oops!"
 					content: env.L "You drove out of your lane."
@@ -88,7 +95,6 @@ laneChecker = (scenario) ->
 
 export blindFollow17 = seqr.bind ->*
 	yield runUntilPassed laneChecker scenario.stayOnLane, passes: 3
-	return
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
