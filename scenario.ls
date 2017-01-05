@@ -167,11 +167,11 @@ addBlinder = (scene, env) ->
 		new THREE.PlaneGeometry 1, 1
 		new THREE.MeshBasicMaterial color: 0x000000, side: THREE.DoubleSide
 
-	mask.position.y = 1.23 - 0.05
+	mask.position.y = 1.23 - 0.07
 	mask.position.x = 0.37 - 0.03
 	mask.position.z = 0.75
 	mask.rotation.x = -63.5/180*Math.PI
-	mask.scale.set 0.35, 0.6, 0.5
+	mask.scale.set 0.35, 0.5, 0.5
 
 	#mask.position.z = -0.3
 	#mask.position.x = 0.03
