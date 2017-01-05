@@ -790,29 +790,10 @@ exportScenario \participantInformation, (env) ->*
 			@ \accept .text L "Next"
 			@ \cancel-button .hide!
 		->
-			@ \title .text L "Participation is voluntary"
-			@ \text .append L "%intro.participantRights"
-			@ \cancel .text L "Previous"
-			@ \accept .text L "I wish to participate"
-		->
-			@ \title .text L "Collection and use of data"
-			@ \text .append L "%intro.dataUse"
-			@ \cancel .text L "Previous"
-			@ \accept .text L "I accept the usage of my data"
-		->
 			@ \title .text L "Background information"
 			@ \text .append L "%intro.backgroundInfo"
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
-		->
-			@ \title .text L "E-mail address"
-			@ \text .append L "%intro.email"
-			@ \accept .text L "Next"
-			@ \cancel .text L "Previous"
-			input = $('<input name="email" type="email" style="color: black">')
-			.prop "placeholder", L "E-mail address"
-			.appendTo @ \inputs
-			setTimeout input~focus, 0
 		->
 			@ \title .text L "Birth year"
 			@ \accept .text L "Next"
