@@ -376,20 +376,21 @@ exportScenario \stayOnLane, (env) ->*
 			if not startTime?
 				return 0.toFixed 2
 			(scene.time - startTime).toFixed 2
-
+	
+	barrelPosition = 0.4
 	barrel = yield assets.ConstructionBarrel!
 	barrel.position.z = 50
-	barrel.position.x = -0.5
+	barrel.position.x = -barrelPosition
 	barrel.addTo scene
 
 	barrel = yield assets.ConstructionBarrel!
 	barrel.position.z = 100
-	barrel.position.x = +0.5 - 7/2.0
+	barrel.position.x = barrelPosition - 7/2.0
 	barrel.addTo scene
 
 	barrel = yield assets.ConstructionBarrel!
 	barrel.position.z = 150
-	barrel.position.x = -0.5
+	barrel.position.x = -barrelPosition
 	barrel.addTo scene
 
 	@let \scene, scene
