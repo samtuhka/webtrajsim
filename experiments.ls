@@ -67,6 +67,7 @@ export mulsimco2015 = seqr.bind ->*
 laneChecker = (scenario) ->
 	(env, ...args) ->
 		env.opts.forceSteering = true
+		env.opts.steeringNoise = true
 		task = scenario env, ...args
 
 		task.get(\scene).then seqr.bind (scene) ->*
