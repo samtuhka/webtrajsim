@@ -728,7 +728,7 @@ exportScenario \blindFollowInTraffic, (env) ->*
 		content: L '%blindFollowInTraffic.intro'
 
 	scene = yield base.get \scene
-	scene.draftIndicator.el.hide()
+	#scene.draftIndicator.el.hide()
 	addBlinderTask scene, env
 	@let \scene, scene
 

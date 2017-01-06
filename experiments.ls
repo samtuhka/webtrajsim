@@ -95,21 +95,29 @@ laneChecker = (scenario) ->
 		return task
 
 export blindFollow17 = seqr.bind ->*
-	yield runUntilPassed laneChecker scenario.stayOnLane, passes: 3
+	monkeypatch = laneChecker
+
+	yield runUntilPassed monkeypatch scenario.blindFollowInTraffic
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
 
 	#yield runScenario scenario.runTheLight
-	yield runUntilPassed laneChecker scenario.closeTheGap, passes: 3
+	yield runUntilPassed monkeypatch scenario.closeTheGap, passes: 3
 
-	yield runUntilPassed laneChecker scenario.throttleAndBrake
-	yield runUntilPassed laneChecker scenario.speedControl
-	yield runUntilPassed laneChecker scenario.blindSpeedControl
+	yield runUntilPassed monkeypatch scenario.stayOnLane
+	yield runUntilPassed monkeypatch scenario.speedControl
+	yield runUntilPassed monkeypatch scenario.blindSpeedControl
 
-	yield runUntilPassed laneChecker scenario.followInTraffic
-	yield runUntilPassed laneChecker scenario.blindFollowInTraffic
+	yield runUntilPassed monkeypatch scenario.followInTraffic
+	yield runUntilPassed monkeypatch scenario.blindFollowInTraffic
+
+	monkeypatch = (scenario) ->
+		scenario = laneChecker scenario
+		(env, ...args) ->
+			env.notifications.hide()
+			return scenario env, ...args
 
 	ntrials = 4
 	scenarios = []
@@ -118,11 +126,11 @@ export blindFollow17 = seqr.bind ->*
 	scenarios = shuffleArray scenarios
 
 	for scn in scenarios
-		yield runScenario laneChecker scn
+		yield runScenario monkeypatch scn
 
 	intervals = shuffleArray [1, 1, 2, 2, 3, 3]
 	for interval in intervals
-		yield runScenario laneChecker scenario.forcedBlindFollowInTraffic, interval: interval
+		yield runScenario monkeypatch scenario.forcedBlindFollowInTraffic, interval: interval
 
 	env = newEnv!
 	yield scenario.experimentOutro yield env.get \env
