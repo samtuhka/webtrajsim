@@ -46,7 +46,7 @@ getLogger = seqr.bind ->*
 	return _logger
 
 _wsLogger = void
-wsLogger = seqr.bind (url, orig={}) ->*
+wsLogger = seqr.bind (url) ->*
 	if _wsLogger?
 		return _wsLogger
 
@@ -56,14 +56,12 @@ wsLogger = seqr.bind (url, orig={}) ->*
 		socket.onerror = (ev) ->
 			console.error "Failed to open logging socket", ev
 			reject "Failed to open logging socket #url."
-	_wsLogger := orig with
+	_wsLogger =
 		write: (data) ->
-			orig.write data
 			socket.send JSON.stringify do
 				time: Date.now() / 1000
 				data: data
 		close: ->
-			#orig.close()
 			#socket.close()
 	return _wsLogger
 
@@ -101,6 +99,7 @@ export newEnv = seqr.bind !->*
 	$(window).on "resize", dispatchResize
 	@finally !->
 		$(window).off "resize", dispatchResize
+		onSize.destroy()
 
 	env <<<
 		container: container
@@ -115,7 +114,7 @@ export newEnv = seqr.bind !->*
 			write: ->
 			close: ->
 	if opts.wsLogger?
-		env.logger = yield wsLogger opts.wsLogger, env.logger
+		env.logger = yield wsLogger opts.wsLogger
 	@finally ->
 		env.logger.close()
 
@@ -133,6 +132,7 @@ export newEnv = seqr.bind !->*
 	id = setInterval env.uiUpdate.dispatch, 1/60*1000
 	@finally !->
 		clearInterval id
+		env.uiUpdate.destroy()
 
 	env.finally = @~finally
 
