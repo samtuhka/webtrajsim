@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cannon": "git://github.com/jampekka/cannon.js#nomodulevars",
     "db.js": "git+https://github.com/aaronpowell/db.js#4ccde49d7e28eee752db1e428a83740de26e2f7e",
     "jquery-elementresize": "^0.2.1",
     "json-loader": "^0.5.2",
@@ -13,6 +14,7 @@
     "system-npmlocator": "git://github.com/jampekka/system-npmlocator",
     "system-text": "^0.1.0",
     "systemjs": "^0.19.28",
+    "systemjs-plugin-json": "^0.2.3",
     "three": "^0.83.0"
   },
   "devDependencies": {

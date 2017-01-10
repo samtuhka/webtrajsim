@@ -3,4 +3,4 @@ module.exports = (System) ->
 		meta:
 			'*.ls': loader: 'system-livescript'
 			'*.html': loader: 'system-text'
-			'*/cannon.js': format: 'cjs'
+			'*.json': loader: 'systemjs-plugin-json'

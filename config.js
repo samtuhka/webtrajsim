@@ -9,8 +9,8 @@
         '*.html': {
           loader: 'system-text'
         },
-        '*/cannon.js': {
-          format: 'cjs'
+        '*.json': {
+          loader: 'systemjs-plugin-json'
         }
       }
     });
