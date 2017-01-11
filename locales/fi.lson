@@ -196,6 +196,21 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 "On average, how frequently have you driven <strong>since you got your driver's license</strong>.": """Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>ajokortin saatuasi</strong>."""
 
+'Past 12 month kilometrage': 'Ajokilometrit viimeisten 12 kk aikana'
+"Give out an estimate on how many kilometres have you driven during the past 12 months.": """Anna arviosi siitä,montako ajokilometriä olet ajanut viimeisen 12 kuukauden aikana."""
+'not driven': 'en yhtään'
+
+'Lifetime kilometrage': 'Ajokilometrit eliniän aikana'
+"Give out an estimate on how many kilometres have you driven during your lifetime.": """Anna arviosi siitä, montako ajokilometriä olet ajanut koko elämäsi aikana."""
+
+'Video games': 'Tietokonepelaaminen'
+"How frequently do you play video games?": """Kuinka usein pelaat tietokonepelejä?"""
+'I have played, but not anymore': 'Olen pelannut, mutta en tätä nykyä.'
+
+'Driving games': 'Ajopelit'
+"How frequently do you play driving games? (e.g. Gran Turismo)": """Kuinka usein pelaat ajopelejä? (esim. Gran Turismo)"""
+
+
 'The experiment is done!': 'Koe on päättynyt'
 '%experimentOutro': 'Kiitos osallistumisestasi!'
 

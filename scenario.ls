@@ -844,6 +844,59 @@ exportScenario \participantInformation, (env) ->*
 				* value: 'monthly', label: L "Most months"
 				* value: 'yearly', label: L "Few times a year"
 				* value: 'none', label: L "Not at all"
+		->
+			@ \title .text L "Past 12 month kilometrage"
+			@ \text .append L "Give out an estimate on how many kilometres have you driven during the past 12 months."
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "drivingDist",
+				* value: 'None', label: L "not driven"
+				* value: '0', label: "<1000"
+				* value: '1000', label: "1000 - 5000"
+				* value: '5000', label: "5001 - 10 000"
+				* value: '100000', label: "10 001 - 15 000"
+				* value: '150000', label: "15 001 - 20 000"
+				* value: '200000', label: "20 001 - 30 000"
+				* value: '300000', label: "30 001 - 50 000"
+				* value: '500000', label: "> 50 000"
+		->
+			@ \title .text L "Lifetime kilometrage"
+			@ \text .append L "Give out an estimate on how many kilometres have you driven during your lifetime."
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "drivingDist",
+				* value: '0', label: "<1000"
+				* value: '1000', label: "1000 - 10 000"
+				* value: '10000', label: "10 001 - 30 000"
+				* value: '30000', label: "30 001 - 100 000"
+				* value: '100000', label: "100 001 - 300 000"
+				* value: '300000', label: "300 001 - 500 000"
+				* value: '500000', label: "500 001 - 1 000 000"
+				* value: '1000000', label: "> 1 000 000"
+		->
+			@ \title .text L "Video games"
+			@ \text .append L "How frequently do you play video games?"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "gamingFreq",
+				* value: 'daily', label: L "Most days"
+				* value: 'weekly', label: L "Most weeks"
+				* value: 'monthly', label: L "Most months"
+				* value: 'yearly', label: L "Few times a year"
+				* value: 'none', label: L "Not at all"
+				* value: 'ex-player', label: L "I have played, but not anymore"
+		->
+			@ \title .text L "Driving games"
+			@ \text .append L "How frequently do you play driving games? (e.g. Gran Turismo)"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "drivingGameFreq",
+				* value: 'daily', label: L "Most days"
+				* value: 'weekly', label: L "Most weeks"
+				* value: 'monthly', label: L "Most months"
+				* value: 'yearly', label: L "Few times a year"
+				* value: 'none', label: L "Not at all"
+				* value: 'ex-player', label: L "I have played, but not anymore"
 
 	i = 0
 	while i < dialogs.length
