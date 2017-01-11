@@ -4,7 +4,7 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files --js-flags=--expose-gc"
+BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files --js-flags=--expose-gc --start-fullscreen"
 #BROWSER="firefox -no-remote -new-instance -profile firefox-data"
 #BROWSER="primusrun ./firefox/firefox/firefox"
 #BROWSER="primusrun ./chrome/full-build-linux/chrome \
@@ -37,6 +37,7 @@ mkdir -p $SESSDIR
 #export __GL_FSAA_MODE=11
 #$BROWSER "http://$SHOST:$SPORT/index.html?controller=ws://$WHOST:$WPORT/"
 ARGS="?experiment=blindFollow17"
+ARGS+="&lang=fi"
 ARGS+="&controller=ws://$WHOST:$WPORT/"
 ARGS+="&wsLogger=ws://$LOGHOST:$LOGPORT&disableDefaultLogger=true"
 $BROWSER "file://$PWD/index.html$ARGS"
