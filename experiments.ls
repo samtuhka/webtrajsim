@@ -97,7 +97,6 @@ laneChecker = (scenario) ->
 export blindFollow17 = seqr.bind ->*
 	monkeypatch = laneChecker
 
-	yield runUntilPassed monkeypatch scenario.blindFollowInTraffic
 	env = newEnv!
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
@@ -207,7 +206,7 @@ export memkiller = seqr.bind !->*
 	#	yield scn
 	#	void
 
-	for i from 1 to 10
+	for i from 1 to 1
 		console.log i
 		yield do seqr.bind !->*
 			runner = runScenario loader
