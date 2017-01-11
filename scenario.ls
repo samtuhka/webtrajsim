@@ -54,7 +54,7 @@ export baseScene = seqr.bind (env) ->*
 
 	caropts =
 		objectName: 'player'
-	
+
 	if env.opts.steeringNoise
 		_cumnoise = 0.0
 		caropts.steeringNoise = (dt) ->
@@ -87,6 +87,11 @@ export baseScene = seqr.bind (env) ->*
 		engineSounds.setPitch rev*2000
 	scene.onStart.add engineSounds.start
 	scene.onExit.add engineSounds.stop
+
+	scene.onStart ->
+		env.container.addClass "hide-cursor"
+	scene.onExit ->
+		env.container.removeClass "hide-cursor"
 
 	scene.preroll = ->
 		# Tick a couple of frames for the physics to settle
