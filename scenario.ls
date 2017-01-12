@@ -191,6 +191,8 @@ addBlinder = (scene, env) ->
 
 	self._showMask = showMask = ->
 		return if mask.visible
+		if scene.leader
+			scene.leader.visual.visible = false
 		mask.visible = true
 		self.change.dispatch true
 		env.logger.write blinder: true
@@ -198,6 +200,8 @@ addBlinder = (scene, env) ->
 
 	self._liftMask = ->
 		mask.visible = false
+		if scene.leader
+			scene.leader.visual.visible = true
 		self.glances += 1
 		self.change.dispatch false
 		env.logger.write blinder: false
@@ -659,7 +663,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 		leader.forceModelSync()*/
 
 	leaderControls = new TargetSpeedController
-	leader = yield addVehicle scene, leaderControls
+	leader = scene.leader = yield addVehicle scene, leaderControls
 	leader.physical.position.x = -1.75
 	leader.physical.position.z = 10
 

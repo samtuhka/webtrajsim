@@ -156,7 +156,9 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 
 	cogY = 0.6
 
-	scene.visual.add body
+	visual = new THREE.Object3D()
+	scene.visual.add visual
+	visual.add body
 
 	bbox = new THREE.Box3().setFromObject body
 	bbox.min.y += 0.3
@@ -216,7 +218,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 		wi = car.wheelInfos[wii]
 		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 
-		scene.visual.add wheel
+		visual.add wheel
 
 		syncModels.add ->
 			car.updateWheelTransform wii
@@ -264,6 +266,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 	eye: eye
 	physical: bodyPhys
 	body: body
+	visual: visual
 	wheels: wheelModels
 	forceModelSync: -> syncModels.dispatch()
 	controls: controls
