@@ -64,7 +64,14 @@ export mulsimco2015 = seqr.bind ->*
 	yield env
 
 
-laneChecker = (scenario) ->
+# Down the rabbit hole with hacks...
+wrapScenario = (f) -> (scenario) ->
+	wrapper = f(scenario)
+	if not wrapper.scenarioName?
+		wrapper.scenarioName = scenario.scenarioName
+	return wrapper
+
+laneChecker = wrapScenario (scenario) ->
 	(env, ...args) ->
 		env.opts.forceSteering = true
 		env.opts.steeringNoise = true
@@ -112,7 +119,7 @@ export blindFollow17 = seqr.bind ->*
 	yield runUntilPassed monkeypatch scenario.followInTraffic
 	yield runUntilPassed monkeypatch scenario.blindFollowInTraffic
 
-	monkeypatch = (scenario) ->
+	monkeypatch = wrapScenario (scenario) ->
 		scenario = laneChecker scenario
 		(env, ...args) ->
 			env.notifications.hide()
