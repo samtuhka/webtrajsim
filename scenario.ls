@@ -93,12 +93,18 @@ export baseScene = seqr.bind (env) ->*
 	scene.onExit ->
 		env.container.removeClass "hide-cursor"
 
-	scene.preroll = ->
+	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
-		scene.tick 1/60
-		n = 100
 		t = Date.now()
+		n = 100
 		for [0 to n]
+			# Make sure the car can't move during the preroll.
+			# Yes, it's a hack
+			controls
+				..throttle = 0
+				..brake = 0
+				..steering = 0
+
 			scene.tick 1/60
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	return scene
