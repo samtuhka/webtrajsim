@@ -24,6 +24,7 @@ eachFrame = (f) -> new P (accept, reject) ->
 			return
 		requestAnimationFrame tick
 		dt = clock.getDelta()
+		return if dt == 0
 		result = f dt
 		if result?
 			accept result
