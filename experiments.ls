@@ -77,12 +77,12 @@ laneChecker = wrapScenario (scenario) ->
 		env.opts.steeringNoise = true
 		task = scenario env, ...args
 
-		task.get(\scene).then seqr.bind (scene) ->*
+		task.get(\scene).then seqr.bind (scene) !->*
 			return if not scene.player
 			warningSound = yield sounds.WarningSound env
 			lanecenter = scene.player.physical.position.x
 			# This is rather horrible!
-			scene.afterPhysics (dt) ->
+			scene.afterPhysics (dt) !->
 				overedge = -10
 				for wheel in scene.player.wheels
 					overedge = Math.max (wheel.position.x - 0.0), overedge
@@ -237,6 +237,29 @@ export memkiller = seqr.bind !->*
 				window.gc()
 			console.log "Memory usage (after gc): ", window?performance?memory?totalJSHeapSize/1024/1024
 	return i
+
+export scenehanger = seqr.bind !->*
+	#monkeypatch = laneChecker
+	monkeypatch = wrapScenario (scenario) ->
+		#scenario = laneChecker scenario
+		(env, ...args) ->
+			task = scenario env, ...args
+			task.get(\run).then seqr.bind !->*
+				scene = yield task.get \scene
+				scene.beforePhysics ->
+					env.controls.throttle = 1.0
+			return task
+
+	for i from 0 to 100
+		runner = runScenario monkeypatch scenario.stayOnLane
+		[scn] = yield runner.get 'ready'
+		[intro] = yield runner.get 'intro'
+		if intro.let
+			intro.let \accept
+		[outro] = yield runner.get 'outro'
+		outro.let \accept
+		yield runner
+		console.log "Task done"
 
 export logkiller = seqr.bind !->*
 	scope = newEnv!
