@@ -57,7 +57,7 @@ wsLogger = seqr.bind (url) ->*
 		socket.onerror = (ev) ->
 			console.error "Failed to open logging socket", ev
 			reject "Failed to open logging socket #url."
-	_wsLogger =
+	_wsLogger :=
 		write: (data) ->
 			socket.send JSON.stringify do
 				time: Date.now() / 1000
