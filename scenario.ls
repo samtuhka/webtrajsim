@@ -326,7 +326,13 @@ fixLogic = (scene, sound) ->
 			scene.probeIndx += 1
 			futPos scene
 			sound.play()
-			console.log "aa"
+			console.log scene.fixcircles
+			if scene.probeIndx % 2 == 0
+				scene.fixcircles[0].children[0].material.color.g = 1.0
+				scene.fixcircles[1].children[0].material.color.g = 0.0
+			else
+				scene.fixcircles[1].children[0].material.color.g = 1.0
+				scene.fixcircles[0].children[0].material.color.g = 0.0
 		scene.dT = scene.time
 triangle = (s) ->
 	triA = new THREE.Shape()
@@ -777,7 +783,6 @@ addFixationCross = (scene, radius = 2.5, c = 0x000000, circle = false) ->
 
 		geo = new THREE.CircleGeometry(size*0.1, 64)
 		dot = new THREE.Mesh geo, material
-		fixObj.add dot
 
 		fixObj.add ironR
 		fixObj.add ironL
@@ -831,14 +836,16 @@ addMarkerScreen = (scene, env) ->
 		scene.markers.push marker
 		marker.visible = true
 
-listener = new THREE.AudioListener()
-annoyingSound = new THREE.Audio(listener)
-annoyingSound.load('res/sounds/beep-01a.wav')
-annoyingSound.setVolume(0.1)
+
 
 
 
 exportScenario \fixSwitch, (env) ->*
+
+	listener = new THREE.AudioListener()
+	annoyingSound = new THREE.Audio(listener)
+	annoyingSound.load('res/sounds/beep.wav')
+	annoyingSound.setVolume(0.05)
 
 	if rx == undefined
 		rx = xrad
@@ -855,7 +862,9 @@ exportScenario \fixSwitch, (env) ->*
 	scene.fixcircles = []
 	addFixationCross scene
 	addFixationCross scene
-
+	
+	scene.fixcircles[0].children[0].material.color.g = 1.0
+	
 	addMarkerScreen scene, env
 	addBackgroundColor scene
 
