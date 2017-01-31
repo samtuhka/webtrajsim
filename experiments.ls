@@ -31,7 +31,6 @@ shuffleArray = (a) ->
 
 export mulsimco2015 = seqr.bind ->*
 	env = newEnv!
-	env.i = 0
 	yield scenario.participantInformation yield env.get \env
 	env.let \destroy
 	yield env
@@ -63,9 +62,6 @@ export mulsimco2015 = seqr.bind ->*
 	yield scenario.experimentOutro yield env.get \env
 	env.let \destroy
 	yield env
-
-<<<<<<< HEAD
-=======
 
 # Down the rabbit hole with hacks...
 wrapScenario = (f) -> (scenario) ->

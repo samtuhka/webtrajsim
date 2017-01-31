@@ -144,7 +144,7 @@ export addGround = (scene) ->
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
 		shininess: 20
-		#normalMap: roadNorm
+		normalMap: roadNorm
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
@@ -194,20 +194,22 @@ export addGround = (scene) ->
 		behind.position.z = terrain.position.z - terrainSize
 
 export addCircleGround = (scene, rx, ry, length) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_sand.jpg	'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
 	terrainSize = 4500
-	textureSize = 5
+	textureSize = 40
 	textureRep = terrainSize/textureSize
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
+	anisotropy = 16
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/ground_moon_norm.png'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
 	groundNorm.repeat.set textureRep, textureRep
-	groundTex.anisotropy = 12 #renderer.getMaxAnisotropy()
+	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
+	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
 	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
-		normalMap: groundNorm
+		#normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
 	terrain.receiveShadow = true
@@ -225,8 +227,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 3.5
-	roadLenght = 20
+	roadWidth = 3.5/1.5*3.5
+	roadLenght = 4*roadWidth
 	shape = new THREE.Shape()
 	shape.moveTo(0, -0.5*roadWidth)
 	shape.lineTo(0, 0.5*roadWidth)
@@ -272,11 +274,12 @@ export addCircleGround = (scene, rx, ry, length) ->
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_broken.jpg'
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_double.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
-	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
+	roadNorm.anisotropy = roadTex.anisotropy = anisotropy
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
-	roadTex.minFilter = THREE.LinearFilter
+	#roadNorm.minFilter = roadTex.minFilter = THREE.LinearFilter
+	roadTex.minFilter = THREE.LinearMipMapLinearFilter
 	roadTex.wrapS = roadTex.wrapT = THREE.RepeatWrapping
 	roadNorm.wrapS = roadNorm.wrapT = THREE.RepeatWrapping
 	#roadTex.repeat.set textureRep/2.0, 1
@@ -285,14 +288,13 @@ export addCircleGround = (scene, rx, ry, length) ->
 		map: roadTex
 		shininess: 20
 		normalMap: roadNorm
+		transparent: true
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
-	a = rx + 0.5 * roadWidth
-	b = ry + 0.5 * roadWidth
-	h = ((a - b) ^ 2) / ((a + b) 	^ 2)
-	circum = Math.round(Math.PI*(a + b)*(1+(3*h/(10+(4-3*h) ^ 0.5))) + 2*length)
-	x = circum / (roadGeo.faces.length)
+
+	circum = Math.round(circle.getLength() / (roadLenght))
+	x = circum * 4 / (roadGeo.faces.length / 2)
 	for i in [0 til roadGeo.faces.length/2 ]
 		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
 		roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])

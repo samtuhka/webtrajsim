@@ -6,7 +6,8 @@ seqr = require './seqr.ls'
 {addCircleGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
-{DefaultEngineSound} = require './sounds.ls'
+{DefaultEngineSound, BellPlayer, NoisePlayer} = require './sounds.ls'
+
 assets = require './assets.ls'
 
 # Just a placeholder for localization
@@ -22,17 +23,22 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
 	sky = yield P.resolve assets.addSky scene
 
 	scene.playerControls = controls
-	player = yield addVehicle scene, controls, objectName: 'player'
+
+	caropts =
+		objectName: 'player'
+
+	if env.opts.steeringNoise
+		_cumnoise = 0.0
+		caropts.steeringNoise = (dt) ->
+			impulse = (Math.random() - 0.5)*2*0.01
+			_cumnoise := 0.001*impulse + 0.999*_cumnoise
+
+	player = yield addVehicle scene, controls, caropts
 	player.eye.add scene.camera
 	player.physical.position.x = scene.centerLine.getPointAt(0).y
 	for i from 0 til player.body.children.length - 1
 		player.body.children[i].visible = false
 	scene.player = player
-
-	scene.visual.children[7].visible = false
-	scene.visual.children[6].visible = false
-	scene.visual.children[5].visible = false
-	scene.visual.children[4].visible = false
 
 	scene.soundPlay = false
 	scene.soundTs = 0
@@ -54,37 +60,8 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
 	scene.reacted = true
 	scene.controlChange = false
 	scene.prev = [0,0,0,0,0]
-	#scene.player.scoremeter = ui.gauge env,
-	#	name: L "Score"
-	#	unit: L "times"
-	#	value: ->
-	#		score = scene.scoring.score
-	#scene.player.scoremeter = ui.gauge env,
-	#	name: L "True negative"
-	#	unit: L "times"
-	#	value: ->
-	#		score = scene.scoring.trueNo
-	#scene.player.scoremeter = ui.gauge env,
-	#	name: L "False positive"
-	#	unit: L "times"
-	#	value: ->
-	#		score = scene.scoring.falseYes
-	#scene.player.scoremeter = ui.gauge env,
-	#	name: L "True positive"
-	#	unit: L "times"
-	#	value: ->
-	#		score = scene.scoring.trueYes
-	#scene.player.missed = ui.gauge env,
-	#	name: L "Missed"
-	#	unit: L "times"
-	#	value: ->
-	#		score = scene.scoring.missed
-	#scene.player.outside = ui.gauge env,
-	#	name: L "Outside"
-	#	unit: L "seconds"
-	#	value: ->
-	#		score = scene.outside.totalTime
-	#		score.toFixed(2)
+
+
 	engineSounds = yield DefaultEngineSound audioContext
 	gainNode = audioContext.createGain()
 	gainNode.connect audioContext.destination
@@ -97,17 +74,26 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
 		gain = (gain + 0.5)/1.5
 		gainNode.gain.value = gain
 		engineSounds.setPitch rev*2000
-	if control
-		scene.onStart.add engineSounds.start
-		scene.onExit.add engineSounds.stop
+	scene.onStart.add engineSounds.start
+	scene.onExit.add engineSounds.stop
 
-	scene.preroll = ->
+	scene.onStart ->
+		env.container.addClass "hide-cursor"
+	scene.onExit ->
+		env.container.removeClass "hide-cursor"
+
+	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
-		scene.tick 1/60
-		n = 100
 		t = Date.now()
+		n = 100
 		for [0 to n]
+			# Make sure the car can't move during the preroll.
+			# Yes, it's a hack
+			controls
+				..throttle = 0
+				..brake = 0
+				..steering = 0
+
 			scene.tick 1/60
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	return scene
-

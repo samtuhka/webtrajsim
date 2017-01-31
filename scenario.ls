@@ -11,8 +11,6 @@ seqr = require './seqr.ls'
 assets = require './assets.ls'
 prelude = require 'prelude-ls'
 
-require './three.js/examples/fonts/Digital-7_Regular.typeface.js'
-require './three.js/examples/fonts/Snellen_Regular.typeface.js'
 
 ui = require './ui.ls'
 
@@ -319,6 +317,17 @@ probeLogic = (scene) ->
 			futPos scene
 		scene.dT = scene.time
 
+fixLogic = (scene, sound) ->
+	roadPosition scene
+	if dif(scene)==true
+		if scene.probeIndx == scene.params.duration
+			scene.end = true
+		else
+			scene.probeIndx += 1
+			futPos scene
+			sound.play()
+			console.log "aa"
+		scene.dT = scene.time
 triangle = (s) ->
 	triA = new THREE.Shape()
 	triA.moveTo(0,0)
@@ -457,21 +466,7 @@ objectLoc = (object, x, y) ->
 	object.position.x = (w*x - w/2) * heigth
 	object.position.y = (h*y - h/2) * heigth
 
-fixationCrossLoc = (scene, rev) ->
-	aspect = window.innerWidth / window.innerHeight
-	vFOV = scene.camera.fov/100
-	hFOV = aspect*vFOV
-	point2 = scene.predict[1]
-	v2 = new THREE.Vector3(point2.y, 0.1, point2.x)
-	v2.project(scene.camera)
-	x2 = (v2.x+1)*0.5
-	y2 =(v2.y+1)*0.5
-	if rev == -1
-		objectLoc scene.cross, x2 - 0.2/hFOV, y2
-	else
-		objectLoc scene.cross, x2 + 0.2/hFOV, y2
-
-handleProbeLocs = (scene, n, rev, i) ->
+handleFixLocs = (scene) ->
 	aspect = window.innerWidth / window.innerHeight
 	vFOV = scene.camera.fov/100
 	hFOV = aspect*vFOV
@@ -499,19 +494,9 @@ handleProbeLocs = (scene, n, rev, i) ->
 	v4.project(scene.camera)
 	x4 = (v4.x+1)*0.5
 	y4 =(v4.y+1)*0.5
-
-	r = 0.075
-	rx = r/hFOV
-	ry = r/vFOV
-	x = rx * Math.cos(Math.PI/4)
-	y = ry * Math.sin(Math.PI/4)
 	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
-	xFix = lis[i][0]
-	yFix = lis[i][1]
-	pos = [[xFix - rx, yFix], [xFix + rx, yFix],  [xFix - x, yFix - y],[xFix + x, yFix - y]]
-	for i from 0 til n
-		objectLoc(scene.probes[i], pos[i][0],pos[i][1])
-	objectLoc scene.cross, xFix, yFix
+	objectLoc scene.fixcircles[0], lis[1][0], lis[1][1]
+	objectLoc scene.fixcircles[1], lis[3][0], lis[3][1]
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -675,8 +660,7 @@ export briefInst = seqr.bind (env, inst, scene) ->*
 	result = yield ui.inputDialog env, dialogs
 
 export basecircleDriving = seqr.bind (env, rx, ry, l, sky) ->*
-	env = env with
-		controls: NonThrottleControl env.controls
+
 	scene = yield circleScene env, rx, ry, l, sky
 	return scene
 
@@ -767,28 +751,47 @@ handleReaction = (env, scene, i) ->
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
-addFixationCross = (scene, c = 0x000000) ->
+addFixationCross = (scene, radius = 2.5, c = 0x000000, circle = false) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
 	angle = (vFOV/2) * Math.PI/180
-	ratio = 2.75 / (vFOV)
-	heigth = (Math.tan(angle) * 1000 * 2) * ratio
-	size = heigth
-	circleGeometry = new THREE.RingGeometry(size*0.95, size, 64)
-	#horCross = new THREE.PlaneGeometry(size, size * 0.05)
-	#verCross = new THREE.PlaneGeometry(size * 0.05, size)
-	#horCross.merge(verCross)
-	material = new THREE.MeshBasicMaterial color: c, transparent: true, depthTest: false, depthWrite: false
-	crossMesh = new THREE.Mesh circleGeometry, material
-	cross = new THREE.Object3D()
-	cross.add crossMesh
-	cross.position.z = -1000
-	cross.heigth = heigth
-	cross.ratio = ratio
-	scene.camera.add cross
-	scene.cross = cross
-	objectLoc scene.cross, -0.1, -0.1
-	cross.visible = true
+	ratio = radius / (vFOV)
+	size = (Math.tan(angle) * 1.7 * 2) * ratio
+
+	fixObj = new THREE.Object3D()
+
+	material = new THREE.MeshBasicMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1.0
+
+	if circle
+		geo = new THREE.RingGeometry(size*0.95, size, 64)
+		circle = new THREE.Mesh geo, material
+		fixObj.add circle
+	else
+		height = size*0.8
+		geo = new THREE.PlaneGeometry(size * 0.1, height)
+		ironL = new THREE.Mesh geo, material
+		ironL.position.x = -size
+
+		ironR = new THREE.Mesh geo, material
+		ironR.position.x = size
+
+		geo = new THREE.CircleGeometry(size*0.1, 64)
+		dot = new THREE.Mesh geo, material
+		fixObj.add dot
+
+		fixObj.add ironR
+		fixObj.add ironL
+		fixObj.add dot
+		
+
+
+	fixObj.position.z = -1.7
+	fixObj.heigth = size
+	fixObj.ratio = ratio
+	scene.camera.add fixObj
+	scene.fixcircles.push fixObj
+	objectLoc fixObj, -0.1, -0.1
+	fixObj.visible = true
 
 markersVisible = (scene) ->
 	for marker in scene.markers
@@ -797,17 +800,18 @@ markersVisible = (scene) ->
 
 addBackgroundColor = (scene) ->
 	geo = new THREE.PlaneGeometry 4000, 4000
-	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: false
+	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.z = -1100
 	scene.camera.add mesh
+
 
 addMarkerScreen = (scene, env) ->
 	aspect = screen.width / screen.height
 	vFOV = scene.camera.fov
 	angle = (vFOV/2) * Math.PI/180
 	ratio = 0.1
-	heigth = (Math.tan(angle) * 1000 * 2) * ratio
+	heigth = (Math.tan(angle) * 1.7 * 2) * ratio
 	scene.markers = []
 	pos = [[0.5 0.8], [1 - 0.15/aspect, 0.8], [0.15/aspect, 0.1], [1 - 0.15/aspect, 0.1], [1 - 0.15/aspect, 0.1], [0.15/aspect, 0.8], [0.5, 0.8]]
 	for i from 0 til 6
@@ -815,8 +819,9 @@ addMarkerScreen = (scene, env) ->
 		texture = THREE.ImageUtils.loadTexture path
 		marker = new THREE.Mesh do
 			new THREE.PlaneGeometry heigth, heigth
-			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: false, depthWrite: false
-		marker.position.z = -1000
+			new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: true, depthWrite: true, opacity: 1.0
+		#new THREE.MeshBasicMaterial map:texture, transparent: true, depthTest: false, depthWrite: false
+		marker.position.z = -1.7
 
 		h = 1/ratio * heigth
 		w = aspect * h
@@ -829,7 +834,97 @@ addMarkerScreen = (scene, env) ->
 listener = new THREE.AudioListener()
 annoyingSound = new THREE.Audio(listener)
 annoyingSound.load('res/sounds/beep-01a.wav')
-annoyingSound.setVolume(0.5)
+annoyingSound.setVolume(0.1)
+
+
+
+exportScenario \fixSwitch, (env) ->*
+
+	if rx == undefined
+		rx = xrad
+	if ry == undefined
+		ry = yrad
+	if l == undefined
+		l = length
+	if s == undefined
+		s = speed
+
+	scene = yield basecircleDriving env, rx, ry, l
+	scene.params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 120}
+
+	scene.fixcircles = []
+	addFixationCross scene
+	addFixationCross scene
+
+	addMarkerScreen scene, env
+	addBackgroundColor scene
+
+
+	startPoint = 0.5*l/scene.centerLine.getLength()
+	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.player.physical.position.z = -0.5*l
+	scene.playerControls.throttle = 0
+
+
+	rw = scene.centerLine.width
+	@let \scene, scene
+	yield @get \run
+
+	calculateFuture scene, 1, s/3.6
+	handleFixLocs scene
+	markersVisible scene
+
+	scene.visibTime = 2
+
+	while not env.controls.catch == true
+			yield P.delay 100
+	env.controls.probeReact = false
+
+
+	startTime = scene.time
+	scene.dT = startTime
+	scene.probeIndx = 0
+
+	scene.roadSecond = (s/3.6) /  scene.centerLine.getLength()
+	scene.futPos = startPoint
+	futPos scene
+
+	scene.onTickHandled ~>
+		handleSpeed scene, s
+		calculateFuture scene, 1, s/3.6
+		handleFixLocs scene
+
+		fixLogic scene, annoyingSound
+
+
+		z = scene.player.physical.position.z
+		x = scene.player.physical.position.x
+		cnt = onInnerLane scene
+
+		if cnt == false
+			scene.outside.out = true
+			scene.outside.totalTime += scene.time - scene.prevTime
+		else
+			scene.outside.out = false
+
+
+		scene.prevTime = scene.time
+		scene.player.prevSpeed = scene.player.getSpeed()*3.6
+
+		if scene.end == true || (scene.time - startTime) > 300
+			trialTime = scene.time - startTime
+			correct = scene.scoring.score/scene.scoring.maxScore * 100
+			listener.remove()
+			@let \done, passed: true, outro:
+				title: env.L "Passed"
+				content: """
+				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				 """
+			return false
+
+	return yield @get \done
+
 
 exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*
 
