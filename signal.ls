@@ -7,7 +7,10 @@ export Signal = ({onAdd=->}={}) ->
 
 	signal.add = signal
 	signal.dispatch = (...args) !->
-		listeners := [.. for listeners when (.. ...args) !== false]
+		oldListeners = listeners
+		listeners := []
+		survivors = [.. for oldListeners when (.. ...args) !== false]
+		listeners := survivors.concat listeners
 	signal.destroy = ->
 		listeners := []
 		signal.dispatch = -> false

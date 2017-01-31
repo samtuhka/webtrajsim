@@ -6,11 +6,9 @@ Co = P.coroutine
 seqr = require './seqr.ls'
 {loadCollada, mergeObject} = require './utils.ls'
 
-{perlin=noise} = require './vendor/perlin.js'
+perlin = require './vendor/perlin.js'
 
-# Todo: ugly
-window.THREE = THREE = require 'three'
-require './three.js/examples/js/SkyShader.js'
+THREE = require 'three'
 
 # TODO: Find a good fidelity/performance
 # compromise parameters
@@ -45,8 +43,8 @@ export class Scene
 			bodies: []*/
 
 		@visual ?= new THREE.Scene
-		aspect = screen.width / screen.height
-		@camera ?= new THREE.PerspectiveCamera 70/aspect, 1, 0.01, 450000
+		FOV = 70.0*(9/16)
+		@camera ?= new THREE.PerspectiveCamera FOV, 1, 0.01, 450000
 
 		@time = 0
 
@@ -103,16 +101,18 @@ export addGround = (scene) ->
 	terrainSize = 1000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
+	anisotropy = 16
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/sandtexture.norm.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
 	groundNorm.repeat.set textureRep, textureRep
-	groundTex.anisotropy = 12 #renderer.getMaxAnisotropy()
+	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
+	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
 	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
-		normalMap: groundNorm
+		#normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
 	terrain.receiveShadow = true
@@ -134,9 +134,9 @@ export addGround = (scene) ->
 	roadGeo = new THREE.PlaneGeometry terrainSize, roadWidth, 0, 0
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_texture.jpg'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
-	roadTex.anisotropy = 12#renderer.getMaxAnisotropy()
+	roadNorm.anisotropy = roadTex.anisotropy = anisotropy
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
-	roadTex.minFilter = THREE.LinearFilter
+	roadNorm.minFilter = roadTex.minFilter = THREE.LinearFilter
 	roadTex.wrapS = roadTex.wrapT = THREE.RepeatWrapping
 	roadNorm.wrapS = roadNorm.wrapT = THREE.RepeatWrapping
 	roadTex.repeat.set textureRep/2.0, 1
@@ -144,7 +144,7 @@ export addGround = (scene) ->
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
 		shininess: 20
-		normalMap: roadNorm
+		#normalMap: roadNorm
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0

@@ -4,13 +4,27 @@
 		<meta charset="UTF-8">
 		<title>The Busy Tailgater</title>
 		<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.css">
-		<script src="node_modules/systemjs/dist/system.browserify.src.js"></script>
+		<template id="launch-dynamic">
+		<script src="node_modules/systemjs/dist/system.src.js"></script>
 		<script src="node_modules/system-npmlocator/npmlocator.js"></script>
-		<script src="node_modules/system-livescript/enable-ls.js"></script>
 		<script>
-			System.import('./paths-config.ls').then(function () {
-				System.import("./ui-main.ls");
+			System.import('./config.js')
+			.then(function (config) {
+				config(System);
+				System.import('./ui-main.ls');
 			});
+		</script>
+		</template>
+		<template id="launch-static">
+		<script src="ui-main.ls.js"></script>
+		</template>
+		<script type="text/javascript">
+			var template = "#launch-static";
+			if(document.location.protocol == "file:") {
+				template = "#launch-dynamic";
+			}
+			template = document.querySelector(template);
+			document.write(template.innerHTML);
 		</script>
 		<style type="text/css">
 			body, html {
@@ -131,6 +145,17 @@
 
 			.helper-overlay h2 {
 				margin: 0;
+			}
+
+			.centered-table th {
+				text-align: center;
+			}
+
+			.centered-table td {
+				text-align: center;
+			}
+			.hide-cursor {
+				cursor: none;
 			}
 		</style>
 	</head>

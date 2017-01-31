@@ -4,8 +4,11 @@ jStat = require 'jstat'
 seqr = require './seqr.ls'
 {Signal} = require './signal.ls'
 
-class TheThing
-	({@oddballRate=0}={}) ->
+class AngledThing
+	({@oddballRate=0, @angle, @totalHeight=1.0}={}) ->
+		@rndpos = ~> (Math.random! - 0.5)*@totalHeight
+		@targetY = @rndpos!
+		@originY = @rndpos!
 		objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
 		objectMaterial = new THREE.MeshBasicMaterial color: 0xffffff
 		@mesh = new THREE.Mesh objectGeometry, objectMaterial
@@ -22,22 +25,18 @@ class TheThing
 		prevPos = @mesh.position.clone()
 		x0 = 1
 		x1 = -0.5
-		@mesh.position.x = x = @velocity*@t + x0
-
 		total = (x0 - x1)
-		h = -0.3
-		y0 = 0
 		d = Math.abs(@velocity*@t)
+		@mesh.position.x = x = @velocity*@t + x0
+		relx = d/total
+		@mesh.position.y = (1 - relx)*@originY + relx*@targetY
 
-		a = -4*(h - y0)/(total**2)
-		b = 4*(h - y0)/total
-		@mesh.position.y = y0 + a*d**2 + b*d
-
-		# Hack!
 		if prevPos.x > 0 and @mesh.position.x < 0 and (not @manipulated) and (Math.random() < @oddballRate)
-			manip = Math.sign((Math.random() - 0.5)*2)*0.1
-			@t += manip
+			manip = Math.sign(Math.random() - 0.5)*0.05
+			console.log manip
 			@manipulated = true
+			@targetY += manip
+			@originY += manip
 
 
 
@@ -120,6 +119,155 @@ export React = seqr.bind ({meanDelay=0.5, probeDuration=1, fadeOutDuration=0.2}=
 
 	return self
 
+export class SpatialCatch
+	({@oddballRate=0.0, @controls}={}) ->
+		@objectHandled = Signal()
+		@objectCatched = Signal()
+		@objectMissed = Signal()
+		@objectAdded = Signal()
+
+		@camera = new THREE.OrthographicCamera -1, 1, -1, 1, 0.1, 10
+			..position.z = 5
+
+		@camera.updateProjectionMatrix!
+		@camera.updateMatrixWorld!
+		@camera.matrixWorldInverse.getInverse @camera.matrixWorld
+		@frustum = new THREE.Frustum
+		@frustum.setFromMatrix(
+			new THREE.Matrix4().multiplyMatrices @camera.projectionMatrix, @camera.matrixWorldInverse
+		)
+
+		@scene = new THREE.Scene
+
+
+		targetWidth = 0.03
+		targetHeight = @targetHeight = 0.5
+		@targetX = -0.5
+
+		@inactiveOpacity = 0.3
+		@activeOpacity = 1.0
+		@topTarget = new THREE.Mesh do
+			new THREE.PlaneGeometry targetWidth, targetHeight
+			new THREE.MeshBasicMaterial do
+				color: 0x8B0000
+				opacity: @inactiveOpacity
+				transparent: true
+		@topTarget.rotation.y = -Math.PI
+		@topTarget.position.y = -targetHeight/2.0
+		@topTarget.position.x = @targetX
+		@scene.add @topTarget
+
+		@bottomTarget = new THREE.Mesh do
+			new THREE.PlaneGeometry targetWidth, targetHeight
+			new THREE.MeshBasicMaterial do
+				color: 0x00008B
+				opacity: @inactiveOpacity
+				transparent: true
+		@bottomTarget.rotation.y = -Math.PI
+		@bottomTarget.position.y = targetHeight/2.0
+		@bottomTarget.position.x = @targetX
+		@scene.add @bottomTarget
+
+		maskWidth = 0.3
+		@mask = new THREE.Mesh do
+			new THREE.PlaneGeometry maskWidth, targetHeight*2
+			new THREE.MeshBasicMaterial do
+				color: 0x000000
+		@mask.rotation.y = -Math.PI
+		@scene.add @mask
+
+		@meanDelay = 0.5
+		@objects = []
+		@_objCount = 0
+		@t = 0
+		@prevBall = 0
+
+	_readyForNew: (dt) ->
+		return false if @objects.length > 0
+		return @t - @prevBall > @meanDelay
+		#Math.random() > Math.exp(-1/@meanDelay * dt)
+
+	tick: (dt) ->
+		@t += dt
+		if @_readyForNew dt
+			thing = new AngledThing do
+				oddballRate: @oddballRate
+				totalHeight: 0.3
+			thing.id = @_objCount
+			@_objCount += 1
+			@scene.add thing.mesh
+			@objectAdded.dispatch thing
+			@objects.push thing
+
+		@topTarget.material.opacity = @inactiveOpacity
+		@bottomTarget.material.opacity = @inactiveOpacity
+		if @controls.up and not @controls.down
+			@topTarget.material.opacity = @activeOpacity
+		if @controls.down and not @controls.up
+			@bottomTarget.material.opacity = @activeOpacity
+
+		prev = @objects
+		@objects = []
+		for thing in prev
+			prevX = thing.mesh.position.x
+			thing.tick dt
+			if prevX > @targetX and thing.mesh.position.x < @targetX
+				y = thing.mesh.position.y
+				caught = y < 0 and @controls.up
+				caught = caught or y > 0 and @controls.down
+				caught = caught and not (@controls.up and @controls.down)
+				if caught
+					@objectHandled.dispatch thing
+					@objectCatched.dispatch thing
+					@scene.remove thing.mesh
+					@prevBall = @t
+					continue
+
+			if not @frustum.containsPoint thing.mesh.position
+				@scene.remove thing.mesh
+				@objectMissed.dispatch thing
+				@objectHandled.dispatch thing
+				@prevBall = @t
+				continue
+			@objects.push thing
+
+
+class BallisticThing
+	({@oddballRate=0}={}) ->
+		objectGeometry = new THREE.SphereGeometry 0.01, 32, 32
+		objectMaterial = new THREE.MeshBasicMaterial color: 0xffffff
+		@mesh = new THREE.Mesh objectGeometry, objectMaterial
+		@mesh.position.set 1, 0, 0
+		@velocity = -1.5
+		#@velocity.multiplyScalar Math.abs jStat.normal.sample(2, 0.5)
+		@manipulated = false
+		@t = 0
+
+	tick: (dt) ->
+		@t += dt
+		#step = @velocity.clone().multiplyScalar dt
+		#@mesh.position.add step
+		prevPos = @mesh.position.clone()
+		x0 = 1
+		x1 = -0.5
+		@mesh.position.x = x = @velocity*@t + x0
+
+		total = (x0 - x1)
+		h = -0.3
+		y0 = 0
+		d = Math.abs(@velocity*@t)
+
+		a = -4*(h - y0)/(total**2)
+		b = 4*(h - y0)/total
+		@mesh.position.y = y0 + a*d**2 + b*d
+
+		# Hack!
+		if prevPos.x > 0 and @mesh.position.x < 0 and (not @manipulated) and (Math.random() < @oddballRate)
+			manip = Math.sign((Math.random() - 0.5)*2)*0.1
+			@t += manip
+			@manipulated = true
+
+
 
 export class Catchthething
 	({@oddballRate=0}={}) ->
@@ -173,7 +321,7 @@ export class Catchthething
 
 	tick: (dt) ->
 		if @_readyForNew dt
-			thing = new TheThing oddballRate: @oddballRate
+			thing = new BallisticThing oddballRate: @oddballRate
 			@scene.add thing.mesh
 			@objects.push thing
 

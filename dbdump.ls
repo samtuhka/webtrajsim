@@ -1,9 +1,10 @@
 {Sessions} = require './datalogger.ls'
 $ = require 'jquery'
-{saveAs} = require './vendor/FileSaver.js'
+saveAs = require './vendor/FileSaver.js'
 seqr = require './seqr.ls'
 msgpack = require 'msgpack-lite'
 pako = require 'pako'
+
 
 getSessionData = (db, session) ->
 	db.entries.query('sessionId').only(session.sessionSurrogateId).execute()

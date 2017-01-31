@@ -1,6 +1,6 @@
 $ = require 'jquery'
 seqr = require './seqr.ls'
-livescript = require 'LiveScript'
+livescript = require 'livescript'
 
 
 module.exports = localizer = ->

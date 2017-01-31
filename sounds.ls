@@ -1,5 +1,6 @@
 $ = require 'jquery'
 P = require 'bluebird'
+seqr = require './seqr.ls'
 {sum, sortBy, zip} = require 'prelude-ls'
 
 loadBuffer = (url) -> new Promise (accept, reject) ->
@@ -67,3 +68,54 @@ export DefaultEngineSound = (ctx) ->
 		3000: f '3000rpm'
 	.then (samples) -> SoundInterpolator ctx, samples
 
+export WarningSound = seqr.bind (env, {gain=0.1}={}) ->*
+	{audioContext} = env
+	buffer = yield loadAudio audioContext, './res/sounds/beep.wav'
+	source = void
+	self =
+		start: ->
+			return if source?
+			source := audioContext.createBufferSource()
+			source.buffer = buffer
+			source.loop = true
+			gainNode = audioContext.createGain()
+			gainNode.gain.value = gain
+			source.connect gainNode
+			gainNode.connect audioContext.destination
+			source.start()
+		stop: ->
+			return if not source?
+			source.stop()
+			source := void
+
+		isPlaying:~ -> source?
+	return self
+
+
+export BellPlayer = seqr.bind ({audioContext}) ->*
+	ctx = audioContext
+	buffer = yield loadAudio audioContext, './res/sounds/bell.ogg'
+	seqr.bind ({gain=1.0}={}) ->*
+		sample = ctx.createBufferSource()
+		sample.buffer = buffer
+		source = ctx.createGain()
+		source.gain.value = gain
+		sample.connect source
+		source.connect audioContext.destination
+		sample.start()
+		yield new P (accept) ->
+			sample.onended = accept
+
+export NoisePlayer = seqr.bind ({audioContext}) ->*
+	ctx = audioContext
+	buffer = yield loadAudio audioContext, './res/sounds/noiseburst.wav'
+	seqr.bind ({gain=1.0}={}) ->*
+		sample = ctx.createBufferSource()
+		sample.buffer = buffer
+		source = ctx.createGain()
+		source.gain.value = gain
+		sample.connect source
+		source.connect audioContext.destination
+		sample.start()
+		yield new P (accept) ->
+			sample.onended = accept

@@ -5,6 +5,7 @@ $ = require 'jquery'
 P = require 'bluebird'
 seqr = require './seqr.ls'
 
+require './node_modules/three/examples/js/SkyShader.js'
 
 {loadCollada, mergeObject} = require './utils.ls'
 
@@ -26,7 +27,7 @@ svgToCanvas = seqr.bind (el, width, height, pw=0, ph=0) ->*
 	DOMURL.revokeObjectURL img.src
 	return canvas
 
-svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
+svgToSign = seqr.bind (img, {pixelsPerMeter=100}={}) ->*
 	texSize = (v) ->
 		v = Math.round v*pixelsPerMeter
 		return 0 if v < 1
@@ -56,16 +57,104 @@ svgToSign = seqr.bind (img, {pixelsPerMeter=100}) ->*
 	face.height = faceHeight
 	return face
 
-export SineGrating = ({resolution=512}={}) ->
+export SineGratingBitmap = ({resolution=1024, cycles=8}={}) ->
 	canvas = document.createElement 'canvas'
 	canvas.width = resolution
 	canvas.height = resolution
 	ctx = canvas.getContext '2d'
+	img = ctx.createImageData resolution, resolution
 
-	image = new Image()
-	image.src = 'res/world/grating_hor.png'
-	ctx.drawImage(image, 0, 0, resolution, resolution)
+	setPixel = (x, y, value) ->
+		i = (y*resolution + x)*4
+		c = value*255
+		img.data[i] = 255
+		img.data[i + 1] = 255
+		img.data[i + 2] = 255
+		img.data[i + 3] = c
+
+	for x til resolution
+		for y til resolution
+			rx = x/(resolution/2) - 1
+			ry = y/(resolution/2) - 1
+			d = Math.sqrt (rx**2 + ry**2)
+
+			v = (Math.cos(rx*cycles*Math.PI) + 1)/2
+			v *= Math.cos d*Math.PI/2
+			v *= d < 1.0
+			setPixel x, y, v
+	ctx.putImageData img, 0, 0
 	return canvas
+
+SineGrating = (opts={}) ->
+	canvas = SineGratingBitmap opts
+
+	texture = new THREE.Texture canvas
+	texture.needsUpdate = true
+	face = new THREE.Mesh do
+		new THREE.PlaneGeometry 1, 1
+		new THREE.MeshLambertMaterial do
+			map: texture
+			side: THREE.DoubleSide
+			transparent: true
+
+	return face
+
+export ArrowMarker = seqr.bind (opts={}) ->*
+	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
+	marker = new THREE.Object3D
+	marker.signs = signs = {}
+	load = seqr.bind (name, file) ->*
+		doc = $ yield $.ajax file, dataType: 'xml'
+		img = $ doc.find "svg"
+		obj = yield svgToSign img
+		obj.visible = false
+		marker.add obj
+		signs[name] = obj
+
+	marker.setSign = (name) ->
+		for n, o of signs
+			o.visible = false
+		return if name not of signs
+		signs[name].visible = true
+
+	target = SineGrating opts
+	target.visible = false
+	target.transparent = true
+	signs.target = target
+	marker.add target
+
+	marker.setFrequency = (frequency) ->
+		return if frequency == target._frequency
+		target.material.map = new THREE.Texture(SineGratingBitmap cycles: frequency)
+		target.material.map.needsUpdate = true
+		target.material.needsUpdate = true
+		target._frequency = frequency
+
+	yield load 'cue', './res/signs/arrow-circle.svg'
+	yield load 'mask', './res/signs/arrow-mask.svg'
+	yield load 'wait', './res/signs/arrow-wait.svg'
+	yield load 'query', './res/signs/arrow-query.svg'
+	yield load 'success', './res/signs/arrow-success.svg'
+	yield load 'failure', './res/signs/arrow-failure.svg'
+
+	return marker
+
+export TrackingMarker = seqr.bind ->*
+	#doc = $ yield $.ajax "./res/signs/arrow.svg", dataType: 'xml'
+	doc = $ yield $.ajax "./res/signs/trackerbr.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	target = yield svgToSign img, pixelsPerMeter: 2000
+	target.position.z = -2
+	doc = $ yield $.ajax "./res/signs/trackerbar.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	crosshair = yield svgToSign img, pixelsPerMeter: 2000
+	marker = new THREE.Object3D
+	marker.add crosshair
+	marker.add target
+	marker.crosshair = crosshair
+	marker.target = target
+	return marker
+
 
 export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 	doc = $ yield $.ajax "./res/signs/speedsign.svg", dataType: 'xml'
@@ -180,6 +269,51 @@ export StopSign = seqr.bind ({height=2, poleRadius=0.07/2}=opts={}) ->*
 			scene.bindPhys watcher, sign
 
 	return self
+
+export BallBoard = seqr.bind ->*
+	doc = $ yield $.ajax "./res/items/circle.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	ball = yield svgToSign img
+	ball.scale.set 0.05, 0.05, 0.05
+	ball.position.y = 0.05/2
+
+	doc = $ yield $.ajax "./res/items/level.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	board = yield svgToSign img, pixelsPerMeter: 1000
+
+	doc = $ yield $.ajax "./res/items/balancepoint.svg", dataType: 'xml'
+	img = $ doc.find "svg"
+	midpoint = yield svgToSign img, pixelsPerMeter: 1000
+
+	obj = new THREE.Object3D
+	obj.add midpoint
+
+	turnable = new THREE.Object3D
+	turnable.add ball
+	obj.ball = ball
+	turnable.add board
+
+	obj.turnable = turnable
+	obj.add turnable
+
+	return obj
+
+export ConstructionBarrel = seqr.bind ->*
+	data = yield loadCollada 'res/signs/construction_barrel.dae'
+	model = data.scene.children[0]
+	model.scale.set 0.03, 0.03, 0.03
+
+	bbox = new THREE.Box3().setFromObject model
+	halfbox = new Cannon.Vec3().copy bbox.max.clone().sub(bbox.min).divideScalar 2
+	phys = new Cannon.Body mass: 0
+		..addShape (new Cannon.Box halfbox)
+		..objectClass = 'barrier'
+
+	addTo: (scene) ->
+		scene.visual.add model
+		scene.physics.add phys
+		scene.bindPhys phys, model
+	position: phys.position
 
 
 
@@ -323,3 +457,21 @@ export SceneDisplay = seqr.bind ({width=1024, height=1024}={}) ->*
 
 	object: object
 	renderTarget: rtTexture
+
+export addMarkerScreen = (scene) ->
+	aspect = screen.width / screen.height
+	t = scene.camera.top
+	b = scene.camera.bottom
+	l = -aspect
+	r = aspect
+	s = 0.2
+	pos = [[l + s, t - s], [r - s, t - s], [l + s, -t + s], [r - s, -t + s]]
+	for i from 0 til 4
+		path = 'res/markers/' + i + '_marker.png'
+		texture = THREE.ImageUtils.loadTexture path
+		marker = new THREE.Mesh do
+			new THREE.PlaneGeometry s, s
+			new THREE.MeshBasicMaterial map:texture
+		marker.position.x = pos[i][0]
+		marker.position.y = pos[i][1]
+		scene.visual.add marker

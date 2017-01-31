@@ -1,9 +1,10 @@
-<script src="node_modules/systemjs/dist/system.browserify.src.js"></script>
+<script src="node_modules/systemjs/dist/system.src.js"></script>
 <script src="node_modules/system-npmlocator/npmlocator.js"></script>
-<script src="node_modules/system-livescript/enable-ls.js"></script>
 <script>
-	System.import('./paths-config.ls').then(function () {
-		System.import("./dbdump.ls");
+	System.import('./config.js')
+	.then(function (config) {
+		config(System);
+		System.import('./dbdump.ls');
 	});
 </script>
 

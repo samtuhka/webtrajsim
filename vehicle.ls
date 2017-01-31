@@ -4,7 +4,7 @@ Co = P.coroutine
 
 THREE = require 'three'
 window.THREE = THREE
-require './three.js/examples/js/loaders/ColladaLoader.js'
+require './node_modules/three/examples/js/loaders/ColladaLoader.js'
 Cannon = require 'cannon'
 {Signal} = require './signal.ls'
 
@@ -57,7 +57,7 @@ loadViva = Co ->*
 		if obj.parent?
 			obj.parent.updateMatrixWorld true
 			obj.applyMatrix obj.parent.matrixWorld
-			obj.parent = void
+			obj.parent = null
 		obj.updateMatrixWorld(true)
 		for child in obj.children
 			child.applyMatrix obj.matrix
@@ -113,16 +113,24 @@ loadViva = Co ->*
 		lights.push light
 
 	body.add ...lights*/
+
+
 	body = mergeObject body
+	brakeLightMaterials = []
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'Red'
+				brakeLightMaterials.push material
+
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1
 	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
-	#eye.position.y = 2.00
-	#eye.position.z = -1.1
-	#eye.position.x = 5.7
-	#eye.rotation.y = 2*Math.PI/4
+
+	#eye.position.x += 10.0
+	#eye.rotation.y -= Math.PI/2.0
 
 	body.add eye
 	wheels = scene.getObjectByName "Wheels"
@@ -133,15 +141,24 @@ loadViva = Co ->*
 	body: body
 	wheels: wheels
 	eye: eye
+	setBrakelight: (isOn) ->
+		for material in brakeLightMaterials
+			if isOn
+				material.emissive.r = 200
+			else
+				material.emissive.r = 0
+			material.needsUpdate = true
 
-export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
-	{body, wheels, eye} = yield loadViva()
+export addVehicle = Co (scene, controls=new DummyControls, {objectName, steeringNoise=-> 0.0}={}) ->*
+	{body, wheels, eye, setBrakelight} = yield loadViva()
 
 	syncModels = new Signal
 
 	cogY = 0.6
 
-	scene.visual.add body
+	visual = new THREE.Object3D()
+	scene.visual.add visual
+	visual.add body
 
 	bbox = new THREE.Box3().setFromObject body
 	bbox.min.y += 0.3
@@ -165,7 +182,7 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 
 	#controls = new MouseController $ 'body'
 
-	enginePower = 6000									# Engine power
+	enginePower = 6000										# Engine power
 	brakePower = 1000										# Brake power
 	brakeExponent = 2000										# Brake response
 	brakeResponse = (pedal) -> (brakeExponent**pedal - 1)/brakeExponent*brakePower
@@ -182,8 +199,10 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 
 
 	wheels = wheels.children
+	wheelModels = []
 	for let wheel in wheels
 		wheel = wheel.clone()
+		wheelModels.push wheel
 		wbb = (new THREE.Box3).setFromObject wheel
 		wRadius = (wbb.max.z - wbb.min.z)/2.0
 		{x, y, z} = wheel.position
@@ -199,19 +218,21 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 		wi = car.wheelInfos[wii]
 		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
 
-		scene.visual.add wheel
+		visual.add wheel
 
 		syncModels.add ->
 			car.updateWheelTransform wii
 			wheel.position.copy wi.worldTransform.position
 			wheel.quaternion.copy wi.worldTransform.quaternion
 
-		scene.beforePhysics.add ->
+		scene.beforePhysics.add (dt) ->
+			setBrakelight controls.brake > 0
 			mag = Math.abs controls.steering
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
 			mag = Math.max mag, 0
-			steering = mag*dir*maxSteer*0.8
+			steering = mag*dir*maxSteer
+			steering += steeringNoise dt
 			if z > 0
 				# Front wheels
 				wi.brake = brakeResponse controls.brake
@@ -219,7 +240,6 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 			else
 				# Back wheels
 				wi.engineForce = -enginePower*controls.throttle*controls.direction
-
 	syncModels.add ->
 		body.position.copy bodyPhys.position
 		body.position.y -= cogY
@@ -236,15 +256,18 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName}={}) ->*
 
 	onCollision = Signal!
 	bodyPhys.addEventListener "collide", (e) ->
-		return if e.body.preventCollisionEvent? e
+		return if e.body.preventCollisionEvent?
 		onCollision.dispatch e
 
 	getSpeed: ->
-		return 0 if not car.currentVehicleSpeedKmHour?
+		if not car.currentVehicleSpeedKmHour? or not isFinite car.currentVehicleSpeedKmHour
+			return 0.0
 		car.currentVehicleSpeedKmHour/3.6
 	eye: eye
 	physical: bodyPhys
 	body: body
+	visual: visual
+	wheels: wheelModels
 	forceModelSync: -> syncModels.dispatch()
 	controls: controls
 	onCollision: onCollision

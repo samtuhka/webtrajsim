@@ -1,6 +1,7 @@
 $ = require 'jquery'
 deparam = require 'jquery-deparam'
-P = require 'bluebird'
+P = Promise = require 'bluebird'
+Promise.config longStackTraces: true
 Co = P.coroutine
 seqr = require './seqr.ls'
 
@@ -11,19 +12,23 @@ ui = require './ui.ls'
 
 localizer = require './localizer.ls'
 
-window.THREE = THREE
+window.THREE = THREE = require 'three'
 window.CANNON = require 'cannon'
 require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
 
 eachFrame = (f) -> new P (accept, reject) ->
+	stopped = false
 	clock = new THREE.Clock
 	tick = ->
+		if stopped
+			return
+		requestAnimationFrame tick
 		dt = clock.getDelta()
+		return if dt == 0
 		result = f dt
 		if result?
 			accept result
-		else
-			requestAnimationFrame tick
+			stopped := true
 	tick()
 
 audioContext = new AudioContext
@@ -35,9 +40,32 @@ getLogger = seqr.bind ->*
 		return _logger
 
 	startTime = (new Date).toISOString()
-	sessions = yield Sessions("wtsSessions")
+	p = Sessions("wtsSessions")
+	console.log p
+	sessions = yield p
 	_logger := yield sessions.create date: startTime
 	return _logger
+
+_wsLogger = void
+wsLogger = seqr.bind (url) ->*
+	if _wsLogger?
+		return _wsLogger
+
+	socket = yield new Promise (accept, reject) ->
+		socket = new WebSocket url
+		socket.onopen = -> accept socket
+		socket.onerror = (ev) ->
+			console.error "Failed to open logging socket", ev
+			reject "Failed to open logging socket #url."
+	_wsLogger :=
+		write: (data) ->
+			socket.send JSON.stringify do
+				time: Date.now() / 1000
+				data: data
+		close: ->
+			#socket.close()
+	return _wsLogger
+
 
 dumpPhysics = (world) ->
 	ret = world{time}
@@ -60,7 +88,8 @@ export newEnv = seqr.bind !->*
 	opts <<< deparam window.location.search.substring 1
 
 	env.L = localizer()
-	yield env.L.load 'locales/fi.lson'
+	lang = opts.lang ? 'en'
+	yield env.L.load "locales/#{lang}.lson"
 
 	container = $('#drivesim').empty().fadeIn()
 
@@ -71,6 +100,7 @@ export newEnv = seqr.bind !->*
 	$(window).on "resize", dispatchResize
 	@finally !->
 		$(window).off "resize", dispatchResize
+		onSize.destroy()
 
 	env <<<
 		container: container
@@ -78,7 +108,16 @@ export newEnv = seqr.bind !->*
 		onSize: onSize
 		opts: opts
 
-	env.logger = yield getLogger!
+	if not opts.disableDefaultLogger
+		env.logger = yield getLogger!
+	else
+		env.logger =
+			write: ->
+			close: ->
+	if opts.wsLogger?
+		env.logger = yield wsLogger opts.wsLogger
+	@finally ->
+		env.logger.close()
 
 	if opts.controller?
 		env.controls = controls = yield WsController.Connect opts.controller
@@ -86,6 +125,7 @@ export newEnv = seqr.bind !->*
 		env.controls = new KeyboardController
 	@finally ->
 		env.controls.close()
+
 	env.controls.change (...args) ->
 		env.logger.write controlsChange: args
 
@@ -93,6 +133,7 @@ export newEnv = seqr.bind !->*
 	id = setInterval env.uiUpdate.dispatch, 1/60*1000
 	@finally !->
 		clearInterval id
+		env.uiUpdate.destroy()
 
 	env.finally = @~finally
 
@@ -108,6 +149,7 @@ trial = 0
 export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scope = newEnv()
 	env = yield scope.get \env
+	@let \env, env
 	# Setup
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
@@ -130,8 +172,12 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	@finally ->
 		THREE.Cache.clear()
-		# A hack to clear some caches in Cannon
-		(new CANNON.World).step(1/60)
+		# A hack to clear some caches in Cannon. Doesn't
+		# clear everything.
+		(new CANNON.World).step(1/20)
+		# And similar hack for three.js
+		renderer.render (new THREE.Scene), scene.camera
+		renderer.dispose()
 	#renderer.shadowMapEnabled = true
 	#renderer.shadowMapType = THREE.PCFShadowMap
 	renderer.autoClear = false
@@ -169,6 +215,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	el.hide()
 	env.container.append el
 
+
 	# Run
 	yield P.resolve scene.preroll()
 	yield ui.waitFor el~fadeIn
@@ -189,14 +236,14 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 	env.notifications.fadeOut()
 	yield ui.waitFor el~fadeOut
-	{passed, outro} = yield scenario
+	{passed, outro} = result = yield scenario
 	el.remove()
 
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title
 			@ \subtitle .append outro.subtitle
 			@ \content .append outro.content
-			me.let \done, passed: passed, outro: @
+			me.let \done, passed: passed, outro: @, result: result
 	@let \outro, [outro]
 	yield outro
 	scope.let \destroy

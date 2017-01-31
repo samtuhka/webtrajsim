@@ -3,6 +3,7 @@ P = require 'bluebird'
 seqr = require './seqr.ls'
 {runScenario, runScenarioCurve, newEnv} = require './scenarioRunner.ls'
 scenario = require './scenario.ls'
+sounds = require './sounds.ls'
 
 L = (s) -> s
 
@@ -63,21 +64,132 @@ export mulsimco2015 = seqr.bind ->*
 	env.let \destroy
 	yield env
 
+<<<<<<< HEAD
+=======
+
+# Down the rabbit hole with hacks...
+wrapScenario = (f) -> (scenario) ->
+	wrapper = f(scenario)
+	if not wrapper.scenarioName?
+		wrapper.scenarioName = scenario.scenarioName
+	return wrapper
+
+laneChecker = wrapScenario (scenario) ->
+	(env, ...args) ->
+		env.opts.forceSteering = true
+		env.opts.steeringNoise = true
+		task = scenario env, ...args
+
+		task.get(\scene).then seqr.bind (scene) !->*
+			return if not scene.player
+			warningSound = yield sounds.WarningSound env
+			lanecenter = scene.player.physical.position.x
+			# This is rather horrible!
+			scene.afterPhysics (dt) !->
+				overedge = -10
+				for wheel in scene.player.wheels
+					overedge = Math.max (wheel.position.x - 0.0), overedge
+					overedge = Math.max ((-7/2.0) - wheel.position.x), overedge
+				if not overedge? or not isFinite overedge
+					return
+				if overedge < -0.3
+					warningSound.stop()
+				else
+					warningSound.start()
+				return if overedge < 0.2
+				task.let \done, passed: false, outro:
+					title: env.L "Oops!"
+					content: env.L "You drove out of your lane."
+			scene.onExit ->
+				warningSound.stop()
+		return task
+
+export blindFollow17 = seqr.bind ->*
+	monkeypatch = laneChecker
+
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
+
+	#yield runScenario scenario.runTheLight
+	yield runUntilPassed monkeypatch scenario.closeTheGap, passes: 3
+
+	yield runUntilPassed monkeypatch scenario.stayOnLane
+	yield runUntilPassed monkeypatch scenario.speedControl
+	yield runUntilPassed monkeypatch scenario.blindSpeedControl
+
+	yield runUntilPassed monkeypatch scenario.followInTraffic
+	yield runUntilPassed monkeypatch scenario.blindFollowInTraffic
+
+	monkeypatch = wrapScenario (scenario) ->
+		scenario = laneChecker scenario
+		(env, ...args) ->
+			env.notifications.hide()
+			return scenario env, ...args
+
+	ntrials = 4
+	scenarios = []
+		.concat([scenario.followInTraffic]*ntrials)
+		.concat([scenario.blindFollowInTraffic]*ntrials)
+	scenarios = shuffleArray scenarios
+
+	for scn in scenarios
+		yield runScenario monkeypatch scn
+
+	intervals = shuffleArray [1, 1, 2, 2, 3, 3]
+	for interval in intervals
+		yield runScenario monkeypatch scenario.forcedBlindFollowInTraffic, interval: interval
+
+	env = newEnv!
+	yield scenario.experimentOutro yield env.get \env
+	env.let \destroy
+	yield env
+
+export defaultExperiment = mulsimco2015
+
 export freeDriving = seqr.bind ->*
 	yield runScenario scenario.freeDriving
 
-export blindPursuit = seqr.bind ->*
-	nTrials = 50
-	yield runScenario scenario.blindPursuit,
-		nTrials: nTrials
-		oddballRate: 0.0
+runWithNewEnv = seqr.bind (scenario, ...args) ->*
+	envP = newEnv!
+	env = yield envP.get \env
+	ret = yield scenario env, ...args
+	envP.let \destroy
+	yield envP
+	return ret
 
-	for i from 0 til 10
-		yield runScenario scenario.blindPursuit,
-			nTrials: nTrials
-			oddballRate: 0.1
+export blindPursuit = seqr.bind ->*
+	yield runWithNewEnv scenario.participantInformationBlindPursuit
+	totalScore =
+		correct: 0
+		incorrect: 0
+	yield runWithNewEnv scenario.soundSpook, preIntro: true
+
+	runPursuitScenario = seqr.bind (...args) ->*
+		task = runScenario ...args
+		env = yield task.get \env
+		res = yield task.get \done
+
+		totalScore.correct += res.result.score.correct
+		totalScore.incorrect += res.result.score.incorrect
+		totalPercentage = totalScore.correct/(totalScore.correct + totalScore.incorrect)*100
+		res.outro \content .append $ env.L "%blindPursuit.totalScore", score: totalPercentage
+		yield task
+		return res
+	res = yield runPursuitScenario scenario.pursuitDiscriminationPractice
+	frequency = res.result.estimatedFrequency
+	nBlocks = 2
+	trialsPerBlock = 2
+	for block from 0 til nBlocks
+		for trial from 0 til trialsPerBlock
+			yield runPursuitScenario scenario.pursuitDiscrimination, frequency: frequency
+		yield runWithNewEnv scenario.soundSpook
+
 	env = newEnv!
-	yield scenario.experimentOutro yield env.get \env
+	yield scenario.experimentOutro (yield env.get \env), (env) ->
+		totalPercentage = totalScore.correct/(totalScore.correct + totalScore.incorrect)*100
+		@ \content .append env.L '%blindPursuit.finalScore', score: totalPercentage
 	env.let \destroy
 	yield env
 
@@ -97,6 +209,7 @@ export singleScenario = seqr.bind ->*
 export memkiller = seqr.bind !->*
 	#loader = scenario.minimalScenario
 	loader = scenario.blindFollowInTraffic
+	#loader = scenario.freeDriving
 	#for i from 1 to 1
 	#	console.log i
 	#	scn = loader()
@@ -106,7 +219,7 @@ export memkiller = seqr.bind !->*
 	#	yield scn
 	#	void
 
-	for i from 1 to 10
+	for i from 1 to 1
 		console.log i
 		yield do seqr.bind !->*
 			runner = runScenario loader
@@ -124,12 +237,35 @@ export memkiller = seqr.bind !->*
 			yield runner
 			console.log "Done"
 
-		console.log "Memory usage: ", window.performance.memory.totalJSHeapSize/1024/1024
+		console.log "Memory usage: ", window?performance?memory?totalJSHeapSize/1024/1024
 		if window.gc
 			for i from 0 til 10
 				window.gc()
-			console.log "Memory usage (after gc): ", window.performance.memory.totalJSHeapSize/1024/1024
+			console.log "Memory usage (after gc): ", window?performance?memory?totalJSHeapSize/1024/1024
 	return i
+
+export scenehanger = seqr.bind !->*
+	#monkeypatch = laneChecker
+	monkeypatch = wrapScenario (scenario) ->
+		#scenario = laneChecker scenario
+		(env, ...args) ->
+			task = scenario env, ...args
+			task.get(\run).then seqr.bind !->*
+				scene = yield task.get \scene
+				scene.beforePhysics ->
+					env.controls.throttle = 1.0
+			return task
+
+	for i from 0 to 100
+		runner = runScenario monkeypatch scenario.stayOnLane
+		[scn] = yield runner.get 'ready'
+		[intro] = yield runner.get 'intro'
+		if intro.let
+			intro.let \accept
+		[outro] = yield runner.get 'outro'
+		outro.let \accept
+		yield runner
+		console.log "Task done"
 
 export logkiller = seqr.bind !->*
 	scope = newEnv!

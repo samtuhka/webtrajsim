@@ -8,6 +8,7 @@ seqr = require './seqr.ls'
 #
 #
 export waitFor = (f) -> new P (accept) -> f (accept)
+export sleep = (duration) -> new P (accept) -> setTimeout accept, duration*1000
 
 configTemplate = (data, config, parent) ->
 	el = $ data
@@ -19,7 +20,7 @@ configTemplate = (data, config, parent) ->
 	return api
 
 export gauge = ({notifications, uiUpdate}, {name, unit='', range, value, format=(v) -> v}) ->
-	result = configTemplate (require './templates/gauge.lo.html!text'), ->
+	result = configTemplate (require './templates/gauge.lo.html'), ->
 		@ \name .text name
 		@ \unit .text unit
 	notifications?append result.el
@@ -51,7 +52,7 @@ export gauge = ({notifications, uiUpdate}, {name, unit='', range, value, format=
 export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	background = $('<div class="overlay-screen">')
 	container.append background
-	api = configTemplate (require './templates/instruction.lo.html!text'), cb, background
+	api = configTemplate (require './templates/instruction.lo.html'), cb, background
 
 	btn = api \accept-button
 	btn.prop "disabled", true
@@ -76,7 +77,7 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	background.remove()
 
 export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
-	api = configTemplate (require './templates/inputDialog.html!text'), cb
+	api = configTemplate (require './templates/inputDialog.html'), cb
 	el = api.el
 	form = el.find "form"
 	form.submit (e) ->
@@ -112,7 +113,7 @@ export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 	return result
 
 export taskDialog = Co ({notifications}, cb) ->*
-	{el, result} = api = configTemplate (require './templates/helper.lo.html!text'), cb
+	{el, result} = api = configTemplate (require './templates/helper.lo.html'), cb
 	el.hide()
 	notifications?append el
 	yield waitFor el~fadeIn

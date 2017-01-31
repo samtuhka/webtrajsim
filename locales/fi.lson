@@ -41,6 +41,17 @@
 
 '%throttleAndBrake.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
 
+'Stay on lane': 'Pysy kaistalla'
+'%stayOnLane.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
+			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä. Väistä myös tiellä olevat
+			esteet, mutta pysy kaistallasi. Kaistavahti varoittaa äänimerkillä, jos olet lähellä ajautua
+			kaistan ulkopuolelle.
+			"""
+
+'%stayOnLane.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
+
+'You drove out of your lane.': 'Ajoit ulos kaistaltasi.'
+
 'Speed control': 'Nopeuden hallinta'
 '%speedControl.intro':  """
 	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.
@@ -162,12 +173,10 @@ siihen lähetetä tähän kokeeseen liittymätöntä viestintää."""
 'Female': 'Nainen'
 'Male': 'Mies'
 
-'Driving license': 'Ajokorttiluokka'
-"What class is your driver's licence?": """Sallitut ajoneuvoluokat"""
-
 'Driving license year': 'Kuljettajatutkinnon suoritus'
 '%intro.license': """Anna vuosi, jona olet saanut B-luokan ajo-oikeuden (henkilöauto).
-Tiedot löytyvät ajokortin kääntöpuolelta."""
+Jos sinulla ei ole kyseisen luokan ajo-oikeutta, jätä kenttä tyhjäksi. Tiedot löytyvät
+ajokortin kääntöpuolelta."""
 
 'Past year driving': 'Viimeisen vuoden ajaminen'
 "On average, how frequently have you driven during the <strong>past year</strong>.": """
@@ -186,11 +195,8 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 <strong>ajokortin saatuasi</strong>."""
 
 'Past 12 month kilometrage': 'Ajokilometrit viimeisten 12 kk aikana'
-"Give out an estimate on how many kilometres have you driven during the past 12 months.": """Anna arviosi siitä, montako ajokilometriä olet ajanut viimeisen 12 kuukauden aikana."""
+"Give out an estimate on how many kilometres have you driven during the past 12 months.": """Anna arviosi siitä,montako ajokilometriä olet ajanut viimeisen 12 kuukauden aikana."""
 'not driven': 'en yhtään'
-
-'Driving games' : 'Ajopelit'
-"Driving game history" : "Mikä seuraavista vastaa parhaiten, sitä kuinka usein pelaat tietokoneella tai konsolilla ajopelejä (esim Gran Turismo, Need For Speed, Forza...)."
 
 'Lifetime kilometrage': 'Ajokilometrit eliniän aikana'
 "Give out an estimate on how many kilometres have you driven during your lifetime.": """Anna arviosi siitä, montako ajokilometriä olet ajanut koko elämäsi aikana."""
@@ -281,6 +287,84 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
    		 	<p>Kuviot ovat näkyvillä ruudulla vain pienen hetken, mutta voit vastata vaikka kuvion olisivat ehtineet jo kadota. Vastausaikaa on muutaman sekunnin ajan, kunnes uudet kuviot taas ilmestyvät. Jos et ehdi vastata, jatka ajamista normaalisti ja koeta vastata seuraavilla kerroilla.
    		 	<p>Ohjeista poistuttuasi, koe lähtee liikkeelle painamalla ratin oikeaa punaista painiketta.
 			"""
+'Driving games': 'Ajopelit'
+"How frequently do you play driving games? (e.g. Gran Turismo)": """Kuinka usein pelaat ajopelejä? (esim. Gran Turismo)"""
+
 
 'The experiment is done!': 'Koe on päättynyt'
 '%experimentOutro': 'Kiitos osallistumisestasi!'
+
+'Find the direction': 'Löydä suunta'
+'%pursuitDiscrimination.intro': """
+<p>Seuraa katseellasi ruudulla näkyvää kohdetta. Kohteessa
+välähtää ristitähtäimen jälkeen viivakuvion, jonka kallistuksen
+suuntaus sinun pitää yrittää tunnistaa. Viivakuvion välähdyksen jälkeen
+näet kysymysmerkin: paina tällöin vasenta- tai oikeaa nuolinäppäintä
+sen mukaan, mikä on paras arvauksesi siitä, kumpaan suuntaan kuvio
+on kallellaan</p>
+<table class="centered-table" style="width: 100%">
+<tr><th>Vasen</th><th>Oikea</th></tr>
+<tr>
+<td class="leftStim"></td>
+<td class="rightStim"></td>
+</table>
+"""
+
+"%blindPursuit.totalScore": ({score}) ->
+	"<p>Kokonaistuloksesi on #{score.toFixed 1}%.</p>"
+
+"%blindPursuit.finalScore": ({score}) ->
+	"<p>Lopullinen tuloksesi on #{score.toFixed 1}%.</p>"
+
+'%introBlindPursuit.introduction': """
+<p>Tämän kokeen tarkoituksena on tutkia havaintotarkkuutta ja
+ennakoivia silmänliikkeitä.
+
+<p>Koe koostuu useasta osatehtävästä,
+jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin tunnin.
+Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
+
+<p>Kokeen vastuullisena tutkijana toimii prof. Heikki Summala.
+"""
+
+'Possible eye strain': 'Koe saattaa väsyttää silmiä'
+'%introBlindPursuit.eyeStrain': """
+<p>Kokeen tehtävissä tehdään toistuvia silmänliikkeitä
+ja seurataan kohdetta yhtäjaksoisesti useita minuutteja.
+Tämä saattaa aiheuttaa väsymystä silmissä.
+
+<p>Ilmoita välittömästi kokeen johtajalle, jos silmissäsi
+alkaa tuntua kipua tai ne alkavat rasittua.
+"""
+
+'Relaxation and sound response': 'Rentoutuminen ja vaste ääniärsykkeeseen'
+'Notification sound': 'Merkkiääni'
+'Play the notification sound': 'Soita merkkiääni'
+
+'%soundSpook.notificationSound': """
+Kokeen aikana sinua tullaan pyytämään ajoittain sulkemaan silmäsi
+ja rentoutumaan. Kun kuulet merkkiäänen ensimmäisen kerran, sulje
+silmäsi. Pidä silmäsi suljettuna, kunnes kuulet merkkiäänen uudelleen.
+"""
+
+'Noise sound': 'Ääniärsyke'
+
+'%soundSpook.noiseSound': """
+Rentutumisen aikana soitetaan ajoittain ääniärsyke. Tällä mitataan,
+miten hermostosi reagoi äkkinäisiin tapahtumiin. Pyydämme, että
+yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
+"""
+
+'Play the noise sound': 'Soita ääniärsyke'
+
+
+'%soundSpook.instruction': """
+Sulje silmäsi, kun kuulet merkkiäänen ja pidä ne suljettuna, kunnes
+kuulet merkkiäänen uudelleen. Pyri rentoutumaan ja olla ajattelematta
+aktiivisesti mitään; yritä pitää mielesi mahdollisimman tyhjänä. Pyri
+olemaan reagoimatta millään tavoin ääniärsykkeisiin.
+"""
+
+'Please keep your eyes closed': 'Pidä silmäsi suljettuna kunnes kuulet merkkiäänen.'
+
+'Round done': 'Kierros suoritettu'
