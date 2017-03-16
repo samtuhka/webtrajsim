@@ -123,6 +123,14 @@ loadViva = Co ->*
 			if material.name == 'Red'
 				brakeLightMaterials.push material
 
+	mirror = []
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'material_1'
+				mirror.push obj
+	body.mirror = mirror
+
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1

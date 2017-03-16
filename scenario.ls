@@ -131,7 +131,7 @@ exportScenario \freeDriving, (env) ->*
 	scene = yield baseScene env
 
 	# The scene would be customized here
-	addMirror scene, env
+	addFakeMirror scene, env
 	#scene.onRender.add (dt) ->
 	#	scene.mirror.renderer = env.renderer		
 	#	scene.mirror.render()
@@ -202,15 +202,32 @@ addMirror = (scene, env) ->
 	mirror.position.z = -6.38
 
 	#mirror.material.side = THREE.BackSide
-	console.log env.vrcontrols
 	#mirror.rotation.y -= Math.PI
 	scene.mirror = mirror
 	#scene.player.body.add mirror
 	scene.camera.add mirror
-	scene.beforeRender.add (dt) ->
-		console.log env.vrcontrols
-		debugger
-		mirror.rotation = scene.camera.rotation
+
+addFakeMirror = (scene, env) ->
+	FOV = 20.0*(9/16)
+	w = 0.25
+	h = 0.08
+	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
+	scene.player.body.add camera
+	camera.position.set(0.01, 1.245, 0.44)
+	camera.rotation.set(0, -4/180*Math.PI, 0)
+	
+	renderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } )
+	plane = new THREE.Mesh do
+		new THREE.PlaneGeometry w, h 
+		new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
+	scene.player.body.add plane
+	plane.position.x = 0.01
+	plane.position.y = 1.245
+	plane.position.z = 0.44
+	plane.material.side = THREE.BackSide
+	scene.onRender.add (dt) ->
+		env.renderer.render(scene.visual, camera, renderTarget, true )
+	
 
 
 addBlinder = (scene, env) ->
