@@ -3,6 +3,7 @@ Co = P.coroutine
 $ = require 'jquery'
 seqr = require './seqr.ls'
 
+
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
@@ -130,7 +131,23 @@ exportScenario \freeDriving, (env) ->*
 	scene = yield baseScene env
 
 	# The scene would be customized here
-
+	addMirror scene, env
+	#scene.onRender.add (dt) ->
+	#	scene.mirror.renderer = env.renderer		
+	#	scene.mirror.render()
+	env.controls.change (btn) ->
+		if btn == "catch"
+			env.vrcontrols.resetPose()
+			#scene.player.eye.position.y = 1.23 - scene.camera.position.y
+			#scene.player.eye.position.z = 0.15  - scene.camera.position.z
+			#scene.player.eye.position.x = 0.52 - scene.camera.position.x
+			#scene.player.eye.rotation.y = Math.PI - scene.camera.rotation.y
+			#scene.camera.rotation.x = 0
+			#scene.camera.rotation.z = 0
+			#scene.camera.rotation.y = 0
+			#scene.camera.position.x = 0
+			#scene.camera.position.z = 0
+			#scene.camera.position.y = 0
 	# "Return" the scene to the caller, so they know
 	# we are ready
 	@let \scene, scene
@@ -144,53 +161,6 @@ export basePedalScene = (env) ->
 	env = env with
 		controls: NonSteeringControl env.controls
 	return baseScene env
-
-exportScenario \laneDriving, (env) ->*
-	# Load the base scene
-	scene = yield baseScene env
-
-	trafficControls = new TargetSpeedController
-	distances = [15, 70, 170, 300, 400]
-	cars = []
-	for i from 0 til 5
-		car = scene.leader = yield addVehicle scene, trafficControls
-		car.physical.position.x = -1.75
-		car.physical.position.z = 10 + distances[i]
-		cars.push car
-	for i from 0 til 3
-		car = scene.leader = yield addVehicle scene, trafficControls
-		car.physical.position.x = 1.75
-		car.physical.position.z = 10 + distances[i]
-		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
-		cars.push car
-
-
-	speeds = [30, 20, 50, 100, 20, 120]*2
-	shuffleArray speeds
-	while speeds[*-1] == 0
-		shuffleArray speeds
-	speedDuration = 10
-
-	sequence = for speed, i in speeds
-		[(i+1)*speedDuration, speed/3.6]
-
-	scene.afterPhysics.add (dt) ->
-		if scene.time > sequence[0][0] and sequence.length > 1
-			sequence := sequence.slice(1)
-		trafficControls.target = sequence[0][1]
-		trafficControls.tick scene.leader.getSpeed(), dt
-		for car in cars
-			if scene.player.physical.position.z - car.physical.position.z > 400
-				car.physical.position.z += 700
-			if car.physical.position.z - scene.player.physical.position.z > 400
-				car.physical.position.z -= 700
-
-	# "Return" the scene to the caller, so they know
-	# we are ready
-	@let \scene, scene
-
-	# Run until somebody says "done".
-	yield @get \done
 
 catchthething = require './catchthething.ls'
 addReactionTest = seqr.bind (scene, env) ->*
@@ -219,6 +189,29 @@ addReactionTest = seqr.bind (scene, env) ->*
 		#env.renderer.render react.scene, react.camera
 
 	return react
+require './node_modules/three/examples/js/Mirror.js'
+addMirror = (scene, env) ->
+	mirror = new THREE.Mirror(2.25, 2.08, { clipBias: -0.300, textureWidth: 1024, textureHeight: 1024 } )
+
+
+	mirrorMesh = new THREE.Mesh do
+		new THREE.PlaneBufferGeometry 2.00, 2.00
+		mirror.material
+	mirror.position.y = 0 #1.245
+	mirror.position.x = 0.01
+	mirror.position.z = -6.38
+
+	#mirror.material.side = THREE.BackSide
+	console.log env.vrcontrols
+	#mirror.rotation.y -= Math.PI
+	scene.mirror = mirror
+	#scene.player.body.add mirror
+	scene.camera.add mirror
+	scene.beforeRender.add (dt) ->
+		console.log env.vrcontrols
+		debugger
+		mirror.rotation = scene.camera.rotation
+
 
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
@@ -324,6 +317,56 @@ failOnCollision = (env, scn, scene) ->
 			title: env.L "Oops!"
 			content: reason
 		return false
+
+exportScenario \laneDriving, (env) ->*
+	# Load the base scene
+	scene = yield baseScene env
+
+	env.controls.change (btn) ->
+		if btn == "catch"
+			env.vrcontrols.resetPose()
+	trafficControls = new TargetSpeedController
+	distances = [15, 70, 170, 300, 400]
+	cars = []
+	for i from 0 til 5
+		car = scene.leader = yield addVehicle scene, trafficControls
+		car.physical.position.x = -1.75
+		car.physical.position.z = 10 + distances[i]
+		cars.push car
+	for i from 0 til 3
+		car = scene.leader = yield addVehicle scene, trafficControls
+		car.physical.position.x = 1.75
+		car.physical.position.z = 10 + distances[i]
+		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		cars.push car
+
+
+	speeds = [30, 20, 50, 100, 20, 120]*2
+	shuffleArray speeds
+	while speeds[*-1] == 0
+		shuffleArray speeds
+	speedDuration = 10
+
+	sequence = for speed, i in speeds
+		[(i+1)*speedDuration, speed/3.6]
+
+	scene.afterPhysics.add (dt) ->
+		if scene.time > sequence[0][0] and sequence.length > 1
+			sequence := sequence.slice(1)
+		trafficControls.target = sequence[0][1]
+		trafficControls.tick scene.leader.getSpeed(), dt
+		for car in cars
+			if scene.player.physical.position.z - car.physical.position.z > 400
+				car.physical.position.z += 700
+			if car.physical.position.z - scene.player.physical.position.z > 400
+				car.physical.position.z -= 700
+
+	# "Return" the scene to the caller, so they know
+	# we are ready
+	@let \scene, scene
+
+	# Run until somebody says "done".
+	yield @get \done
 
 exportScenario \closeTheGap, (env) ->*
 	@let \intro,

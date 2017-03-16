@@ -15,14 +15,14 @@ localizer = require './localizer.ls'
 window.THREE = THREE = require 'three'
 window.CANNON = require 'cannon'
 require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
-
+doReQuestAnimationFrame = requestAnimationFrame 
 eachFrame = (f) -> new P (accept, reject) ->
 	stopped = false
 	clock = new THREE.Clock
 	tick = ->
 		if stopped
 			return
-		requestAnimationFrame tick
+		doReQuestAnimationFrame tick
 		dt = clock.getDelta()
 		return if dt == 0
 		result = f dt
@@ -184,8 +184,8 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 	render = ->
 		renderer.render scene.visual, scene.camera
-	if env.opts.enableVr
-		render = enableVr env, renderer, scene
+	#if env.opts.enableVr
+	render = enableVr env, renderer, scene
 
 	#physDebug = new THREE.CannonDebugRenderer scene.visual, scene.physics
 	#scene.beforeRender.add ->
@@ -214,7 +214,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	el.hide()
 	env.container.append el
 
-
+	env.renderer = renderer
 	# Run
 	yield P.resolve scene.preroll()
 	yield ui.waitFor el~fadeIn
@@ -249,27 +249,34 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	yield scope
 	env.logger.write destroyedScenario: scenarioLoader.scenarioName
 
-#require './three.js/examples/js/controls/VRControls.js'
-#require './three.js/examples/js/effects/VREffect.js'
+require './node_modules/three/examples/js/controls/VRControls.js'
+require './node_modules/three/examples/js/effects/VREffect.js'
+require './node_modules/three/examples/js/vr/WebVR.js'
 #require './node_modules/webvr-boilerplate/js/deps/webvr-polyfill.js'
-/*require 'webvr-polyfill'
-require './node_modules/webvr-boilerplate/js/deps/VREffect.js'
-require './node_modules/webvr-boilerplate/js/deps/VRControls.js'
-WebVRManager = require './node_modules/webvr-boilerplate/src/webvr-manager.js'
-{keypress} = require 'keypress'
+#require 'webvr-polyfill'
+#require './node_modules/webvr-boilerplate/js/deps/VREffect.js'
+#require './node_modules/webvr-boilerplate/js/deps/VRControls.js'
+#WebVRManager = require './node_modules/webvr-boilerplate/src/webvr-manager.js'
+#{keypress} = require 'keypress'
 
 enableVr = (env, renderer, scene) ->
 	vrcontrols = new THREE.VRControls scene.camera
 	effect = new THREE.VREffect renderer
 	env.onSize (w, h) ->
 		effect.setSize w, h
-	manager = new WebVRManager renderer, effect
-	new keypress.Listener().simple_combo 'z', ->
-		vrcontrols.resetSensor()
+	vrcontrols.resetSensor()
+	env.vrcontrols = vrcontrols
+	effect.setFullScreen(true)
+	env.container.append WEBVR.getButton(effect)
+	doReQuestAnimationFrame := effect.requestAnimationFrame
+	#WebVR.toggleVRMode()
+	#manager = new WebVRManager renderer, effect
+	#new keypress.Listener().simple_combo 'z', ->
+	#	vrcontrols.resetSensor()
 	#$("body")[0].addEventListener "click", ->
 	#	effect.setFullScreen(true)
 	#	#manager.toggleVRMode()
 	scene.beforeRender.add ->
 		vrcontrols.update()
-	return -> manager.render scene.visual, scene.camera
-*/
+	return -> effect.render scene.visual, scene.camera
+
