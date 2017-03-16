@@ -145,6 +145,53 @@ export basePedalScene = (env) ->
 		controls: NonSteeringControl env.controls
 	return baseScene env
 
+exportScenario \laneDriving, (env) ->*
+	# Load the base scene
+	scene = yield baseScene env
+
+	trafficControls = new TargetSpeedController
+	distances = [15, 70, 170, 300, 400]
+	cars = []
+	for i from 0 til 5
+		car = scene.leader = yield addVehicle scene, trafficControls
+		car.physical.position.x = -1.75
+		car.physical.position.z = 10 + distances[i]
+		cars.push car
+	for i from 0 til 3
+		car = scene.leader = yield addVehicle scene, trafficControls
+		car.physical.position.x = 1.75
+		car.physical.position.z = 10 + distances[i]
+		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		cars.push car
+
+
+	speeds = [30, 20, 50, 100, 20, 120]*2
+	shuffleArray speeds
+	while speeds[*-1] == 0
+		shuffleArray speeds
+	speedDuration = 10
+
+	sequence = for speed, i in speeds
+		[(i+1)*speedDuration, speed/3.6]
+
+	scene.afterPhysics.add (dt) ->
+		if scene.time > sequence[0][0] and sequence.length > 1
+			sequence := sequence.slice(1)
+		trafficControls.target = sequence[0][1]
+		trafficControls.tick scene.leader.getSpeed(), dt
+		for car in cars
+			if scene.player.physical.position.z - car.physical.position.z > 400
+				car.physical.position.z += 700
+			if car.physical.position.z - scene.player.physical.position.z > 400
+				car.physical.position.z -= 700
+
+	# "Return" the scene to the caller, so they know
+	# we are ready
+	@let \scene, scene
+
+	# Run until somebody says "done".
+	yield @get \done
+
 catchthething = require './catchthething.ls'
 addReactionTest = seqr.bind (scene, env) ->*
 	react = yield catchthething.React()
