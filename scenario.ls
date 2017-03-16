@@ -208,23 +208,43 @@ addMirror = (scene, env) ->
 	scene.camera.add mirror
 
 addFakeMirror = (scene, env) ->
-	FOV = 20.0*(9/16)
-	w = 0.25
-	h = 0.08
+
+
+	geometry = scene.player.body.mirrors[0].geometry
+	geometry.computeBoundingBox()
+	max = geometry.boundingBox.max
+	min = geometry.boundingBox.min
+	w = max.x - min.x
+	h = max.y - min.y
+	offset = new THREE.Vector2(0 - min.x, 0 - min.y)
+	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
+
+	FOV = 180.0*(h/w)
 	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
 	scene.player.body.add camera
-	camera.position.set(0.01, 1.245, 0.44)
-	camera.rotation.set(0, -4/180*Math.PI, 0)
-	
+	camera.position.set(0.01, 1.245, -3.44)
+	camera.rotation.set(-Math.PI*0.5, 0, 0)
+
 	renderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } )
-	plane = new THREE.Mesh do
-		new THREE.PlaneGeometry w, h 
-		new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
-	scene.player.body.add plane
-	plane.position.x = 0.01
-	plane.position.y = 1.245
-	plane.position.z = 0.44
-	plane.material.side = THREE.BackSide
+	
+	scene.player.body.mirrors[0].material = new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
+	faces = geometry.faces
+	geometry.faceVertexUvs[0] = []
+	for i from 0 til faces.length
+		v1 = geometry.vertices[faces[i].a]
+		v2 = geometry.vertices[faces[i].b]
+		v3 = geometry.vertices[faces[i].c]
+
+
+		uv0 = new THREE.Vector2( ( v1.x - min.x ) / range.x, ( v1.y  - min.y) / range.y)
+		uv1 = new THREE.Vector2( ( v2.x - min.x ) / range.x, ( v2.y - min.y ) / range.y)
+		uv2 = new THREE.Vector2( ( v3.x - min.x ) / range.x, ( v3.y - min.y) / range.y)
+		
+		geometry.faceVertexUvs[0].push([uv0, uv1, uv2])
+
+	scene.player.body.mirrors[0].material.needsUpdate = true
+	scene.player.body.mirrors[0].geometry.uvsNeedUpdate = true
+	
 	scene.onRender.add (dt) ->
 		env.renderer.render(scene.visual, camera, renderTarget, true )
 	
@@ -338,7 +358,7 @@ failOnCollision = (env, scn, scene) ->
 exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
-
+	addFakeMirror scene, env
 	env.controls.change (btn) ->
 		if btn == "catch"
 			env.vrcontrols.resetPose()
@@ -348,12 +368,12 @@ exportScenario \laneDriving, (env) ->*
 	for i from 0 til 5
 		car = scene.leader = yield addVehicle scene, trafficControls
 		car.physical.position.x = -1.75
-		car.physical.position.z = 10 + distances[i]
+		car.physical.position.z = distances[i]
 		cars.push car
-	for i from 0 til 3
+	for i from 0 til 5
 		car = scene.leader = yield addVehicle scene, trafficControls
 		car.physical.position.x = 1.75
-		car.physical.position.z = 10 + distances[i]
+		car.physical.position.z = distances[i]
 		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 		cars.push car
 
