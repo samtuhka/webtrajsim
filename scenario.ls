@@ -133,9 +133,9 @@ exportScenario \freeDriving, (env) ->*
 	# The scene would be customized here
 	#addMirror scene, env
 	console.log scene.player.body.mirrors
-	addFakeMirror scene, env, 0, 1, 1, 1
-	addFakeMirror scene, env, 1, 2, 2, 2
-	addFakeMirror scene, env, 2, 3, 3, 3
+	addFakeMirror scene, env, 0, 4.5/180*Math.PI
+	addFakeMirror scene, env, 1, 12.5/180*Math.PI
+	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 	#scene.onRender.add (dt) ->
 	#	scene.mirror.renderer = env.renderer		
 	#	scene.mirror.render()
@@ -211,7 +211,7 @@ addMirror = (scene, env) ->
 	#scene.player.body.add mirror
 	scene.camera.add mirror
 
-addFakeMirror = (scene, env, ind, x, y, z) ->
+addFakeMirror = (scene, env, ind, y) ->
 	geometry = scene.player.body.mirrors[ind].geometry
 	scene.player.body.mirrors[ind].material.transparent = false
 	geometry.computeBoundingBox()
@@ -222,13 +222,13 @@ addFakeMirror = (scene, env, ind, x, y, z) ->
 	offset = new THREE.Vector2(0 - min.x, 0 - min.y)
 	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
 
-	FOV = 70.0*(h/w)
+	FOV = 30.0*(h/w)
 	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
 	scene.player.body.add camera
 	camera.position.x = (max.x + min.x) / 2.0
 	camera.position.y = (max.y + min.y) / 2.0
 	camera.position.z = (max.z + min.z) / 2.0
-	#camera.rotation.set(-Math.PI*0.5, 0, 0)
+	camera.rotation.set(0, y, 0)
 
 	renderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } )
 
@@ -368,9 +368,9 @@ failOnCollision = (env, scn, scene) ->
 exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
-	addFakeMirror scene, env, 0, 1, 1, 1
-	addFakeMirror scene, env, 1, 2, 2, 2
-	addFakeMirror scene, env, 2, 3, 3, 3
+	addFakeMirror scene, env, 0, 4.5/180*Math.PI
+	addFakeMirror scene, env, 1, 12.5/180*Math.PI
+	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 	env.controls.change (btn) ->
 		if btn == "catch"
 			env.vrcontrols.resetPose()
