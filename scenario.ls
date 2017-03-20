@@ -225,15 +225,16 @@ addFakeMirror = (scene, env, ind, x, y, z) ->
 	FOV = 70.0*(h/w)
 	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
 	scene.player.body.add camera
-	camera.position.set(x, y, z)
-	camera.rotation.set(-Math.PI*0.5, 0, 0)
+	camera.position.x = (max.x + min.x) / 2.0
+	camera.position.y = (max.y + min.y) / 2.0
+	camera.position.z = (max.z + min.z) / 2.0
+	#camera.rotation.set(-Math.PI*0.5, 0, 0)
 
 	renderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } )
 
-	mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: -0.300, textureWidth: 1024, textureHeight: 1024 } )
-	scene.player.body.mirrors[ind].add mirror
-	scene.player.body.mirrors[ind].material = mirror.material
-	mirror.position.y = -10
+	#mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: -0.100, textureWidth: 1024, textureHeight: 1024 } )
+	#scene.player.body.mirrors[ind].add mirror
+	scene.player.body.mirrors[ind].material = new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
 	
 	faces = geometry.faces
 	geometry.faceVertexUvs[0] = []
@@ -253,9 +254,9 @@ addFakeMirror = (scene, env, ind, x, y, z) ->
 	#scene.player.body.mirrors[ind].geometry.uvsNeedUpdate = true
 	
 	scene.onRender.add (dt) ->
-		mirror.renderer = env.renderer
-		mirror.render()
-	#	env.renderer.render(scene.visual, camera, renderTarget, true )
+		#mirror.renderer = env.renderer
+		#mirror.render()
+		env.renderer.render(scene.visual, camera, renderTarget, true )
 	
 
 
