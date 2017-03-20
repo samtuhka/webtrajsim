@@ -131,7 +131,11 @@ exportScenario \freeDriving, (env) ->*
 	scene = yield baseScene env
 
 	# The scene would be customized here
-	addFakeMirror scene, env
+	#addMirror scene, env
+	console.log scene.player.body.mirrors
+	addFakeMirror scene, env, 0, 1, 1, 1
+	addFakeMirror scene, env, 1, 2, 2, 2
+	addFakeMirror scene, env, 2, 3, 3, 3
 	#scene.onRender.add (dt) ->
 	#	scene.mirror.renderer = env.renderer		
 	#	scene.mirror.render()
@@ -207,10 +211,9 @@ addMirror = (scene, env) ->
 	#scene.player.body.add mirror
 	scene.camera.add mirror
 
-addFakeMirror = (scene, env) ->
-
-
-	geometry = scene.player.body.mirrors[0].geometry
+addFakeMirror = (scene, env, ind, x, y, z) ->
+	geometry = scene.player.body.mirrors[ind].geometry
+	scene.player.body.mirrors[ind].material.transparent = false
 	geometry.computeBoundingBox()
 	max = geometry.boundingBox.max
 	min = geometry.boundingBox.min
@@ -219,34 +222,40 @@ addFakeMirror = (scene, env) ->
 	offset = new THREE.Vector2(0 - min.x, 0 - min.y)
 	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
 
-	FOV = 180.0*(h/w)
+	FOV = 70.0*(h/w)
 	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
 	scene.player.body.add camera
-	camera.position.set(0.01, 1.245, -3.44)
+	camera.position.set(x, y, z)
 	camera.rotation.set(-Math.PI*0.5, 0, 0)
 
 	renderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } )
+
+	mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: -0.300, textureWidth: 1024, textureHeight: 1024 } )
+	scene.player.body.mirrors[ind].add mirror
+	scene.player.body.mirrors[ind].material = mirror.material
+	mirror.position.y = -10
 	
-	scene.player.body.mirrors[0].material = new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
 	faces = geometry.faces
 	geometry.faceVertexUvs[0] = []
 	for i from 0 til faces.length
 		v1 = geometry.vertices[faces[i].a]
 		v2 = geometry.vertices[faces[i].b]
 		v3 = geometry.vertices[faces[i].c]
-
-
+	
+	
 		uv0 = new THREE.Vector2( ( v1.x - min.x ) / range.x, ( v1.y  - min.y) / range.y)
 		uv1 = new THREE.Vector2( ( v2.x - min.x ) / range.x, ( v2.y - min.y ) / range.y)
 		uv2 = new THREE.Vector2( ( v3.x - min.x ) / range.x, ( v3.y - min.y) / range.y)
 		
 		geometry.faceVertexUvs[0].push([uv0, uv1, uv2])
 
-	scene.player.body.mirrors[0].material.needsUpdate = true
-	scene.player.body.mirrors[0].geometry.uvsNeedUpdate = true
+	#scene.player.body.mirrors[ind].material.needsUpdate = true
+	#scene.player.body.mirrors[ind].geometry.uvsNeedUpdate = true
 	
 	scene.onRender.add (dt) ->
-		env.renderer.render(scene.visual, camera, renderTarget, true )
+		mirror.renderer = env.renderer
+		mirror.render()
+	#	env.renderer.render(scene.visual, camera, renderTarget, true )
 	
 
 
@@ -358,7 +367,9 @@ failOnCollision = (env, scn, scene) ->
 exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
-	addFakeMirror scene, env
+	addFakeMirror scene, env, 0, 1, 1, 1
+	addFakeMirror scene, env, 1, 2, 2, 2
+	addFakeMirror scene, env, 2, 3, 3, 3
 	env.controls.change (btn) ->
 		if btn == "catch"
 			env.vrcontrols.resetPose()

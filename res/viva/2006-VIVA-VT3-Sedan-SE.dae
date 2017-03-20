@@ -792,7 +792,7 @@
             <instance_geometry url="#ID425">
                 <bind_material>
                     <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
+                        <instance_material symbol="Material2" target="#ID2131">
                             <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
                         </instance_material>
                     </technique_common>
@@ -2181,7 +2181,7 @@
                 <instance_node url="#ID1205" />
             </node>
         </node>
-        <node id="ID1175" name="Group_4">
+        <node id="ID1175" name="Mirror2">
             <instance_geometry url="#ID1176">
                 <bind_material>
                     <technique_common>
@@ -2197,7 +2197,7 @@
             <instance_geometry url="#ID1184">
                 <bind_material>
                     <technique_common>
-                        <instance_material symbol="Material2" target="#ID90">
+                        <instance_material symbol="Material2" target="#ID2129">
                             <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
                         </instance_material>
                         <instance_material symbol="Material3" target="#ID1074">
@@ -3042,7 +3042,7 @@
                 <instance_node url="#ID1655" />
             </node>
         </node>
-        <node id="ID1629" name="Group_4">
+        <node id="ID1629" name="Mirror1">
             <instance_geometry url="#ID1630">
                 <bind_material>
                     <technique_common>
@@ -3055,7 +3055,7 @@
             <instance_geometry url="#ID1636">
                 <bind_material>
                     <technique_common>
-                        <instance_material symbol="Material2" target="#ID90">
+                        <instance_material symbol="Material2" target="#ID2127">
                             <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
                         </instance_material>
                     </technique_common>
@@ -12921,6 +12921,15 @@
         <material id="ID1484" name="material">
             <instance_effect url="#ID1483" />
         </material>
+        <material id="ID2127" name="MirrorLeft">
+            <instance_effect url="#ID2128" />
+        </material>
+        <material id="ID2129" name="MirrorRight">
+            <instance_effect url="#ID2130" />
+        </material>
+        <material id="ID2131" name="MirrorCenter">
+            <instance_effect url="#ID2132" />
+        </material>
     </library_materials>
     <library_effects>
         <effect id="ID11">
@@ -13331,6 +13340,39 @@
                     <lambert>
                         <diffuse>
                             <color>1 1 1 1</color>
+                        </diffuse>
+                    </lambert>
+                </technique>
+            </profile_COMMON>
+        </effect>
+        <effect id="ID2128">
+            <profile_COMMON>
+                <technique sid="COMMON">
+                    <lambert>
+                        <diffuse>
+                            <color>0.8627451 0.8627451 0.8627451 1</color>
+                        </diffuse>
+                    </lambert>
+                </technique>
+            </profile_COMMON>
+        </effect>
+        <effect id="ID2130">
+            <profile_COMMON>
+                <technique sid="COMMON">
+                    <lambert>
+                        <diffuse>
+                            <color>0.8627451 0.8627451 0.8627451 1</color>
+                        </diffuse>
+                    </lambert>
+                </technique>
+            </profile_COMMON>
+        </effect>
+        <effect id="ID2132">
+            <profile_COMMON>
+                <technique sid="COMMON">
+                    <lambert>
+                        <diffuse>
+                            <color>0.8627451 0.8627451 0.8627451 1</color>
                         </diffuse>
                     </lambert>
                 </technique>

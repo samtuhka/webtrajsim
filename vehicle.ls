@@ -127,8 +127,9 @@ loadViva = Co ->*
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
-			if material.name == 'Silver_White'
+			if material.name == 'MirrorCenter' || material.name == 'MirrorLeft' || material.name == 'MirrorRight'
 				mirrors.push obj
+
 	body.mirrors = mirrors
 
 	eye = new THREE.Object3D

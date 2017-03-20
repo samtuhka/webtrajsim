@@ -179,8 +179,8 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 		renderer.dispose()
 	#renderer.shadowMapEnabled = true
 	#renderer.shadowMapType = THREE.PCFShadowMap
-	renderer.autoClear = false
-	scene.beforeRender.add -> renderer.clear()
+	#renderer.autoClear = false
+	#scene.beforeRender.add -> renderer.clear()
 
 	render = ->
 		renderer.render scene.visual, scene.camera
