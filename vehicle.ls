@@ -159,7 +159,18 @@ loadViva = Co ->*
 			material.needsUpdate = true
 
 export addVehicle = Co (scene, controls=new DummyControls, {objectName, steeringNoise=-> 0.0}={}) ->*
-	{body, wheels, eye, setBrakelight} = yield loadViva()
+	
+	if not scene.viva
+		console.log "aa"
+		{body, wheels, eye, setBrakelight} = yield loadViva()
+		scene.viva = {body, wheels, eye, setBrakelight}
+		console.log scene.viva
+	else
+		console.log "bb"
+		body = scene.viva.body.clone()
+		wheels = scene.viva.wheels.clone()
+		eye = scene.viva.eye.clone()
+		setBrakelight = scene.viva.setBrakelight
 
 	syncModels = new Signal
 
