@@ -381,7 +381,6 @@ exportScenario \laneDriving, (env) ->*
 	cars = []
 	for i from 0 til 5
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
-		console.log car
 		car.physical.position.x = -1.75
 		car.physical.position.z = distances[i]
 		cars.push car
@@ -403,15 +402,15 @@ exportScenario \laneDriving, (env) ->*
 		[(i+1)*speedDuration, speed/3.6]
 
 	scene.afterPhysics.add (dt) ->
-		#if scene.time > sequence[0][0] and sequence.length > 1
-		#	sequence := sequence.slice(1)
+		if scene.time > sequence[0][0] and sequence.length > 1
+			sequence := sequence.slice(1)
 		trafficControls.target = sequence[0][1]
 		trafficControls.tick scene.leader.getSpeed(), dt
-		#for car in cars
-		#	if scene.player.physical.position.z - car.physical.position.z > 400
-		#		car.physical.position.z += 700
-		#	if car.physical.position.z - scene.player.physical.position.z > 400
-		#		car.physical.position.z -= 700
+		for car in cars
+			if scene.player.physical.position.z - car.physical.position.z > 400
+				car.physical.position.z += 700
+			if car.physical.position.z - scene.player.physical.position.z > 400
+				car.physical.position.z -= 700
 
 	# "Return" the scene to the caller, so they know
 	# we are ready

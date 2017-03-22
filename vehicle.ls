@@ -114,21 +114,38 @@ loadViva = Co (path) ->*
 
 	body.add ...lights*/
 
+	checkMirrors = (obj) ->
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'MirrorCenter' || material.name == 'MirrorLeft' || material.name == 'MirrorRight'
+				return true
+		return false
+
+	checkTransparent = (obj) ->
+		for material in obj.material.materials ? [obj.material]
+			if material.transparent == true
+				return true
+		return false
+
 	groupmaterial = new THREE.MultiMaterial()
-	j = 0
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
-			if path == "res/viva/NPCViva.dae"
+			if path == "res/viva/NPCViva.dae" #|| (checkTransparent(obj) == false && checkMirrors(obj) == false)
 				material.transparent = false
-				groupmaterial.materials.push material
+				if material not in groupmaterial.materials
+					groupmaterial.materials.push material
 				obj.material = groupmaterial
+				j = groupmaterial.materials.indexOf(material)
 				for i from 0 til obj.geometry.faces.length
 					obj.geometry.faces[i].materialIndex = j
 					groupmaterial.materials[j].needsUpdate = true
-				j := j + 1
-	body = mergeObject body
 
+	body = mergeObject body
+	
+	body.traverse (obj) ->
+		return if not obj.geometry?
+		if path == "res/viva/NPCViva.dae"
+			obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
 
 
 	brakeLightMaterials = []
@@ -138,17 +155,11 @@ loadViva = Co (path) ->*
 			if material.name == 'Red'
 				brakeLightMaterials.push material
 
-	body.traverse (obj) ->
-		return if not obj.material?
-		for material in obj.material.materials ? [obj.material]
-			if material.name == 'Car_Body'
-				body.carbody = material
 	mirrors = []
 	body.traverse (obj) ->
 		return if not obj.material?
-		for material in obj.material.materials ? [obj.material]
-			if material.name == 'MirrorCenter' || material.name == 'MirrorLeft' || material.name == 'MirrorRight'
-				mirrors.push obj
+		if checkMirrors(obj)
+			mirrors.push obj
 
 	body.mirrors = mirrors
 
