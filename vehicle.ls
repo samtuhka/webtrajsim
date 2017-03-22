@@ -36,8 +36,8 @@ loadCorolla = Co ->*
 	wheels: scene.getObjectByName "Wheels"
 	eye: eye
 
-loadViva = Co ->*
-	vehicle = yield loadCollada "res/viva/2006-VIVA-VT3-Sedan-SE.dae"
+loadViva = Co (path) ->*
+	vehicle = yield loadCollada path
 	scene = vehicle.scene
 	car = scene.getObjectByName "Car"
 
@@ -114,8 +114,24 @@ loadViva = Co ->*
 
 	body.add ...lights*/
 
-
+	groupmaterial = new THREE.MultiMaterial()
+	j = 0
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if 1 == 1
+				material.transparent = false
+				groupmaterial.materials.push material
+				obj.material = groupmaterial
+				for i from 0 til obj.geometry.faces.length
+					obj.geometry.faces[i].materialIndex = j
+					groupmaterial.materials[j].needsUpdate = true
+				j := j + 1
 	body = mergeObject body
+	console.log body
+
+
+
 	brakeLightMaterials = []
 	body.traverse (obj) ->
 		return if not obj.material?
@@ -123,6 +139,11 @@ loadViva = Co ->*
 			if material.name == 'Red'
 				brakeLightMaterials.push material
 
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'Car_Body'
+				body.carbody = material
 	mirrors = []
 	body.traverse (obj) ->
 		return if not obj.material?
@@ -158,20 +179,17 @@ loadViva = Co ->*
 				material.emissive.r = 0
 			material.needsUpdate = true
 
-export addVehicle = Co (scene, controls=new DummyControls, {objectName, steeringNoise=-> 0.0}={}) ->*
+export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, steeringNoise=-> 0.0}={}) ->*
 	
 	if not scene.viva
-		console.log "aa"
-		{body, wheels, eye, setBrakelight} = yield loadViva()
+		{body, wheels, eye, setBrakelight} = yield loadViva(path)
 		scene.viva = {body, wheels, eye, setBrakelight}
-		console.log scene.viva
 	else
-		console.log "bb"
 		body = scene.viva.body.clone()
 		wheels = scene.viva.wheels.clone()
 		eye = scene.viva.eye.clone()
 		setBrakelight = scene.viva.setBrakelight
-
+	console.log body
 	syncModels = new Signal
 
 	cogY = 0.6
