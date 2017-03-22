@@ -373,13 +373,17 @@ exportScenario \laneDriving, (env) ->*
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 
+	scene.player.body.traverse (obj) ->
+		return if not obj.geometry?
+		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
+
 	env.controls.change (btn) ->
 		if btn == "catch"
 			env.vrcontrols.resetPose()
 	trafficControls = new TargetSpeedController
 	distances = [15, 70, 170, 300, 400]
 	cars = []
-	for i from 0 til 5
+	for i from 0 til 10
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = -1.75
 		car.physical.position.z = distances[i]

@@ -195,7 +195,7 @@ export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, st
 		scene.viva = {body, wheels, eye, setBrakelight}
 	else
 		body = scene.viva.body.clone()
-		wheels = scene.viva.wheels.clone()
+		wheels = scene.viva.wheels
 		eye = scene.viva.eye.clone()
 		setBrakelight = scene.viva.setBrakelight
 
@@ -249,6 +249,8 @@ export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, st
 	wheelModels = []
 	for let wheel in wheels
 		wheel = wheel.clone()
+		wheel.geometry = wheels[0].geometry
+		wheel.material = wheels[0].material
 		wheelModels.push wheel
 		wbb = (new THREE.Box3).setFromObject wheel
 		wRadius = (wbb.max.z - wbb.min.z)/2.0
