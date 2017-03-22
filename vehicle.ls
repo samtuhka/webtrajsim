@@ -154,7 +154,6 @@ loadViva = Co (path) ->*
 		for material in obj.material.materials ? [obj.material]
 			if material.name == 'Red'
 				brakeLightMaterials.push material
-
 	mirrors = []
 	body.traverse (obj) ->
 		return if not obj.material?
