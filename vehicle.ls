@@ -119,7 +119,7 @@ loadViva = Co (path) ->*
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
-			if 1 == 1
+			if path == "res/viva/NPCViva.dae"
 				material.transparent = false
 				groupmaterial.materials.push material
 				obj.material = groupmaterial
@@ -128,7 +128,6 @@ loadViva = Co (path) ->*
 					groupmaterial.materials[j].needsUpdate = true
 				j := j + 1
 	body = mergeObject body
-	console.log body
 
 
 
@@ -189,7 +188,7 @@ export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, st
 		wheels = scene.viva.wheels.clone()
 		eye = scene.viva.eye.clone()
 		setBrakelight = scene.viva.setBrakelight
-	console.log body
+
 	syncModels = new Signal
 
 	cogY = 0.6

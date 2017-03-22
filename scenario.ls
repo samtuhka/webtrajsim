@@ -62,7 +62,7 @@ export baseScene = seqr.bind (env) ->*
 			impulse = (Math.random() - 0.5)*2*0.01
 			_cumnoise := 0.001*impulse + 0.999*_cumnoise
 
-	player = yield addVehicle scene, controls, caropts
+	player = yield addVehicle scene, controls, "res/viva/2006-VIVA-VT3-Sedan-SE.dae", caropts
 	player.eye.add scene.camera
 	player.physical.position.x = -1.75
 	scene.player = player
@@ -132,10 +132,10 @@ exportScenario \freeDriving, (env) ->*
 
 	# The scene would be customized here
 	#addMirror scene, env
-	console.log scene.player.body.mirrors
-	addFakeMirror scene, env, 0, 4.5/180*Math.PI
-	addFakeMirror scene, env, 1, 12.5/180*Math.PI
-	addFakeMirror scene, env, 2, -12.5/180*Math.PI
+	#console.log scene.player.body.mirrors
+	#addFakeMirror scene, env, 0, 4.5/180*Math.PI
+	#addFakeMirror scene, env, 1, 12.5/180*Math.PI
+	#addFakeMirror scene, env, 2, -12.5/180*Math.PI
 	#scene.onRender.add (dt) ->
 	#	scene.mirror.renderer = env.renderer		
 	#	scene.mirror.render()
@@ -368,9 +368,11 @@ failOnCollision = (env, scn, scene) ->
 exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
+	scene.viva = undefined
 	addFakeMirror scene, env, 0, 4.5/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
+
 	env.controls.change (btn) ->
 		if btn == "catch"
 			env.vrcontrols.resetPose()
@@ -378,12 +380,13 @@ exportScenario \laneDriving, (env) ->*
 	distances = [15, 70, 170, 300, 400]
 	cars = []
 	for i from 0 til 5
-		car = scene.leader = yield addVehicle scene, trafficControls
+		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
+		console.log car
 		car.physical.position.x = -1.75
 		car.physical.position.z = distances[i]
 		cars.push car
 	for i from 0 til 5
-		car = scene.leader = yield addVehicle scene, trafficControls
+		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = 1.75
 		car.physical.position.z = distances[i]
 		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
@@ -400,15 +403,15 @@ exportScenario \laneDriving, (env) ->*
 		[(i+1)*speedDuration, speed/3.6]
 
 	scene.afterPhysics.add (dt) ->
-		if scene.time > sequence[0][0] and sequence.length > 1
-			sequence := sequence.slice(1)
+		#if scene.time > sequence[0][0] and sequence.length > 1
+		#	sequence := sequence.slice(1)
 		trafficControls.target = sequence[0][1]
 		trafficControls.tick scene.leader.getSpeed(), dt
-		for car in cars
-			if scene.player.physical.position.z - car.physical.position.z > 400
-				car.physical.position.z += 700
-			if car.physical.position.z - scene.player.physical.position.z > 400
-				car.physical.position.z -= 700
+		#for car in cars
+		#	if scene.player.physical.position.z - car.physical.position.z > 400
+		#		car.physical.position.z += 700
+		#	if car.physical.position.z - scene.player.physical.position.z > 400
+		#		car.physical.position.z -= 700
 
 	# "Return" the scene to the caller, so they know
 	# we are ready
