@@ -1489,7 +1489,7 @@
             <instance_geometry url="#ID853">
                 <bind_material>
                     <technique_common>
-                        <instance_material symbol="Material2" target="#ID183">
+                        <instance_material symbol="Material2" target="#ID2133">
                             <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
                         </instance_material>
                     </technique_common>
@@ -12930,6 +12930,9 @@
         <material id="ID2131" name="MirrorCenter">
             <instance_effect url="#ID2132" />
         </material>
+        <material id="ID2133" name="Speedometer">
+            <instance_effect url="#ID2134" />
+        </material>
     </library_materials>
     <library_effects>
         <effect id="ID11">
@@ -13378,6 +13381,27 @@
                 </technique>
             </profile_COMMON>
         </effect>
+        <effect id="ID2134">
+            <profile_COMMON>
+                <newparam sid="ID2135">
+                    <surface type="2D">
+                        <init_from>ID2136</init_from>
+                    </surface>
+                </newparam>
+                <newparam sid="ID15555">
+                    <sampler2D>
+                        <source>ID2135</source>
+                    </sampler2D>
+                </newparam>
+                <technique sid="COMMON">
+                    <lambert>
+                        <diffuse>
+                            <texture texture="ID15555" texcoord="UVSET0" />
+                        </diffuse>
+                    </lambert>
+                </technique>
+            </profile_COMMON>
+        </effect>
     </library_effects>
     <library_images>
         <image id="ID154">
@@ -13391,6 +13415,9 @@
         </image>
         <image id="ID1332">
             <init_from>2006-VIVA-VT3-Sedan-SE/Grills.jpg</init_from>
+        </image>
+        <image id="ID2136">
+            <init_from>2006-VIVA-VT3-Sedan-SE/speedometer.png</init_from>
         </image>
     </library_images>
     <scene>
