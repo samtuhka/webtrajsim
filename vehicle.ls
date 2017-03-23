@@ -93,6 +93,9 @@ loadViva = Co (path) ->*
 	body = car.getObjectByName "Body"
 	applyPosition body
 
+	
+
+
 	/*lights = []
 	body.traverse (obj) ->
 		return if obj.name != "Headlight"
@@ -141,7 +144,7 @@ loadViva = Co (path) ->*
 					groupmaterial.materials[j].needsUpdate = true
 
 	body = mergeObject body
-	
+		
 	body.traverse (obj) ->
 		return if not obj.geometry?
 		if path == "res/viva/NPCViva.dae"
@@ -160,6 +163,11 @@ loadViva = Co (path) ->*
 		if checkMirrors(obj)
 			mirrors.push obj
 
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == "Speedometer"
+				body.tricycle = obj
 	body.mirrors = mirrors
 
 	eye = new THREE.Object3D

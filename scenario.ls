@@ -230,10 +230,8 @@ addFakeMirror = (scene, env, ind, y) ->
 	camera.position.z = (max.z + min.z) / 2.0
 	camera.rotation.set(0, y, 0)
 
-	renderTarget = new THREE.WebGLRenderTarget( 512, 512, { format: THREE.RGBFormat } )
+	renderTarget = new THREE.WebGLRenderTarget( 256, 256, { format: THREE.RGBFormat } )
 
-	#mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: -0.100, textureWidth: 1024, textureHeight: 1024 } )
-	#scene.player.body.mirrors[ind].add mirror
 	scene.player.body.mirrors[ind].material = new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
 	
 	faces = geometry.faces
@@ -250,15 +248,42 @@ addFakeMirror = (scene, env, ind, y) ->
 		
 		geometry.faceVertexUvs[0].push([uv0, uv1, uv2])
 
-	#scene.player.body.mirrors[ind].material.needsUpdate = true
-	#scene.player.body.mirrors[ind].geometry.uvsNeedUpdate = true
+	scene.player.body.mirrors[ind].material.needsUpdate = true
+	scene.player.body.mirrors[ind].geometry.uvsNeedUpdate = true
 	
 	scene.onRender.add (dt) ->
-		#mirror.renderer = env.renderer
-		#mirror.render()
 		env.renderer.render(scene.visual, camera, renderTarget, true )
 	
+addSpeedometer = (scene, env) ->
 
+	geometry = new THREE.ConeGeometry(0.001, 0.05, 32 )
+	geometry.translate(0, 0.025, 0)
+	material = new THREE.MeshPhongMaterial( {color: 0xff0000} )
+	cone = new THREE.Mesh geometry, material
+	cone.position.y = 0
+	scene.player.body.tricycle.geometry.computeBoundingBox()
+	max = scene.player.body.tricycle.geometry.boundingBox.max
+	min = scene.player.body.tricycle.geometry.boundingBox.min
+	w = max.x - min.x
+	h = max.y - min.y
+
+	cone.position.x = (max.x + min.x) / 2.0
+	cone.position.y = (max.y + min.y) / 2.0
+	cone.position.z = (max.z + min.z) / 2.0
+	scene.player.body.tricycle.add cone
+
+	#tex = THREE.ImageUtils.loadTexture 'res/viva/2006-VIVA-VT3-Sedan-SE/speedometer.png'
+	#scene.player.body.tricycle.material = new THREE.MeshPhongMaterial( {color: 0xffffff, map: tex} )
+	#scene.player.body.tricycle.material.needsUpdate = true
+
+	cone.rotation.z = Math.PI
+	scene.onTickHandled ->
+		speed = scene.player.getSpeed()*3.6
+		speed /= 180
+		#speed = Math.min(speed, 1)
+		cone.rotation.z = -Math.PI*0.75 + (speed * Math.PI)
+
+		
 
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
@@ -372,7 +397,7 @@ exportScenario \laneDriving, (env) ->*
 	addFakeMirror scene, env, 0, 4.5/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
-
+	addSpeedometer scene, env
 	scene.player.body.traverse (obj) ->
 		return if not obj.geometry?
 		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
@@ -381,14 +406,14 @@ exportScenario \laneDriving, (env) ->*
 		if btn == "catch"
 			env.vrcontrols.resetPose()
 	trafficControls = new TargetSpeedController
-	distances = [15, 70, 170, 300, 400]
+	distances = [-150, -100, -70, 170, 300, 400]
 	cars = []
-	for i from 0 til 10
+	for i from 0 til 6
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = -1.75
 		car.physical.position.z = distances[i]
 		cars.push car
-	for i from 0 til 5
+	for i from 0 til 6
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = 1.75
 		car.physical.position.z = distances[i]
