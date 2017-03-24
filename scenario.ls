@@ -256,11 +256,10 @@ addFakeMirror = (scene, env, ind, y) ->
 	
 addSpeedometer = (scene, env) ->
 
-	geometry = new THREE.ConeGeometry(0.001, 0.05, 32 )
-	geometry.translate(0, 0.025, 0)
+	geometry = new THREE.ConeGeometry(0.001, 0.038, 32 )
+	geometry.translate(0, 0.019, 0)
 	material = new THREE.MeshPhongMaterial( {color: 0xff0000} )
 	cone = new THREE.Mesh geometry, material
-	cone.position.y = 0
 	scene.player.body.tricycle.geometry.computeBoundingBox()
 	max = scene.player.body.tricycle.geometry.boundingBox.max
 	min = scene.player.body.tricycle.geometry.boundingBox.min
@@ -272,10 +271,20 @@ addSpeedometer = (scene, env) ->
 	cone.position.z = (max.z + min.z) / 2.0
 	scene.player.body.tricycle.add cone
 
-	#tex = THREE.ImageUtils.loadTexture 'res/viva/2006-VIVA-VT3-Sedan-SE/speedometer.png'
-	#scene.player.body.tricycle.material = new THREE.MeshPhongMaterial( {color: 0xffffff, map: tex} )
-	#scene.player.body.tricycle.material.needsUpdate = true
-
+	tex = THREE.ImageUtils.loadTexture 'res/viva/2006-VIVA-VT3-Sedan-SE/speedometer.png'
+	tex.wrapS = THREE.RepeatWrapping
+	tex.repeat.x = -1
+	material = new THREE.MeshPhongMaterial( {color: 0xff0000, map: tex, side: THREE.BackSide} )
+	circleGeo = new THREE.CircleGeometry(0.038, 32)
+	circleMesh = new THREE.Mesh circleGeo, material
+	circleMesh.position.x = (max.x + min.x) / 2.0
+	circleMesh.position.y = (max.y + min.y) / 2.0
+	circleMesh.position.z = (max.z + min.z) / 2.0
+	rot = Math.asin( h / ((w ^ 2 + h ^ 2) ^ 0.5))
+	cone.rotation.x = rot
+	circleMesh.rotation.x = rot
+	scene.player.body.tricycle.add circleMesh
+	scene.player.body.visible = false
 	cone.rotation.z = Math.PI
 	scene.onTickHandled ->
 		speed = scene.player.getSpeed()*3.6
