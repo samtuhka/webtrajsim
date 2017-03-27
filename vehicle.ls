@@ -229,10 +229,16 @@ loadViva = Co (path) ->*
 
 	body.add eye
 	wheels = scene.getObjectByName "Wheels"
+
 	#applyPosition wheels
 	for let wheel in wheels.children
 		originToGeometry wheel
 		wheel.position.y += 0.1
+	geo = wheels.children[0].geometry
+	mat = wheels.children[0].material
+	for wheel in wheels.children
+		wheel.geometry = geo
+		wheel.material = mat
 	body: body
 	wheels: wheels
 	eye: eye
@@ -300,13 +306,10 @@ export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, st
 	#	controls.set autocenter: centering
 	controls.set autocenter: 0.6
 
-
 	wheels = wheels.children
 	wheelModels = []
 	for let wheel in wheels
 		wheel = wheel.clone()
-		wheel.geometry = wheels[0].geometry
-		wheel.material = wheels[0].material
 		wheelModels.push wheel
 		wbb = (new THREE.Box3).setFromObject wheel
 		wRadius = (wbb.max.z - wbb.min.z)/2.0

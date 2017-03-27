@@ -437,18 +437,18 @@ exportScenario \laneDriving, (env) ->*
 		if btn == "catch"
 			env.vrcontrols.resetPose()
 	trafficControls = new TargetSpeedController
-	distances = [-150, -100, -70, 170, 300, 400]
+	distances = [-150, -100, 70, 170, 300, 400]
 	cars = []
-	for i from 0 til 6
+	for i from 0 til 4
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = -1.75
 		car.physical.position.z = distances[i]
 		cars.push car
-	for i from 0 til 6
+	for i from 0 til 4
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = 1.75
 		car.physical.position.z = distances[i]
-		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		#car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 		cars.push car
 
 
