@@ -128,6 +128,17 @@ loadViva = Co (path) ->*
 			if material.transparent == true
 				return true
 		return false
+	steeringwheel = null
+	body.traverse (obj) ->
+		return if obj.name != "econo_sw"
+		steeringwheel := obj.clone()
+		position = obj.matrixWorld.getPosition()
+		#steeringwheel.position.copy position
+		#steeringwheel.position.z -= 0.1
+		#steeringwheel.position.y += 0.15
+		#steeringwheel.position.x += 0.02
+		obj.parent.remove(obj)
+
 
 	groupmaterial = new THREE.MultiMaterial()
 	body.traverse (obj) ->
@@ -144,7 +155,44 @@ loadViva = Co (path) ->*
 					groupmaterial.materials[j].needsUpdate = true
 
 	body = mergeObject body
+
+
+
+	wheelmaterial = new THREE.MultiMaterial()
+	if steeringwheel
+		normals = []
+		steeringwheel.traverse (obj) ->
+			return if not obj.material?
+			for material in obj.material.materials ? [obj.material]
+				material.transparent = false
+
+				obj.geometry.computeFaceNormals()
+				obj.geometry.computeVertexNormals()
+				normals.push(obj.geometry)
+				if material not in wheelmaterial.materials
+					wheelmaterial.materials.push material
+				obj.material = wheelmaterial
+				j = wheelmaterial.materials.indexOf(material)
+				for i from 0 til obj.geometry.faces.length
+					obj.geometry.faces[i].materialIndex = j
+					wheelmaterial.materials[j].needsUpdate = true
 		
+		steeringwheel = mergeObject steeringwheel
+		steeringwheel.normals = normals
+		geometry = steeringwheel.children[0].geometry
+		geometry.center()
+		geometry.computeBoundingBox()
+		max = geometry.boundingBox.max
+		min = geometry.boundingBox.min
+		steeringwheel.position.z = 0.58  - (max.z - min.z)*0.5
+		steeringwheel.position.y = 0.95
+		steeringwheel.position.x = 0.37
+
+
+	body.add steeringwheel
+
+	body.steeringwheel = steeringwheel
+
 	body.traverse (obj) ->
 		return if not obj.geometry?
 		if path == "res/viva/NPCViva.dae"

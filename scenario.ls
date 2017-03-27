@@ -253,7 +253,26 @@ addFakeMirror = (scene, env, ind, y) ->
 	
 	scene.onRender.add (dt) ->
 		env.renderer.render(scene.visual, camera, renderTarget, true )
+
+steeringwheel = (scene, env) ->
+	wheel = scene.player.body.steeringwheel
 	
+	x = -0.4783821142676093
+	y = 0.8007808882639487
+	z = 0.36041714961978905
+	
+	rotx = Math.asin( z / ((y ^ 2 + z ^ 2) ^ 0.5))
+
+	mesh = wheel.children[0]
+	
+	mesh.rotation.x =  -rotx
+	mesh.geometry.center()
+	wheel.rotation.x = -mesh.rotation.x
+	scene.onTickHandled ->
+		steer = env.controls.steering
+		rot = steer * Math.PI*2.5
+		wheel.rotation.z = rot
+		
 addSpeedometer = (scene, env) ->
 
 	geometry = new THREE.ConeGeometry(0.001, 0.038, 32 )
@@ -269,6 +288,7 @@ addSpeedometer = (scene, env) ->
 	cone.position.x = (max.x + min.x) / 2.0
 	cone.position.y = (max.y + min.y) / 2.0
 	cone.position.z = (max.z + min.z) / 2.0
+
 	scene.player.body.tricycle.add cone
 
 	tex = THREE.ImageUtils.loadTexture 'res/viva/2006-VIVA-VT3-Sedan-SE/speedometer.png'
@@ -284,7 +304,6 @@ addSpeedometer = (scene, env) ->
 	cone.rotation.x = rot
 	circleMesh.rotation.x = rot
 	scene.player.body.tricycle.add circleMesh
-	scene.player.body.visible = false
 	cone.rotation.z = Math.PI
 	scene.onTickHandled ->
 		speed = scene.player.getSpeed()*3.6
@@ -407,6 +426,7 @@ exportScenario \laneDriving, (env) ->*
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 	addSpeedometer scene, env
+	steeringwheel scene, env
 	scene.player.body.traverse (obj) ->
 		return if not obj.geometry?
 		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
