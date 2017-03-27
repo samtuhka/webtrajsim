@@ -274,7 +274,7 @@ steeringwheel = (scene, env) ->
 		steer = env.controls.steering
 		rot = -steer * Math.PI*2.5
 		wheel.rotation.z = rot
-		
+require './threex/threex.dynamictexture.js'	
 addSpeedometer = (scene, env) ->
 
 	geometry = new THREE.ConeGeometry(0.001, 0.038, 32 )
@@ -291,27 +291,37 @@ addSpeedometer = (scene, env) ->
 	cone.position.y = (max.y + min.y) / 2.0
 	cone.position.z = (max.z + min.z) / 2.0
 
-	scene.player.body.tricycle.add cone
+	#scene.player.body.tricycle.add cone
 
+	font = 'Bold 160px Arial'
+	font2 = 'Bold 90px Arial'
 	tex = THREE.ImageUtils.loadTexture 'res/viva/2006-VIVA-VT3-Sedan-SE/speedometer.png'
+	dynamicTexture	= new THREEx.DynamicTexture(512,512)
+
 	tex.wrapS = THREE.RepeatWrapping
 	tex.repeat.x = -1
-	material = new THREE.MeshPhongMaterial( {color: 0xff0000, map: tex, side: THREE.BackSide} )
+	material = new THREE.MeshPhongMaterial( {color: 0xff0000, map: dynamicTexture.texture, side: THREE.DoubleSide} )
 	circleGeo = new THREE.CircleGeometry(0.038, 32)
 	circleMesh = new THREE.Mesh circleGeo, material
 	circleMesh.position.x = (max.x + min.x) / 2.0
 	circleMesh.position.y = (max.y + min.y) / 2.0
+	circleMesh.rotation.y = Math.PI
 	circleMesh.position.z = (max.z + min.z) / 2.0
 	rot = Math.asin( h / ((w ^ 2 + h ^ 2) ^ 0.5))
 	cone.rotation.x = rot
 	circleMesh.rotation.x = rot
 	scene.player.body.tricycle.add circleMesh
 	cone.rotation.z = Math.PI
+
 	scene.onTickHandled ->
 		speed = scene.player.getSpeed()*3.6
+		dynamicTexture.clear()
+		dynamicTexture.drawText(Math.round(speed), undefined, 256, 'red', font)
+		dynamicTexture.drawText('KPH', undefined, 400, 'red', font2)
+		dynamicTexture.texture.needsUpdate = true
 		speed /= 180
 		#speed = Math.min(speed, 1)
-		cone.rotation.z = -Math.PI*0.75 + (speed * Math.PI)
+		#cone.rotation.z = -Math.PI*0.75 + (speed * Math.PI)
 
 		
 
@@ -448,7 +458,7 @@ exportScenario \laneDriving, (env) ->*
 		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
 		car.physical.position.x = 1.75
 		car.physical.position.z = distances[i]
-		#car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 		cars.push car
 
 
