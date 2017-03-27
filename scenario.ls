@@ -257,12 +257,6 @@ addFakeMirror = (scene, env, ind, y) ->
 steeringwheel = (scene, env) ->
 	wheel = scene.player.body.steeringwheel
 	
-	x = -0.4783821142676093
-	y = 0.8007808882639487
-	z = 0.36041714961978905
-	
-	rotx = Math.asin( z / ((y ^ 2 + z ^ 2) ^ 0.5))
-
 	mesh = wheel.children[0]
 	
 	mesh.rotation.x =  -23.25/180*Math.PI
@@ -274,6 +268,7 @@ steeringwheel = (scene, env) ->
 		steer = env.controls.steering
 		rot = -steer * Math.PI*2.5
 		wheel.rotation.z = rot
+
 require './threex/threex.dynamictexture.js'	
 addSpeedometer = (scene, env) ->
 
@@ -434,9 +429,11 @@ exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 	scene.viva = undefined
+
 	addFakeMirror scene, env, 0, 4.5/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
+
 	addSpeedometer scene, env
 	steeringwheel scene, env
 	scene.player.body.traverse (obj) ->
@@ -446,24 +443,31 @@ exportScenario \laneDriving, (env) ->*
 	env.controls.change (btn) ->
 		if btn == "catch"
 			env.vrcontrols.resetPose()
-	trafficControls = new TargetSpeedController
-	distances = [-150, -100, 70, 170, 300, 400]
+
+	#failOnCollision env, @, scene
+
+	trafficControlsLeft = new TargetSpeedController
+	trafficControlsRight = new TargetSpeedController
+	locsRight = [-120, -90, 70, 170, 250, 340]
+	locsLeft = [-80, -100, -120, 130, 150, 170]
 	cars = []
+
 	for i from 0 til 4
-		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
+		car = scene.right = yield addVehicle scene, trafficControlsRight, "res/viva/NPCViva.dae"
 		car.physical.position.x = -1.75
-		car.physical.position.z = distances[i]
-		cars.push car
-	for i from 0 til 4
-		car = scene.leader = yield addVehicle scene, trafficControls, "res/viva/NPCViva.dae"
-		car.physical.position.x = 1.75
-		car.physical.position.z = distances[i]
-		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		car.physical.position.z = locsRight[i]
 		cars.push car
 
+	for i from 0 til 6
+		car = scene.left = yield addVehicle scene, trafficControlsLeft, "res/viva/NPCViva.dae"
+		car.physical.position.x = 1.75
+		car.physical.position.z = locsLeft[i]
+		#car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		cars.push car
 
 	speeds = [30, 20, 50, 100, 20, 120]*2
 	shuffleArray speeds
+	
 	while speeds[*-1] == 0
 		shuffleArray speeds
 	speedDuration = 10
@@ -472,15 +476,21 @@ exportScenario \laneDriving, (env) ->*
 		[(i+1)*speedDuration, speed/3.6]
 
 	scene.afterPhysics.add (dt) ->
+
 		if scene.time > sequence[0][0] and sequence.length > 1
 			sequence := sequence.slice(1)
-		trafficControls.target = sequence[0][1]
-		trafficControls.tick scene.leader.getSpeed(), dt
+
+		trafficControlsLeft.target = 130/3.6
+		trafficControlsLeft.tick scene.left.getSpeed(), dt
+
+		trafficControlsRight.target = 90/3.6
+		trafficControlsRight.tick scene.right.getSpeed(), dt
+
 		for car in cars
-			if scene.player.physical.position.z - car.physical.position.z > 400
-				car.physical.position.z += 700
-			if car.physical.position.z - scene.player.physical.position.z > 400
-				car.physical.position.z -= 700
+			if scene.player.physical.position.z - car.physical.position.z > 200
+				car.physical.position.z += 300
+			if car.physical.position.z - scene.player.physical.position.z > 200
+				car.physical.position.z -= 300
 
 	# "Return" the scene to the caller, so they know
 	# we are ready
