@@ -265,12 +265,14 @@ steeringwheel = (scene, env) ->
 
 	mesh = wheel.children[0]
 	
-	mesh.rotation.x =  -rotx
+	mesh.rotation.x =  -23.25/180*Math.PI
+	mesh.rotation.y =  0.49/180*Math.PI
+	mesh.rotation.z =  -0.21/180*Math.PI
 	mesh.geometry.center()
 	wheel.rotation.x = -mesh.rotation.x
 	scene.onTickHandled ->
 		steer = env.controls.steering
-		rot = steer * Math.PI*2.5
+		rot = -steer * Math.PI*2.5
 		wheel.rotation.z = rot
 		
 addSpeedometer = (scene, env) ->
