@@ -117,6 +117,7 @@ export NonSteeringControl = (orig) ->
 	return ctrl
 
 
+
 export class TargetSpeedController
 	(@target=0) ->
 		@throttle = 0
@@ -124,7 +125,7 @@ export class TargetSpeedController
 		@steering = 0
 		@direction = 1
 
-	tick: (speed, dt) ->
+	tick: (speed, dt, ang) ->
 		delta = @target - speed
 		force = Math.tanh delta
 		if force > 0
@@ -133,5 +134,56 @@ export class TargetSpeedController
 		else
 			@brake = force
 			@throttle = 0
+		@steering = ang
 
 	set: ->
+
+
+export class TargetSpeedController2
+	(@target=0) ->
+		@throttle = 0
+		@brake = 0
+		@steering = 0
+		@direction = 1
+		@force = 0
+
+	tick: (targetAccel, dt, ang) ->
+		@force = DumbEngineModel targetAccel
+		@force = Math.max @force, -1
+		@force = Math.min @force, 1
+		if @force > 0
+			@throttle = @force
+			@brake = 0
+		else
+			@brake = -@force
+			@throttle = 0
+		@steering = ang
+
+	set: ->
+
+DumbEngineModel = (targetAccel) ->
+	knots = [[-19.150852756939567, -0.86960922500437798], 
+				[-10.0, -0.67314024428906383], 
+				[-4.0, -0.53092823365752206], 
+				[-2.5, -0.34978573520149692], 
+				[-1.7, -0.097415037510977784], 
+				[-1.2, 0.031117285095661945], 
+				[0.0, 0.26398121786496032], 
+				[3.0, 0.71245888265216406], 
+				[5.2096257357368652, 0.93516331581155065]]
+
+	if targetAccel < knots[0][0]
+		force = knots[0][1]
+	else if targetAccel > knots[knots.length-1][0]
+		force = knots[knots.length-1][1]
+	else
+		for k, i in knots
+			if k[0] > targetAccel
+				break
+		before = knots[i-1]
+		after = knots[i]
+
+		force = (targetAccel - before[0]) / (after[0] - before[0]) * (after[1] - before[1]) + before[1]
+					
+	#console.log targetAccel, force
+	return force

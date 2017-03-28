@@ -318,7 +318,57 @@ addSpeedometer = (scene, env) ->
 		#speed = Math.min(speed, 1)
 		#cone.rotation.z = -Math.PI*0.75 + (speed * Math.PI)
 
+handleSteering = (car, lane = 1.75) ->
+	
+	if car.getSpeed()*3.6 < 5
+		return 0
+
+	v1 = car.physical.velocity
+	pos = car.body.position
+
+	v2 =  {x: lane, z: pos.z + car.getSpeed()*0.5}
+
+	v1 = {x: v1.x , z: v1.z}
+	v2 = {x: v2.x - pos.x, z: v2.z - pos.z}
+
+	angle =  Math.atan2(v1.x, v1.z) - Math.atan2(v2.x, v2.z)
+
+	angleMin = Math.min Math.abs(angle), Math.abs(Math.PI*2 - Math.abs(angle))
+	if Math.abs(angleMin) != Math.abs(angle)
+		angle = -Math.sign(angle)*angleMin/2.5
+
+	return -angle
+
+getAccelerationIDM = (car, leader, maxVel) ->
+
+	car_vel = car.getSpeed()
+	lead_vel = leader.getSpeed()
+	minDist = 20
+	th = 1.5
+	a = 2
+	b = 3
+
+	pos = car.physical.position.clone()
+	lead_pos = leader.physical.position.clone()
+
+	if pos.z > lead_pos.z
+		lead_pos.z += 600
+
+	dist = pos.distanceTo(lead_pos)	
+
 		
+
+	timeGap = (car_vel*th)
+	deltaSpeed = car_vel - lead_vel
+
+	freeRoad = (car_vel/maxVel) ^ 4 
+	busyRoad = minDist + timeGap + ( car_vel*deltaSpeed / (2 * Math.sqrt(a*b)))
+
+	accelTarget = a*(1 - freeRoad - (busyRoad/dist) ^ 2)
+	
+	car.dist = dist
+	
+	return accelTarget
 
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
@@ -425,6 +475,8 @@ failOnCollision = (env, scn, scene) ->
 			content: reason
 		return false
 
+
+{TargetSpeedController2} = require './controls.ls'
 exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
@@ -446,52 +498,83 @@ exportScenario \laneDriving, (env) ->*
 
 	#failOnCollision env, @, scene
 
-	trafficControlsLeft = new TargetSpeedController
-	trafficControlsRight = new TargetSpeedController
-	locsRight = [-120, -90, 70, 170, 250, 340]
-	locsLeft = [-80, -100, -120, 130, 150, 170]
-	cars = []
+	#trafficControlsLeft = new TargetSpeedController
+	#trafficControlsRight = new TargetSpeedController
+	
+	locsRight = [-144, -66, 66, 144, 199]
+	locsLeft = [-144, -66, 0, 66, 144, 199]
+	
+	r_cars = []
+	l_cars = []
+	
+	nR = 5
+	nL = 6
 
-	for i from 0 til 4
-		car = scene.right = yield addVehicle scene, trafficControlsRight, "res/viva/NPCViva.dae"
+	for i from 0 til nR
+		controller = new TargetSpeedController2
+		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
+		car.controller = controller
 		car.physical.position.x = -1.75
+		car.lane = -1.75
 		car.physical.position.z = locsRight[i]
-		cars.push car
+		r_cars.push car
+		
 
-	for i from 0 til 6
-		car = scene.left = yield addVehicle scene, trafficControlsLeft, "res/viva/NPCViva.dae"
+	for i from 0 til nR
+		r_cars[i].leader = r_cars[(i + 1) % (nR)]
+
+	for i from 0 til nL
+		controller = new TargetSpeedController2
+		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
+		car.controller = controller
 		car.physical.position.x = 1.75
+		car.lane = 1.75
 		car.physical.position.z = locsLeft[i]
 		#car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
-		cars.push car
+		l_cars.push car
 
-	speeds = [30, 20, 50, 100, 20, 120]*2
-	shuffleArray speeds
+	for i from 0 til nL
+		l_cars[i].leader = l_cars[(i + 1) % (nL)]
+
+	cars = r_cars.concat(l_cars)
 	
-	while speeds[*-1] == 0
-		shuffleArray speeds
-	speedDuration = 10
 
-	sequence = for speed, i in speeds
-		[(i+1)*speedDuration, speed/3.6]
+	#speeds = [30, 20, 50, 100, 20, 120]*2
+	#shuffleArray speeds
+	#while speeds[*-1] == 0
+	#	shuffleArray speeds
+	#speedDuration = 10
 
+	#sequence = for speed, i in speeds
+	#	[(i+1)*speedDuration, speed/3.6]
+	raycaster = new THREE.Raycaster()
 	scene.afterPhysics.add (dt) ->
 
-		if scene.time > sequence[0][0] and sequence.length > 1
-			sequence := sequence.slice(1)
-
-		trafficControlsLeft.target = 130/3.6
-		trafficControlsLeft.tick scene.left.getSpeed(), dt
-
-		trafficControlsRight.target = 90/3.6
-		trafficControlsRight.tick scene.right.getSpeed(), dt
-
+		#if scene.time > sequence[0][0] and sequence.length > 1
+		#	sequence := sequence.slice(1)
+		
 		for car in cars
-			if scene.player.physical.position.z - car.physical.position.z > 200
-				car.physical.position.z += 300
-			if car.physical.position.z - scene.player.physical.position.z > 200
-				car.physical.position.z -= 300
+			
+			leader = car.leader
 
+			raycaster.ray.origin.copy(car.physical.position)
+			raycaster.ray.direction.z = 1
+			intersection = raycaster.intersectObject(scene.player.body, recursive = true)
+			if intersection.length > 0 and intersection[0].distance < car.physical.position.distanceTo(leader.physical.position)
+				leader = scene.player
+				
+			ang = handleSteering car, car.lane
+			
+			if car.lane == 1.75 
+				targ = getAccelerationIDM car, leader, 110/3.6
+			else 
+				targ = getAccelerationIDM car, leader, 90/3.6
+
+			car.controller.tick targ, dt, ang
+			if scene.player.physical.position.z - car.physical.position.z > 300
+				car.physical.position.z += 600
+			if car.physical.position.z - scene.player.physical.position.z > 300
+				car.physical.position.z -= 600
 	# "Return" the scene to the caller, so they know
 	# we are ready
 	@let \scene, scene
