@@ -343,8 +343,8 @@ getAccelerationIDM = (car, leader, maxVel) ->
 
 	car_vel = car.getSpeed()
 	lead_vel = leader.getSpeed()
-	minDist = 20
-	th = 1.5
+	minDist = 15
+	th = car.th ? 1.5
 	a = 2
 	b = 3
 
@@ -503,6 +503,7 @@ exportScenario \laneDriving, (env) ->*
 	
 	locsRight = [-144, -66, 66, 144, 199]
 	locsLeft = [-144, -66, 0, 66, 144, 199]
+	thsLeft = [0.8, 0.8, 3, 0.8, 0.8, 3] 
 	
 	r_cars = []
 	l_cars = []
@@ -529,6 +530,7 @@ exportScenario \laneDriving, (env) ->*
 		car.controller = controller
 		car.physical.position.x = 1.75
 		car.lane = 1.75
+		car.th = thsLeft[i]
 		car.physical.position.z = locsLeft[i]
 		#car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 		l_cars.push car
