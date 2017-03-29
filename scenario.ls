@@ -352,7 +352,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 	lead_pos = leader.physical.position.clone()
 
 	if pos.z > lead_pos.z
-		lead_pos.z += 600
+		lead_pos.z += 400
 
 	dist = pos.distanceTo(lead_pos)	
 
@@ -482,7 +482,7 @@ exportScenario \laneDriving, (env) ->*
 	scene = yield baseScene env
 	scene.viva = undefined
 
-	addFakeMirror scene, env, 0, 4.5/180*Math.PI
+	addFakeMirror scene, env, 0, 0 #4.5/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 
@@ -571,10 +571,10 @@ exportScenario \laneDriving, (env) ->*
 				targ = getAccelerationIDM car, leader, 90/3.6
 
 			car.controller.tick targ, dt, ang
-			if scene.player.physical.position.z - car.physical.position.z > 300
-				car.physical.position.z += 600
-			if car.physical.position.z - scene.player.physical.position.z > 300
-				car.physical.position.z -= 600
+			if scene.player.physical.position.z - car.physical.position.z > 200
+				car.physical.position.z += 400
+			if car.physical.position.z - scene.player.physical.position.z > 200
+				car.physical.position.z -= 400
 	# "Return" the scene to the caller, so they know
 	# we are ready
 	@let \scene, scene

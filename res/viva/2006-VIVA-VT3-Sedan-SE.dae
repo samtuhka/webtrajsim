@@ -800,91 +800,10 @@
             </instance_geometry>
         </node>
         <node id="ID432" name="Group_7">
-            <instance_geometry url="#ID433">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID439">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID183">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID445">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID183">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
             <instance_geometry url="#ID451">
                 <bind_material>
                     <technique_common>
                         <instance_material symbol="Material2" target="#ID452">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID464">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID470">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID476">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID183">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID482">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID488">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
-                            <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
-                        </instance_material>
-                    </technique_common>
-                </bind_material>
-            </instance_geometry>
-            <instance_geometry url="#ID494">
-                <bind_material>
-                    <technique_common>
-                        <instance_material symbol="Material2" target="#ID350">
                             <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0" />
                         </instance_material>
                     </technique_common>

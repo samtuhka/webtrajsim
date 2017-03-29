@@ -334,7 +334,7 @@ export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, st
 			wheel.quaternion.copy wi.worldTransform.quaternion
 
 		scene.beforePhysics.add (dt) ->
-			setBrakelight controls.brake > 0
+			#setBrakelight controls.brake > 0
 			mag = Math.abs controls.steering
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
