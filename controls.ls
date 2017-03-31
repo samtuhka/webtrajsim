@@ -145,19 +145,24 @@ export class TargetSpeedController2
 		@brake = 0
 		@steering = 0
 		@direction = 1
-		@force = 0
 
-	tick: (targetAccel, dt, ang) ->
-		@force = DumbEngineModel targetAccel
-		@force = Math.max @force, -1
-		@force = Math.min @force, 1
-		if @force > 0
-			@throttle = @force
+	tick: (speed, targetAccel, steerAng, simple, dt) ->
+		force = DumbEngineModel targetAccel
+
+		if simple 
+			delta = @target - speed
+			force = Math.tanh delta
+		
+		force = Math.max force, -1
+		force = Math.min force, 1
+
+		if force > 0
+			@throttle = force
 			@brake = 0
 		else
-			@brake = -@force
+			@brake = -force
 			@throttle = 0
-		@steering = ang
+		@steering = steerAng
 
 	set: ->
 
