@@ -476,6 +476,9 @@ failOnCollision = (env, scn, scene) ->
 		return false
 
 setCarControls = (scene, raycaster, cars) ->
+	scene.player.behindPlayerRight = 0
+	scene.player.behindPlayerLeft = 0
+		
 	for car in cars
 		leader = car.leader
 		simple = true
@@ -485,23 +488,24 @@ setCarControls = (scene, raycaster, cars) ->
 		raycaster.ray.direction.z = 1
 		intersection = raycaster.intersectObject(scene.player.body, recursive = true)
 		
-		if intersection.length > 0
-			if intersection[0].distance < car.physical.position.distanceTo(leader.physical.position)
-				leader = scene.player
+		if scene.player.physical.position.z > car.physical.position.z
+
+			if intersection.length > 0
+				simple = false
+				if intersection[0].distance < car.physical.position.distanceTo(leader.physical.position)
+					leader = scene.player
 			
-			simple = false
-		
 			if car.lane == 1.75
-				targetAcceleration = getAccelerationIDM car, leader, 70/3.6
-				scene.lt = car.getSpeed()
+				targetAcceleration = getAccelerationIDM car, leader, 100/3.6
+				scene.player.behindPlayerLeft += 1
 			else 
 				targetAcceleration = getAccelerationIDM car, leader, 60/3.6
-				scene.rt = car.getSpeed()
-
+				scene.player.behindPlayerRight += 1
+	
 		car.controller.mode = simple
 		car.controller.targetAcceleration = targetAcceleration
 		car.controller.angle = handleSteering car, car.lane
-
+	console.log scene.player.behindPlayerRight, scene.player.behindPlayerLeft
 
 {TargetSpeedController2} = require './controls.ls'
 exportScenario \laneDriving, (env) ->*
@@ -530,26 +534,30 @@ exportScenario \laneDriving, (env) ->*
 	
 	locsRight = [-90, -60, -30, 30, 60, 90]
 	locsLeft = [-90, -60, -30, 30, 60, 90]
+
 	thsLeft = [1, 1, 2, 1, 1, 2] 
-	
+	thsRight = [1.33, 1.33, 1.33, 1.33, 1.33, 1.33] 
+
 	r_cars = []
 	l_cars = []
 	
 	nR = 6
 	nL = 6
-
+	
 	for i from 0 til nR
 		controller = new TargetSpeedController2
 		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = controller
 		car.physical.position.x = -1.75
 		car.lane = -1.75
+		car.th = thsRight[i]
 		car.physical.position.z = locsRight[i]
 		r_cars.push car
 		
 
 	for i from 0 til nR
 		r_cars[i].leader = r_cars[(i + 1) % (nR)]
+		r_cars[i].follower = r_cars[(i + nR - 1) % nR]
 
 	for i from 0 til nL
 		controller = new TargetSpeedController2
@@ -564,7 +572,8 @@ exportScenario \laneDriving, (env) ->*
 
 
 	for i from 0 til nL
-		l_cars[i].leader = l_cars[(i + 1) % (nL)]
+		l_cars[i].leader = l_cars[(i + 1) % nL]
+		l_cars[i].follower = l_cars[(i + nL - 1) % nL]
 
 	cars = r_cars.concat(l_cars)
 	ui.gauge env,
@@ -580,30 +589,49 @@ exportScenario \laneDriving, (env) ->*
 
 	raycaster = new THREE.Raycaster()
 
-	scene.afterPhysics.add (dt) ->
-
-		scene.lt = 70/3.6
-		scene.rt = 60/3.6
-		
-		setCarControls scene, raycaster, cars
-
-		for car in cars
-
-			if car.lane == 1.75
-				car.controller.target = scene.lt
-			else
-				car.controller.target = scene.rt
-
-			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
-
-			if scene.player.physical.position.z - car.physical.position.z > 120
-				car.physical.position.z += 240
-			if car.physical.position.z - scene.player.physical.position.z > 120
-				car.physical.position.z -= 240
 
 	# "Return" the scene to the caller, so they know
 	# we are ready
 	@let \scene, scene
+
+	scene.moveL = 0
+	scene.moveR = 0
+
+	scene.afterPhysics.add (dt) ->
+
+		lt = 100/3.6
+		rt = 60/3.6
+		
+		setCarControls scene, raycaster, cars
+
+		for car in cars
+			if car.lane == 1.75
+				car.controller.target = lt
+			else
+				car.controller.target = rt
+
+			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
+
+
+		if scene.player.behindPlayerLeft > 3
+				scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
+				scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
+				scene.left = scene.left.leader
+
+		if scene.player.behindPlayerLeft < 3
+				scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*lt
+				scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
+				scene.left = scene.left.follower
+		
+		if scene.player.behindPlayerRight > 3
+				scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.left.th*lt
+				scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
+				scene.right = scene.right.leader
+
+		if scene.player.behindPlayerRight < 3
+				scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.left.th*lt
+				scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
+				scene.right = scene.right.follower
 
 	# Run until somebody says "done".
 	yield @get \done
