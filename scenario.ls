@@ -272,41 +272,30 @@ steeringwheel = (scene, env) ->
 require './threex/threex.dynamictexture.js'	
 addSpeedometer = (scene, env) ->
 
-	geometry = new THREE.ConeGeometry(0.001, 0.038, 32 )
-	geometry.translate(0, 0.019, 0)
-	material = new THREE.MeshPhongMaterial( {color: 0xff0000} )
-	cone = new THREE.Mesh geometry, material
 	scene.player.body.tricycle.geometry.computeBoundingBox()
 	max = scene.player.body.tricycle.geometry.boundingBox.max
 	min = scene.player.body.tricycle.geometry.boundingBox.min
 	w = max.x - min.x
 	h = max.y - min.y
 
-	cone.position.x = (max.x + min.x) / 2.0
-	cone.position.y = (max.y + min.y) / 2.0
-	cone.position.z = (max.z + min.z) / 2.0
-
-	#scene.player.body.tricycle.add cone
 
 	font = 'Bold 160px Arial'
 	font2 = 'Bold 90px Arial'
-	tex = THREE.ImageUtils.loadTexture 'res/viva/2006-VIVA-VT3-Sedan-SE/speedometer.png'
+
 	dynamicTexture	= new THREEx.DynamicTexture(512,512)
 
-	tex.wrapS = THREE.RepeatWrapping
-	tex.repeat.x = -1
-	material = new THREE.MeshPhongMaterial( {color: 0xff0000, map: dynamicTexture.texture, side: THREE.DoubleSide} )
+	material = new THREE.MeshPhongMaterial( {color: 0xff0000, map: dynamicTexture.texture, transparent: true} )
 	circleGeo = new THREE.CircleGeometry(0.038, 32)
 	circleMesh = new THREE.Mesh circleGeo, material
 	circleMesh.position.x = (max.x + min.x) / 2.0
 	circleMesh.position.y = (max.y + min.y) / 2.0
-	circleMesh.rotation.y = Math.PI
 	circleMesh.position.z = (max.z + min.z) / 2.0
+	circleMesh.rotation.y = Math.PI
+
 	rot = Math.asin( h / ((w ^ 2 + h ^ 2) ^ 0.5))
-	cone.rotation.x = rot
 	circleMesh.rotation.x = rot
 	scene.player.body.tricycle.add circleMesh
-	cone.rotation.z = Math.PI
+
 
 	scene.onTickHandled ->
 		speed = scene.player.getSpeed()*3.6
@@ -314,9 +303,6 @@ addSpeedometer = (scene, env) ->
 		dynamicTexture.drawText(Math.round(speed), undefined, 256, 'red', font)
 		dynamicTexture.drawText('KPH', undefined, 400, 'red', font2)
 		dynamicTexture.texture.needsUpdate = true
-		speed /= 180
-		#speed = Math.min(speed, 1)
-		#cone.rotation.z = -Math.PI*0.75 + (speed * Math.PI)
 
 handleSteering = (car, lane = 1.75) ->
 	
@@ -510,34 +496,32 @@ setCarControls = (scene, cars) ->
 
 instructions3D = (scene, env, title, content) ->
 	
-	titleFont = 'Bold 160px Arial'
-	font = 	'Bold 120px Arial'
+	titleFont = 'Bold 80px Arial'
+	font = 	'Bold 60px Arial'
 	
-	instTex	= new THREEx.DynamicTexture(2048,2048)
+	instTex	= new THREEx.DynamicTexture(2048,1024)
 	
-	instTex.drawText(title, undefined, 256, 'white', titleFont)
+	instTex.drawText(title, undefined, 128, 'white', titleFont)
 
 	lines = content.split(/\r?\n/)
 	y = 0
 	for line in lines
-		instTex.drawText(line, undefined, 430 + y, 'white', font)
-		y += 120
+		instTex.drawText(line, undefined, 215 + y, 'white', font)
+		y += 60
 	instTex.texture.wrapS = THREE.RepeatWrapping
 	instTex.texture.repeat.x = -1
 	material = new THREE.MeshLambertMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide} )
-	instGeo = new THREE.PlaneGeometry(2, 2)
+	instGeo = new THREE.PlaneGeometry(3, 1.5)
 	instMesh = new THREE.Mesh instGeo, material
 	instTex.texture.needsUpdate = true
 
-	instMesh.position.y = 1.23
-	instMesh.position.x = 0.37
+	instMesh.position.y = 1.5
+	instMesh.position.x = -1.75
 	instMesh.position.z = 4.75
 
-	scene.player.body.add instMesh
+	scene.visual.add instMesh
+	scene.instructions = instMesh
 	
-	env.controls.change (btn) ->
-		if btn == "catch"
-			scene.player.body.remove(instMesh)
 
 {TargetSpeedController2} = require './controls.ls'
 exportScenario \laneDriving, (env) ->*
@@ -629,8 +613,9 @@ exportScenario \laneDriving, (env) ->*
 	start = false
 
 	env.controls.change (btn) ->
-		if btn == "catch"
+		if btn == "catch" && not start
 			start := true
+			scene.visual.remove(scene.instructions)
 
 	while start == false
 			yield P.delay 100

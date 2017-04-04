@@ -12,9 +12,13 @@
 			to the car before you without colliding. When you're done, press the
 			red button on the right side of the wheel."""
 '%laneChange.intro': """
+
 			Here be instructions
-			Here be instructions
-			Here be instructions"""
+
+			Reset vr-headset pose with the left lever
+
+			When you're ready to start, press the red button
+			on the right side of the wheel"""
 
 
 '%closeTheGap.outro': ({distance}) -> "You got within #{(distance*100).toFixed 1} cm."
