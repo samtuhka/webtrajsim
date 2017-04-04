@@ -496,16 +496,42 @@ setCarControls = (scene, raycaster, cars) ->
 					leader = scene.player
 			
 			if car.lane == 1.75
-				targetAcceleration = getAccelerationIDM car, leader, 100/3.6
+				targetAcceleration = getAccelerationIDM car, leader, 110/3.6
 				scene.player.behindPlayerLeft += 1
 			else 
-				targetAcceleration = getAccelerationIDM car, leader, 60/3.6
+				targetAcceleration = getAccelerationIDM car, leader, 80/3.6
 				scene.player.behindPlayerRight += 1
 	
 		car.controller.mode = simple
 		car.controller.targetAcceleration = targetAcceleration
 		car.controller.angle = handleSteering car, car.lane
-	console.log scene.player.behindPlayerRight, scene.player.behindPlayerLeft
+
+
+instructions3D = (scene, env, title, content) ->
+	
+	titleFont = 'Bold 80px Arial'
+	font = 	'Bold 60px Arial'
+	
+	instTex	= new THREEx.DynamicTexture(2048,2048)
+	
+	instTex.drawText(title, undefined, 256, 'white', titleFont)
+
+	lines = content.split(/\r?\n/)
+	y = 0
+	for line in lines
+		instTex.drawText(line, undefined, 400 + y, 'white', font)
+		y += 80
+
+	material = new THREE.MeshBasicMaterial( {color: 0xffffff, map: instTex.texture, transparent: true, opacity: 0.9} )
+	instGeo = new THREE.PlaneGeometry(0.25, 0.25)
+	instMesh = new THREE.Mesh instGeo, material
+	instTex.texture.needsUpdate = true
+	instMesh.position.z = -0.1
+	scene.camera.add instMesh
+	
+	env.controls.change (btn) ->
+		if btn == "catch"
+			scene.camera.remove(instMesh)
 
 {TargetSpeedController2} = require './controls.ls'
 exportScenario \laneDriving, (env) ->*
@@ -517,6 +543,10 @@ exportScenario \laneDriving, (env) ->*
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 
+	title =  env.L "Lane changing"
+	content =  env.L '%laneChange.intro'
+	instructions3D scene, env, title, content
+
 	addSpeedometer scene, env
 	steeringwheel scene, env
 	scene.player.body.traverse (obj) ->
@@ -524,7 +554,7 @@ exportScenario \laneDriving, (env) ->*
 		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
 
 	env.controls.change (btn) ->
-		if btn == "catch"
+		if btn == "blinder"
 			env.vrcontrols.resetPose()
 
 	#failOnCollision env, @, scene
@@ -532,11 +562,11 @@ exportScenario \laneDriving, (env) ->*
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 	
-	locsRight = [-90, -60, -30, 30, 60, 90]
+	locsRight = [-60, -40, -20, 20, 40, 60]
 	locsLeft = [-90, -60, -30, 30, 60, 90]
 
 	thsLeft = [1, 1, 2, 1, 1, 2] 
-	thsRight = [1.33, 1.33, 1.33, 1.33, 1.33, 1.33] 
+	thsRight = [1, 1, 1, 1, 1, 1]
 
 	r_cars = []
 	l_cars = []
@@ -576,31 +606,38 @@ exportScenario \laneDriving, (env) ->*
 		l_cars[i].follower = l_cars[(i + nL - 1) % nL]
 
 	cars = r_cars.concat(l_cars)
-	ui.gauge env,
-		name: "Speed"
-		unit: "km/h"
-		value: ->
-			Math.round cars[0].getSpeed()*3.6
-	ui.gauge env,
-		name: "Speed"
-		unit: "km/h"
-		value: ->
-			Math.round cars[8].getSpeed()*3.6
 
 	raycaster = new THREE.Raycaster()
+
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = -4
+	startLight.position.z = 6
+	startLight.addTo scene
 
 
 	# "Return" the scene to the caller, so they know
 	# we are ready
 	@let \scene, scene
+	yield @get \run
 
 	scene.moveL = 0
 	scene.moveR = 0
+	
+	start = false
+
+	env.controls.change (btn) ->
+		if btn == "catch"
+			start := true
+
+	while start == false
+			yield P.delay 100
+
+	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
 
-		lt = 100/3.6
-		rt = 60/3.6
+		lt = 110/3.6
+		rt = 80/3.6
 		
 		setCarControls scene, raycaster, cars
 
@@ -612,7 +649,7 @@ exportScenario \laneDriving, (env) ->*
 
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
-
+		
 		if scene.player.behindPlayerLeft > 3
 				scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
 				scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
@@ -634,7 +671,7 @@ exportScenario \laneDriving, (env) ->*
 				scene.right = scene.right.follower
 
 	# Run until somebody says "done".
-	yield @get \done
+	return yield @get \done
 
 exportScenario \closeTheGap, (env) ->*
 	@let \intro,

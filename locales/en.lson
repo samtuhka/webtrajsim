@@ -11,6 +11,12 @@
 			Let's get familiar with the car's dimensions. Drive as close as you
 			to the car before you without colliding. When you're done, press the
 			red button on the right side of the wheel."""
+'%laneChange.intro': """
+			Here be instructions
+			Here be instructions
+			Here be instructions"""
+
+
 '%closeTheGap.outro': ({distance}) -> "You got within #{(distance*100).toFixed 1} cm."
 
 '%throttleAndBrake.intro': """Let's get familiar with the car. Get across the finish line
