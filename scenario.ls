@@ -296,7 +296,6 @@ addSpeedometer = (scene, env) ->
 	circleMesh.rotation.x = rot
 	scene.player.body.tricycle.add circleMesh
 
-
 	scene.onTickHandled ->
 		speed = scene.player.getSpeed()*3.6
 		dynamicTexture.clear()
@@ -510,9 +509,12 @@ instructions3D = (scene, env, title, content) ->
 		y += 60
 	instTex.texture.wrapS = THREE.RepeatWrapping
 	instTex.texture.repeat.x = -1
-	material = new THREE.MeshLambertMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide} )
+	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide} )
 	instGeo = new THREE.PlaneGeometry(3, 1.5)
 	instMesh = new THREE.Mesh instGeo, material
+	background = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.BackSide, transparent: true, opacity: 0.8})
+	background.position.z = 0.01
+	instMesh.add background
 	instTex.texture.needsUpdate = true
 
 	instMesh.position.y = 1.5
@@ -552,17 +554,17 @@ exportScenario \laneDriving, (env) ->*
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 	
-	locsRight = [-60, -40, -20, 20, 40, 60]
-	locsLeft = [-90, -60, -30, 30, 60, 90]
+	locsRight = [-60, -40, -20, 20, 40, 60, 80, 100]
+	locsLeft = [-90, -60, -30, 30, 60, 90, 120]
 
-	thsLeft = [1, 1, 2, 1, 1, 2] 
-	thsRight = [1, 1, 1, 1, 1, 1]
+	thsLeft = [1, 1, 2, 1, 1, 1, 2] 
+	thsRight = [1, 1, 1, 1, 1, 1, 1]
 
 	r_cars = []
 	l_cars = []
 	
-	nR = 6
-	nL = 6
+	nR = 7
+	nL = 7
 	
 	for i from 0 til nR
 		controller = new TargetSpeedController2
@@ -638,22 +640,22 @@ exportScenario \laneDriving, (env) ->*
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
 		
-		if scene.player.behindPlayerLeft > nL/2
+		if scene.player.behindPlayerLeft > 3
 				scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
 				scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
 				scene.left = scene.left.leader
 
-		if scene.player.behindPlayerLeft < nL/2
+		if scene.player.behindPlayerLeft < 3
 				scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*lt
 				scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
 				scene.left = scene.left.follower
 		
-		if scene.player.behindPlayerRight > nR/2
+		if scene.player.behindPlayerRight > 3
 				scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.left.th*lt
 				scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
 				scene.right = scene.right.leader
 
-		if scene.player.behindPlayerRight < nR/2
+		if scene.player.behindPlayerRight < 3
 				scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.left.th*lt
 				scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 				scene.right = scene.right.follower
