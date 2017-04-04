@@ -475,24 +475,25 @@ failOnCollision = (env, scn, scene) ->
 			content: reason
 		return false
 
-setCarControls = (scene, raycaster, cars) ->
+setCarControls = (scene, cars) ->
 	scene.player.behindPlayerRight = 0
 	scene.player.behindPlayerLeft = 0
 		
 	for car in cars
 		leader = car.leader
 		simple = true
-		targetAcceleration = 0			
-
-		raycaster.ray.origin.copy(car.physical.position)
-		raycaster.ray.direction.z = 1
-		intersection = raycaster.intersectObject(scene.player.body, recursive = true)
+		targetAcceleration = 0
 		
-		if scene.player.physical.position.z > car.physical.position.z
+		playerPos = scene.player.physical.position
+		pos = car.physical.position
 
-			if intersection.length > 0
+		if playerPos.z > pos.z
+
+			if Math.abs(playerPos.x - pos.x) < 2.25
+				
 				simple = false
-				if intersection[0].distance < car.physical.position.distanceTo(leader.physical.position)
+
+				if pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
 					leader = scene.player
 			
 			if car.lane == 1.75
@@ -612,8 +613,6 @@ exportScenario \laneDriving, (env) ->*
 
 	cars = r_cars.concat(l_cars)
 
-	raycaster = new THREE.Raycaster()
-
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4
 	startLight.position.z = 6
@@ -643,7 +642,7 @@ exportScenario \laneDriving, (env) ->*
 		lt = 110/3.6
 		rt = 80/3.6
 		
-		setCarControls scene, raycaster, cars
+		setCarControls scene, cars
 
 		for car in cars
 			if car.lane == 1.75
