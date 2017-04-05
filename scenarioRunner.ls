@@ -238,13 +238,13 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	{passed, outro} = result = yield scenario
 	el.remove()
 
-	outro = ui.instructionScreen env, ->
-			@ \title .append outro.title
-			@ \subtitle .append outro.subtitle
-			@ \content .append outro.content
-			me.let \done, passed: passed, outro: @, result: result
-	@let \outro, [outro]
-	yield outro
+	#outro = ui.instructionScreen env, ->
+	#		@ \title .append outro.title
+	#		@ \subtitle .append outro.subtitle
+	#		@ \content .append outro.content
+	#		me.let \done, passed: passed, outro: @, result: result
+	#@let \outro, [outro]
+	#yield outro
 	scope.let \destroy
 	yield scope
 	env.logger.write destroyedScenario: scenarioLoader.scenarioName

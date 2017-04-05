@@ -88,6 +88,8 @@ export baseScene = seqr.bind (env) ->*
 		engineSounds.setPitch rev*2000
 	scene.onStart.add engineSounds.start
 	scene.onExit.add engineSounds.stop
+	
+	scene.engineSounds = engineSounds
 
 	scene.onStart ->
 		env.container.addClass "hide-cursor"
@@ -493,8 +495,7 @@ setCarControls = (scene, cars) ->
 		car.controller.angle = handleSteering car, car.lane
 
 
-instructions3D = (scene, env, title, content) ->
-	
+text3D = (title, content) ->
 	titleFont = 'Bold 80px Arial'
 	font = 	'Bold 60px Arial'
 	
@@ -507,6 +508,36 @@ instructions3D = (scene, env, title, content) ->
 	for line in lines
 		instTex.drawText(line, undefined, 215 + y, 'white', font)
 		y += 60
+	return instTex
+
+endingVr = (scene, title, reason) ->
+	reason += "\nContinue by pressing the right red button on the wheel."
+	text = text3D title, reason
+	endMat = new THREE.MeshBasicMaterial( {color: 0xffffff, map: text.texture, transparent: true, opacity: 0.9} )
+	endGeo = new THREE.PlaneGeometry(0.1, 0.05)
+	endMesh = new THREE.Mesh endGeo, endMat
+	scene.camera.add endMesh
+	endMesh.position.z = -0.1
+	endMesh.position.y = -0.025
+	geo = new THREE.PlaneGeometry 40000, 40000
+	mat = new THREE.MeshBasicMaterial color: 0x000000, depthTest: true
+	mesh = new THREE.Mesh geo, mat
+	mesh.position.z = -0.15
+	scene.camera.add mesh
+	scene.endtime = scene.time
+	scene.engineSounds.stop()
+
+failOnCollisionVR = (env, scene) ->
+	scene.player.onCollision (e) ->
+		if not scene.endtime
+			reason = collisionReason env, e
+			title = env.L "Oops!"
+			endingVr scene, title, reason
+
+		
+instructions3D = (scene, env, title, content) ->
+	
+	instTex = text3D title, content
 	instTex.texture.wrapS = THREE.RepeatWrapping
 	instTex.texture.repeat.x = -1
 	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide} )
@@ -527,6 +558,7 @@ instructions3D = (scene, env, title, content) ->
 
 {TargetSpeedController2} = require './controls.ls'
 exportScenario \laneDriving, (env) ->*
+
 	# Load the base scene
 	scene = yield baseScene env
 	scene.viva = undefined
@@ -549,7 +581,7 @@ exportScenario \laneDriving, (env) ->*
 		if btn == "blinder"
 			env.vrcontrols.resetPose()
 
-	#failOnCollision env, @, scene
+	failOnCollisionVR env, scene
 
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
@@ -604,11 +636,10 @@ exportScenario \laneDriving, (env) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-
-	# "Return" the scene to the caller, so they know
-	# we are ready
 	@let \scene, scene
 
+	yield @get \run
+	
 	scene.moveL = 0
 	scene.moveR = 0
 	
@@ -618,6 +649,7 @@ exportScenario \laneDriving, (env) ->*
 		if btn == "catch" && not start
 			start := true
 			scene.visual.remove(scene.instructions)
+
 
 	while start == false
 			yield P.delay 100
@@ -660,7 +692,11 @@ exportScenario \laneDriving, (env) ->*
 				scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 				scene.right = scene.right.follower
 
-	# Run until somebody says "done".
+	env.controls.change (btn, isOn) !~>
+		return unless btn == 'catch' and isOn and scene.endtime
+		@let \done, passed: true
+		return false
+
 	return yield @get \done
 
 exportScenario \closeTheGap, (env) ->*
@@ -691,6 +727,7 @@ exportScenario \closeTheGap, (env) ->*
 			title: env.L "Passed"
 			content: env.L "%closeTheGap.outro", distance: distance
 		return false
+
 
 	return yield @get \done
 
