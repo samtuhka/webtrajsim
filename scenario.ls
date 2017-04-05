@@ -197,21 +197,25 @@ addReactionTest = seqr.bind (scene, env) ->*
 	return react
 require './node_modules/three/examples/js/Mirror.js'
 addMirror = (scene, env) ->
-	mirror = new THREE.Mirror(2.25, 2.08, { clipBias: -0.300, textureWidth: 1024, textureHeight: 1024 } )
+	mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: -0.300, textureWidth: 1024, textureHeight: 1024 } )
 
 
 	mirrorMesh = new THREE.Mesh do
-		new THREE.PlaneBufferGeometry 2.00, 2.00
+		new THREE.PlaneGeometry 2.00, 2.00
 		mirror.material
-	mirror.position.y = 0 #1.245
-	mirror.position.x = 0.01
-	mirror.position.z = -6.38
-
+	mirrorMesh.position.y = 1.245
+	mirrorMesh.position.x = 0.01
+	mirrorMesh.position.z = 6.38
+	mirrorMesh.rotation.y = Math.PI
+	mirrorMesh.add mirror
 	#mirror.material.side = THREE.BackSide
-	#mirror.rotation.y -= Math.PI
-	scene.mirror = mirror
-	#scene.player.body.add mirror
-	scene.camera.add mirror
+
+
+	scene.player.body.add mirrorMesh
+	#scene.camera.add mirrorMesh
+	scene.beforeRender.add (dt) ->
+		mirror.renderer = env.renderer
+		mirror.render()
 
 addFakeMirror = (scene, env, ind, y) ->
 	geometry = scene.player.body.mirrors[ind].geometry
@@ -563,7 +567,7 @@ exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 	scene.viva = undefined
-
+	addMirror scene, env
 	addFakeMirror scene, env, 0, 0 #4.5/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
