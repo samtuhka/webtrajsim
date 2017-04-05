@@ -221,48 +221,32 @@ addMirror = (scene, env) ->
 		mirror.renderer = env.renderer
 		mirror.render()
 
+
+
 addFakeMirror = (scene, env, ind, y) ->
 	geometry = scene.player.body.mirrors[ind].geometry
-	scene.player.body.mirrors[ind].material.transparent = false
 	geometry.computeBoundingBox()
 	max = geometry.boundingBox.max
 	min = geometry.boundingBox.min
-	w = max.x - min.x
-	h = max.y - min.y
-	offset = new THREE.Vector2(0 - min.x, 0 - min.y)
-	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
 
-	FOV = 30.0*(h/w)
-	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
-	scene.player.body.add camera
-	camera.position.x = (max.x + min.x) / 2.0
-	camera.position.y = (max.y + min.y) / 2.0
-	camera.position.z = (max.z + min.z) / 2.0
-	camera.rotation.set(0, y, 0)
+	scene.player.body.mirrors[ind].position.x = (max.x + min.x) / 2.0
+	scene.player.body.mirrors[ind].position.y = (max.y + min.y) / 2.0
+	scene.player.body.mirrors[ind].position.z = (max.z + min.z) / 2.0
 
-	renderTarget = new THREE.WebGLRenderTarget( 256, 256, { format: THREE.RGBFormat } )
+	geometry.center()
 
-	scene.player.body.mirrors[ind].material = new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
-	
-	faces = geometry.faces
-	geometry.faceVertexUvs[0] = []
-	for i from 0 til faces.length
-		v1 = geometry.vertices[faces[i].a]
-		v2 = geometry.vertices[faces[i].b]
-		v3 = geometry.vertices[faces[i].c]
-	
-	
-		uv0 = new THREE.Vector2( ( v1.x - min.x ) / range.x, ( v1.y  - min.y) / range.y)
-		uv1 = new THREE.Vector2( ( v2.x - min.x ) / range.x, ( v2.y - min.y ) / range.y)
-		uv2 = new THREE.Vector2( ( v3.x - min.x ) / range.x, ( v3.y - min.y) / range.y)
-		
-		geometry.faceVertexUvs[0].push([uv0, uv1, uv2])
+	FOV = 250*9/16.0
+	camera = new THREE.PerspectiveCamera FOV, 9/16.0, 0.01, 450000
+	mirror = new THREE.Mirror(env.renderer, camera, { clipBias: -1.000, textureWidth: 2048, textureHeight: 2048 } )
+	scene.camera.add camera
 
+	scene.player.body.mirrors[ind].add mirror
+	scene.player.body.mirrors[ind].material = mirror.material
 	scene.player.body.mirrors[ind].material.needsUpdate = true
-	scene.player.body.mirrors[ind].geometry.uvsNeedUpdate = true
 	
-	scene.onRender.add (dt) ->
-		env.renderer.render(scene.visual, camera, renderTarget, true )
+	scene.beforeRender.add (dt) ->
+		mirror.renderer = env.renderer
+		mirror.render()
 
 steeringwheel = (scene, env) ->
 	wheel = scene.player.body.steeringwheel
@@ -571,7 +555,7 @@ exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 	scene.viva = undefined
-	addMirror scene, env
+
 	addFakeMirror scene, env, 0, 0 #4.5/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
