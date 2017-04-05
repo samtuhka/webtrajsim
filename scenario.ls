@@ -510,7 +510,7 @@ text3D = (title, content) ->
 		y += 60
 	return instTex
 
-endingVr = (scene, title, reason) ->
+endingVr = (scene, env, title, reason) ->
 	reason += "\nContinue by pressing the right red button on the wheel."
 	text = text3D title, reason
 	endMat = new THREE.MeshBasicMaterial( {color: 0xffffff, map: text.texture, transparent: true, opacity: 0.9} )
@@ -526,13 +526,14 @@ endingVr = (scene, title, reason) ->
 	scene.camera.add mesh
 	scene.endtime = scene.time
 	scene.engineSounds.stop()
+	env.logger.write endTime: scene.endtime
 
 failOnCollisionVR = (env, scene) ->
 	scene.player.onCollision (e) ->
 		if not scene.endtime
 			reason = collisionReason env, e
 			title = env.L "Oops!"
-			endingVr scene, title, reason
+			endingVr scene, env, title, reason
 
 		
 instructions3D = (scene, env, title, content) ->
