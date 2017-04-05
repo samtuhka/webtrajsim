@@ -197,9 +197,14 @@ addReactionTest = seqr.bind (scene, env) ->*
 	return react
 require './node_modules/three/examples/js/Mirror.js'
 addMirror = (scene, env) ->
-	mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: -0.300, textureWidth: 1024, textureHeight: 1024 } )
+	
+	FOV = 180.0*(9/16)
+	camera = new THREE.PerspectiveCamera FOV, 16/9.0, 0.01, 450000
+	scene.camera.add camera 
 
+	mirror = new THREE.Mirror(env.renderer, camera, { clipBias: -0.000, textureWidth: 4096, textureHeight: 4096 } )
 
+	
 	mirrorMesh = new THREE.Mesh do
 		new THREE.PlaneGeometry 2.00, 2.00
 		mirror.material
@@ -209,7 +214,6 @@ addMirror = (scene, env) ->
 	mirrorMesh.rotation.y = Math.PI
 	mirrorMesh.add mirror
 	#mirror.material.side = THREE.BackSide
-
 
 	scene.player.body.add mirrorMesh
 	#scene.camera.add mirrorMesh
@@ -586,7 +590,7 @@ exportScenario \laneDriving, (env) ->*
 		if btn == "blinder"
 			env.vrcontrols.resetPose()
 
-	failOnCollisionVR env, scene
+	#failOnCollisionVR env, scene
 
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController

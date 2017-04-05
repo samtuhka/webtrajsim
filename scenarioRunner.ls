@@ -261,7 +261,7 @@ require './node_modules/three/examples/js/vr/WebVR.js'
 
 enableVr = (env, renderer, scene) ->
 	vrcontrols = new THREE.VRControls scene.camera
-	effect = new THREE.VREffect renderer
+	effect = env.vreffect = new THREE.VREffect renderer
 	env.onSize (w, h) ->
 		effect.setSize w, h
 	vrcontrols.resetSensor()
