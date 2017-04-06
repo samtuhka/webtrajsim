@@ -639,17 +639,17 @@ exportScenario \laneDriving, (env) ->*
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 	
-	locsRight = [-60, -40, -20, 20, 40, 60, 80, 100]
-	locsLeft = [-90, -60, -30, 30, 60, 90, 120]
+	locsRight = [-60, -20, 20, 60, 100]
+	locsLeft = [-90, -60, -30, 30, 60, 90]
 
-	thsLeft = [1, 1, 2, 1, 1, 1, 2] 
+	thsLeft = [1, 1, 2, 1, 1, 2] 
 	thsRight = [1, 1, 1, 1, 1, 1, 1]
 
 	r_cars = []
 	l_cars = []
 	
-	nR = 7
-	nL = 7
+	nR = 5
+	nL = 6
 	
 	for i from 0 til nR
 		controller = new TargetSpeedController2
@@ -735,12 +735,12 @@ exportScenario \laneDriving, (env) ->*
 				scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
 				scene.left = scene.left.follower
 		
-		if scene.player.behindPlayerRight > 3
+		if scene.player.behindPlayerRight > 2
 				scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.left.th*lt
 				scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
 				scene.right = scene.right.leader
 
-		if scene.player.behindPlayerRight < 3
+		if scene.player.behindPlayerRight < 2
 				scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.left.th*lt
 				scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 				scene.right = scene.right.follower
