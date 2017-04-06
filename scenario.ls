@@ -221,32 +221,92 @@ addMirror = (scene, env) ->
 		mirror.renderer = env.renderer
 		mirror.render()
 
-
-
-addFakeMirror = (scene, env, ind, y) ->
+addCarMirror = (scene, env, ind, y) ->
 	geometry = scene.player.body.mirrors[ind].geometry
 	geometry.computeBoundingBox()
 	max = geometry.boundingBox.max
 	min = geometry.boundingBox.min
-
+	w = max.x - min.x
+	h = max.y - min.y
 	scene.player.body.mirrors[ind].position.x = (max.x + min.x) / 2.0
 	scene.player.body.mirrors[ind].position.y = (max.y + min.y) / 2.0
 	scene.player.body.mirrors[ind].position.z = (max.z + min.z) / 2.0
 
 	geometry.center()
 
-	FOV = 250*9/16.0
+	FOV = 260*9/16.0
 	camera = new THREE.PerspectiveCamera FOV, 9/16.0, 0.01, 450000
-	mirror = new THREE.Mirror(env.renderer, camera, { clipBias: -1.000, textureWidth: 2048, textureHeight: 2048 } )
+	mirror = new THREE.Mirror(env.renderer, camera, { clipBias: 0.000, textureWidth: 4096, textureHeight: 4096 } )
 	scene.camera.add camera
-
-	scene.player.body.mirrors[ind].add mirror
-	scene.player.body.mirrors[ind].material = mirror.material
-	scene.player.body.mirrors[ind].material.needsUpdate = true
+	
+	mirrorMesh = new THREE.Mesh new THREE.PlaneGeometry(w, h), mirror.material
+	#mirrorMesh.position.y = 1.245
+	#mirrorMesh.position.x = 0.01
+	#mirrorMesh.position.z = 0
+	mirrorMesh.rotation.y = Math.PI
+	mirrorMesh.visible = false
+	mirrorMesh.add mirror
+	scene.player.body.mirrors[ind].add mirrorMesh
+	#scene.player.body.add mirror
+	scene.player.body.mirrors[ind].material = mirrorMesh.material
+	#scene.player.body.mirrors[ind].material.needsUpdate = true
 	
 	scene.beforeRender.add (dt) ->
 		mirror.renderer = env.renderer
 		mirror.render()
+
+	mirrorMesh.add mirror
+	#mirror.material.side = THREE.BackSide
+
+	scene.player.body.add mirrorMesh
+	#scene.camera.add mirrorMesh
+	scene.beforeRender.add (dt) ->
+		mirror.renderer = env.renderer
+		mirror.render()
+
+addFakeMirror = (scene, env, ind, y) ->
+	geometry = scene.player.body.mirrors[ind].geometry
+	scene.player.body.mirrors[ind].material.transparent = false
+	geometry.computeBoundingBox()
+	max = geometry.boundingBox.max
+	min = geometry.boundingBox.min
+	w = max.x - min.x
+	h = max.y - min.y
+	offset = new THREE.Vector2(0 - min.x, 0 - min.y)
+	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
+
+	FOV = 30.0*(h/w)
+	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
+	scene.player.body.add camera
+	camera.position.x = (max.x + min.x) / 2.0
+	camera.position.y = (max.y + min.y) / 2.0
+	camera.position.z = (max.z + min.z) / 2.0
+	camera.rotation.set(0, y, 0)
+
+	renderTarget = new THREE.WebGLRenderTarget( 256, 256, { format: THREE.RGBFormat } )
+
+	scene.player.body.mirrors[ind].material = new THREE.MeshBasicMaterial( { map: renderTarget.texture } )
+	
+	faces = geometry.faces
+	geometry.faceVertexUvs[0] = []
+	for i from 0 til faces.length
+		v1 = geometry.vertices[faces[i].a]
+		v2 = geometry.vertices[faces[i].b]
+		v3 = geometry.vertices[faces[i].c]
+	
+	
+		uv0 = new THREE.Vector2( ( v1.x - min.x ) / range.x, ( v1.y  - min.y) / range.y)
+		uv1 = new THREE.Vector2( ( v2.x - min.x ) / range.x, ( v2.y - min.y ) / range.y)
+		uv2 = new THREE.Vector2( ( v3.x - min.x ) / range.x, ( v3.y - min.y) / range.y)
+		
+		geometry.faceVertexUvs[0].push([uv0, uv1, uv2])
+
+	scene.player.body.mirrors[ind].material.needsUpdate = true
+	scene.player.body.mirrors[ind].geometry.uvsNeedUpdate = true
+	
+	scene.onRender.add (dt) ->
+		env.renderer.render(scene.visual, camera, renderTarget, true )
+
 
 steeringwheel = (scene, env) ->
 	wheel = scene.player.body.steeringwheel
