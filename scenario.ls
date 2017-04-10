@@ -610,6 +610,9 @@ instructions3D = (scene, env, title, content) ->
 	
 
 {TargetSpeedController2} = require './controls.ls'
+require './threex/threex.rendererstats.js'
+require './threex/stats.js'
+
 exportScenario \laneDriving, (env) ->*
 
 	# Load the base scene
@@ -708,6 +711,24 @@ exportScenario \laneDriving, (env) ->*
 			yield P.delay 100
 
 	yield startLight.switchToGreen()
+
+
+	rendererStats = new THREEx.RendererStats()
+	rendererStats.domElement.style.position	= 'absolute'
+	rendererStats.domElement.style.right = '100px'
+	rendererStats.domElement.style.top = '100px'
+
+	stats = new Stats()
+	stats.domElement.style.position	= 'absolute'
+	stats.domElement.style.right	= '400px'
+	stats.domElement.style.bottom	= '40px'
+	document.body.appendChild stats.domElement
+
+	document.body.appendChild rendererStats.domElement
+
+	scene.onRender.add (dt) ->
+		rendererStats.update env.renderer
+		stats.update()
 
 	scene.afterPhysics.add (dt) ->
 

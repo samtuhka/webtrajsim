@@ -139,7 +139,7 @@ loadViva = Co (path) ->*
 		#steeringwheel.position.x += 0.02
 		obj.parent.remove(obj)
 
-
+	
 	groupmaterial = new THREE.MultiMaterial()
 	body.traverse (obj) ->
 		return if not obj.material?
@@ -153,12 +153,12 @@ loadViva = Co (path) ->*
 				for i from 0 til obj.geometry.faces.length
 					obj.geometry.faces[i].materialIndex = j
 					groupmaterial.materials[j].needsUpdate = true
-
+	
 	body = mergeObject body
-
-
+	body.children[0].geometry.sortFacesByMaterialIndex()
 
 	wheelmaterial = new THREE.MultiMaterial()
+
 	if steeringwheel
 		normals = []
 		steeringwheel.traverse (obj) ->
@@ -180,6 +180,7 @@ loadViva = Co (path) ->*
 		steeringwheel = mergeObject steeringwheel
 		steeringwheel.normals = normals
 		geometry = steeringwheel.children[0].geometry
+		geometry.sortFacesByMaterialIndex()
 		geometry.center()
 		geometry.computeBoundingBox()
 		max = geometry.boundingBox.max
