@@ -95,6 +95,23 @@ export baseScene = seqr.bind (env) ->*
 		env.container.addClass "hide-cursor"
 	scene.onExit ->
 		env.container.removeClass "hide-cursor"
+	
+	rendererStats = new THREEx.RendererStats()
+	rendererStats.domElement.style.position	= 'absolute'
+	rendererStats.domElement.style.right = '100px'
+	rendererStats.domElement.style.top = '100px'
+
+	stats = new Stats()
+	stats.domElement.style.position	= 'absolute'
+	stats.domElement.style.right	= '400px'
+	stats.domElement.style.bottom	= '40px'
+	document.body.appendChild stats.domElement
+
+	document.body.appendChild rendererStats.domElement
+
+	scene.onRender.add (dt) ->
+		rendererStats.update env.renderer
+		stats.update()
 
 	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
@@ -333,12 +350,12 @@ addSpeedometer = (scene, env) ->
 	h = max.y - min.y
 
 
-	font = 'Bold 160px Arial'
-	font2 = 'Bold 90px Arial'
+	font = 'Bold 80px Arial'
+	font2 = 'Bold 45px Arial'
 
-	dynamicTexture	= new THREEx.DynamicTexture(512,512)
+	dynamicTexture	= new THREEx.DynamicTexture(256,256)
 
-	material = new THREE.MeshPhongMaterial( {color: 0xff0000, map: dynamicTexture.texture, transparent: true} )
+	material = new THREE.MeshLambertMaterial( {color: 0xff0000, map: dynamicTexture.texture, transparent: false} )
 	circleGeo = new THREE.CircleGeometry(0.038, 32)
 	circleMesh = new THREE.Mesh circleGeo, material
 	circleMesh.position.x = (max.x + min.x) / 2.0
@@ -349,13 +366,16 @@ addSpeedometer = (scene, env) ->
 	rot = Math.asin( h / ((w ^ 2 + h ^ 2) ^ 0.5))
 	circleMesh.rotation.x = rot
 	scene.player.body.tricycle.add circleMesh
+	upd = 0
 
 	scene.onTickHandled ->
-		speed = scene.player.getSpeed()*3.6
-		dynamicTexture.clear()
-		dynamicTexture.drawText(Math.round(speed), undefined, 256, 'red', font)
-		dynamicTexture.drawText('KPH', undefined, 400, 'red', font2)
-		dynamicTexture.texture.needsUpdate = true
+		upd += 1
+		if upd == 30
+			upd -= 30
+			speed = scene.player.getSpeed()*3.6
+			dynamicTexture.clear()
+			dynamicTexture.drawText(Math.round(speed), undefined, 126, 'red', font)
+			dynamicTexture.drawText('KPH', undefined, 200, 'red', font2)
 
 handleSteering = (car, lane = 1.75) ->
 	
@@ -711,24 +731,6 @@ exportScenario \laneDriving, (env) ->*
 			yield P.delay 100
 
 	yield startLight.switchToGreen()
-
-
-	rendererStats = new THREEx.RendererStats()
-	rendererStats.domElement.style.position	= 'absolute'
-	rendererStats.domElement.style.right = '100px'
-	rendererStats.domElement.style.top = '100px'
-
-	stats = new Stats()
-	stats.domElement.style.position	= 'absolute'
-	stats.domElement.style.right	= '400px'
-	stats.domElement.style.bottom	= '40px'
-	document.body.appendChild stats.domElement
-
-	document.body.appendChild rendererStats.domElement
-
-	scene.onRender.add (dt) ->
-		rendererStats.update env.renderer
-		stats.update()
 
 	scene.afterPhysics.add (dt) ->
 
