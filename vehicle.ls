@@ -128,6 +128,7 @@ loadViva = Co (path) ->*
 			if material.transparent == true
 				return true
 		return false
+
 	steeringwheel = null
 	body.traverse (obj) ->
 		return if obj.name != "econo_sw"

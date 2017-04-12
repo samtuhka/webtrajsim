@@ -343,13 +343,6 @@ steeringwheel = (scene, env) ->
 require './threex/threex.dynamictexture.js'	
 addSpeedometer = (scene, env) ->
 
-	scene.player.body.tricycle.geometry.computeBoundingBox()
-	max = scene.player.body.tricycle.geometry.boundingBox.max
-	min = scene.player.body.tricycle.geometry.boundingBox.min
-	w = max.x - min.x
-	h = max.y - min.y
-
-
 	font = 'Bold 80px Arial'
 	font2 = 'Bold 45px Arial'
 
@@ -358,14 +351,14 @@ addSpeedometer = (scene, env) ->
 	material = new THREE.MeshLambertMaterial( {color: 0xff0000, map: dynamicTexture.texture, transparent: false} )
 	circleGeo = new THREE.CircleGeometry(0.038, 32)
 	circleMesh = new THREE.Mesh circleGeo, material
-	circleMesh.position.x = (max.x + min.x) / 2.0
-	circleMesh.position.y = (max.y + min.y) / 2.0
-	circleMesh.position.z = (max.z + min.z) / 2.0
-	circleMesh.rotation.y = Math.PI
 
-	rot = Math.asin( h / ((w ^ 2 + h ^ 2) ^ 0.5))
-	circleMesh.rotation.x = rot
-	scene.player.body.tricycle.add circleMesh
+	circleMesh.position.x = 0.24893996117832295
+	circleMesh.position.y = 0.982902002699275
+	circleMesh.position.z = 0.6871043230718838
+	circleMesh.rotation.y = Math.PI
+	circleMesh.rotation.x = 0.7964439904894343
+
+	scene.player.body.add circleMesh
 	upd = 0
 
 	scene.onTickHandled ->
