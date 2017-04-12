@@ -232,14 +232,38 @@ loadViva = Co (path) ->*
 	wheels = scene.getObjectByName "Wheels"
 
 	#applyPosition wheels
+	
+	wheelMerging = (wheel) ->
+		wheel.traverse (obj) ->
+			return if not obj.material?
+			for material in obj.material.materials ? [obj.material]
+				if material not in groupmaterial.materials
+					groupmaterial.materials.push material
+				obj.material = groupmaterial
+				j = groupmaterial.materials.indexOf(material)
+				for i from 0 til obj.geometry.faces.length
+					obj.geometry.faces[i].materialIndex = j
+					groupmaterial.materials[j].needsUpdate = true
+
+	wheelsNew = new THREE.Object3D
+	i = 0
 	for let wheel in wheels.children
+		wheelMerging wheel
 		originToGeometry wheel
+		position = wheel.matrixWorld.getPosition()
+		wheel = mergeObject wheel
+		wheel.children[0].geometry.center()
+		wheel.children[0].geometry.sortFacesByMaterialIndex()
+		wheel.children[0].geometry = new THREE.BufferGeometry().fromGeometry(wheel.children[0].geometry)
+		wheel.position.copy position
 		wheel.position.y += 0.1
-	geo = wheels.children[0].geometry
-	mat = wheels.children[0].material
-	for wheel in wheels.children
-		wheel.geometry = geo
-		wheel.material = mat
+		wheelsNew.add wheel
+		index = (Math.floor i/2) * 2
+		wheel.children[0].material = wheelsNew.children[index].children[0].material
+		wheel.children[0].geometry = wheelsNew.children[index].children[0].geometry
+		i += 1
+	wheels = wheelsNew
+
 	body: body
 	wheels: wheels
 	eye: eye
