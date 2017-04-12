@@ -142,10 +142,11 @@ loadViva = Co (path) ->*
 
 	
 	groupmaterial = new THREE.MultiMaterial()
+	toBeDeleted = []
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
-			if path == "res/viva/NPCViva.dae" #|| (checkTransparent(obj) == false && checkMirrors(obj) == false)
+			if path == "res/viva/NPCViva.dae" || (checkTransparent(obj) == false && checkMirrors(obj) == false && material.name != '__Carpet' &&  material.name != 'Upholstery_1')
 				material.transparent = false
 				if material not in groupmaterial.materials
 					groupmaterial.materials.push material
@@ -154,6 +155,10 @@ loadViva = Co (path) ->*
 				for i from 0 til obj.geometry.faces.length
 					obj.geometry.faces[i].materialIndex = j
 					groupmaterial.materials[j].needsUpdate = true
+			else if material.transparent
+				toBeDeleted.push obj
+	for obj in toBeDeleted
+		obj.parent.remove obj
 	
 	body = mergeObject body
 	body.children[0].geometry.sortFacesByMaterialIndex()
