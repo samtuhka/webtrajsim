@@ -168,7 +168,11 @@ loadViva = Co (path) ->*
 		obj.parent.remove obj
 	
 	body = mergeObject body
-	body.children[0].geometry.sortFacesByMaterialIndex()
+
+	body.traverse (obj) ->
+		return if not obj.geometry?
+		obj.geometry.sortFacesByMaterialIndex()
+
 
 	wheelmaterial = new THREE.MultiMaterial()
 
