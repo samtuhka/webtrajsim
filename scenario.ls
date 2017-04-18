@@ -167,11 +167,20 @@ addBackgroundColor = (scene) ->
 	scene.visual.add mesh
 
 export calbrationScene = seqr.bind (env) ->*
+	{controls, audioContext, L} = env
 	scene = new Scene
-	scene.camera.position.x = 0
-	scene.camera.position.z = 0
-	scene.camera.position.y = 1
-	scene.camera.rotation.y = Math.PI
+	eye = new THREE.Object3D
+	eye.position.x = 0
+	eye.position.z = 0
+	eye.position.y = 1
+	eye.rotation.y = Math.PI
+	scene.visual.add eye
+	eye.add scene.camera
+
+	env.controls.change (btn) ->
+		if btn == "blinder"
+			env.vrcontrols.resetPose()
+
 	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
 		t = Date.now()
@@ -192,7 +201,7 @@ exportScenario \calibration, (env) ->*
 
 	@let \scene, scene
 	yield @get \run
-	
+
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 2 > change
