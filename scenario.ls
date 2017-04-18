@@ -145,6 +145,67 @@ export minimalScenario = seqr.bind (env) ->*
 	@let \scene, scene
 	yield @get \done
 
+addCalibrationMarker = (scene) ->
+	tex = THREE.ImageUtils.loadTexture 'res/markers/CalibrationMarker.png'
+	calibMaterial = new THREE.MeshBasicMaterial do
+		color: 0xffffff
+		map: tex
+		side: THREE.BackSide
+	geo = new THREE.CircleGeometry(1, 32)
+	mesh = new THREE.Mesh geo, calibMaterial
+	mesh.position.x = 0
+	mesh.position.y = 1
+	mesh.position.z = 20
+	scene.visual.add mesh
+	mesh.index = 0
+	scene.marker = mesh
+
+addBackgroundColor = (scene) ->
+	geo = new THREE.SphereGeometry(100, 32, 32 )
+	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true, side: THREE.DoubleSide
+	mesh = new THREE.Mesh geo, mat
+	scene.visual.add mesh
+
+export calbrationScene = seqr.bind (env) ->*
+	scene = new Scene
+	scene.camera.position.x = 0
+	scene.camera.position.z = 0
+	scene.camera.position.y = 1
+	scene.camera.rotation.y = Math.PI
+	scene.preroll = seqr.bind ->*
+		# Tick a couple of frames for the physics to settle
+		t = Date.now()
+		n = 100
+		for [0 to n]
+			scene.tick 1/60
+		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
+	return scene
+
+exportScenario \calibration, (env) ->*
+	scene = yield calbrationScene env
+	addBackgroundColor scene
+	addCalibrationMarker scene
+
+	x = [0, 0, 0, 1, 1, 1]
+	y = [1, 1, 1, 2, 2, 2]
+	z = [20, 40, 15, 10, 15, 40]
+
+	@let \scene, scene
+	yield @get \run
+	
+	change = scene.time
+	scene.afterPhysics.add (dt) ->
+		if scene.time - 2 > change
+			scene.marker.index += 1
+			i = Math.min scene.marker.index, x.length - 1
+			scene.marker.position.x = Math.floor((Math.random() * 2) - 2)
+			scene.marker.position.y = Math.floor((Math.random() * 2) - 2)
+			scene.marker.position.z = Math.floor((Math.random() * 35) + 15)
+			change := scene.time
+		
+	
+	return yield @get \done
+
 exportScenario \freeDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
