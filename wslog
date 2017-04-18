@@ -14,7 +14,7 @@ def logserver(outfile=sys.stdout):
             outfile.flush()
     return logger
 
-def main(port=8080, host='0.0.0.0'):
+def main(port=8081, host='0.0.0.0'):
     start_server = websockets.serve(logserver(), host, port)
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
