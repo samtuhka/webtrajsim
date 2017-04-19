@@ -18,7 +18,7 @@ webtrajsim = 0
 class Socket(WebSocket):
 
     def handleMessage(self):
-        if self.data == "Webtrajsim connected":
+        if self.data == "Calibration scenario":
             global webtrajsim
             webtrajsim = self
         for client in clients:
@@ -76,6 +76,11 @@ print send_recv_notification(n)
 time.sleep(2)
 
 while True:
+    res = ws.recv()
+    
+    if res != "Calibration scenario"
+        continue
+    
     # set calibration method to hmd calibration
     n = {'subject':'start_plugin','name':'HMD_Calibration', 'args':{}}
     print send_recv_notification(n)
@@ -90,15 +95,15 @@ while True:
         message = "getCalib"
         ws.send(message)
         result = ws.recv()
+        print result
         t = get_pupil_timestamp()
-        if result != "Webtrajsim connected" and result != "stop":
+        if result != "start" and result != "stop":
                 result = json.loads(result)
                 pos = (result['position']['x'], result['position']['y']) #, result['position']['z'])
                 datum0 = {'norm_pos':pos,'timestamp':t,'id':0}
                 datum1 = {'norm_pos':pos,'timestamp':t,'id':1}
                 ref_data.append(datum0)
                 ref_data.append(datum1)
-                print result
         if result == "stop":
             break
         

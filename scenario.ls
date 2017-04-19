@@ -153,8 +153,8 @@ addCalibrationMarker = (scene) ->
 	geo = new THREE.CircleGeometry(1, 32)
 	mesh = new THREE.Mesh geo, calibMaterial
 	mesh.position.x = 0
-	mesh.position.y = 1
-	mesh.position.z = -20
+	mesh.position.y = -4
+	mesh.position.z = -30
 	scene.camera.add mesh
 	mesh.index = 0
 	scene.marker = mesh
@@ -173,7 +173,7 @@ export calbrationScene = seqr.bind (env) ->*
 	eye = new THREE.Object3D
 	eye.position.x = 0
 	eye.position.z = 0
-	eye.position.y = 1
+	eye.position.y = 1.2
 	eye.rotation.y = Math.PI
 	scene.visual.add eye
 	eye.add scene.camera
@@ -196,17 +196,22 @@ exportScenario \calibration, (env) ->*
 	addBackgroundColor scene
 	addCalibrationMarker scene
 
+	title =  env.L "Calibration"
+	content =  env.L '%calibration.intro'	
+	instructions3D scene, env, title, content, 0
+
 	socket = new WebSocket "ws://localhost:10103"
 
 	socket.onopen = ->
 		console.log("socket open")
-		socket.send("Webtrajsim connected")
-		scene.socket = true
+		socket.send("Calibration scenario")
+		scene.socket = socket
 
 	socket.onmessage = (e) ->
 		message = {"time": scene.time, "position": scene.marker.position}
 		message = JSON.stringify(message)
-		socket.send message
+		if start
+			socket.send message
 
 	socket.onclose = ->
 		console.log("socket closed")
@@ -220,6 +225,19 @@ exportScenario \calibration, (env) ->*
 	@let \scene, scene
 	yield @get \run
 
+	start = false
+
+	env.controls.change (btn) ->
+		if btn == "catch" && not start
+			start := true
+			scene.visual.remove(scene.instructions)
+
+	while start == false
+			yield P.delay 100
+
+	if scene.socket
+		socket.send "start"
+	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 2 > change
@@ -231,9 +249,11 @@ exportScenario \calibration, (env) ->*
 			change := scene.time
 
 	scene.onTickHandled ~>
+		console.log scene.marker.index
 		if scene.marker.index >= 11
 			if scene.socket
-				socket.send "stop"
+				scene.socket.send "stop"
+				scene.socket.close()
 			@let \done, passed: true
 			return false
 	return yield @get \done
@@ -694,7 +714,7 @@ failOnCollisionVR = (env, scene) ->
 			endingVr scene, env, title, reason
 
 		
-instructions3D = (scene, env, title, content) ->
+instructions3D = (scene, env, title, content, x = -1.75) ->
 	
 	instTex = text3D title, content
 	instTex.texture.wrapS = THREE.RepeatWrapping
@@ -708,7 +728,7 @@ instructions3D = (scene, env, title, content) ->
 	instTex.texture.needsUpdate = true
 
 	instMesh.position.y = 1.5
-	instMesh.position.x = -1.75
+	instMesh.position.x = 0
 	instMesh.position.z = 4.75
 
 	scene.visual.add instMesh
