@@ -195,8 +195,7 @@ export singleScenario = seqr.bind ->*
 	# TODO: The control flow is a mess!
 	opts = deparam window.location.search.substring 1
 	scn = scenario[opts.singleScenario]
-	while true
-		yield runScenario scn
+	yield runScenario scn
 
 
 
