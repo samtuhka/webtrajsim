@@ -150,13 +150,12 @@ addCalibrationMarker = (scene) ->
 	calibMaterial = new THREE.MeshBasicMaterial do
 		color: 0xffffff
 		map: tex
-		side: THREE.BackSide
 	geo = new THREE.CircleGeometry(1, 32)
 	mesh = new THREE.Mesh geo, calibMaterial
 	mesh.position.x = 0
 	mesh.position.y = 1
-	mesh.position.z = 20
-	scene.visual.add mesh
+	mesh.position.z = -20
+	scene.camera.add mesh
 	mesh.index = 0
 	scene.marker = mesh
 
@@ -165,6 +164,8 @@ addBackgroundColor = (scene) ->
 	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true, side: THREE.DoubleSide
 	mesh = new THREE.Mesh geo, mat
 	scene.visual.add mesh
+
+
 
 export calbrationScene = seqr.bind (env) ->*
 	{controls, audioContext, L} = env
@@ -195,9 +196,26 @@ exportScenario \calibration, (env) ->*
 	addBackgroundColor scene
 	addCalibrationMarker scene
 
+	socket = new WebSocket "ws://localhost:10103"
+
+	socket.onopen = ->
+		console.log("socket open")
+		socket.send("Webtrajsim connected")
+		scene.socket = true
+
+	socket.onmessage = (e) ->
+		message = {"time": scene.time, "position": scene.marker.position}
+		message = JSON.stringify(message)
+		socket.send message
+
+	socket.onclose = ->
+		console.log("socket closed")
+		scene.socket = false
+	
+
 	x = [0, 0, 0, 1, 1, 1]
 	y = [1, 1, 1, 2, 2, 2]
-	z = [20, 40, 15, 10, 15, 40]
+	z = [30, 30, 30, 30, 30, 30]
 
 	@let \scene, scene
 	yield @get \run
@@ -207,12 +225,17 @@ exportScenario \calibration, (env) ->*
 		if scene.time - 2 > change
 			scene.marker.index += 1
 			i = Math.min scene.marker.index, x.length - 1
-			scene.marker.position.x = Math.floor((Math.random() * 2) - 2)
-			scene.marker.position.y = Math.floor((Math.random() * 2) - 2)
-			scene.marker.position.z = Math.floor((Math.random() * 35) + 15)
+			scene.marker.position.x = Math.floor((Math.random() * 8) - 4)
+			scene.marker.position.y = Math.floor((Math.random() * 8) - 4)
+			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
 			change := scene.time
-		
-	
+
+	scene.onTickHandled ~>
+		if scene.marker.index >= 11
+			if scene.socket
+				socket.send "stop"
+			@let \done, passed: true
+			return false
 	return yield @get \done
 
 exportScenario \freeDriving, (env) ->*
