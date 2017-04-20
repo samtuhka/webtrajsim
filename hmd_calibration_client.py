@@ -100,7 +100,8 @@ while True:
         t = get_pupil_timestamp()
         if result != "start" and result != "stop":
                 result = json.loads(result)
-                pos = (result['position']['x']/8.0, result['position']['y']/8.0) #, result['position']['z'])
+                pos = (result['position']['x']/10.0, result['position']['y']/10.0) #, result['position']['z'])
+		print pos
                 datum0 = {'norm_pos':pos,'timestamp':t,'id':0}
                 datum1 = {'norm_pos':pos,'timestamp':t,'id':1}
                 ref_data.append(datum0)

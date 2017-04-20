@@ -30,17 +30,13 @@ while True:
         continue
         
     while True:
-        print("c")
         topic = sub.recv_string()
         msg = sub.recv()  # bytes
         gaze = loads(msg, encoding='utf-8')
         pos = gaze['norm_pos']
         pos = {'x': pos[0], 'y': pos[1]}
-        print(pos)
         ws.send(json.dumps(pos))
-        print("a")
         result = ws.recv()
-        print("b")
         if result == "stop":
             break
         

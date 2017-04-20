@@ -254,10 +254,10 @@ exportScenario \calibration, (env) ->*
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
-		if scene.time - 4 > change
+		if scene.time - 3 > change
 			scene.marker.index += 1
-			scene.marker.position.x = Math.floor((Math.random() * 8) - 4)
-			scene.marker.position.y = Math.floor((Math.random() * 8) - 4)
+			scene.marker.position.x = Math.floor((Math.random() * 10) - 5)
+			scene.marker.position.y = Math.floor((Math.random() * 10) - 5)
 			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
 			change := scene.time
 
@@ -300,10 +300,10 @@ exportScenario \verification, (env) ->*
 
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
-		if scene.time - 2 > change
+		if scene.time - 3 > change
 			scene.marker.index += 1
-			scene.marker.position.x = Math.floor((Math.random() * 8) - 4)
-			scene.marker.position.y = Math.floor((Math.random() * 8) - 4)
+			scene.marker.position.x = Math.round((Math.random() * 10) - 5)
+			scene.marker.position.y = Math.round((Math.random() * 10) - 5)
 			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
 			change := scene.time
 
@@ -311,9 +311,9 @@ exportScenario \verification, (env) ->*
 		if scene.msg
 			if typeof scene.msg === 'string'
 				scene.msg = JSON.parse(scene.msg)
-			scene.gaze.position.x = scene.msg.x*8
-			scene.gaze.position.y = scene.msg.y*8
-		if scene.marker.index >= 11
+			scene.gaze.position.x = scene.msg.x*10
+			scene.gaze.position.y = scene.msg.y*10
+		if scene.marker.index >= 20
 			exitVR env
 			if scene.socket
 				scene.socket.send "stop"
