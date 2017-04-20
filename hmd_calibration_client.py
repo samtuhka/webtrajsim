@@ -18,11 +18,11 @@ webtrajsim = 0
 class Socket(WebSocket):
 
     def handleMessage(self):
-        if self.data == "Calibration scenario":
+        if self.data == "calibration" or self.data == "verification":
             global webtrajsim
             webtrajsim = self
         for client in clients:
-            if (client != webtrajsim or self.data == "getCalib") and client != self:
+            if client != self:
                 client.sendMessage(self.data)
 
     def handleConnected(self):
@@ -32,8 +32,9 @@ class Socket(WebSocket):
     def handleClose(self):
        clients.remove(self)
        print(self.address, 'closed')
-       #for client in clients:
-       #   client.sendMessage(self.address[0] + u' - disconnected')
+       if self == webtrajsim:
+           for client in clients:
+                client.sendMessage('stop')
 
 server = SimpleWebSocketServer('', 10103, Socket)
 
@@ -78,7 +79,7 @@ time.sleep(2)
 while True:
     res = ws.recv()
     
-    if res != "Calibration scenario"
+    if res != "calibration":
         continue
     
     # set calibration method to hmd calibration
@@ -99,7 +100,7 @@ while True:
         t = get_pupil_timestamp()
         if result != "start" and result != "stop":
                 result = json.loads(result)
-                pos = (result['position']['x'], result['position']['y']) #, result['position']['z'])
+                pos = (result['position']['x']/8.0, result['position']['y']/8.0) #, result['position']['z'])
                 datum0 = {'norm_pos':pos,'timestamp':t,'id':0}
                 datum1 = {'norm_pos':pos,'timestamp':t,'id':1}
                 ref_data.append(datum0)

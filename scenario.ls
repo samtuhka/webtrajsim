@@ -159,6 +159,18 @@ addCalibrationMarker = (scene) ->
 	mesh.index = 0
 	scene.marker = mesh
 
+
+addGazeMarker = (scene) ->
+	mat = new THREE.MeshBasicMaterial {color: 0xf00fff}
+	geo = new THREE.CircleGeometry(0.5, 32)
+	mesh = new THREE.Mesh geo, mat
+	mesh.position.x = 0
+	mesh.position.y = -4
+	mesh.position.z = -30
+	scene.camera.add mesh
+	scene.gaze = mesh
+
+
 addBackgroundColor = (scene) ->
 	geo = new THREE.SphereGeometry(100, 32, 32 )
 	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true, side: THREE.DoubleSide
@@ -167,7 +179,7 @@ addBackgroundColor = (scene) ->
 
 
 
-export calbrationScene = seqr.bind (env) ->*
+export calbrationScene = seqr.bind (env, scn) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
 	eye = new THREE.Object3D
@@ -177,6 +189,30 @@ export calbrationScene = seqr.bind (env) ->*
 	eye.rotation.y = Math.PI
 	scene.visual.add eye
 	eye.add scene.camera
+
+	addBackgroundColor scene
+	addCalibrationMarker scene
+
+	socket = new WebSocket "ws://localhost:10103"
+
+	socket.onopen = ->
+		console.log("socket open")
+		socket.send(scn)
+		scene.socket = socket
+
+	socket.onmessage = (e) ->
+		message = {"time": scene.time, "position": scene.marker.position}
+		message = JSON.stringify(message)
+		scene.msg = e.data
+		console.log e.data
+		if scene.start
+			console.log "laheta"
+			socket.send message
+
+	socket.onclose = ->
+		console.log("socket closed")
+		scene.socket = false
+	
 
 	env.controls.change (btn) ->
 		if btn == "blinder"
@@ -192,64 +228,88 @@ export calbrationScene = seqr.bind (env) ->*
 	return scene
 
 exportScenario \calibration, (env) ->*
-	scene = yield calbrationScene env
-	addBackgroundColor scene
-	addCalibrationMarker scene
+	scene = yield calbrationScene env, "calibration"
+
 
 	title =  env.L "Calibration"
 	content =  env.L '%calibration.intro'	
 	instructions3D scene, env, title, content, 0
 
-	socket = new WebSocket "ws://localhost:10103"
-
-	socket.onopen = ->
-		console.log("socket open")
-		socket.send("Calibration scenario")
-		scene.socket = socket
-
-	socket.onmessage = (e) ->
-		message = {"time": scene.time, "position": scene.marker.position}
-		message = JSON.stringify(message)
-		if start
-			socket.send message
-
-	socket.onclose = ->
-		console.log("socket closed")
-		scene.socket = false
-	
-
-	x = [0, 0, 0, 1, 1, 1]
-	y = [1, 1, 1, 2, 2, 2]
-	z = [30, 30, 30, 30, 30, 30]
 
 	@let \scene, scene
 	yield @get \run
 
-	start = false
+	scene.start = false
 
 	env.controls.change (btn) ->
-		if btn == "catch" && not start
-			start := true
+		if btn == "catch" && not scene.start
+			scene.start = true
 			scene.visual.remove(scene.instructions)
 
-	while start == false
+	while scene.start == false
 			yield P.delay 100
 
 	if scene.socket
-		socket.send "start"
+		scene.socket.send "start"
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 2 > change
 			scene.marker.index += 1
-			i = Math.min scene.marker.index, x.length - 1
 			scene.marker.position.x = Math.floor((Math.random() * 8) - 4)
 			scene.marker.position.y = Math.floor((Math.random() * 8) - 4)
 			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
 			change := scene.time
 
 	scene.onTickHandled ~>
-		console.log scene.marker.index
+		if scene.marker.index >= 11
+			if scene.socket
+				scene.socket.send "stop"
+				scene.socket.close()
+			@let \done, passed: true
+			return false
+	return yield @get \done
+
+
+exportScenario \verification, (env) ->*
+	scene = yield calbrationScene env, "verification"
+
+	title =  env.L "Verification"
+	content =  env.L '%verification.intro'	
+	instructions3D scene, env, title, content, 0
+	addGazeMarker scene
+
+	@let \scene, scene
+	yield @get \run
+
+	scene.start = false
+
+	env.controls.change (btn) ->
+		if btn == "catch" && not scene.start
+			scene.start = true
+			scene.visual.remove(scene.instructions)
+
+	while scene.start == false
+			yield P.delay 100
+
+	if scene.socket
+		scene.socket.send "start"
+
+	change = scene.time
+	scene.afterPhysics.add (dt) ->
+		if scene.time - 2 > change
+			scene.marker.index += 1
+			scene.marker.position.x = Math.floor((Math.random() * 8) - 4)
+			scene.marker.position.y = Math.floor((Math.random() * 8) - 4)
+			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
+			change := scene.time
+
+	scene.onTickHandled ~>
+		if scene.msg
+			if typeof scene.msg === 'string'
+				scene.msg = JSON.parse(scene.msg)
+			scene.gaze.position.x = scene.msg.x*8
+			scene.gaze.position.y = scene.msg.y*8
 		if scene.marker.index >= 11
 			if scene.socket
 				scene.socket.send "stop"
