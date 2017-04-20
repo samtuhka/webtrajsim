@@ -13,14 +13,14 @@ ws = websocket.create_connection("ws://localhost:10103")
 
 #create a zmq REQ socket to talk to Pupil Service/Capture
 req = ctx.socket(zmq.REQ)
-req.connect('tcp://localhost:44735')
+req.connect('tcp://192.168.56.1:50020')
 
 req.send_string('SUB_PORT')
 sub_port = req.recv_string()
 
 # open a sub port to listen to pupil
 sub = ctx.socket(zmq.SUB)
-sub.connect("tcp://localhost:{}".format(sub_port))
+sub.connect("tcp://192.168.56.1:{}".format(sub_port))
 sub.setsockopt_string(zmq.SUBSCRIBE, 'gaze')
 
 while True:

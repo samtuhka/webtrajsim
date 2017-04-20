@@ -198,6 +198,10 @@ export singleScenario = seqr.bind ->*
 	yield runScenario scn
 
 
+export calibration = seqr.bind ->*
+	yield runScenario scenario.calibration
+	yield runScenario scenario.verification
+
 
 export memkiller = seqr.bind !->*
 	#loader = scenario.minimalScenario

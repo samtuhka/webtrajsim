@@ -177,7 +177,9 @@ addBackgroundColor = (scene) ->
 	mesh = new THREE.Mesh geo, mat
 	scene.visual.add mesh
 
-
+exitVR = (env) ->
+	if env.vreffect.isPresenting
+		env.vreffect.exitPresent()
 
 export calbrationScene = seqr.bind (env, scn) ->*
 	{controls, audioContext, L} = env
@@ -204,9 +206,7 @@ export calbrationScene = seqr.bind (env, scn) ->*
 		message = {"time": scene.time, "position": scene.marker.position}
 		message = JSON.stringify(message)
 		scene.msg = e.data
-		console.log e.data
 		if scene.start
-			console.log "laheta"
 			socket.send message
 
 	socket.onclose = ->
@@ -254,7 +254,7 @@ exportScenario \calibration, (env) ->*
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
-		if scene.time - 2 > change
+		if scene.time - 4 > change
 			scene.marker.index += 1
 			scene.marker.position.x = Math.floor((Math.random() * 8) - 4)
 			scene.marker.position.y = Math.floor((Math.random() * 8) - 4)
@@ -262,10 +262,13 @@ exportScenario \calibration, (env) ->*
 			change := scene.time
 
 	scene.onTickHandled ~>
-		if scene.marker.index >= 11
+		console.log env.vreffect
+		console.log env.vreffect.getVRDisplay()
+		if scene.marker.index >= 20
 			if scene.socket
 				scene.socket.send "stop"
 				scene.socket.close()
+			exitVR env
 			@let \done, passed: true
 			return false
 	return yield @get \done
@@ -311,6 +314,7 @@ exportScenario \verification, (env) ->*
 			scene.gaze.position.x = scene.msg.x*8
 			scene.gaze.position.y = scene.msg.y*8
 		if scene.marker.index >= 11
+			exitVR env
 			if scene.socket
 				scene.socket.send "stop"
 				scene.socket.close()
@@ -936,6 +940,7 @@ exportScenario \laneDriving, (env) ->*
 
 	env.controls.change (btn, isOn) !~>
 		return unless btn == 'catch' and isOn and scene.endtime
+		exitVR env
 		@let \done, passed: true
 		return false
 

@@ -193,6 +193,23 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 
 	scene.onRender.add render
+	
+	vrDump = (env, scene) ->
+		vrDump = "vr not present"
+		if env.vreffect.getVRDisplay()
+			env.vreffect.getVRDisplay().getFrameData(env.frameData)
+			frameData = env.frameData
+			vrDump = 
+				presenting: env.vreffect.isPresenting
+				leftProjectionMatrix: frameData.leftProjectionMatrix
+				leftViewMatrix: frameData.leftViewMatrix
+				rightProjectionMatrix: frameData.rightProjectionMatrix
+				rightViewMatrix: frameData.rightViewMatrix
+				vrOrientation: frameData.pose.orientation
+				vrPosition: frameData.pose.position
+				vrTimestamp: frameData.timestamp
+		return vrDump
+
 
 	scene.onTickHandled ->
 		dump =
@@ -202,6 +219,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
 				projectionMatrix: scene.camera.projectionMatrix.toArray()
 			telemetry: env.controls{throttle, brake, steering, direction}
+			vr: vrDump env, scene
 		env.logger.write dump
 
 	env.onSize (w, h) ->
@@ -262,6 +280,7 @@ require './node_modules/three/examples/js/vr/WebVR.js'
 enableVr = (env, renderer, scene) ->
 	vrcontrols = new THREE.VRControls scene.camera
 	effect = env.vreffect = new THREE.VREffect renderer
+	env.frameData = new VRFrameData()
 	env.onSize (w, h) ->
 		effect.setSize w, h
 	vrcontrols.resetSensor()
