@@ -76,6 +76,26 @@ n = {'subject':'eye_process.should_start.1','eye_id':1, 'args':{}}
 print send_recv_notification(n)
 time.sleep(2)
 
+def cleaner(data, timestamps):
+    data = np.array(data)
+    changeLocs = (np.diff(data[:,0]) != 0) | (np.diff(data[:,1]) != 0)
+    data = data[1:]
+    timestamps = np.array(timestamps)[1:]
+    valid = np.ones(len(timestamps), dtype=bool)
+    for loc in data[changeLocs]:
+        index = np.where(data == loc)[0][0]
+        ts = timestamps[index]
+        removed = (timestamps >= ts) & (timestamps <= ts + 0.5)
+        valid = valid & ~removed
+    ref_data = []
+    
+    for pos, t in zip(data[valid], timestamps[valid]):
+        datum0 = {'norm_pos':pos,'timestamp':t,'id':0}
+        datum1 = {'norm_pos':pos,'timestamp':t,'id':1}
+        ref_data.append(datum0)
+        ref_data.append(datum1)
+    return ref_data
+
 while True:
     res = ws.recv()
     
@@ -90,7 +110,8 @@ while True:
     n = {'subject':'calibration.should_start', 'hmd_video_frame_size':(1000,1000), 'outlier_threshold':35}
     print send_recv_notification(n)
     
-    ref_data = []
+    positions = []
+    timestamps = []
     
     while True:
         message = "getCalib"
@@ -101,12 +122,10 @@ while True:
         if result != "start" and result != "stop":
                 result = json.loads(result)
                 pos = (result['position']['x']/10.0, result['position']['y']/10.0) #, result['position']['z'])
-		print pos
-                datum0 = {'norm_pos':pos,'timestamp':t,'id':0}
-                datum1 = {'norm_pos':pos,'timestamp':t,'id':1}
-                ref_data.append(datum0)
-                ref_data.append(datum1)
+                positions.append(pos)
+                timestamps.append(t)
         if result == "stop":
+            ref_data = cleaner(positions, timestamps)
             break
         
     print "finished"
