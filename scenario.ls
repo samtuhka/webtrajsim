@@ -164,8 +164,8 @@ addGazeMarker = (scene) ->
 	mat = new THREE.MeshBasicMaterial {color: 0xf00fff}
 	geo = new THREE.CircleGeometry(0.5, 32)
 	mesh = new THREE.Mesh geo, mat
-	mesh.position.x = 0
-	mesh.position.y = -4
+	mesh.position.x = 1000
+	mesh.position.y = 1000
 	mesh.position.z = -30
 	scene.camera.add mesh
 	scene.gaze = mesh
@@ -260,18 +260,23 @@ exportScenario \calibration, (env) ->*
 
 	if scene.socket
 		scene.socket.send "start calibration"
+	calibLocs = [[0, 0],[-2.5, 0],[-5, 0], [2.5, 0], [5, 0], 
+			[0, 2.5], [-2.5, 2.5], [-5, 2.5], [2.5, 2.5], [5, 2.5], 
+			[0, 5], [-2.5, 5], [-5, 5], [2.5, 5], [5, 5], 
+			[0, -2.5], [-2.5, -2.5], [-5, -2.5], [2.5, -2.5], [5, -2.5],
+			[0, -5], [-2.5, -5], [-5, -5], [2.5, -5], [5, -5], [0,0]]
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 3 > change
 			scene.marker.index += 1
-			scene.marker.position.x = Math.floor((Math.random() * 10) - 5)
-			scene.marker.position.y = Math.floor((Math.random() * 10) - 5)
-			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
+			scene.marker.position.x = calibLocs[scene.marker.index][0]
+			scene.marker.position.y = calibLocs[scene.marker.index][1]
+			scene.marker.position.z = -30
 			change := scene.time
 
 	scene.onTickHandled ~>
-		if scene.marker.index >= 20
+		if scene.marker.index >= 25
 			if scene.socket
 				scene.socket.send "stop"
 				scene.socket.close()
