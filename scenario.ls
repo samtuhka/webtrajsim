@@ -255,7 +255,7 @@ exportScenario \calibration, (env) ->*
 			scene.visual.remove(scene.instructions)
 
 	while scene.start == false
-			enterVR env
+			#enterVR env
 			yield P.delay 100
 
 	if scene.socket
@@ -302,7 +302,7 @@ exportScenario \verification, (env) ->*
 			scene.visual.remove(scene.instructions)
 
 	while scene.start == false
-			enterVR env
+			#enterVR env
 			yield P.delay 100
 
 	if scene.socket
@@ -909,7 +909,7 @@ exportScenario \laneDriving, (env) ->*
 
 
 	while start == false
-			enterVR env
+			#enterVR env
 			yield P.delay 100
 
 	yield startLight.switchToGreen()
