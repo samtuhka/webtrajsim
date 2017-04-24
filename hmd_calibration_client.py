@@ -7,6 +7,7 @@ import json
 import sys
 import numpy as np
 import pickle
+import os
 
 def save_object(object,file_path):
 	file_path = os.path.expanduser(file_path)
@@ -137,7 +138,7 @@ if __name__ == '__main__':
                     result['pupil_timestamp'] = t
                     calibData.append(result)
                     timestamps.append(t)
-        save_object(calibData, sys.argv[2] + str(time.time()))
+
         print "finished"
 
         # Send ref data to Pupil Capture/Service:
@@ -155,6 +156,8 @@ if __name__ == '__main__':
         time.sleep(2)
         n = {'subject':'service_process.should_stop'}
         print send_recv_notification(n)
+
+        save_object(calibData, sys.argv[2] + str(time.time()))
 
 
 
