@@ -11,6 +11,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 from threading import Thread
 import json
 import sys
+import numpy as np
 
 clients = []
 webtrajsim = 0
@@ -18,12 +19,13 @@ webtrajsim = 0
 class Socket(WebSocket):
 
     def handleMessage(self):
-        if self.data == "calibration" or self.data == "verification":
+        if self.data == "Webtrajsim here":
             global webtrajsim
-            webtrajsim = self
-        for client in clients:
-            if client != self:
-                client.sendMessage(self.data)
+            webtrajsim = self.address
+	else:
+        	for client in clients:
+            		if client != self:
+                		client.sendMessage(self.data)
 
     def handleConnected(self):
        print(self.address, 'connected')
@@ -32,7 +34,7 @@ class Socket(WebSocket):
     def handleClose(self):
        clients.remove(self)
        print(self.address, 'closed')
-       if self == webtrajsim:
+       if self.address == webtrajsim:
            for client in clients:
                 client.sendMessage('stop')
 
@@ -90,8 +92,8 @@ def cleaner(data, timestamps):
     ref_data = []
     
     for pos, t in zip(data[valid], timestamps[valid]):
-        datum0 = {'norm_pos':pos,'timestamp':t,'id':0}
-        datum1 = {'norm_pos':pos,'timestamp':t,'id':1}
+        datum0 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':0}
+        datum1 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':1}
         ref_data.append(datum0)
         ref_data.append(datum1)
     return ref_data
@@ -99,7 +101,7 @@ def cleaner(data, timestamps):
 while True:
     res = ws.recv()
     
-    if res != "calibration":
+    if res != "start calibration":
         continue
     
     # set calibration method to hmd calibration
@@ -112,21 +114,23 @@ while True:
     
     positions = []
     timestamps = []
+    ref_data = []
     
     while True:
         message = "getCalib"
         ws.send(message)
         result = ws.recv()
-        print result
         t = get_pupil_timestamp()
-        if result != "start" and result != "stop":
+        
+	if result == "stop":
+	    if len(positions) > 0:
+            	ref_data = cleaner(positions, timestamps)
+            break
+        else:
                 result = json.loads(result)
                 pos = ((result['position']['x'] + 5)/10.0, (result['position']['y'] + 5)/10.0) #, result['position']['z'])
                 positions.append(pos)
                 timestamps.append(t)
-        if result == "stop":
-            ref_data = cleaner(positions, timestamps)
-            break
         
     print "finished"
 

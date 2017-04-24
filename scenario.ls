@@ -185,7 +185,7 @@ enterVR = (env) ->
 	if not env.vreffect.isPresenting && env.vreffect.getVRDisplay()
 		env.vreffect.requestPresent()
 
-export calbrationScene = seqr.bind (env, scn) ->*
+export calbrationScene = seqr.bind (env, startMsg) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
 	eye = new THREE.Object3D
@@ -205,10 +205,10 @@ export calbrationScene = seqr.bind (env, scn) ->*
 
 	socket.onopen = ->
 		console.log("socket open")
-		socket.send(scn)
+		socket.send("Webtrajsim here")
 		scene.socket = socket
 		if scene.start
-			scene.socket.send "start"
+			scene.socket.send startMsg
 
 	socket.onmessage = (e) ->
 		message = {"time": scene.time, "position": scene.marker.position}
@@ -236,7 +236,7 @@ export calbrationScene = seqr.bind (env, scn) ->*
 	return scene
 
 exportScenario \calibration, (env) ->*
-	scene = yield calbrationScene env, "calibration"
+	scene = yield calbrationScene env, "start calibration"
 
 
 	title =  env.L "Calibration"
@@ -259,7 +259,7 @@ exportScenario \calibration, (env) ->*
 			yield P.delay 100
 
 	if scene.socket
-		scene.socket.send "start"
+		scene.socket.send "start calibration"
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
@@ -271,8 +271,6 @@ exportScenario \calibration, (env) ->*
 			change := scene.time
 
 	scene.onTickHandled ~>
-		console.log env.vreffect
-		console.log env.vreffect.getVRDisplay()
 		if scene.marker.index >= 20
 			if scene.socket
 				scene.socket.send "stop"
@@ -284,7 +282,7 @@ exportScenario \calibration, (env) ->*
 
 
 exportScenario \verification, (env) ->*
-	scene = yield calbrationScene env, "verification"
+	scene = yield calbrationScene env, " start verification"
 
 	title =  env.L "Verification"
 	content =  env.L '%verification.intro'	
@@ -306,7 +304,7 @@ exportScenario \verification, (env) ->*
 			yield P.delay 100
 
 	if scene.socket
-		scene.socket.send "start"
+		scene.socket.send "start verification"
 
 	change = scene.time
 	scene.afterPhysics.add (dt) ->

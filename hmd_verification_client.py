@@ -26,7 +26,7 @@ sub.setsockopt_string(zmq.SUBSCRIBE, 'gaze')
 while True:
     res = ws.recv()
     
-    if res != "verification":
+    if res != "start verification":
         continue
         
     while True:
