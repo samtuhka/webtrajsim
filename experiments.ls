@@ -101,6 +101,19 @@ laneChecker = wrapScenario (scenario) ->
 				warningSound.stop()
 		return task
 
+export vrExperiment = seqr.bind ->*
+
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
+
+	yield runScenario scenario.calibration
+	yield runScenario scenario.verification
+	yield runScenario scenario.laneDriving
+	yield runScenario scenario.laneDriving
+
+
 export blindFollow17 = seqr.bind ->*
 	monkeypatch = laneChecker
 

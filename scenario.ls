@@ -91,11 +91,11 @@ export baseScene = seqr.bind (env) ->*
 	
 	scene.engineSounds = engineSounds
 
-	scene.onStart ->
-		env.container.addClass "hide-cursor"
-	scene.onExit ->
-		env.container.removeClass "hide-cursor"
-	
+	#scene.onStart ->
+	#	env.container.addClass "hide-cursor"
+	#scene.onExit ->
+	#	env.container.removeClass "hide-cursor"
+	/*
 	rendererStats = new THREEx.RendererStats()
 	rendererStats.domElement.style.position	= 'absolute'
 	rendererStats.domElement.style.right = '100px'
@@ -112,6 +112,22 @@ export baseScene = seqr.bind (env) ->*
 	scene.onRender.add (dt) ->
 		rendererStats.update env.renderer
 		stats.update()
+	*/
+	addFakeMirror scene, env, 0, 0 #4.5/180*Math.PI
+	addFakeMirror scene, env, 1, 12.5/180*Math.PI
+	addFakeMirror scene, env, 2, -12.5/180*Math.PI
+
+	addSpeedometer scene, env
+	steeringwheel scene, env
+	scene.player.body.traverse (obj) ->
+		return if not obj.geometry?
+		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
+
+	env.controls.change (btn) ->
+		if btn == "blinder"
+			env.vrcontrols.resetPose()
+
+	scene.viva = undefined
 
 	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
@@ -817,32 +833,44 @@ instructions3D = (scene, env, title, content, x = -1.75) ->
 require './threex/threex.rendererstats.js'
 require './threex/stats.js'
 
+
+#ugh... really ugly
+carTeleporter = (scene) ->
+	if scene.player.behindPlayerLeft > 3
+			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
+			scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
+			scene.left = scene.left.leader
+
+	if scene.player.behindPlayerLeft < 3
+			carTeleporter scene.left.leader, scene.left
+			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*lt
+			scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
+			scene.left = scene.left.follower
+	
+	if scene.player.behindPlayerRight > 2
+			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*lt
+			scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
+			scene.right = scene.right.leader
+
+	if scene.player.behindPlayerRight < 2
+			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*lt
+			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
+			scene.right = scene.right.follower
+
 exportScenario \laneDriving, (env) ->*
 
 	# Load the base scene
 	scene = yield baseScene env
-	scene.viva = undefined
-
-	addFakeMirror scene, env, 0, 0 #4.5/180*Math.PI
-	addFakeMirror scene, env, 1, 12.5/180*Math.PI
-	addFakeMirror scene, env, 2, -12.5/180*Math.PI
+	
 
 	title =  env.L "Lane changing"
 	content =  env.L '%laneChange.intro'
 	instructions3D scene, env, title, content
 
-	addSpeedometer scene, env
-	steeringwheel scene, env
-	scene.player.body.traverse (obj) ->
-		return if not obj.geometry?
-		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
-
-	env.controls.change (btn) ->
-		if btn == "blinder"
-			env.vrcontrols.resetPose()
-
 	failOnCollisionVR env, scene
 
+	warningSound = yield sounds.WarningSound env
+	
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 	
@@ -914,7 +942,7 @@ exportScenario \laneDriving, (env) ->*
 	while start == false
 			#enterVR env
 			yield P.delay 100
-
+	startTime = scene.time 
 	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
@@ -932,26 +960,12 @@ exportScenario \laneDriving, (env) ->*
 
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
-		
-		if scene.player.behindPlayerLeft > 3
-				scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
-				scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
-				scene.left = scene.left.leader
+		carTeleporter scene
 
-		if scene.player.behindPlayerLeft < 3
-				scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*lt
-				scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
-				scene.left = scene.left.follower
-		
-		if scene.player.behindPlayerRight > 2
-				scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.left.th*lt
-				scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
-				scene.right = scene.right.leader
-
-		if scene.player.behindPlayerRight < 2
-				scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.left.th*lt
-				scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
-				scene.right = scene.right.follower
+		if scene.time - startTime >= 600 && not scene.endTime
+			title = 'HuuHaaHuu'
+			reason = 'HuuHaaHuu'
+			endingVr scene, env, title, reason
 
 	env.controls.change (btn, isOn) !~>
 		return unless btn == 'catch' and isOn and scene.endtime

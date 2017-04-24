@@ -292,7 +292,7 @@ loadViva = Co (path) ->*
 				material.emissive.r = 0
 			material.needsUpdate = true
 
-export addVehicle = Co (scene, controls=new DummyControls, path, {objectName, steeringNoise=-> 0.0}={}) ->*
+export addVehicle = Co (scene, controls=new DummyControls, path="res/viva/NPCViva.dae", {objectName, steeringNoise=-> 0.0}={}) ->*
 	
 	if not scene.viva
 		{body, wheels, eye, setBrakelight} = yield loadViva(path)
