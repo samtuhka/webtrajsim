@@ -773,9 +773,9 @@ endingVr = (scene, env, title, reason) ->
 	endGeo = new THREE.PlaneGeometry(1, 0.5)
 	endMesh = new THREE.Mesh endGeo, endMat
 	scene.camera.add endMesh
-	endMesh.position.z = -2
+	endMesh.position.z = -1.5
 	
-	scene.camera.position.y = 100
+	scene.player.eye.position.y = 100
 
 	endBg = addBackgroundColor scene
 	scene.camera.add endBg
