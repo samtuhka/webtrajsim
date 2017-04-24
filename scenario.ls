@@ -211,7 +211,7 @@ export calbrationScene = seqr.bind (env, startMsg) ->*
 			scene.socket.send startMsg
 
 	socket.onmessage = (e) ->
-		message = {"time": scene.time, "position": scene.marker.position}
+		message = {"sceneTime": scene.time, "time": Date.now() / 1000, "position": scene.marker.position}
 		message = JSON.stringify(message)
 		scene.msg = e.data
 		if scene.start

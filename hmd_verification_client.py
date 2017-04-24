@@ -4,6 +4,13 @@ import time
 import json
 import sys
 from msgpack import loads
+import pickle
+
+def save_object(object,file_path):
+	file_path = os.path.expanduser(file_path)
+	with open(file_path,'wb') as fh:
+		pickle.dump(object,fh,-1)
+		
 time.sleep(2)
 
 ctx = zmq.Context()
@@ -28,7 +35,9 @@ while True:
     
     if res != "start verification":
         continue
-        
+    
+    verifData = []
+    
     while True:
         topic = sub.recv_string()
         msg = sub.recv()  # bytes
@@ -39,5 +48,11 @@ while True:
         result = ws.recv()
         if result == "stop":
             break
+        else:
+            result = json.loads(result)
+            result['gaze'] = gaze
+            verifData.append(result)
+        
+     save_object(verifData, sys.argv[1] + str(time.time()))            
         
     print("finished verification")
