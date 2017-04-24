@@ -121,7 +121,7 @@ while True:
         t = get_pupil_timestamp()
         if result != "start" and result != "stop":
                 result = json.loads(result)
-                pos = (result['position']['x']/10.0, result['position']['y']/10.0) #, result['position']['z'])
+                pos = ((result['position']['x'] + 5)/10.0, (result['position']['y'] + 5)/10.0) #, result['position']['z'])
                 positions.append(pos)
                 timestamps.append(t)
         if result == "stop":

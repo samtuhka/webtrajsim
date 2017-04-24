@@ -201,6 +201,8 @@ export calbrationScene = seqr.bind (env, scn) ->*
 		console.log("socket open")
 		socket.send(scn)
 		scene.socket = socket
+		if scene.start
+			scene.socket.send "start"
 
 	socket.onmessage = (e) ->
 		message = {"time": scene.time, "position": scene.marker.position}
@@ -311,8 +313,8 @@ exportScenario \verification, (env) ->*
 		if scene.msg
 			if typeof scene.msg === 'string'
 				scene.msg = JSON.parse(scene.msg)
-			scene.gaze.position.x = scene.msg.x*10
-			scene.gaze.position.y = scene.msg.y*10
+			scene.gaze.position.x = scene.msg.x*10 - 5
+			scene.gaze.position.y = scene.msg.y*10 - 5
 		if scene.marker.index >= 20
 			exitVR env
 			if scene.socket
