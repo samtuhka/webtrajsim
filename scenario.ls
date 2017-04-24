@@ -175,11 +175,15 @@ addBackgroundColor = (scene) ->
 	geo = new THREE.SphereGeometry(100, 32, 32 )
 	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true, side: THREE.DoubleSide
 	mesh = new THREE.Mesh geo, mat
-	scene.visual.add mesh
+	return mesh
 
 exitVR = (env) ->
 	if env.vreffect.isPresenting
 		env.vreffect.exitPresent()
+
+enterVR = (env) ->
+	if not env.vreffect.isPresenting && env.vreffect.getVRDisplay()
+		env.vreffect.requestPresent()
 
 export calbrationScene = seqr.bind (env, scn) ->*
 	{controls, audioContext, L} = env
@@ -192,7 +196,9 @@ export calbrationScene = seqr.bind (env, scn) ->*
 	scene.visual.add eye
 	eye.add scene.camera
 
-	addBackgroundColor scene
+	bg = addBackgroundColor scene
+	scene.visual.add bg
+
 	addCalibrationMarker scene
 
 	socket = new WebSocket "ws://localhost:10103"
@@ -249,6 +255,7 @@ exportScenario \calibration, (env) ->*
 			scene.visual.remove(scene.instructions)
 
 	while scene.start == false
+			enterVR env
 			yield P.delay 100
 
 	if scene.socket
@@ -295,6 +302,7 @@ exportScenario \verification, (env) ->*
 			scene.visual.remove(scene.instructions)
 
 	while scene.start == false
+			enterVR env
 			yield P.delay 100
 
 	if scene.socket
@@ -757,17 +765,18 @@ text3D = (title, content) ->
 endingVr = (scene, env, title, reason) ->
 	reason += "\nContinue by pressing the right red button on the wheel."
 	text = text3D title, reason
-	endMat = new THREE.MeshBasicMaterial( {color: 0xffffff, map: text.texture, transparent: true, opacity: 0.9} )
-	endGeo = new THREE.PlaneGeometry(0.1, 0.05)
+
+	endMat = new THREE.MeshBasicMaterial( {color: 0x000000, map: text.texture, transparent: true, opacity: 0.9} )
+	endGeo = new THREE.PlaneGeometry(1, 0.5)
 	endMesh = new THREE.Mesh endGeo, endMat
 	scene.camera.add endMesh
-	endMesh.position.z = -0.1
-	endMesh.position.y = -0.025
-	geo = new THREE.PlaneGeometry 40000, 40000
-	mat = new THREE.MeshBasicMaterial color: 0x000000, depthTest: true
-	mesh = new THREE.Mesh geo, mat
-	mesh.position.z = -0.15
-	scene.camera.add mesh
+	endMesh.position.z = -2
+	
+	scene.camera.position.y = 100
+
+	endBg = addBackgroundColor scene
+	scene.camera.add endBg
+
 	scene.endtime = scene.time
 	scene.engineSounds.stop()
 	env.logger.write endTime: scene.endtime
@@ -794,7 +803,7 @@ instructions3D = (scene, env, title, content, x = -1.75) ->
 	instTex.texture.needsUpdate = true
 
 	instMesh.position.y = 1.5
-	instMesh.position.x = 0
+	instMesh.position.x = x
 	instMesh.position.z = 4.75
 
 	scene.visual.add instMesh
@@ -829,7 +838,7 @@ exportScenario \laneDriving, (env) ->*
 		if btn == "blinder"
 			env.vrcontrols.resetPose()
 
-	#failOnCollisionVR env, scene
+	failOnCollisionVR env, scene
 
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
@@ -900,6 +909,7 @@ exportScenario \laneDriving, (env) ->*
 
 
 	while start == false
+			enterVR env
 			yield P.delay 100
 
 	yield startLight.switchToGreen()
