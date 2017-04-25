@@ -94,7 +94,7 @@ export WarningSound = seqr.bind (env, {gain=0.1}={}) ->*
 export carHorn =  (listener) ->
 	audioLoader = new THREE.AudioLoader()
 	sound = new THREE.PositionalAudio( listener )
-	audioLoader.load 'res/sounds/vehicle040.mp3',  (buffer) ->
+	audioLoader.load 'res/sounds/vehicle040.wav',  (buffer) ->
 		sound.setBuffer(buffer)
 		sound.setRefDistance 20
 	return sound
