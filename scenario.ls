@@ -7,7 +7,7 @@ seqr = require './seqr.ls'
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
-{DefaultEngineSound, BellPlayer, NoisePlayer} = require './sounds.ls'
+{DefaultEngineSound, BellPlayer, NoisePlayer, WarningSound} = require './sounds.ls'
 assets = require './assets.ls'
 prelude = require 'prelude-ls'
 
@@ -326,14 +326,18 @@ exportScenario \verification, (env) ->*
 
 	if scene.socket
 		scene.socket.send "start verification"
+	calibLocs = [[0, 0],[-2.5, 0],[-5, 0], [2.5, 0], [5, 0], 
+			[0, 2.5], [-2.5, 2.5], [-5, 2.5], [2.5, 2.5], [5, 2.5], 
+			[0, 5], [-2.5, 5], [-5, 5], [2.5, 5], [5, 5], 
+			[0, -2.5], [-2.5, -2.5], [-5, -2.5], [2.5, -2.5], [5, -2.5], [0,0]]
 
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 3 > change
 			scene.marker.index += 1
-			scene.marker.position.x = Math.round((Math.random() * 10) - 5)
-			scene.marker.position.y = Math.round((Math.random() * 10) - 5)
-			scene.marker.position.z = -30 #Math.floor(Math.random() * 30)
+			scene.marker.position.x = calibLocs[scene.marker.index][0]
+			scene.marker.position.y = calibLocs[scene.marker.index][1]
+			scene.marker.position.z = -30
 			change := scene.time
 
 	scene.onTickHandled ~>
@@ -835,25 +839,24 @@ require './threex/stats.js'
 
 
 #ugh... really ugly
-carTeleporter = (scene) ->
+carTeleporter = (scene, lt, rt) ->
 	if scene.player.behindPlayerLeft > 3
 			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
 			scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
 			scene.left = scene.left.leader
 
 	if scene.player.behindPlayerLeft < 3
-			carTeleporter scene.left.leader, scene.left
 			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*lt
 			scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
 			scene.left = scene.left.follower
 	
 	if scene.player.behindPlayerRight > 2
-			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*lt
+			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*rt
 			scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
 			scene.right = scene.right.leader
 
 	if scene.player.behindPlayerRight < 2
-			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*lt
+			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*rt
 			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 			scene.right = scene.right.follower
 
@@ -869,8 +872,12 @@ exportScenario \laneDriving, (env) ->*
 
 	failOnCollisionVR env, scene
 
-	warningSound = yield sounds.WarningSound env
-	
+	warningSound = yield WarningSound env
+	speedSign = yield assets.SpeedSign(80)
+	speedSign.position.x = -4
+	speedSign.position.z = 10
+	scene.visual.add speedSign
+		
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 	
@@ -879,7 +886,7 @@ exportScenario \laneDriving, (env) ->*
 
 	thsLeft = [1, 1, 2, 1, 1, 2] 
 	thsRight = [1, 1, 1, 1, 1, 1, 1]
-
+	
 	r_cars = []
 	l_cars = []
 	
@@ -947,8 +954,8 @@ exportScenario \laneDriving, (env) ->*
 
 	scene.afterPhysics.add (dt) ->
 
-		lt = 110/3.6
-		rt = 80/3.6
+		lt = 90/3.6
+		rt = 70/3.6
 		
 		setCarControls scene, cars
 
@@ -960,12 +967,22 @@ exportScenario \laneDriving, (env) ->*
 
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
-		carTeleporter scene
+		carTeleporter scene, lt, rt
+		
+		if scene.player.physical.position.z - 500 > speedSign.position.z
+			speedSign.position.z = scene.player.physical.position.z + 500
 
-		if scene.time - startTime >= 600 && not scene.endTime
+
+		if scene.time - startTime >= 300 && not scene.endtime
 			title = 'HuuHaaHuu'
 			reason = 'HuuHaaHuu'
 			endingVr scene, env, title, reason
+
+	scene.onTickHandled ~>
+		if not scene.endtime && scene.player.getSpeed()*3.6 > 88
+			warningSound.start()
+		else
+			warningSound.stop()
 
 	env.controls.change (btn, isOn) !~>
 		return unless btn == 'catch' and isOn and scene.endtime
