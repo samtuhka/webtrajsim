@@ -88,13 +88,13 @@ generateRock = (seed=Math.random()) ->
 	geo.computeVertexNormals()
 	geo.computeFaceNormals()
 	rock = new THREE.Mesh geo, new THREE.MeshLambertMaterial do
-		color: 0xd3ab6d
+		color: 0x696969
 	rock.castShadow = true
 	rock.receiveShadow = true
 	return rock
 
 export addGround = (scene) ->
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/sandtexture.jpg'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/grass.jpg'
 	terrainSize = 1000
 	textureSize = 5
 	textureRep = terrainSize/textureSize
