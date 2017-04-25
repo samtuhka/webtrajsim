@@ -5,6 +5,7 @@ import json
 import sys
 from msgpack import loads
 import pickle
+import os
 
 def save_object(object,file_path):
 	file_path = os.path.expanduser(file_path)
@@ -53,6 +54,6 @@ while True:
             result['gaze'] = gaze
             verifData.append(result)
         
-     save_object(verifData, sys.argv[1] + str(time.time()))            
+    save_object(verifData, sys.argv[1] + str(time.time()))            
         
     print("finished verification")
