@@ -103,16 +103,14 @@ laneChecker = wrapScenario (scenario) ->
 
 export vrExperiment = seqr.bind ->*
 
-	env = newEnv!
-	yield scenario.participantInformation yield env.get \env
-	env.let \destroy
-	yield env
+	#env = newEnv!
+	#yield scenario.participantInformation yield env.get \env
+	#env.let \destroy
+	#yield env
 
-	yield runScenario scenario.calibration
-	yield runScenario scenario.verification
-	yield runScenario scenario.laneDriving
-	yield runScenario scenario.laneDriving
-
+	#yield runScenario scenario.calibration
+	#yield runScenario scenario.verification
+	yield runUntilPassed scenario.laneDriving, passes: 3
 
 export blindFollow17 = seqr.bind ->*
 	monkeypatch = laneChecker

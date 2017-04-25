@@ -7,7 +7,7 @@ seqr = require './seqr.ls'
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
 {NonSteeringControl} = require './controls.ls'
-{DefaultEngineSound, BellPlayer, NoisePlayer, WarningSound} = require './sounds.ls'
+{DefaultEngineSound, carHorn, BellPlayer, NoisePlayer, WarningSound} = require './sounds.ls'
 assets = require './assets.ls'
 prelude = require 'prelude-ls'
 
@@ -737,6 +737,8 @@ failOnCollision = (env, scn, scene) ->
 			content: reason
 		return false
 
+
+
 setCarControls = (scene, cars) ->
 	scene.player.behindPlayerRight = 0
 	scene.player.behindPlayerLeft = 0
@@ -754,6 +756,11 @@ setCarControls = (scene, cars) ->
 			if Math.abs(playerPos.x - pos.x) < 2.25
 				
 				simple = false
+
+				if ((playerPos.z - pos.z) < car.getSpeed()*0.5 ||  car.getSpeed() < 10/3.6) && not car.carhorn.isPlaying && not scene.endtime
+					car.carhorn.play()
+				else if car.carhorn.isPlaying
+					car.carhorn.stop()
 
 				if pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
 					leader = scene.player
@@ -809,6 +816,7 @@ failOnCollisionVR = (env, scene) ->
 		if not scene.endtime
 			reason = collisionReason env, e
 			title = env.L "Oops!"
+			scene.passed = false
 			endingVr scene, env, title, reason
 
 		
@@ -865,10 +873,11 @@ exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 	
-
 	title =  env.L "Lane changing"
 	content =  env.L '%laneChange.intro'
 	instructions3D scene, env, title, content
+	listener = new THREE.AudioListener()
+	scene.camera.add listener
 
 	failOnCollisionVR env, scene
 
@@ -881,11 +890,11 @@ exportScenario \laneDriving, (env) ->*
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 	
-	locsRight = [-60, -20, 20, 60, 100]
-	locsLeft = [-90, -60, -30, 30, 60, 90]
+	locsRight = [-78, -39, 39, 78, 117]
+	locsLeft = [-112.5, -75, -37.5, 37.5, 75, 112.5]
 
-	thsLeft = [1, 1, 2, 1, 1, 2] 
-	thsRight = [1, 1, 1, 1, 1, 1, 1]
+	thsLeft = [1, 1, 3, 1, 1, 3] 
+	thsRight = [2, 2, 2, 2, 2]
 	
 	r_cars = []
 	l_cars = []
@@ -897,6 +906,8 @@ exportScenario \laneDriving, (env) ->*
 		controller = new TargetSpeedController2
 		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = controller
+		carhorn = car.carhorn = carHorn listener
+		car.visual.add carhorn
 		car.physical.position.x = -1.75
 		car.lane = -1.75
 		car.th = thsRight[i]
@@ -912,6 +923,8 @@ exportScenario \laneDriving, (env) ->*
 		controller = new TargetSpeedController2
 		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = controller
+		carhorn = car.carhorn = carHorn listener
+		car.visual.add carhorn
 		car.physical.position.x = 1.75
 		car.lane = 1.75
 		car.th = thsLeft[i]
@@ -953,7 +966,6 @@ exportScenario \laneDriving, (env) ->*
 	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
-
 		lt = 90/3.6
 		rt = 70/3.6
 		
@@ -976,6 +988,7 @@ exportScenario \laneDriving, (env) ->*
 		if scene.time - startTime >= 300 && not scene.endtime
 			title = 'HuuHaaHuu'
 			reason = 'HuuHaaHuu'
+			scene.passed = true
 			endingVr scene, env, title, reason
 
 	scene.onTickHandled ~>
@@ -987,7 +1000,7 @@ exportScenario \laneDriving, (env) ->*
 	env.controls.change (btn, isOn) !~>
 		return unless btn == 'catch' and isOn and scene.endtime
 		exitVR env
-		@let \done, passed: true
+		@let \done, passed: scene.passed
 		return false
 
 	return yield @get \done

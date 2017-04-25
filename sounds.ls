@@ -91,6 +91,14 @@ export WarningSound = seqr.bind (env, {gain=0.1}={}) ->*
 		isPlaying:~ -> source?
 	return self
 
+export carHorn =  (listener) ->
+	audioLoader = new THREE.AudioLoader()
+	sound = new THREE.PositionalAudio( listener )
+	audioLoader.load 'res/sounds/vehicle040.mp3',  (buffer) ->
+		sound.setBuffer(buffer)
+		sound.setRefDistance 20
+	return sound
+		
 
 export BellPlayer = seqr.bind ({audioContext}) ->*
 	ctx = audioContext
