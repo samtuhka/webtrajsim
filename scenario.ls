@@ -757,7 +757,7 @@ setCarControls = (scene, cars) ->
 				
 				simple = false
 
-				if ((playerPos.z - pos.z) < car.getSpeed()*0.5 ||  car.getSpeed() < 10/3.6) && not car.carhorn.isPlaying && not scene.endtime
+				if (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10) && not car.carhorn.isPlaying && not scene.endtime
 					car.carhorn.play()
 				else if car.carhorn.isPlaying
 					car.carhorn.stop()
