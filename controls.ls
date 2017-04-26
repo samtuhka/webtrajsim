@@ -76,6 +76,8 @@ export class KeyboardController
 		LEFT = 37
 		RIGHT = 39
 		CTRL = 17
+		Q = 81
+		W = 87
 
 		$("body")
 		.keydown @_keydown = (e) ~>

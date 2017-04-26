@@ -124,7 +124,7 @@ export baseScene = seqr.bind (env) ->*
 		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
 
 	env.controls.change (btn) ->
-		if btn == "blinder"
+		if btn == "frontLeft"
 			env.vrcontrols.resetPose()
 
 	scene.viva = undefined
@@ -239,7 +239,7 @@ export calbrationScene = seqr.bind (env, startMsg) ->*
 	
 
 	env.controls.change (btn) ->
-		if btn == "blinder"
+		if btn == "frontLeft"
 			env.vrcontrols.resetPose()
 
 	scene.preroll = seqr.bind ->*
@@ -737,6 +737,49 @@ failOnCollision = (env, scn, scene) ->
 			content: reason
 		return false
 
+turnSignal = (env, scene, listener) ->
+
+	onSound = new THREE.Audio(listener)
+	onSound.load('res/sounds/blinker.wav')
+	onSound.loop = true
+
+	scene.player.tsl = false
+	scene.player.tsr = false
+
+	env.controls.change (btn, isOn) !~>
+		if btn == "blinder" and isOn and not onSound.isPlaying
+			onSound.play()
+			scene.player.tsl = true
+			scene.player.tsl_value = env.controls.steering
+		else if btn == "blinder" and isOn and onSound.isPlaying
+			onSound.stop()
+			scene.player.tsl = false
+			scene.player.tsl_value = 0
+		if btn == "backRight" and isOn and not onSound.isPlaying
+			onSound.play()
+			scene.player.tsr = true
+			scene.player.tsr_value = env.controls.steering
+		else if btn == "backRight" and isOn and onSound.isPlaying
+			onSound.stop()
+			scene.player.tsr = false
+			scene.player.tsr_value = 0
+
+	scene.onTickHandled ~>
+		if scene.player.tsr
+			scene.player.tsr_value = Math.min scene.player.tsr_value, env.controls.steering
+			if env.controls.steering > 0.95*scene.player.tsr_value
+				onSound.stop()
+				scene.player.tsr = false
+				scene.player.tsr_value = 0
+		if scene.player.tsl
+			scene.player.tsl_value = Math.max scene.player.tsl_value, env.controls.steering
+			if env.controls.steering < 0.95*scene.player.tsl_value
+				onSound.stop()
+				scene.player.tsl = false
+				scene.player.tsl_value = 0
+				
+				
+
 
 
 setCarControls = (scene, cars) ->
@@ -753,7 +796,7 @@ setCarControls = (scene, cars) ->
 
 		if playerPos.z > pos.z
 
-			if Math.abs(playerPos.x - pos.x) < 2.25
+			if Math.abs(playerPos.x - pos.x) < 2.25 || scene.player.tsr || scene.player.tsl
 				
 				simple = false
 				
@@ -869,6 +912,16 @@ carTeleporter = (scene) ->
 			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 			scene.right = scene.right.follower
 
+
+startPositions = (ths, speed, behind) ->
+	pos = -ths.slice(0, behind).reduce((a, b) -> (a+b))*speed + speed
+	startPositions = [pos]
+	for i from 1 til ths.length
+		pos += ths[i - 1]*speed
+		startPositions.push pos
+	return startPositions
+
+
 exportScenario \laneDriving, (env) ->*
 
 	# Load the base scene
@@ -881,6 +934,7 @@ exportScenario \laneDriving, (env) ->*
 	scene.camera.add listener
 
 	failOnCollisionVR env, scene
+	turnSignal env, scene, listener
 
 	warningSound = yield WarningSound env
 	speedSign = yield assets.SpeedSign(80)
@@ -890,23 +944,21 @@ exportScenario \laneDriving, (env) ->*
 		
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
-	
-	locsRight = [-78, -39, 39, 78, 117]
-	locsLeft = [-112, -84, -56, 28, 56, 84]
 
 	thsLeft = [1, 1, 3, 1, 1, 2] 
-	thsRight = [2, 2, 2, 2, 2]
+	thsRight = [3, 2.5, 2.5, 3, 2.5]
 
 	scene.lt = 100/3.6
 	scene.rt = 70/3.6
 	
-	
-	
 	r_cars = []
 	l_cars = []
 	
-	nR = 5
-	nL = 6
+	locsLeft = startPositions thsLeft, scene.lt, 3
+	locsRight = startPositions thsRight, scene.rt, 2
+	
+	nR = thsRight.length
+	nL = thsLeft.length
 	
 	for i from 0 til nR
 		controller = new TargetSpeedController2
