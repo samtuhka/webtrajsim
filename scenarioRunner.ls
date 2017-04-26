@@ -263,6 +263,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	#		me.let \done, passed: passed, outro: @, result: result
 	#@let \outro, [outro]
 	#yield outro
+	@let \done, passed: passed, result: result
 	scope.let \destroy
 	yield scope
 	env.logger.write destroyedScenario: scenarioLoader.scenarioName
