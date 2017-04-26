@@ -757,9 +757,10 @@ setCarControls = (scene, cars) ->
 				
 				simple = false
 				
-				if (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10) && not car.carhorn.isPlaying && not scene.endtime
+				playHorn = (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10)
+				if playHorn && not car.carhorn.isPlaying && not scene.endtime
 					car.carhorn.play()
-				else if car.carhorn.isPlaying
+				if car.carhorn.isPlaying && (playHorn == false || scene.endtime)
 					car.carhorn.stop()
 
 				if pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)

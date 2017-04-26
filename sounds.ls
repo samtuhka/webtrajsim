@@ -96,7 +96,7 @@ export carHorn =  (listener) ->
 	sound = new THREE.PositionalAudio( listener )
 	audioLoader.load 'res/sounds/vehicle040.wav',  (buffer) ->
 		sound.setBuffer(buffer)
-		sound.setRefDistance 20
+		sound.setRefDistance 30
 	return sound
 		
 
