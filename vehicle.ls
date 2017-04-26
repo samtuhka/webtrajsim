@@ -142,7 +142,7 @@ loadViva = Co (path) ->*
 
 	
 	#this is really dumb, used to hide a seam on the mesh of the car that allows you to see the headlights
-	if not path == "res/viva/NPCViva.dae"
+	if path != "res/viva/NPCViva.dae"
 		hideMesh = new THREE.Mesh new THREE.BoxGeometry(1.5, 0.3, 0.2), new THREE.MeshBasicMaterial {color: 0x000000}
 		hideMesh.position.z = 1.2
 		hideMesh.position.y = 0.8

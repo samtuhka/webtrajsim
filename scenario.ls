@@ -756,7 +756,7 @@ setCarControls = (scene, cars) ->
 			if Math.abs(playerPos.x - pos.x) < 2.25
 				
 				simple = false
-
+				
 				if (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10) && not car.carhorn.isPlaying && not scene.endtime
 					car.carhorn.play()
 				else if car.carhorn.isPlaying
@@ -766,10 +766,10 @@ setCarControls = (scene, cars) ->
 					leader = scene.player
 			
 			if car.lane == 1.75
-				targetAcceleration = getAccelerationIDM car, leader, 110/3.6
+				targetAcceleration = getAccelerationIDM car, leader, scene.lt
 				scene.player.behindPlayerLeft += 1
 			else 
-				targetAcceleration = getAccelerationIDM car, leader, 80/3.6
+				targetAcceleration = getAccelerationIDM car, leader, scene.rt
 				scene.player.behindPlayerRight += 1
 	
 		car.controller.mode = simple
@@ -847,24 +847,24 @@ require './threex/stats.js'
 
 
 #ugh... really ugly
-carTeleporter = (scene, lt, rt) ->
+carTeleporter = (scene) ->
 	if scene.player.behindPlayerLeft > 3
-			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*lt
+			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.lt
 			scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
 			scene.left = scene.left.leader
 
 	if scene.player.behindPlayerLeft < 3
-			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*lt
+			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*scene.lt
 			scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
 			scene.left = scene.left.follower
 	
 	if scene.player.behindPlayerRight > 2
-			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*rt
+			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*scene.rt
 			scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
 			scene.right = scene.right.leader
 
 	if scene.player.behindPlayerRight < 2
-			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*rt
+			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*scene.rt
 			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 			scene.right = scene.right.follower
 
@@ -891,10 +891,15 @@ exportScenario \laneDriving, (env) ->*
 	trafficControlsRight = new TargetSpeedController
 	
 	locsRight = [-78, -39, 39, 78, 117]
-	locsLeft = [-112.5, -75, -37.5, 37.5, 75, 112.5]
+	locsLeft = [-112, -84, -56, 28, 56, 84]
 
-	thsLeft = [1, 1, 3, 1, 1, 3] 
+	thsLeft = [1, 1, 3, 1, 1, 2] 
 	thsRight = [2, 2, 2, 2, 2]
+
+	scene.lt = 100/3.6
+	scene.rt = 70/3.6
+	
+	
 	
 	r_cars = []
 	l_cars = []
@@ -966,20 +971,18 @@ exportScenario \laneDriving, (env) ->*
 	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
-		lt = 90/3.6
-		rt = 70/3.6
 		
 		setCarControls scene, cars
 
 		for car in cars
 			if car.lane == 1.75
-				car.controller.target = lt
+				car.controller.target = scene.lt
 			else
-				car.controller.target = rt
+				car.controller.target = scene.rt
 
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
-		carTeleporter scene, lt, rt
+		carTeleporter scene
 		
 		if scene.player.physical.position.z - 500 > speedSign.position.z
 			speedSign.position.z = scene.player.physical.position.z + 500
