@@ -743,41 +743,34 @@ turnSignal = (env, scene, listener) ->
 	onSound.load('res/sounds/blinker.wav')
 	onSound.loop = true
 
-	scene.player.tsl = false
-	scene.player.tsr = false
+	scene.player.ts = 0
 
 	env.controls.change (btn, isOn) !~>
-		if btn == "blinder" and isOn and !scene.player.tsl
+		if btn == "blinder" and isOn and scene.player.ts == 0
 			onSound.play()
-			scene.player.tsl = true
-			scene.player.tsl_value = env.controls.steering
-		else if btn == "blinder" and isOn and scene.player.tsl
+			scene.player.ts = -1
+			scene.player.ts_value = env.controls.steering
+		else if btn == "blinder" and isOn and scene.player.ts != 0
 			onSound.stop()
-			scene.player.tsl = false
-			scene.player.tsl_value = -100
-		if btn == "backRight" and isOn and !scene.player.tsr_value
+			scene.player.ts = 0
+		if btn == "backRight" and isOn and scene.player.ts == 0
 			onSound.play()
-			scene.player.tsr = true
-			scene.player.tsr_value = env.controls.steering
-		else if btn == "backRight" and isOn and scene.player.tsr_value 
+			scene.player.ts = 1
+			scene.player.ts_value = env.controls.steering
+		else if btn == "backRight" and isOn and scene.player.ts != 0 
 			onSound.stop()
-			scene.player.tsr = false
-			scene.player.tsr_value = 100
+			scene.player.ts = 0
 
 	scene.onTickHandled ~>
-		if scene.player.tsr
-			scene.player.tsr_value = Math.min scene.player.tsr_value, env.controls.steering
-			if env.controls.steering >= 0 && scene.player.tsr_value < 0
+		dir = scene.player.ts
+		if dir != 0
+			if dir == 1
+				scene.player.ts_value = Math.min scene.player.ts_value, env.controls.steering
+			else
+				scene.player.ts_value = Math.max scene.player.ts_value, env.controls.steering
+			if env.controls.steering*dir >= 0 && scene.player.ts_value*dir < 0
 				onSound.stop()
-				scene.player.tsr = false
-				scene.player.tsr_value = 100
-		if scene.player.tsl
-			scene.player.tsl_value = Math.max scene.player.tsl_value, env.controls.steering
-			if env.controls.steering =< 0 && scene.player.tsl_value > 0
-				onSound.stop()
-				scene.player.tsl = false
-				scene.player.tsl_value = -100
-				
+				scene.player.ts = 0
 				
 
 
