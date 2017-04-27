@@ -747,36 +747,36 @@ turnSignal = (env, scene, listener) ->
 	scene.player.tsr = false
 
 	env.controls.change (btn, isOn) !~>
-		if btn == "blinder" and isOn and not onSound.isPlaying
+		if btn == "blinder" and isOn and !scene.player.tsl
 			onSound.play()
 			scene.player.tsl = true
 			scene.player.tsl_value = env.controls.steering
-		else if btn == "blinder" and isOn and onSound.isPlaying
+		else if btn == "blinder" and isOn and scene.player.tsl
 			onSound.stop()
 			scene.player.tsl = false
-			scene.player.tsl_value = 0
-		if btn == "backRight" and isOn and not onSound.isPlaying
+			scene.player.tsl_value = -100
+		if btn == "backRight" and isOn and !scene.player.tsr_value
 			onSound.play()
 			scene.player.tsr = true
 			scene.player.tsr_value = env.controls.steering
-		else if btn == "backRight" and isOn and onSound.isPlaying
+		else if btn == "backRight" and isOn and scene.player.tsr_value 
 			onSound.stop()
 			scene.player.tsr = false
-			scene.player.tsr_value = 0
+			scene.player.tsr_value = 100
 
 	scene.onTickHandled ~>
 		if scene.player.tsr
 			scene.player.tsr_value = Math.min scene.player.tsr_value, env.controls.steering
-			if env.controls.steering > 0.95*scene.player.tsr_value
+			if env.controls.steering >= 0 && scene.player.tsr_value < 0
 				onSound.stop()
 				scene.player.tsr = false
-				scene.player.tsr_value = 0
+				scene.player.tsr_value = 100
 		if scene.player.tsl
 			scene.player.tsl_value = Math.max scene.player.tsl_value, env.controls.steering
-			if env.controls.steering < 0.95*scene.player.tsl_value
+			if env.controls.steering =< 0 && scene.player.tsl_value > 0
 				onSound.stop()
 				scene.player.tsl = false
-				scene.player.tsl_value = 0
+				scene.player.tsl_value = -100
 				
 				
 
@@ -796,7 +796,7 @@ setCarControls = (scene, cars) ->
 
 		if playerPos.z > pos.z
 
-			if Math.abs(playerPos.x - pos.x) < 2.25 || scene.player.tsr || scene.player.tsl
+			if Math.abs(playerPos.x - pos.x) < 2.25
 				
 				simple = false
 				
