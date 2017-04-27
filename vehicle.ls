@@ -338,7 +338,8 @@ export addVehicle = Co (scene, controls=new DummyControls, path="res/viva/NPCViv
 	brakePower = 1000										# Brake power
 	brakeExponent = 2000										# Brake response
 	brakeResponse = (pedal) -> (brakeExponent**pedal - 1)/brakeExponent*brakePower
-	maxSteer = 0.8
+	#maxSteer = 0.8											#replaced by steerRatio
+	steerRatio = (1.0 / 15.0) * (450/180.0 * Math.PI)
 	maxCentering = 0.4
 	maxCenteringSpeed = 10
 	steeringDeadzone = 0.005
@@ -382,12 +383,12 @@ export addVehicle = Co (scene, controls=new DummyControls, path="res/viva/NPCViv
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
 			mag = Math.max mag, 0
-			steering = mag*dir*maxSteer
+			steering = mag*dir*steerRatio
 			steering += steeringNoise dt
 			if z > 0
 				# Front wheels
 				wi.brake = brakeResponse controls.brake
-				wi.steering = maxSteer*steering
+				wi.steering = steering
 			else
 				# Back wheels
 				wi.engineForce = -enginePower*controls.throttle*controls.direction
