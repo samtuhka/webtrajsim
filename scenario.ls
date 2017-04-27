@@ -611,6 +611,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 	b = 5
 
 	pos = car.physical.position.clone()
+
 	lead_pos = leader.physical.position.clone()
 
 	if pos.z > lead_pos.z
@@ -768,7 +769,7 @@ turnSignal = (env, scene, listener) ->
 				scene.player.ts_value = Math.min scene.player.ts_value, env.controls.steering
 			else
 				scene.player.ts_value = Math.max scene.player.ts_value, env.controls.steering
-			if env.controls.steering*dir >= 0 && scene.player.ts_value*dir < 0
+			if env.controls.steering*dir > 0 && scene.player.ts_value*dir < 0
 				onSound.stop()
 				scene.player.ts = 0
 				
@@ -789,17 +790,21 @@ setCarControls = (scene, cars) ->
 
 		if playerPos.z > pos.z
 
-			if Math.abs(playerPos.x - pos.x) < 2.25
+			xDist = Math.abs(playerPos.x - pos.x)
+			turnSignalIdm = scene.ts != 0 && car.getSpeed()*2 > (playerPos.z - pos.z) && xDist < 7
+
+			if xDist < 2.25 || turnSignalIdm
 				
 				simple = false
-				
+				if scene.ts != 0
+					
 				playHorn = (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10)
 				if playHorn && not car.carhorn.isPlaying && not scene.endtime
 					car.carhorn.play()
 				if car.carhorn.isPlaying && (playHorn == false || scene.endtime)
 					car.carhorn.stop()
 
-				if pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
+				if  pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
 					leader = scene.player
 			
 			if car.lane == 1.75
