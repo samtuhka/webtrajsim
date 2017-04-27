@@ -2,7 +2,7 @@ P = require 'bluebird'
 Co = P.coroutine
 $ = require 'jquery'
 seqr = require './seqr.ls'
-
+jStat = require 'jstat'
 
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
@@ -573,8 +573,8 @@ addSpeedometer = (scene, env) ->
 
 	scene.onTickHandled ->
 		upd += 1
-		if upd == 30
-			upd -= 30
+		if upd == 15
+			upd -= 15
 			speed = scene.player.getSpeed()*3.6
 			dynamicTexture.clear()
 			dynamicTexture.drawText(Math.round(speed), undefined, 126, 'red', font)
@@ -617,9 +617,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 	if pos.z > lead_pos.z
 		lead_pos.z += 240
 
-	dist = pos.distanceTo(lead_pos)	
-
-		
+	dist = pos.distanceTo(lead_pos)
 
 	timeGap = (car_vel*th)
 	deltaSpeed = car_vel - lead_vel
@@ -745,12 +743,14 @@ turnSignal = (env, scene, listener) ->
 	onSound.loop = true
 
 	scene.player.ts = 0
+	scene.player.ts_start = scene.player.physical.position.clone()
 
 	env.controls.change (btn, isOn) !~>
 		if btn == "blinder" and isOn and scene.player.ts == 0
 			onSound.play()
 			scene.player.ts = -1
 			scene.player.ts_value = env.controls.steering
+			scene.player.ts_start = scene.player.physical.position.clone()
 		else if btn == "blinder" and isOn and scene.player.ts != 0
 			onSound.stop()
 			scene.player.ts = 0
@@ -758,6 +758,7 @@ turnSignal = (env, scene, listener) ->
 			onSound.play()
 			scene.player.ts = 1
 			scene.player.ts_value = env.controls.steering
+			scene.player.ts_start = scene.player.physical.position.clone()
 		else if btn == "backRight" and isOn and scene.player.ts != 0 
 			onSound.stop()
 			scene.player.ts = 0
@@ -784,6 +785,7 @@ setCarControls = (scene, cars) ->
 		leader = car.leader
 		simple = true
 		targetAcceleration = 0
+		car.playerAhead = false
 		
 		playerPos = scene.player.physical.position
 		pos = car.physical.position
@@ -791,12 +793,11 @@ setCarControls = (scene, cars) ->
 		if playerPos.z > pos.z
 
 			xDist = Math.abs(playerPos.x - pos.x)
-			turnSignalIdm = scene.ts != 0 && car.getSpeed()*2 > (playerPos.z - pos.z) && xDist < 7
+			#turnSignalIdmFollower = scene.player.ts != 0 && xDist < 7
 
-			if xDist < 2.25 || turnSignalIdm
+			if xDist < 2.25 #|| turnSignalIdmFollower
 				
 				simple = false
-				if scene.ts != 0
 					
 				playHorn = (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10)
 				if playHorn && not car.carhorn.isPlaying && not scene.endtime
@@ -804,13 +805,16 @@ setCarControls = (scene, cars) ->
 				if car.carhorn.isPlaying && (playHorn == false || scene.endtime)
 					car.carhorn.stop()
 
-				if  pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
+				#turnSignalIdmLeader = turnSignalIdmFollower && car.getSpeed()*2 > (scene.player.ts_start.z - pos.z)
+
+				if  pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position) #&& xDist < 2.25) || turnSignalIdmLeader
 					leader = scene.player
+					car.playerAhead = true		
 			
 			if car.lane == 1.75
 				targetAcceleration = getAccelerationIDM car, leader, scene.lt
 				scene.player.behindPlayerLeft += 1
-			else 
+			else
 				targetAcceleration = getAccelerationIDM car, leader, scene.rt
 				scene.player.behindPlayerRight += 1
 	
@@ -890,11 +894,13 @@ require './threex/stats.js'
 
 #ugh... really ugly
 carTeleporter = (scene) ->
+	scene.left.th =  jStat.lognormal.sample(1.0, 0.5)
+	scene.right.th = jStat.lognormal.sample(2.0, 0.5)
+
 	if scene.player.behindPlayerLeft > 3
 			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.lt
 			scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
 			scene.left = scene.left.leader
-
 	if scene.player.behindPlayerLeft < 3
 			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*scene.lt
 			scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
@@ -904,7 +910,6 @@ carTeleporter = (scene) ->
 			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*scene.rt
 			scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
 			scene.right = scene.right.leader
-
 	if scene.player.behindPlayerRight < 2
 			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*scene.rt
 			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
@@ -919,6 +924,11 @@ startPositions = (ths, speed, behind) ->
 		startPositions.push pos
 	return startPositions
 
+randomLogNorm = (mean, sigma, size) ->
+	list = []
+	for i from 0 til size
+		list.push jStat.lognormal.sample(mean, sigma)
+	return list
 
 exportScenario \laneDriving, (env) ->*
 
@@ -931,7 +941,7 @@ exportScenario \laneDriving, (env) ->*
 	listener = new THREE.AudioListener()
 	scene.camera.add listener
 
-	failOnCollisionVR env, scene
+	#failOnCollisionVR env, scene
 	turnSignal env, scene, listener
 
 	warningSound = yield WarningSound env
@@ -943,9 +953,10 @@ exportScenario \laneDriving, (env) ->*
 	trafficControlsLeft = new TargetSpeedController
 	trafficControlsRight = new TargetSpeedController
 
-	thsLeft = [1, 1, 3, 1, 1, 2] 
-	thsRight = [3, 2.5, 2.5, 3, 2.5]
-
+	thsLeft = randomLogNorm(1.0, 0.5, 6)
+	thsRight = randomLogNorm(2.0, 0.5, 5)
+	console.log thsLeft, thsRight
+	
 	scene.lt = 100/3.6
 	scene.rt = 70/3.6
 	
@@ -1016,7 +1027,6 @@ exportScenario \laneDriving, (env) ->*
 
 
 	while start == false
-			#enterVR env
 			yield P.delay 100
 	startTime = scene.time 
 	yield startLight.switchToGreen()
@@ -1030,8 +1040,11 @@ exportScenario \laneDriving, (env) ->*
 				car.controller.target = scene.lt
 			else
 				car.controller.target = scene.rt
-
-			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
+			
+			if car.controller.mode == false && car.playerAhead == false
+				car.physical.velocity.copy car.leader.physical.velocity.clone()
+			else
+				car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
 		carTeleporter scene
 		
