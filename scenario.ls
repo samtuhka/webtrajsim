@@ -6,12 +6,15 @@ jStat = require 'jstat'
 
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
-{NonSteeringControl} = require './controls.ls'
+{NonSteeringControl, TargetSpeedController2} = require './controls.ls'
 {DefaultEngineSound, carHorn, BellPlayer, NoisePlayer, WarningSound} = require './sounds.ls'
 assets = require './assets.ls'
 prelude = require 'prelude-ls'
 
 ui = require './ui.ls'
+
+require './threex/threex.rendererstats.js'
+require './threex/stats.js'
 
 exportScenario = (name, impl) ->
 	scn = seqr.bind impl
@@ -360,27 +363,7 @@ exportScenario \freeDriving, (env) ->*
 	scene = yield baseScene env
 
 	# The scene would be customized here
-	#addMirror scene, env
-	#console.log scene.player.body.mirrors
-	#addFakeMirror scene, env, 0, 4.5/180*Math.PI
-	#addFakeMirror scene, env, 1, 12.5/180*Math.PI
-	#addFakeMirror scene, env, 2, -12.5/180*Math.PI
-	#scene.onRender.add (dt) ->
-	#	scene.mirror.renderer = env.renderer		
-	#	scene.mirror.render()
-	env.controls.change (btn) ->
-		if btn == "catch"
-			env.vrcontrols.resetPose()
-			#scene.player.eye.position.y = 1.23 - scene.camera.position.y
-			#scene.player.eye.position.z = 0.15  - scene.camera.position.z
-			#scene.player.eye.position.x = 0.52 - scene.camera.position.x
-			#scene.player.eye.rotation.y = Math.PI - scene.camera.rotation.y
-			#scene.camera.rotation.x = 0
-			#scene.camera.rotation.z = 0
-			#scene.camera.rotation.y = 0
-			#scene.camera.position.x = 0
-			#scene.camera.position.z = 0
-			#scene.camera.position.y = 0
+
 	# "Return" the scene to the caller, so they know
 	# we are ready
 	@let \scene, scene
@@ -422,6 +405,7 @@ addReactionTest = seqr.bind (scene, env) ->*
 		#env.renderer.render react.scene, react.camera
 
 	return react
+
 require './node_modules/three/examples/js/Mirror.js'
 addMirror = (scene, env) ->
 	
@@ -865,6 +849,26 @@ failOnCollisionVR = (env, scene) ->
 			scene.passed = false
 			endingVr scene, env, title, reason
 
+
+addWarning = (scene, env) ->
+	instTex = text3D "You are speeding", "Don't do that!"
+	instTex.texture.wrapS = THREE.RepeatWrapping
+	instTex.texture.repeat.x = -1
+	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.DoubleSide} )
+
+
+	warner = new THREE.Mesh do
+		new THREE.PlaneGeometry 1, 1
+		material
+
+	warner.position.y = 1.23 - 0.07
+	warner.position.x = 0.37 - 0.03
+	warner.position.z = 0.75
+	warner.rotation.x = -63.5/180*Math.PI
+	warner.scale.set 0.35, 0.5, 0.5
+	scene.player.body.add warner
+	scene.warner = warner
+
 		
 instructions3D = (scene, env, title, content, x = -1.75) ->
 	
@@ -887,15 +891,10 @@ instructions3D = (scene, env, title, content, x = -1.75) ->
 	scene.instructions = instMesh
 	
 
-{TargetSpeedController2} = require './controls.ls'
-require './threex/threex.rendererstats.js'
-require './threex/stats.js'
-
-
 #ugh... really ugly
 carTeleporter = (scene) ->
-	scene.left.th =  jStat.lognormal.sample(1.0, 0.5)
-	scene.right.th = jStat.lognormal.sample(2.0, 0.5)
+	scene.left.th =  Math.max jStat.lognormal.sample(1.0, 0.5), 0.5
+	scene.right.th = Math.max jStat.lognormal.sample(2.0, 0.5), 0.5
 
 	if scene.player.behindPlayerLeft > 3
 			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.lt
@@ -927,7 +926,7 @@ startPositions = (ths, speed, behind) ->
 randomLogNorm = (mean, sigma, size) ->
 	list = []
 	for i from 0 til size
-		list.push jStat.lognormal.sample(mean, sigma)
+		list.push Math.max jStat.lognormal.sample(mean, sigma), 0.5
 	return list
 
 exportScenario \laneDriving, (env) ->*
@@ -938,36 +937,35 @@ exportScenario \laneDriving, (env) ->*
 	title =  env.L "Lane changing"
 	content =  env.L '%laneChange.intro'
 	instructions3D scene, env, title, content
+
+	failOnCollisionVR env, scene
+
 	listener = new THREE.AudioListener()
 	scene.camera.add listener
-
-	#failOnCollisionVR env, scene
 	turnSignal env, scene, listener
-
+	
+	#addWarning scene, env
 	warningSound = yield WarningSound env
+
 	speedSign = yield assets.SpeedSign(80)
 	speedSign.position.x = -4
 	speedSign.position.z = 10
 	scene.visual.add speedSign
-		
-	trafficControlsLeft = new TargetSpeedController
-	trafficControlsRight = new TargetSpeedController
 
-	thsLeft = randomLogNorm(1.0, 0.5, 6)
-	thsRight = randomLogNorm(2.0, 0.5, 5)
-	console.log thsLeft, thsRight
-	
 	scene.lt = 100/3.6
 	scene.rt = 70/3.6
-	
-	r_cars = []
-	l_cars = []
+
+	nR = 5
+	nL = 6
+
+	thsLeft = randomLogNorm(1.0, 0.5, nL)
+	thsRight = randomLogNorm(2.0, 0.5, nR)
 	
 	locsLeft = startPositions thsLeft, scene.lt, 3
 	locsRight = startPositions thsRight, scene.rt, 2
-	
-	nR = thsRight.length
-	nL = thsLeft.length
+
+	r_cars = []
+	l_cars = []
 	
 	for i from 0 til nR
 		controller = new TargetSpeedController2
@@ -999,7 +997,6 @@ exportScenario \laneDriving, (env) ->*
 		#car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 		l_cars.push car
 
-
 	for i from 0 til nL
 		l_cars[i].leader = l_cars[(i + 1) % nL]
 		l_cars[i].follower = l_cars[(i + nL - 1) % nL]
@@ -1015,9 +1012,6 @@ exportScenario \laneDriving, (env) ->*
 
 	yield @get \run
 	
-	scene.moveL = 0
-	scene.moveR = 0
-	
 	start = false
 
 	env.controls.change (btn) ->
@@ -1028,6 +1022,7 @@ exportScenario \laneDriving, (env) ->*
 
 	while start == false
 			yield P.delay 100
+
 	startTime = scene.time 
 	yield startLight.switchToGreen()
 
@@ -1041,7 +1036,7 @@ exportScenario \laneDriving, (env) ->*
 			else
 				car.controller.target = scene.rt
 			
-			if car.controller.mode == false && car.playerAhead == false
+			if car.controller.mode == false && car.playerAhead == false #match the speed of the car using idm
 				car.physical.velocity.copy car.leader.physical.velocity.clone()
 			else
 				car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
@@ -1059,9 +1054,9 @@ exportScenario \laneDriving, (env) ->*
 			endingVr scene, env, title, reason
 
 	scene.onTickHandled ~>
-		if not scene.endtime && scene.player.getSpeed()*3.6 > 88
+		if not scene.endtime && scene.player.getSpeed()*3.6 > 88 && warningSound.isPlaying == false
 			warningSound.start()
-		else
+		else if warningSound.isPlaying == true
 			warningSound.stop()
 
 	env.controls.change (btn, isOn) !~>
