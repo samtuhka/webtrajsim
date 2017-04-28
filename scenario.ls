@@ -321,6 +321,7 @@ exportScenario \verification, (env) ->*
 	env.controls.change (btn) ->
 		if btn == "catch" && not scene.start
 			scene.start = true
+			scene.startTime = scene.time
 			scene.visual.remove(scene.instructions)
 
 	while scene.start == false
@@ -590,9 +591,9 @@ getAccelerationIDM = (car, leader, maxVel) ->
 	car_vel = car.getSpeed()
 	lead_vel = leader.getSpeed()
 	minDist = 7.5
-	th = car.th ? 1.333
+	th = 1
 	a = 10
-	b = 5
+	b = 10
 
 	pos = car.physical.position.clone()
 
@@ -759,8 +760,6 @@ turnSignal = (env, scene, listener) ->
 				scene.player.ts = 0
 				
 
-
-
 setCarControls = (scene, cars) ->
 	scene.player.behindPlayerRight = 0
 	scene.player.behindPlayerLeft = 0
@@ -777,23 +776,29 @@ setCarControls = (scene, cars) ->
 		if playerPos.z > pos.z
 
 			xDist = Math.abs(playerPos.x - pos.x)
-			#turnSignalIdmFollower = scene.player.ts != 0 && xDist < 7
 
-			if xDist < 2.25 #|| turnSignalIdmFollower
+			if xDist < 2.25
+	
+				if car.behindTime > scene.time
+					car.behindTime = scene.time
 				
 				simple = false
-					
-				playHorn = (playerPos.z - pos.z) < Math.max(car.getSpeed(), 10)
+				
+				dist = playerPos.z - pos.z
+				playHorn = dist < Math.max(car.getSpeed(), 10) || ((scene.time - car.behindTime) > 10 && car.getSpeed() < 0.9*car.controller.target && dist < car.getSpeed()*2) 
+
+
 				if playHorn && not car.carhorn.isPlaying && not scene.endtime
 					car.carhorn.play()
 				if car.carhorn.isPlaying && (playHorn == false || scene.endtime)
 					car.carhorn.stop()
 
-				#turnSignalIdmLeader = turnSignalIdmFollower && car.getSpeed()*2 > (scene.player.ts_start.z - pos.z)
 
-				if  pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position) #&& xDist < 2.25) || turnSignalIdmLeader
+				if  pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
 					leader = scene.player
-					car.playerAhead = true		
+					car.playerAhead = true
+			else
+				car.behindTime = 100000000
 			
 			if car.lane == 1.75
 				targetAcceleration = getAccelerationIDM car, leader, scene.lt
@@ -801,6 +806,7 @@ setCarControls = (scene, cars) ->
 			else
 				targetAcceleration = getAccelerationIDM car, leader, scene.rt
 				scene.player.behindPlayerRight += 1
+
 	
 		car.controller.mode = simple
 		car.controller.targetAcceleration = targetAcceleration
