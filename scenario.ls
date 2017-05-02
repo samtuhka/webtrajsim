@@ -1163,6 +1163,91 @@ exportScenario \throttleAndBrake, (env) ->*
 
 	return yield @get \done
 
+
+laneChecker = (scene, env) ->
+	prevLane = -1
+	scene.onTickHandled ~>
+		lane = scene.player.physical.position.x
+		if Math.sign(lane) != Math.sign(prevLane) && Math.sign(scene.player.ts) != Math.sign(prevLane)
+			title = env.L 'Oops!'
+			reason = env.L 'Näytit vilkkua väärään suuntaant'
+			if scene.player.ts == 0
+				reason = env.L 'Et käyttänyt vilkkua'
+			scene.passed = false
+			endingVr scene, env, title, reason, @
+		prevLane := lane
+
+
+exportScenario \switchLanes, (env) ->*
+	L = env.L
+	env.title = L "Switch lanes"
+	env.content = L '%switchLane.intro'
+
+
+	scene = yield baseScene env
+
+	listener = new THREE.AudioListener()
+	scene.camera.add listener
+	turnSignal env, scene, listener
+	laneChecker scene, env
+
+	goalDistance = 200
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = -4
+	startLight.position.z = 6
+	startLight.addTo scene
+
+	stopSign = yield assets.StopSign!
+		..position.x = -4
+		..position.z = goalDistance + 10
+		..addTo scene
+
+	failOnCollisionVR env, @, scene
+
+	finishSign = yield assets.FinishSign!
+	finishSign.position.z = goalDistance
+	finishSign.addTo scene
+	
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 50
+	barrel.position.x = -1.75
+	barrel.addTo scene
+
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 100
+	barrel.position.x = 1.7
+	barrel.addTo scene
+
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 150
+	barrel.position.x = -1.9
+	barrel.addTo scene
+
+	barrel = yield assets.ConstructionBarrel!
+	barrel.position.z = 190
+	barrel.position.x = 1.7
+	barrel.addTo scene
+
+	@let \scene, scene
+	yield @get \run
+
+	while scene.start == false
+		yield P.delay 100
+
+	yield startLight.switchToGreen()
+	startTime = scene.time
+
+	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
+		return if Math.abs(scene.player.getSpeed()) > 0.1
+		time = scene.time - startTime
+
+		title = L 'Passed'
+		reason =  L '%stayOnLane.outro', time: time
+		scene.passed = true
+		endingVr scene, env, title, reason, @
+
+	return yield @get \done
+
 exportScenario \stayOnLane, (env) ->*
 	L = env.L
 	env.title = L "Stay on lane"

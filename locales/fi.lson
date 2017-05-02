@@ -49,6 +49,13 @@
 			kaistan ulkopuolelle.
 			"""
 
+
+'Switch lanes': 'Kaistan vaihto'
+'%switchLane.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
+			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä. Väistä myös tiellä olevat
+			esteet. Näytä vilkkua ennen kuin vaihdat kaistaa painamalla ratin liipaisimia.
+			"""
+
 '%stayOnLane.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
 
 'You drove out of your lane.': 'Ajoit ulos kaistaltasi.'
