@@ -1164,7 +1164,7 @@ exportScenario \throttleAndBrake, (env) ->*
 	return yield @get \done
 
 
-laneChecker = (scene, env) ->
+laneChecker = (scene, env, scn) ->
 	prevLane = -1
 	scene.onTickHandled ~>
 		lane = scene.player.physical.position.x
@@ -1174,7 +1174,7 @@ laneChecker = (scene, env) ->
 			if scene.player.ts == 0
 				reason = env.L 'Et käyttänyt vilkkua'
 			scene.passed = false
-			endingVr scene, env, title, reason, @
+			endingVr scene, env, title, reason, scn
 		prevLane := lane
 
 
@@ -1189,7 +1189,7 @@ exportScenario \switchLanes, (env) ->*
 	listener = new THREE.AudioListener()
 	scene.camera.add listener
 	turnSignal env, scene, listener
-	laneChecker scene, env
+	laneChecker scene, env, @
 
 	goalDistance = 200
 	startLight = yield assets.TrafficLight()
