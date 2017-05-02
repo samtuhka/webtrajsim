@@ -18,10 +18,11 @@
 
 '%runTheLight.intro': """<p>Tästä eteenpäin sinun tulee noudattaa liikennevaloja,
 			mutta aja tämän kerran punaista päin, jotta tiedät mitä
-			siitä seuraa.</p>
+			siitä seuraa.
 
-			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.</p>
+			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.
 			"""
+'%vr.Outro': """\nJatka koetta painamalla ratin oikeanpuoleista punaista nappia."""
 
 '%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
 
@@ -90,19 +91,17 @@
 
 
 '%followInTraffic.intro': """
-	<p>Aja siten, että polttoaineenkulutuksesi on mahdollisimman pieni.</p>
+	<p>Aja siten, että polttoaineenkulutuksesi on mahdollisimman pieni.
 
-	<p>Pyri ajotyyliin, joka tasapainottaa seuraavat tekijät:</p>
-	<ul>
-	<li>Edelläolevaa lähellä ajaminen vähentää kulutusta ilmanvastuksen
+	<p>Pyri ajotyyliin, joka tasapainottaa seuraavat tekijät:
+	1. Edelläolevaa lähellä ajaminen vähentää kulutusta ilmanvastuksen
 	vähenemisen ansiosta.
-	<li>Jarruttaminen lisää kokonaiskulutusta, koska joudut kiihdyttämään
+	2. Jarruttaminen lisää kokonaiskulutusta, koska joudut kiihdyttämään
 	menetetyn nopeuden takaisin.
-	<li>Auto käyttää jonkin verran polttoainetta myös muuhun kuin etenemiseen,
+	3. Auto käyttää jonkin verran polttoainetta myös muuhun kuin etenemiseen,
 	joten etenemisen kannattaa olla mahdollisimman ripeää.
-	</ul>
 
-	<p>Tässä tehtävässä ei ole nopeusrajoituksia.</p>
+	<p>Tässä tehtävässä ei ole nopeusrajoituksia.
 	"""
 
 'Draft saving': 'Ilmanvastussäästö'
@@ -276,6 +275,13 @@ yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
 """
 
 'Play the noise sound': 'Soita ääniärsyke'
+
+'Calibration': 'Silmänliikekameran kalibraatio'
+'%calib.inst1' : """
+			<p>Seuraavaksi kalibroidaan silmänliikekamera.
+			<p>Kalibraation aikanaa eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+            		<p>Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä. Yritä olla räpsyttelemättä kun katsot pistettä.
+			"""
 
 
 '%soundSpook.instruction': """

@@ -94,6 +94,8 @@ reporting (for example scientific articles) in such format that your
 identity is not disclosed.
 """
 
+'%vr.Outro': """\nContinue by pressing the right red button on the wheel."""
+
 '%intro.backgroundInfo': """
 <p>Next we will ask some background information about you.
 If you don't wish to give some information, you can leave

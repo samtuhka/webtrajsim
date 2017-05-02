@@ -146,6 +146,10 @@ export baseScene = seqr.bind (env) ->*
 
 			scene.tick 1/60
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
+
+	if env.title
+		instructions3D scene, env
+
 	return scene
 
 export minimalScenario = seqr.bind (env) ->*
@@ -258,9 +262,9 @@ exportScenario \calibration, (env) ->*
 	scene = yield calbrationScene env, "start calibration"
 
 
-	title =  env.L "Calibration"
-	content =  env.L '%calibration.intro'	
-	instructions3D scene, env, title, content, 0
+	env.title =  env.L "Calibration"
+	env.content =  env.L '%calibration.intro'	
+	instructions3D scene, env, 0
 
 
 	@let \scene, scene
@@ -308,9 +312,9 @@ exportScenario \calibration, (env) ->*
 exportScenario \verification, (env) ->*
 	scene = yield calbrationScene env, " start verification"
 
-	title =  env.L "Verification"
-	content =  env.L '%verification.intro'	
-	instructions3D scene, env, title, content, 0
+	env.title =  env.L "Verification"
+	env.content =  env.L '%verification.intro'	
+	instructions3D scene, env, 0
 	addGazeMarker scene
 
 	@let \scene, scene
@@ -375,8 +379,8 @@ exportScenario \freeDriving, (env) ->*
 export basePedalScene = (env) ->
 	if env.opts.forceSteering
 		return baseScene env
-	env = env with
-		controls: NonSteeringControl env.controls
+	#env = env with
+	#	controls: NonSteeringControl env.controls
 	return baseScene env
 
 catchthething = require './catchthething.ls'
@@ -686,10 +690,8 @@ addForcedBlinderTask = (scene, env, {interval=2}={}) ->
 	return self
 
 exportScenario \runTheLight, (env) ->*
-	@let \intro,
-		title: env.L "Run the light"
-		subtitle: env.L "(Just this once)"
-		content: $ env.L "%runTheLight.intro"
+	env.title = env.L "Run the light"
+	env.content = env.L "%runTheLight.intro"
 
 	scene = yield basePedalScene env
 	startLight = yield assets.TrafficLight()
@@ -701,10 +703,10 @@ exportScenario \runTheLight, (env) ->*
 	yield @get \run
 
 	scene.player.onCollision (e) ~>
-		@let \done, passed: true, outro:
-			title: env.L "Passed"
-			content: env.L '%runTheLight.outro'
-
+		title = env.L 'Passed'
+		reason = env.L '%runTheLight.outro'
+		scene.passed = true
+		endingVr scene, env, title, reason, @
 	return yield @get \done
 
 collisionReason = ({L}, e) ->
@@ -779,7 +781,7 @@ setCarControls = (scene, cars) ->
 
 			if xDist < 2.25
 	
-				if car.behindTime > scene.time
+				if car.behindTime > scene.time && car.getSpeed() < 0.9*car.controller.target
 					car.behindTime = scene.time
 				
 				simple = false
@@ -815,21 +817,22 @@ setCarControls = (scene, cars) ->
 
 text3D = (title, content) ->
 	titleFont = 'Bold 80px Arial'
-	font = 	'Bold 60px Arial'
+	font = 	'Bold 45px Arial'
 	
 	instTex	= new THREEx.DynamicTexture(2048,1024)
 	
 	instTex.drawText(title, undefined, 128, 'white', titleFont)
-
+	content = content.replace(/<p>/g,'')
 	lines = content.split(/\r?\n/)
 	y = 0
 	for line in lines
 		instTex.drawText(line, undefined, 215 + y, 'white', font)
-		y += 60
+		y += 55
 	return instTex
 
-endingVr = (scene, env, title, reason) ->
-	reason += "\nContinue by pressing the right red button on the wheel."
+endingVr = (scene, env, title, reason, scn) ->
+	return if scene.endtime
+	reason += env.L '%vr.Outro'
 	text = text3D title, reason
 
 	endMat = new THREE.MeshBasicMaterial( {color: 0x000000, map: text.texture, transparent: true, opacity: 0.9} )
@@ -847,13 +850,19 @@ endingVr = (scene, env, title, reason) ->
 	scene.engineSounds.stop()
 	env.logger.write endTime: scene.endtime
 
-failOnCollisionVR = (env, scene) ->
+	env.controls.change (btn, isOn) !~>
+		return unless btn == 'catch' and isOn and scene.endtime
+		exitVR env
+		scn.let \done, passed: scene.passed
+		return false
+
+failOnCollisionVR = (env, scn, scene) ->
 	scene.player.onCollision (e) ->
 		if not scene.endtime
 			reason = collisionReason env, e
 			title = env.L "Oops!"
 			scene.passed = false
-			endingVr scene, env, title, reason
+			endingVr scene, env, title, reason, scn
 
 
 addWarning = (scene, env) ->
@@ -876,15 +885,15 @@ addWarning = (scene, env) ->
 	scene.warner = warner
 
 		
-instructions3D = (scene, env, title, content, x = -1.75) ->
+instructions3D = (scene, env, x = -1.75) ->
 	
-	instTex = text3D title, content
+	instTex = text3D env.title, env.content
 	instTex.texture.wrapS = THREE.RepeatWrapping
 	instTex.texture.repeat.x = -1
-	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide} )
-	instGeo = new THREE.PlaneGeometry(3, 1.5)
+	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide,  depthTest: false} )
+	instGeo = new THREE.PlaneGeometry(4, 2)
 	instMesh = new THREE.Mesh instGeo, material
-	background = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.BackSide, transparent: true, opacity: 0.8})
+	background = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.BackSide, transparent: true, opacity: 0.8, depthTest: false})
 	background.position.z = 0.01
 	instMesh.add background
 	instTex.texture.needsUpdate = true
@@ -895,12 +904,19 @@ instructions3D = (scene, env, title, content, x = -1.75) ->
 
 	scene.visual.add instMesh
 	scene.instructions = instMesh
+
+	scene.start = false
+
+	env.controls.change (btn) ->
+		if btn == "catch" && not scene.start
+			scene.start = true
+			scene.visual.remove(scene.instructions)
 	
 
 #ugh... really ugly
 carTeleporter = (scene) ->
-	scene.left.th =  Math.max jStat.lognormal.sample(1.0, 0.5), 0.5
-	scene.right.th = Math.max jStat.lognormal.sample(2.0, 0.5), 0.5
+	scene.left.th =  Math.max jStat.lognormal.sample(1.5, 0.5), 0.5
+	scene.right.th = Math.max jStat.lognormal.sample(1.5, 0.5), 0.5
 
 	if scene.player.behindPlayerLeft > 3
 			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.lt
@@ -937,14 +953,13 @@ randomLogNorm = (mean, sigma, size) ->
 
 exportScenario \laneDriving, (env) ->*
 
+	env.title =  env.L "Lane changing"
+	env.content =  env.L '%laneChange.intro'
+
 	# Load the base scene
 	scene = yield baseScene env
-	
-	title =  env.L "Lane changing"
-	content =  env.L '%laneChange.intro'
-	instructions3D scene, env, title, content
 
-	failOnCollisionVR env, scene
+	failOnCollisionVR env, @, scene
 
 	listener = new THREE.AudioListener()
 	scene.camera.add listener
@@ -964,8 +979,8 @@ exportScenario \laneDriving, (env) ->*
 	nR = 5
 	nL = 6
 
-	thsLeft = randomLogNorm(1.0, 0.5, nL)
-	thsRight = randomLogNorm(2.0, 0.5, nR)
+	thsLeft = randomLogNorm(1.5, 0.5, nL)
+	thsRight = randomLogNorm(1.5, 0.5, nR)
 	
 	locsLeft = startPositions thsLeft, scene.lt, 3
 	locsRight = startPositions thsRight, scene.rt, 2
@@ -1017,16 +1032,9 @@ exportScenario \laneDriving, (env) ->*
 	@let \scene, scene
 
 	yield @get \run
-	
-	start = false
-
-	env.controls.change (btn) ->
-		if btn == "catch" && not start
-			start := true
-			scene.visual.remove(scene.instructions)
 
 
-	while start == false
+	while scene.start == false
 			yield P.delay 100
 
 	startTime = scene.time 
@@ -1054,36 +1062,30 @@ exportScenario \laneDriving, (env) ->*
 
 
 		if scene.time - startTime >= 300 && not scene.endtime
-			title = 'HuuHaaHuu'
-			reason = 'HuuHaaHuu'
+			title = env.L 'Passed'
+			reason = env.L ''
 			scene.passed = true
-			endingVr scene, env, title, reason
+			endingVr scene, env, title, reason, @
 
 	scene.onTickHandled ~>
-		if not scene.endtime && scene.player.getSpeed()*3.6 > 88 && warningSound.isPlaying == false
+		if not scene.endtime && scene.player.getSpeed()*3.6 > 88
 			warningSound.start()
-		else if warningSound.isPlaying == true
+		else
 			warningSound.stop()
-
-	env.controls.change (btn, isOn) !~>
-		return unless btn == 'catch' and isOn and scene.endtime
-		exitVR env
-		@let \done, passed: scene.passed
-		return false
 
 	return yield @get \done
 
 exportScenario \closeTheGap, (env) ->*
-	@let \intro,
-		title: env.L "Close the gap"
-		content: env.L '%closeTheGap.intro'
+	L = env.L
+	env.title = L "Close the gap"
+	env.content = L '%closeTheGap.intro'
 
 	scene = yield basePedalScene env
 	leader = yield addVehicle scene
 	leader.physical.position.x = scene.player.physical.position.x
 	leader.physical.position.z = 100
 
-	failOnCollision env, @, scene
+	failOnCollisionVR env, @, scene
 
 	@let \scene, scene
 
@@ -1097,9 +1099,12 @@ exportScenario \closeTheGap, (env) ->*
 		return unless btn == 'catch' and isOn
 		distance = distanceToLeader!
 		distance += 1.47 # HACK!
-		@let \done, passed: true, outro:
-			title: env.L "Passed"
-			content: env.L "%closeTheGap.outro", distance: distance
+		
+		title = env.L 'Passed'
+		reason =  env.L "%closeTheGap.outro", distance: distance
+		scene.passed = true
+		endingVr scene, env, title, reason, @
+
 		return false
 
 
@@ -1108,9 +1113,8 @@ exportScenario \closeTheGap, (env) ->*
 
 exportScenario \throttleAndBrake, (env) ->*
 	L = env.L
-	@let \intro,
-		title: L "Throttle and brake"
-		content: L '%throttleAndBrake.intro'
+	env.title = L "Throttle and brake"
+	env.content = L '%throttleAndBrake.intro'
 
 	scene = yield basePedalScene env
 
@@ -1125,7 +1129,7 @@ exportScenario \throttleAndBrake, (env) ->*
 		..position.z = goalDistance + 10
 		..addTo scene
 
-	failOnCollision env, @, scene
+	failOnCollisionVR env, @, scene
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -1142,25 +1146,28 @@ exportScenario \throttleAndBrake, (env) ->*
 	@let \scene, scene
 	yield @get \run
 
-	yield P.delay 2000
+	while scene.start == false
+		yield P.delay 100
+
 	yield startLight.switchToGreen()
 	startTime = scene.time
 
 	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
 		return if Math.abs(scene.player.getSpeed()) > 0.1
 		time = scene.time - startTime
-		@let \done, passed: true, outro:
-			title: L "Passed"
-			content: L '%throttleAndBrake.outro', time: time
-		return false
+
+		title = L 'Passed'
+		reason =  L '%throttleAndBrake.outro', time: time
+		scene.passed = true
+		endingVr scene, env, title, reason, @
 
 	return yield @get \done
 
 exportScenario \stayOnLane, (env) ->*
 	L = env.L
-	@let \intro,
-		title: L "Stay on lane"
-		content: L '%stayOnLane.intro'
+	env.title = L "Stay on lane"
+	env.content = L '%stayOnLane.intro'
+
 
 	scene = yield baseScene env
 
@@ -1175,7 +1182,7 @@ exportScenario \stayOnLane, (env) ->*
 		..position.z = goalDistance + 10
 		..addTo scene
 
-	failOnCollision env, @, scene
+	failOnCollisionVR env, @, scene
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -1207,25 +1214,27 @@ exportScenario \stayOnLane, (env) ->*
 	@let \scene, scene
 	yield @get \run
 
-	yield P.delay 2000
+	while scene.start == false
+		yield P.delay 100
+
 	yield startLight.switchToGreen()
 	startTime = scene.time
 
 	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
 		return if Math.abs(scene.player.getSpeed()) > 0.1
 		time = scene.time - startTime
-		@let \done, passed: true, outro:
-			title: L "Passed"
-			content: L '%stayOnLane.outro', time: time
-		return false
+
+		title = L 'Passed'
+		reason =  L '%stayOnLane.outro', time: time
+		scene.passed = true
+		endingVr scene, env, title, reason, @
 
 	return yield @get \done
 
 speedControl = exportScenario \speedControl, (env) ->*
 	L = env.L
-	@let \intro,
-		title: L "Speed control"
-		content: L "%speedControl.intro"
+	env.title = L "Speed control"
+	env.content = L "%speedControl.intro"
 
 	scene = yield basePedalScene env
 	limits = [
@@ -1290,13 +1299,8 @@ speedControl = exportScenario \speedControl, (env) ->*
 		..position.z = goalDistance + 10
 		..addTo scene
 
-	failOnCollision env, @, scene
+	failOnCollisionVR env, @, scene
 
-	scene.player.onCollision (e) ~>
-		@let \done, passed: false, outro:
-			title: L "Oops!"
-			content: L "You ran the red light!"
-		return false
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -1305,29 +1309,27 @@ speedControl = exportScenario \speedControl, (env) ->*
 	@let \scene, scene
 	yield @get \run
 
-	yield P.delay 1000
+	while scene.start == false
+		yield P.delay 100
+
 	yield startLight.switchToGreen()
 	startTime = scene.time
 
 	finishSign.bodyPassed(scene.player.physical).then ~> scene.onTickHandled ~>
 		return if Math.abs(scene.player.getSpeed()) > 0.1
-
 		time = scene.time - startTime
-		@let \done, passed: true, outro:
-			title: L "Passed"
-			content: L '%speedControl.outro', time: time, timePenalty: timePenalty
-		return false
-
+		title = L 'Passed'
+		reason =  L '%speedControl.outro', time: time, timePenalty: timePenalty
+		scene.passed = true
+		endingVr scene, env, title, reason, @
 	return yield @get \done
 
 exportScenario \blindSpeedControl, (env) ->*
 	L = env.L
 	base = speedControl env
 
-	intro = yield base.get \intro
-	@let \intro,
-		title: L "Anticipatory speed control"
-		content: L '%blindSpeedControl.intro'
+	env.title = L "Anticipatory speed control"
+	env.content = L '%blindSpeedControl.intro'
 
 	scene = yield base.get \scene
 
@@ -1362,9 +1364,8 @@ class MicrosimWrapper
 {TargetSpeedController} = require './controls.ls'
 followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	L = env.L
-	@let \intro,
-		title: L "Supermiler"
-		content: $ L "%followInTraffic.intro"
+	env.title = L "Supermiler"
+	env.content = L "%followInTraffic.intro"
 
 	scene = yield basePedalScene env
 	#addReactionTest scene, env
@@ -1381,14 +1382,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	finishSign.addTo scene
 	finishSign.visual.visible = false
 
-	scene.player.onCollision (e) ~>
-		reason = L "You crashed!"
-		if e.body.objectClass == "traffic-light"
-			reason = L "You ran the red light!"
-		@let \done, passed: false, outro:
-			title: L "Oops!"
-			content: reason
-		return false
+	failOnCollisionVR env, @, scene
 
 	maximumFuelFlow = 200/60/1000
 	constantConsumption = maximumFuelFlow*0.1
@@ -1467,7 +1461,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	leaderControls = new TargetSpeedController
 	leader = scene.leader = yield addVehicle scene, leaderControls
 	leader.physical.position.x = -1.75
-	leader.physical.position.z = 10
+	leader.physical.position.z = 20
 
 	speeds = [0, 30, 40, 50, 60, 70, 80]*2
 	shuffleArray speeds
@@ -1477,12 +1471,6 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	sequence = for speed, i in speeds
 		[(i+1)*speedDuration, speed/3.6]
-
-	scene.afterPhysics.add (dt) ->
-		if scene.time > sequence[0][0] and sequence.length > 1
-			sequence := sequence.slice(1)
-		leaderControls.target = sequence[0][1]
-		leaderControls.tick leader.getSpeed(), dt
 
 	headway =
 		cumulative: 0
@@ -1517,14 +1505,25 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	#	traffic.step 1/60
 
 	finishSign.bodyPassed(scene.player.physical).then ~>
-		@let \done, passed: true, outro:
-			title: L "Passed!"
-			content: L '%followInTraffic.outro', consumption: consumption
+		time = scene.time - startTime
+		title = L 'Passed'
+		reason =  L '%followInTraffic.outro', consumption: consumption
+		scene.passed = true
+		endingVr scene, env, title, reason, @
 	@let \scene, scene
 	yield @get \run
-	yield P.delay 1000
+
+	while scene.start == false
+		yield P.delay 100
+
 	yield startLight.switchToGreen()
 	startTime = scene.time
+
+	scene.afterPhysics.add (dt) ->
+		if scene.time - startTime> sequence[0][0] and sequence.length > 1
+			sequence := sequence.slice(1)
+		leaderControls.target = sequence[0][1]
+		leaderControls.tick leader.getSpeed(), dt
 
 	return yield @get \done
 
@@ -1533,10 +1532,8 @@ exportScenario \blindFollowInTraffic, (env) ->*
 	L = env.L
 	base = followInTraffic env
 
-	intro = yield base.get \intro
-	@let \intro,
-		title: L "Anticipating supermiler"
-		content: L '%blindFollowInTraffic.intro'
+	env.title = L "Anticipating supermiler"
+	env.content = L '%blindFollowInTraffic.intro'
 
 	scene = yield base.get \scene
 	scene.draftIndicator.el.hide()
@@ -1559,10 +1556,8 @@ exportScenario \forcedBlindFollowInTraffic, (env, opts) ->*
 	L = env.L
 	base = followInTraffic env, distance: 1000
 
-	intro = yield base.get \intro
-	@let \intro,
-		title: L "Distracted supermiler"
-		content: L '%forcedBlindFollowInTraffic.intro'
+	env.title = L "Distracted supermiler"
+	env.content = L '%forcedBlindFollowInTraffic.intro'
 
 	scene = yield base.get \scene
 	scene.draftIndicator.el.hide()
