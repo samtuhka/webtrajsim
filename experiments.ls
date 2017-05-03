@@ -111,12 +111,6 @@ export vrExperiment = seqr.bind ->*
 	#yield runScenario scenario.calibration
 	#yield runScenario scenario.verification
 
-	yield runUntilPassed scenario.closeTheGap, passes: 3
-
-	yield runUntilPassed scenario.switchLanes
-	yield runUntilPassed scenario.speedControl
-	yield runUntilPassed scenario.blindSpeedControl
-
 	yield runUntilPassed scenario.laneDriving, passes: 3
 
 	yield runUntilPassed scenario.followInTraffic

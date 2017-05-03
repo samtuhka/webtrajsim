@@ -803,10 +803,10 @@ setCarControls = (scene, cars) ->
 				car.behindTime = 100000000
 			
 			if car.lane == 1.75
-				targetAcceleration = getAccelerationIDM car, leader, scene.lt
+				targetAcceleration = getAccelerationIDM car, leader, scene.params.lt
 				scene.player.behindPlayerLeft += 1
 			else
-				targetAcceleration = getAccelerationIDM car, leader, scene.rt
+				targetAcceleration = getAccelerationIDM car, leader, scene.params.rt
 				scene.player.behindPlayerRight += 1
 
 	
@@ -839,7 +839,7 @@ endingVr = (scene, env, title, reason, scn) ->
 	endGeo = new THREE.PlaneGeometry(1, 0.5)
 	endMesh = new THREE.Mesh endGeo, endMat
 	scene.camera.add endMesh
-	endMesh.position.z = -1.5
+	endMesh.position.z = -1.2
 	
 	scene.player.eye.position.y = 100
 
@@ -915,24 +915,24 @@ instructions3D = (scene, env, x = -1.75) ->
 
 #ugh... really ugly
 carTeleporter = (scene) ->
-	scene.left.th =  Math.max jStat.lognormal.sample(1.5, 0.5), 0.5
-	scene.right.th = Math.max jStat.lognormal.sample(1.5, 0.5), 0.5
+	scene.left.th =  Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), 0.5
+	scene.right.th = Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), 0.5
 
 	if scene.player.behindPlayerLeft > 3
-			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.lt
+			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.params.lt
 			scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
 			scene.left = scene.left.leader
 	if scene.player.behindPlayerLeft < 3
-			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*scene.lt
+			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*scene.params.lt
 			scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
 			scene.left = scene.left.follower
 	
 	if scene.player.behindPlayerRight > 2
-			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*scene.rt
+			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*scene.params.rt
 			scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
 			scene.right = scene.right.leader
 	if scene.player.behindPlayerRight < 2
-			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*scene.rt
+			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*scene.params.rt
 			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
 			scene.right = scene.right.follower
 
@@ -973,17 +973,22 @@ exportScenario \laneDriving, (env) ->*
 	speedSign.position.z = 10
 	scene.visual.add speedSign
 
-	scene.lt = 100/3.6
-	scene.rt = 70/3.6
+	lt = 100/3.6
+	rt = 70/3.6
 
 	nR = 5
 	nL = 6
 
-	thsLeft = randomLogNorm(1.5, 0.5, nL)
-	thsRight = randomLogNorm(1.5, 0.5, nR)
+	mean = 1.5
+	sigma = 1
+
+	scene.params = {lt: lt, rt: rt, mean: mean, sigma: sigma}
+
+	thsLeft = randomLogNorm(mean, sigma, nL)
+	thsRight = randomLogNorm(mean, sigma, nR)
 	
-	locsLeft = startPositions thsLeft, scene.lt, 3
-	locsRight = startPositions thsRight, scene.rt, 2
+	locsLeft = startPositions thsLeft, lt, 3
+	locsRight = startPositions thsRight, rt, 2
 
 	r_cars = []
 	l_cars = []
@@ -1042,15 +1047,17 @@ exportScenario \laneDriving, (env) ->*
 
 	scene.afterPhysics.add (dt) ->
 		
-		setCarControls scene, cars
+		setCarControls scene, cars, scene.params.mean, scene.params.sigma
 
 		for car in cars
 			if car.lane == 1.75
-				car.controller.target = scene.lt
+				car.controller.target = scene.params.lt
 			else
-				car.controller.target = scene.rt
+				car.controller.target = scene.params.rt
 			
 			if car.controller.mode == false && car.playerAhead == false #match the speed of the car using idm
+				if car.leader.playerAhead == false
+					car.leader.physical.velocity.copy car.leader.leader.physical.velocity.clone()
 				car.physical.velocity.copy car.leader.physical.velocity.clone()
 			else
 				car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
@@ -1166,9 +1173,12 @@ exportScenario \throttleAndBrake, (env) ->*
 
 laneChecker = (scene, env, scn) ->
 	prevLane = -1
+	turnSignal = 0
 	scene.onTickHandled ~>
 		lane = scene.player.physical.position.x
-		if Math.sign(lane) != Math.sign(prevLane) && Math.sign(scene.player.ts) != Math.sign(prevLane)
+		if scene.player.ts != 0
+			turnSignal := scene.player.ts
+		if Math.sign(lane) != Math.sign(prevLane) && Math.sign(turnSignal) != Math.sign(prevLane)
 			title = env.L 'Oops!'
 			reason = env.L 'Näytit vilkkua väärään suuntaant'
 			if scene.player.ts == 0
