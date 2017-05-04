@@ -856,14 +856,13 @@ endingVr = (scene, env, title, reason, scn) ->
 		scn.let \done, passed: scene.passed
 		return false
 
-failOnCollisionVR = (env, scn, scene) ->
+failOnCollisionVR = (env, scn, scene, cars) ->
 	scene.player.onCollision (e) ->
 		if not scene.endtime
 			reason = collisionReason env, e
 			title = env.L "Oops!"
 			scene.passed = false
 			endingVr scene, env, title, reason, scn
-
 
 addWarning = (scene, env) ->
 	instTex = text3D "You are speeding", "Don't do that!"
@@ -915,25 +914,29 @@ instructions3D = (scene, env, x = -1.75) ->
 
 #ugh... really ugly
 carTeleporter = (scene) ->
-	scene.left.th =  Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), 0.5
-	scene.right.th = Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), 0.5
+	scene.left.th = Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), scene.params.min
+	scene.right.th = Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), scene.params.min
 
 	if scene.player.behindPlayerLeft > 3
 			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.params.lt
-			scene.left.leader.physical.velocity.copy scene.left.physical.velocity.clone()
+			scene.left.leader.physical.velocity.z = scene.params.lt
+			scene.left.leader.physical.velocity.x = 0
 			scene.left = scene.left.leader
 	if scene.player.behindPlayerLeft < 3
 			scene.left.physical.position.z = scene.left.leader.physical.position.z - scene.left.th*scene.params.lt
-			scene.left.physical.velocity.copy scene.left.leader.physical.velocity.clone()
+			scene.left.physical.velocity.z = scene.left.leader.physical.velocity.z
+			scene.left.physical.velocity.x = 0
 			scene.left = scene.left.follower
 	
 	if scene.player.behindPlayerRight > 2
 			scene.right.leader.physical.position.z = scene.right.physical.position.z + scene.right.th*scene.params.rt
-			scene.right.leader.physical.velocity.copy scene.right.physical.velocity.clone()
+			scene.right.leader.physical.velocity.z = scene.params.rt
+			scene.right.leader.physical.velocity.x = 0
 			scene.right = scene.right.leader
 	if scene.player.behindPlayerRight < 2
 			scene.right.physical.position.z = scene.right.leader.physical.position.z - scene.right.th*scene.params.rt
-			scene.right.physical.velocity.copy scene.right.leader.physical.velocity.clone()
+			scene.right.physical.velocity.z = scene.right.leader.physical.velocity.z
+			scene.right.physical.velocity.x = 0
 			scene.right = scene.right.follower
 
 
@@ -945,10 +948,10 @@ startPositions = (ths, speed, behind) ->
 		startPositions.push pos
 	return startPositions
 
-randomLogNorm = (mean, sigma, size) ->
+randomLogNorm = (mean, sigma, min, size) ->
 	list = []
 	for i from 0 til size
-		list.push Math.max jStat.lognormal.sample(mean, sigma), 0.5
+		list.push Math.max jStat.lognormal.sample(mean, sigma), min
 	return list
 
 exportScenario \laneDriving, (env) ->*
@@ -959,7 +962,7 @@ exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 
-	failOnCollisionVR env, @, scene
+	#failOnCollisionVR env, @, scene
 
 	listener = new THREE.AudioListener()
 	scene.camera.add listener
@@ -981,11 +984,12 @@ exportScenario \laneDriving, (env) ->*
 
 	mean = 1.5
 	sigma = 1
+	min = 0.8
 
-	scene.params = {lt: lt, rt: rt, mean: mean, sigma: sigma}
+	scene.params = {lt: lt, rt: rt, mean: mean, sigma: sigma, min: min}
 
-	thsLeft = randomLogNorm(mean, sigma, nL)
-	thsRight = randomLogNorm(mean, sigma, nR)
+	thsLeft = randomLogNorm(mean, sigma, min, nL)
+	thsRight = randomLogNorm(mean, sigma, min, nR)
 	
 	locsLeft = startPositions thsLeft, lt, 3
 	locsRight = startPositions thsRight, rt, 2
@@ -1028,7 +1032,7 @@ exportScenario \laneDriving, (env) ->*
 		l_cars[i].follower = l_cars[(i + nL - 1) % nL]
 
 	cars = r_cars.concat(l_cars)
-
+	failOnCollisionVR env, @, scene, cars
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4
 	startLight.position.z = 6
@@ -1056,17 +1060,22 @@ exportScenario \laneDriving, (env) ->*
 				car.controller.target = scene.params.rt
 			
 			if car.controller.mode == false && car.playerAhead == false #match the speed of the car using idm
-				if car.leader.playerAhead == false
-					car.leader.physical.velocity.copy car.leader.leader.physical.velocity.clone()
-				car.physical.velocity.copy car.leader.physical.velocity.clone()
-			else
-				car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
+				car.physical.velocity.z  = car.leader.physical.velocity.z
+				car.controller.target = car.leader.getSpeed()
+				car.controller.mode = true
+
+			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
 		carTeleporter scene
 		
 		if scene.player.physical.position.z - 500 > speedSign.position.z
 			speedSign.position.z = scene.player.physical.position.z + 500
 
+	scene.onTickHandled ~>
+		if not scene.endtime && scene.player.getSpeed()*3.6 > 88
+			warningSound.start()
+		else
+			warningSound.stop()
 
 		if scene.time - startTime >= 300 && not scene.endtime
 			title = env.L 'Passed'
@@ -1074,11 +1083,6 @@ exportScenario \laneDriving, (env) ->*
 			scene.passed = true
 			endingVr scene, env, title, reason, @
 
-	scene.onTickHandled ~>
-		if not scene.endtime && scene.player.getSpeed()*3.6 > 88
-			warningSound.start()
-		else
-			warningSound.stop()
 
 	return yield @get \done
 
@@ -2194,7 +2198,7 @@ exportScenario \blindPursuit, (env, {duration=60.0*3, oddballRate=0.1}={}) ->*
 	engineSounds.connect gainNode
 	
 	engineSounds.start()
-	scene.onExit.add engineSounds.stop*/
+	#scene.onExit.add engineSounds.stop*/
 
 	totalError = 0
 	prevHideCycle = void
