@@ -49,8 +49,8 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     BACK_LEFT_KEY = 293 # Not defined in linux/input.h
     BACK_RIGHT_KEY = 292 # Not defined in linux/input.h
     mapAxis(ecodes.ABS_X, "steering", (1, -1))
-    mapAxis(ecodes.ABS_Z, "throttle", (1, 0))
-    mapAxis(ecodes.ABS_RZ, "brake", (1, 0), (0, 255))
+    mapAxis(ecodes.ABS_Y, "throttle", (1, 0))
+    mapAxis(ecodes.ABS_Z, "brake", (1, 0), (0, 255))
     mapKey(FRONT_RIGHT_KEY, "catch")
     mapKey(FRONT_LEFT_KEY, "frontLeft")
     mapKey(BACK_RIGHT_KEY, "backRight")
