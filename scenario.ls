@@ -938,7 +938,7 @@ carTeleporter = (scene) ->
 			scene.right.physical.velocity.z = scene.right.leader.physical.velocity.z
 			scene.right.physical.velocity.x = 0
 			scene.right = scene.right.follower
-getTH(params) = ->
+getTH = (params) ->
 	th = Math.max jStat.lognormal.sample(params.mu, params.sigma), params.min
 	th = Math.min th, params.max
 	return th
@@ -952,7 +952,7 @@ startPositions = (ths, speed, behind) ->
 		startPositions.push pos
 	return startPositions
 
-randomLogNorm = (scene) ->
+randomLogNorm = (scene, size) ->
 	list = []
 	for i from 0 til size
 		list.push getTH(scene.params)
@@ -993,8 +993,8 @@ exportScenario \laneDriving, (env) ->*
 
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
-	thsLeft = randomLogNorm scene
-	thsRight = randomLogNorm scene
+	thsLeft = randomLogNorm scene, nL
+	thsRight = randomLogNorm scene, nR
 	
 	locsLeft = startPositions thsLeft, lt, 3
 	locsRight = startPositions thsRight, rt, 2
