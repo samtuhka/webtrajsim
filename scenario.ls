@@ -914,8 +914,8 @@ instructions3D = (scene, env, x = -1.75) ->
 
 #ugh... really ugly
 carTeleporter = (scene) ->
-	scene.left.th = Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), scene.params.min
-	scene.right.th = Math.max jStat.lognormal.sample(scene.params.mean, scene.params.sigma), scene.params.min
+	scene.left.th = getTH scene.params
+	scene.right.th = getTH scene.params
 
 	if scene.player.behindPlayerLeft > 3
 			scene.left.leader.physical.position.z = scene.left.physical.position.z + scene.left.th*scene.params.lt
@@ -938,6 +938,10 @@ carTeleporter = (scene) ->
 			scene.right.physical.velocity.z = scene.right.leader.physical.velocity.z
 			scene.right.physical.velocity.x = 0
 			scene.right = scene.right.follower
+getTH(params) = ->
+	th = Math.max jStat.lognormal.sample(params.mu, params.sigma), params.min
+	th = Math.min th, params.max
+	return th
 
 
 startPositions = (ths, speed, behind) ->
@@ -948,10 +952,10 @@ startPositions = (ths, speed, behind) ->
 		startPositions.push pos
 	return startPositions
 
-randomLogNorm = (mean, sigma, min, size) ->
+randomLogNorm = (scene) ->
 	list = []
 	for i from 0 til size
-		list.push Math.max jStat.lognormal.sample(mean, sigma), min
+		list.push getTH(scene.params)
 	return list
 
 exportScenario \laneDriving, (env) ->*
@@ -982,14 +986,15 @@ exportScenario \laneDriving, (env) ->*
 	nR = 5
 	nL = 6
 
-	mean = 1.5
+	mu = 1
 	sigma = 1
 	min = 0.8
+	max = 5
 
-	scene.params = {lt: lt, rt: rt, mean: mean, sigma: sigma, min: min}
+	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
-	thsLeft = randomLogNorm(mean, sigma, min, nL)
-	thsRight = randomLogNorm(mean, sigma, min, nR)
+	thsLeft = randomLogNorm scene
+	thsRight = randomLogNorm scene
 	
 	locsLeft = startPositions thsLeft, lt, 3
 	locsRight = startPositions thsRight, rt, 2
@@ -1051,7 +1056,7 @@ exportScenario \laneDriving, (env) ->*
 
 	scene.afterPhysics.add (dt) ->
 		
-		setCarControls scene, cars, scene.params.mean, scene.params.sigma
+		setCarControls scene, cars
 
 		for car in cars
 			if car.lane == 1.75
@@ -1077,7 +1082,7 @@ exportScenario \laneDriving, (env) ->*
 		else
 			warningSound.stop()
 
-		if scene.time - startTime >= 300 && not scene.endtime
+		if scene.time - startTime >= 450 && not scene.endtime
 			title = env.L 'Passed'
 			reason = env.L ''
 			scene.passed = true
