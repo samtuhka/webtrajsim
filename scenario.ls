@@ -90,7 +90,7 @@ export baseScene = seqr.bind (env) ->*
 		gainNode.gain.value = gain
 		engineSounds.setPitch rev*2000
 	scene.onStart.add engineSounds.start
-	scene.onExit.add engineSounds.stop
+	#scene.onExit.add engineSounds.stop
 	
 	scene.engineSounds = engineSounds
 
