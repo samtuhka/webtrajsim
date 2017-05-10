@@ -387,7 +387,9 @@ export addVehicle = Co (scene, controls=new DummyControls, path="res/viva/NPCViv
 			steering += steeringNoise dt
 			if z > 0
 				# Front wheels
-				wi.brake = brakeResponse controls.brake
+				brake = controls.brake
+				brake =  Math.min 1, 1.333*brake if path!="res/viva/NPCViva.dae"
+				wi.brake = brakeResponse brake
 				wi.steering = steering
 			else
 				# Back wheels
