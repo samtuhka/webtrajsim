@@ -830,7 +830,7 @@ text3D = (title, content) ->
 		y += 55
 	return instTex
 
-endingVr = (scene, env, title, reason, scn) ->
+export endingVr = (scene, env, title, reason, scn) ->
 	return if scene.endtime
 	reason += env.L '%vr.Outro'
 	text = text3D title, reason
@@ -1112,7 +1112,7 @@ exportScenario \closeTheGap, (env) ->*
 		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
 
 	env.controls.change (btn, isOn) !~>
-		return unless btn == 'catch' and isOn
+		return unless btn == 'A' and isOn
 		distance = distanceToLeader!
 		distance += 1.47 # HACK!
 		
@@ -1340,6 +1340,8 @@ speedControl = exportScenario \speedControl, (env) ->*
 	env.title = L "Speed control"
 	env.content = L "%speedControl.intro"
 
+	warningSound = yield WarningSound env
+
 	scene = yield basePedalScene env
 	limits = [
 		[-Infinity, 50]
@@ -1377,7 +1379,11 @@ speedControl = exportScenario \speedControl, (env) ->*
 		speed = Math.abs scene.player.getSpeed()*3.6
 		if speed <= limit
 			limitSign.normal()
+			warningSound.stop()
 			return
+		
+		if not scene.endtime && speed - 5 > limit 
+			warningSound.start()
 
 		limitSign.warning()
 		traveled = (speed/3.6)*dt

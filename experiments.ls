@@ -71,11 +71,11 @@ wrapScenario = (f) -> (scenario) ->
 		wrapper.scenarioName = scenario.scenarioName
 	return wrapper
 
-laneChecker = wrapScenario (scenario) ->
+laneChecker = wrapScenario (scn) ->
 	(env, ...args) ->
 		env.opts.forceSteering = true
 		env.opts.steeringNoise = true
-		task = scenario env, ...args
+		task = scn env, ...args
 
 		task.get(\scene).then seqr.bind (scene) !->*
 			return if not scene.player
@@ -89,17 +89,31 @@ laneChecker = wrapScenario (scenario) ->
 					overedge = Math.max ((-7/2.0) - wheel.position.x), overedge
 				if not overedge? or not isFinite overedge
 					return
-				if overedge < -0.3
+				if overedge < -0.3 or scene.endtime
 					warningSound.stop()
 				else
 					warningSound.start()
 				return if overedge < 0.2
-				task.let \done, passed: false, outro:
-					title: env.L "Oops!"
-					content: env.L "You drove out of your lane."
+				title = env.L "Oops!"
+				reason = env.L "You drove out of your lane."
+				scenario.endingVr scene, env, title, reason, task
+
 			scene.onExit ->
 				warningSound.stop()
 		return task
+
+export vrPractice = seqr.bind ->*
+	#yield runUntilPassed scenario.closeTheGap
+	#yield runUntilPassed scenario.switchLanes
+	yield runUntilPassed scenario.speedControl
+
+export vrExperiment = seqr.bind ->*
+	yield runUntilPassed scenario.laneDriving, passes: 3
+
+export vrBlindFollow = seqr.bind ->*
+	monkeypatch = laneChecker
+	yield runUntilPassed laneChecker scenario.followInTraffic
+	yield runUntilPassed scenario.blindFollowInTraffic
 
 export vrExperiment = seqr.bind ->*
 
