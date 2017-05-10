@@ -79,7 +79,7 @@ dumpPhysics = (world) ->
 		angularVelocity: body.angularVelocity{x, y, z}
 		objectClass: body.objectClass
 		objectName: body.objectName
-
+		telemetry: body.controls{throttle, brake, steering, direction} if body.controls
 	return ret
 
 export newEnv = seqr.bind !->*
@@ -88,7 +88,7 @@ export newEnv = seqr.bind !->*
 	opts <<< deparam window.location.search.substring 1
 
 	env.L = localizer()
-	lang = opts.lang ? 'en'
+	lang = opts.lang ? 'fi'
 	yield env.L.load "locales/#{lang}.lson"
 
 	container = $('#drivesim').empty().fadeIn()
@@ -218,7 +218,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 			camera:
 				matrixWorldInverse: scene.camera.matrixWorldInverse.toArray()
 				projectionMatrix: scene.camera.projectionMatrix.toArray()
-			telemetry: env.controls{throttle, brake, steering, direction}
+			telemetry: env.controls{throttle, brake, steering, direction, blinder, frontLeft, backRight, A}
 			vr: vrDump env, scene
 		env.logger.write dump
 

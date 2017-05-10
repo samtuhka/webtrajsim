@@ -944,8 +944,8 @@ getTH = (params) ->
 	return th
 
 
-startPositions = (ths, speed, behind) ->
-	pos = -ths.slice(0, behind).reduce((a, b) -> (a+b))*speed + speed
+startPositions = (ths, speed, behind, adj = 0) ->
+	pos = -ths.slice(0, behind).reduce((a, b) -> (a+b))*speed + adj
 	startPositions = [pos]
 	for i from 1 til ths.length
 		pos += ths[i - 1]*speed
@@ -966,7 +966,7 @@ exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
 
-	#failOnCollisionVR env, @, scene
+	failOnCollisionVR env, @, scene
 
 	listener = new THREE.AudioListener()
 	scene.camera.add listener
@@ -994,18 +994,21 @@ exportScenario \laneDriving, (env) ->*
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
 	thsLeft = randomLogNorm scene, nL
-	thsRight = randomLogNorm scene, nR
+	thsRight = randomLogNorm scene, nR + 1
 	
-	locsLeft = startPositions thsLeft, lt, 3
+	locsLeft = startPositions thsLeft, lt, 3, lt*0.5
 	locsRight = startPositions thsRight, rt, 2
 
 	r_cars = []
 	l_cars = []
 	
+	thsRight.splice 2, 1 #hack to remove the "player"
+	locsRight.splice 2, 1 #hack to remove the "player"
+
 	for i from 0 til nR
 		controller = new TargetSpeedController2
 		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
-		car.controller = controller
+		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
 		car.visual.add carhorn
 		car.physical.position.x = -1.75
@@ -1022,7 +1025,7 @@ exportScenario \laneDriving, (env) ->*
 	for i from 0 til nL
 		controller = new TargetSpeedController2
 		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
-		car.controller = controller
+		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
 		car.visual.add carhorn
 		car.physical.position.x = 1.75
@@ -1037,7 +1040,7 @@ exportScenario \laneDriving, (env) ->*
 		l_cars[i].follower = l_cars[(i + nL - 1) % nL]
 
 	cars = r_cars.concat(l_cars)
-	failOnCollisionVR env, @, scene, cars
+
 	startLight = yield assets.TrafficLight()
 	startLight.position.x = -4
 	startLight.position.z = 6
@@ -1055,7 +1058,7 @@ exportScenario \laneDriving, (env) ->*
 	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
-		
+		console.log scene.player.controls
 		setCarControls scene, cars
 
 		for car in cars
