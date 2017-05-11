@@ -63,6 +63,8 @@
 
 'You drove out of your lane.': 'Ajoit ulos kaistaltasi.'
 
+'You drove out of the road.': 'Ajoit ulos tieltä.'
+
 'Speed control': 'Nopeuden hallinta'
 '%speedControl.intro':  """
 	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.

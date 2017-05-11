@@ -8,8 +8,9 @@ sounds = require './sounds.ls'
 L = (s) -> s
 
 runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
-	currentPasses = 0
-	for retry from 1 til Infinity
+	currentPasses = localStorage.getItem("passes") ? 0
+	currRetry = localStorage.getItem("retries") ? 1
+	for retry from currRetry til Infinity
 		task = runScenario scenarioLoader
 		result = yield task.get \done
 		currentPasses += result.passed
@@ -20,6 +21,8 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 		yield task
 		if doQuit
 			break
+		localStorage.setItem('passes', currentPasses + 1)
+		localStorage.setItem('retries', currRetry + 1)
 
 shuffleArray = (a) ->
 	i = a.length
@@ -72,6 +75,10 @@ wrapScenario = (f) -> (scenario) ->
 	return wrapper
 
 laneChecker = wrapScenario (scn) ->
+	line = 0.0
+	name = scn.scenarioName
+	if  name == 'switchLanes' || name == 'laneDriving'
+		line = 3.5
 	(env, ...args) ->
 		env.opts.forceSteering = true
 		env.opts.steeringNoise = true
@@ -85,7 +92,7 @@ laneChecker = wrapScenario (scn) ->
 			scene.afterPhysics (dt) !->
 				overedge = -10
 				for wheel in scene.player.wheels
-					overedge = Math.max (wheel.position.x - 0.0), overedge
+					overedge = Math.max (wheel.position.x - line), overedge
 					overedge = Math.max ((-7/2.0) - wheel.position.x), overedge
 				if not overedge? or not isFinite overedge
 					return
@@ -96,39 +103,76 @@ laneChecker = wrapScenario (scn) ->
 				return if overedge < 0.2
 				title = env.L "Oops!"
 				reason = env.L "You drove out of your lane."
+				if line == 3.5
+					reason = env.L "You drove out of the road."
 				scenario.endingVr scene, env, title, reason, task
 
 			scene.onExit ->
 				warningSound.stop()
 		return task
 
-export vrPractice = seqr.bind ->*
-	#yield runUntilPassed scenario.closeTheGap
-	#yield runUntilPassed scenario.switchLanes
-	yield runUntilPassed scenario.speedControl
+export vrIntro = seqr.bind ->*
+
+	env = newEnv!
+	yield scenario.participantInformation yield env.get \env
+	env.let \destroy
+	yield env
+	
+	monkeyPatch = laneChecker
+
+	yield runUntilPassed monkeyPatch scenario.closeTheGap
+	yield runUntilPassed monkeyPatch scenario.switchLanes
+	yield runUntilPassed monkeyPatch scenario.speedControl
+
+	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
+		localStorage.setItem('scenario_id', 0)
+		experiment = []
+			.concat([0]*2)
+			.concat([1]*2)
+			.concat([2]*2)
+		experiment = shuffleArray experiment
+		localStorage.setItem('experiment', JSON.stringify(experiment))
 
 export vrExperiment = seqr.bind ->*
-	yield runUntilPassed scenario.laneDriving, passes: 3
+	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic]
+	nTrials = 6
+	lanechecker = laneChecker
 
-export vrBlindFollow = seqr.bind ->*
-	monkeypatch = laneChecker
-	yield runUntilPassed laneChecker scenario.followInTraffic
-	yield runUntilPassed scenario.blindFollowInTraffic
+	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
+		localStorage.setItem('scenario_id', 0)
+		experiment = []
+			.concat([3]*2)
+			.concat([4]*2)
+			.concat([5]*2)
+		experiment = shuffleArray experiment
+		experiment.push 5, 4, 3, 2, 1, 0
+		experiment.reverse()
+		localStorage.setItem('experiment', JSON.stringify(experiment))
+		localStorage.setItem('passes', 0)
 
-export vrExperiment = seqr.bind ->*
+		env = newEnv!
+		yield scenario.participantInformation yield env.get \env
+		env.let \destroy
+		yield env
+		window.location.reload()
+	else
+		experiment = JSON.parse(localStorage.getItem("experiment"))
+		id = localStorage.getItem("scenario_id")
+		console.log scenarios[experiment[id]], id, experiment
+		if id <= 5
+			yield runUntilPassed lanechecker scenarios[experiment[id]]
+		else
+			yield runScenario lanechecker scenarios[experiment[id]]
+		localStorage.setItem('passes', 0)
+		localStorage.setItem('scenario_id', Number(id) + 1)
+		window.location.reload()
 
-	#env = newEnv!
-	#yield scenario.participantInformation yield env.get \env
-	#env.let \destroy
-	#yield env
 
-	#yield runScenario scenario.calibration
-	#yield runScenario scenario.verification
-
-	yield runUntilPassed scenario.laneDriving, passes: 3
-
-	yield runUntilPassed scenario.followInTraffic
-	yield runUntilPassed scenario.blindFollowInTraffic
+export resetter = seqr.bind ->*
+	localStorage.removeItem("experiment")
+	localStorage.removeItem('passes')
+	localStorage.removeItem('retries')
+	localStorage.removeItem('scenario_id')
 
 export blindFollow17 = seqr.bind ->*
 	monkeypatch = laneChecker

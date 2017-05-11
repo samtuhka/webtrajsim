@@ -6,7 +6,7 @@ jStat = require 'jstat'
 
 {addGround, Scene} = require './scene.ls'
 {addVehicle} = require './vehicle.ls'
-{NonSteeringControl, TargetSpeedController2} = require './controls.ls'
+{NonSteeringControl, TargetSpeedController2, linearTargetSpeedController} = require './controls.ls'
 {DefaultEngineSound, carHorn, BellPlayer, NoisePlayer, WarningSound} = require './sounds.ls'
 assets = require './assets.ls'
 prelude = require 'prelude-ls'
@@ -801,7 +801,7 @@ setCarControls = (scene, cars) ->
 		
 	for car in cars
 		leader = car.leader
-		simple = true
+		idm = false
 		targetAcceleration = 0
 		car.playerAhead = false
 		
@@ -817,7 +817,7 @@ setCarControls = (scene, cars) ->
 				if car.behindTime > scene.time && car.getSpeed() < 0.9*car.controller.target
 					car.behindTime = scene.time
 				
-				simple = false
+				idm = true
 				
 				dist = playerPos.z - pos.z
 				playHorn = dist < Math.max(car.getSpeed(), 10) || ((scene.time - car.behindTime) > 10 && car.getSpeed() < 0.9*car.controller.target && dist < car.getSpeed()*2) 
@@ -843,7 +843,7 @@ setCarControls = (scene, cars) ->
 				scene.player.behindPlayerRight += 1
 
 	
-		car.controller.mode = simple
+		car.controller.mode = idm
 		car.controller.targetAcceleration = targetAcceleration
 		car.controller.angle = handleSteering car, car.lane
 
@@ -972,8 +972,10 @@ carTeleporter = (scene) ->
 			scene.right.physical.velocity.x = 0
 			scene.right = scene.right.follower
 getTH = (params) ->
-	th = Math.max jStat.lognormal.sample(params.mu, params.sigma), params.min
-	th = Math.min th, params.max
+	#th = Math.max jStat.lognormal.sample(params.mu, params.sigma), params.min
+	#th = Math.min th, params.max
+
+	th = Math.random()*(params.max - params.min) + params.min
 	return th
 
 
@@ -1100,10 +1102,10 @@ exportScenario \laneDriving, (env) ->*
 			else
 				car.controller.target = scene.params.rt
 			
-			if car.controller.mode == false && car.playerAhead == false #match the speed of the car using idm
+			if car.controller.mode == true && car.playerAhead == false #match the speed of the car using idm
 				car.physical.velocity.z  = car.leader.physical.velocity.z
 				car.controller.target = car.leader.getSpeed()
-				car.controller.mode = true
+				car.controller.mode = false
 
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
 
@@ -1533,11 +1535,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-	goalDistance = distance
-	finishSign = yield assets.FinishSign!
-	finishSign.position.z = goalDistance
-	finishSign.addTo scene
-	finishSign.visual.visible = false
+
 
 	failOnCollisionVR env, @, scene
 
@@ -1569,66 +1567,29 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 		consumption.total += consumption.instant*dt
 		consumption.noDraftTotal += instant*dt
 
-	ui.gauge env,
-		name: L "Current consumption"
-		unit: "l/100km"
-		range: [0, 30]
-		format: (v) ->
-			if Math.abs(scene.player.getSpeed()) < 1.0
-				return null
-			return v.toFixed 2
-		value: ->
-			c = consumption.instLitersPer100km!
-			return c
-
-	ui.gauge env,
-		name: L "Average consumption"
-		unit: "l/100km"
-		range: [0, 30]
-		format: (v) ->
-			return null if consumption.distance < 1
-			return v.toFixed 2
-		value: ->
-			return consumption.avgLitersPer100km!
-
-	/*nVehicles = 20
-	spacePerVehicle = 20
-	traffic = new LoopMicrosim nVehicles*spacePerVehicle
-	for i in [1 til nVehicles]
-		v = new IdmVehicle do
-			a: 4.0
-			b: 10.0
-			timeHeadway: 1.0
-		v.position = i*spacePerVehicle
-		traffic.addVehicle v
-	scene.beforePhysics.add traffic~step
-	scene.traffic = traffic
-
-	playerSim = new MicrosimWrapper scene.player.physical
-	traffic.addVehicle playerSim
-
-	leader = yield addVehicle scene
-	leader.physical.position.z = playerSim.leader.position
-	leader.physical.position.x = -1.75
-	scene.beforeRender.add (dt) ->
-		leader.forceModelSync()
-		leader.physical.position.z = playerSim.leader.position
-		leader.forceModelSync()*/
-
 	leaderControls = new TargetSpeedController
 	leader = scene.leader = yield addVehicle scene, leaderControls
 	leader.body.controls = leaderControls
 	leader.physical.position.x = -1.75
 	leader.physical.position.z = 20
 
-	speeds = [0, 30, 40, 50, 60, 70, 80]*2
+	speeds = [0, 20, 40, 60]*2
+	dists = [500 + (Math.random() - 0.5)*200 for speed in speeds]
+
+	
 	shuffleArray speeds
 	while speeds[*-1] == 0
 		shuffleArray speeds
-	speedDuration = 10
-
+	
 	sequence = for speed, i in speeds
-		[(i+1)*speedDuration, speed/3.6]
+		[dists.slice(0, i + 1).reduce((a, b) -> (a+b)) + 20, speed/3.6]
+
+
+	goalDistance = distance
+	finishSign = yield assets.FinishSign!
+	finishSign.position.z = sequence[sequence.length - 1][0]
+	finishSign.addTo scene
+	finishSign.visual.visible = false
 
 	headway =
 		cumulative: 0
@@ -1678,7 +1639,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	startTime = scene.time
 
 	scene.afterPhysics.add (dt) ->
-		if scene.time - startTime> sequence[0][0] and sequence.length > 1
+		if leader.physical.position.z > sequence[0][0] and sequence.length > 1
 			sequence := sequence.slice(1)
 		leaderControls.target = sequence[0][1]
 		leaderControls.tick leader.getSpeed(), dt

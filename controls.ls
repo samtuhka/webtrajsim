@@ -148,10 +148,10 @@ export class TargetSpeedController2
 		@steering = 0
 		@direction = 1
 
-	tick: (speed, targetAccel, steerAng, simple, dt) ->
+	tick: (speed, targetAccel, steerAng, idm, dt) ->
 		force = DumbEngineModel targetAccel
 
-		if simple 
+		if idm == false 
 			delta = @target - speed
 			force = Math.tanh delta
 		
@@ -165,6 +165,91 @@ export class TargetSpeedController2
 			@brake = -force
 			@throttle = 0
 		@steering = steerAng
+
+	set: ->
+
+
+export class linearTargetSpeedController
+	(@target=0, @accelParams=[1.0, 0.1], @targetAccelMs=2.0, @environment) ->
+		@throttle = 0
+		@brake = 0
+		@steering = 0
+		@direction = 1
+		@_accel = 0
+		@_speed = 0
+		@_force = 0
+		@_cumulative_error = 0
+		@_pid_derivative = 0
+		@_speedDelta = 0
+
+		@_currentTarget = 0
+		@_previousTarget = 0
+		@_cumulativeTarget = 0
+
+	tick: (speed, targAccel, steerAng, idm, dt) ->
+		@_accel = (@_speed - speed)/dt
+		@_speed = speed
+		kp = @accelParams[0]
+		ki = @accelParams[1]
+
+		if @target != @_currentTarget
+			@_previousTarget = @_currentTarget
+			@_currentTarget = @target
+			@_cumulativeTarget = @_previousTarget
+
+		if (Math.abs @_currentTarget - @_cumulativeTarget) < 0.2 # at limit
+			@_cumulativeTarget = @target
+		else if @_currentTarget < @_previousTarget # decelerating
+			@_cumulativeTarget -= @targetAccelMs * dt		
+		else if @_currentTarget > @_previousTarget # accelerating
+			@_cumulativeTarget += @targetAccelMs * dt
+
+		target = @_cumulativeTarget
+
+
+		speedDelta = target - speed
+		errorDelta = @_speedDelta - speedDelta
+		@_speedDelta = speedDelta
+		@_pid_derivative = errorDelta / dt
+
+		if target != 0
+			@_cumulative_error += speedDelta * dt
+
+		if target == 0 and speedDelta < 0.1 # stopping hack
+			@_force = -0.5
+		else
+			targetAccel = kp * speedDelta + ki * @_cumulative_error			
+			#targetAccel += 0.1 * @_cumulative_error #+ 2.0 * @_pid_derivative
+			@_force = DumbEngineModel targetAccel
+
+		if idm
+			targetAccel = target targAccel
+			@_force = DumbEngineModel targetAccel
+			
+				
+		@_force = Math.max @_force, -1
+		@_force = Math.min @_force, 1
+		if @_force > 0
+			@throttle = @_force
+			@brake = 0
+		else
+			@brake = -@_force
+			@throttle = 0
+
+		@steering = steerAng
+
+		controllerInfo =
+			targetSpeed: target
+		@environment.logger.write controllerInfo
+
+		#console.log 'speed', @_speed
+		#console.log 'cumtarget', @_cumulativeTarget
+		#console.log 'currentTarget', @_currentTarget
+		#console.log 'previousTarget', @_previousTarget
+		#console.log 'acceltarget', @targetAccelMs
+		#console.log 'target', target
+		#console.log 'kp, ki', kp, ki
+		#console.log 'force', @_force
 
 	set: ->
 
