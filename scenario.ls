@@ -296,6 +296,10 @@ exportScenario \calibration, (env) ->*
 			scene.marker.position.x = calibLocs[scene.marker.index][0]
 			scene.marker.position.y = calibLocs[scene.marker.index][1]
 			scene.marker.position.z = -30
+			marker = 
+				x: scene.marker.position.x 
+				y: scene.marker.position.y
+			env.logger.write marker: marker
 			change := scene.time
 
 	scene.onTickHandled ~>
@@ -346,6 +350,10 @@ exportScenario \verification, (env) ->*
 			scene.marker.position.x = calibLocs[scene.marker.index][0]
 			scene.marker.position.y = calibLocs[scene.marker.index][1]
 			scene.marker.position.z = -30
+			marker = 
+				x: scene.marker.position.x 
+				y: scene.marker.position.y
+			env.logger.write marker: marker
 			change := scene.time
 
 	scene.onTickHandled ~>
@@ -354,6 +362,10 @@ exportScenario \verification, (env) ->*
 				scene.msg = JSON.parse(scene.msg)
 			scene.gaze.position.x = scene.msg.x*10 - 5
 			scene.gaze.position.y = scene.msg.y*10 - 5
+			gaze = 
+				x: scene.gaze.position.x
+				y: scene.gaze.position.y
+			env.logger.write gaze: gaze
 		if scene.marker.index >= 20
 			exitVR env
 			if scene.socket
@@ -723,32 +735,51 @@ failOnCollision = (env, scn, scene) ->
 			content: reason
 		return false
 
+
+	
+
 turnSignal = (env, scene, listener) ->
 
+	loopSound = new THREE.Audio(listener)
+	loopSound.load('res/sounds/turn_loop.wav')
+	loopSound.loop = true
+
 	onSound = new THREE.Audio(listener)
-	onSound.load('res/sounds/blinker.wav')
-	onSound.loop = true
+	onSound.load('res/sounds/turn_on.wav')
+
+	offSound = new THREE.Audio(listener)
+	offSound.load('res/sounds/turn_off.wav')
 
 	scene.player.ts = 0
 	scene.player.ts_start = scene.player.physical.position.clone()
+	playLoop = ->
+		loopSound.play()
 
 	env.controls.change (btn, isOn) !~>
 		if btn == "blinder" and isOn and scene.player.ts == 0
-			onSound.play()
 			scene.player.ts = -1
 			scene.player.ts_value = env.controls.steering
 			scene.player.ts_start = scene.player.physical.position.clone()
-		else if btn == "blinder" and isOn and scene.player.ts != 0
-			onSound.stop()
-			scene.player.ts = 0
-		if btn == "backRight" and isOn and scene.player.ts == 0
+			env.logger.write turnSignal: "ts left"
 			onSound.play()
+			setTimeout playLoop, 300
+		else if btn == "blinder" and isOn and scene.player.ts != 0
+			loopSound.stop()
+			scene.player.ts = 0
+			env.logger.write turnSignal: "ts off (manual)"
+			offSound.play()
+		if btn == "backRight" and isOn and scene.player.ts == 0
 			scene.player.ts = 1
 			scene.player.ts_value = env.controls.steering
 			scene.player.ts_start = scene.player.physical.position.clone()
+			env.logger.write turnSignal: "ts right"
+			onSound.play()
+			setTimeout playLoop, 300
 		else if btn == "backRight" and isOn and scene.player.ts != 0 
-			onSound.stop()
+			loopSound.stop()
 			scene.player.ts = 0
+			env.logger.write turnSignal: "ts off (manuall)"
+			offSound.play()
 
 	scene.onTickHandled ~>
 		dir = scene.player.ts
@@ -758,8 +789,10 @@ turnSignal = (env, scene, listener) ->
 			else
 				scene.player.ts_value = Math.max scene.player.ts_value, env.controls.steering
 			if env.controls.steering*dir > 0 && scene.player.ts_value*dir < 0
-				onSound.stop()
+				loopSound.stop()
 				scene.player.ts = 0
+				offSound.play()
+				env.logger.write turnSignal: "ts off (automatic)"
 				
 
 setCarControls = (scene, cars) ->
@@ -1106,9 +1139,20 @@ exportScenario \closeTheGap, (env) ->*
 
 	failOnCollisionVR env, @, scene
 
+
+	startLight = yield assets.TrafficLight()
+	startLight.position.x = -4
+	startLight.position.z = 6
+	startLight.addTo scene
+
 	@let \scene, scene
 
 	yield @get \run
+
+	while scene.start == false
+		yield P.delay 100
+
+	yield startLight.switchToGreen()
 
 	distanceToLeader = ->
 		rawDist = scene.player.physical.position.distanceTo leader.physical.position
@@ -1573,6 +1617,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	leaderControls = new TargetSpeedController
 	leader = scene.leader = yield addVehicle scene, leaderControls
+	leader.body.controls = leaderControls
 	leader.physical.position.x = -1.75
 	leader.physical.position.z = 20
 

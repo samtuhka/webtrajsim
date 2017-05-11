@@ -20,17 +20,18 @@
 			mutta aja tämän kerran punaista päin, jotta tiedät mitä
 			siitä seuraa.
 
-			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.
+			<p>Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
 			"""
-'%vr.Outro': """\nJatka koetta painamalla ratin oikeanpuoleista punaista nappia."""
+'%vr.Outro': """\nJatka koetta painamalla ratin oikeanpuoleista alinta nappia."""
 
 '%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
 
 'Close the gap': 'Ahdas pysäköinti'
 '%closeTheGap.intro': """Tässä tehtävässä tutustutaan auton ulottuvuuksiin. Aja mahdollisimman
 			lähelle edelläolevaa autoa, mutta älä kuitenkaan törmää. Kun olet niin lähellä
-			kuin tunnet törmäämättäsi pääsevän, sammuta auto painamalla ratin oikeanpuoleista
-			punaista nappia.
+			kuin tunnet törmäämättäsi pääsevän, sammuta auto painamalla ratin A-painiketta.
+
+			Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
 			"""
 '%closeTheGap.outro': ({distance}) ->
 	"Pysäköit #{(distance*100).toFixed 1} senttimetrin päähän."
@@ -40,7 +41,7 @@
 			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä.
 			"""
 
-'%throttleAndBrake.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
+'%throttleAndBrake.outro': ({time}) -> "Aikasi oli #{time.toFixed 2} sekuntia."
 
 'Stay on lane': 'Pysy kaistalla'
 '%stayOnLane.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
@@ -50,13 +51,15 @@
 			"""
 
 
-'Switch lanes': 'Kaistan vaihto'
+'Switch lanes': 'Kaistanvaihto'
 '%switchLane.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
 			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä. Väistä myös tiellä olevat
-			esteet. Näytä vilkkua ennen kuin vaihdat kaistaa painamalla ratin liipaisimia.
+			esteet. Näytä vilkkua ennen kuin vaihdat kaistaa painamalla ratin oikeaa/vasenta liipaisinta.
+
+			Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
 			"""
 
-'%stayOnLane.outro': ({time}) -> "Aikasi oli <strong>#{time.toFixed 2}</strong> sekuntia."
+'%stayOnLane.outro': ({time}) -> "Aikasi oli #{time.toFixed 2} sekuntia."
 
 'You drove out of your lane.': 'Ajoit ulos kaistaltasi.'
 
@@ -64,6 +67,8 @@
 '%speedControl.intro':  """
 	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.
 	Ylinopeuden ajamisesta kerääntyy aikasakkoa.
+
+	Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
 	"""
 'Penalty': 'Aikasakko'
 'Speed limit': 'Nopeusrajoitus'
@@ -72,7 +77,7 @@
 	<p>Ajoit radan #{time.toFixed 2} sekunnissa, mihin lisätään
 	#{timePenalty.toFixed 2} sekuntia aikasakkoa ylinopeudesta.
 
-	<p>Kokonaisaikasi oli <strong>#{(timePenalty + time).toFixed 2}</strong> sekuntia.
+	<p>Kokonaisaikasi oli #{(timePenalty + time).toFixed 2} sekuntia.
 	"""
 
 '%blinderIntro': """
@@ -80,6 +85,8 @@
 	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasemmanpuoleista
 	liipasinta. Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman
 	vähän katseita.
+
+	Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
 	"""
 
 'Anticipatory speed control': 'Ennakointi nopeudenhallinnassa'
@@ -93,6 +100,19 @@
 	<p>#{@ '%speedControl.intro'}
 	#{@ '%blinderIntro'}
 	"""
+
+'Lane changing': 'Otsikko???'
+'%laneChange.intro': """ 
+	Pyri ajamaan kuten normaalistikin ajaisit.
+	Yritä kuitenkin noudattaa Suomen tieliikennelakeja (vaikka muut autot törttöilisivät): 
+	1. Oikeanpuoleinen kaista on ohituskaista. Voit käyttää sitä ohittamiseen.
+	2. Muista käyttää vilkkua ohittaessasi (ratin liipaisimet). 
+	3. Pyri noudattamaan 80 km/h:n nopeusrajoitusta.
+
+	Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+	"""
+	
+
 
 'Supermiler': 'Taloudellinen ajo'
 
@@ -288,6 +308,14 @@ yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
 			<p>Seuraavaksi kalibroidaan silmänliikekamera.
 			<p>Kalibraation aikanaa eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
             		<p>Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä. Yritä olla räpsyttelemättä kun katsot pistettä.
+			"""
+
+
+'Verification': 'Silmänliikekameran verifikaatio'
+'%verif.inst1' : """
+			<p>Seuraavaksi tarkastetaan kalibraation tarkkuus.
+			<p>Verifikaation aikanaa eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+            		<p>Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä.
 			"""
 
 
