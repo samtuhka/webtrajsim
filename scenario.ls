@@ -987,7 +987,7 @@ startPositions = (ths, speed, behind, adj = 0) ->
 		startPositions.push pos
 	return startPositions
 
-randomLogNorm = (scene, size) ->
+startingTHs = (scene, size) ->
 	list = []
 	for i from 0 til size
 		list.push getTH(scene.params)
@@ -1024,12 +1024,12 @@ exportScenario \laneDriving, (env) ->*
 	mu = 1
 	sigma = 1
 	min = 0.8
-	max = 5
+	max = 7
 
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
-	thsLeft = randomLogNorm scene, nL
-	thsRight = randomLogNorm scene, nR + 1
+	thsLeft = startingTHs scene, nL
+	thsRight = startingTHs scene, nR + 1
 	
 	locsLeft = startPositions thsLeft, lt, 3, lt*0.5
 	locsRight = startPositions thsRight, rt, 2
@@ -1238,9 +1238,9 @@ laneChecker = (scene, env, scn) ->
 			turnSignal := scene.player.ts
 		if Math.sign(lane) != Math.sign(prevLane) && Math.sign(turnSignal) != Math.sign(prevLane)
 			title = env.L 'Oops!'
-			reason = env.L 'Näytit vilkkua väärään suuntaant'
+			reason = env.L 'You activated the turn signal in the wrong direction'
 			if scene.player.ts == 0
-				reason = env.L 'Et käyttänyt vilkkua'
+				reason = env.L 'You didnt use the turn signal'
 			scene.passed = false
 			endingVr scene, env, title, reason, scn
 		prevLane := lane
@@ -1535,8 +1535,6 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	startLight.position.z = 6
 	startLight.addTo scene
 
-
-
 	failOnCollisionVR env, @, scene
 
 	maximumFuelFlow = 200/60/1000
@@ -1567,27 +1565,30 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 		consumption.total += consumption.instant*dt
 		consumption.noDraftTotal += instant*dt
 
-	leaderControls = new TargetSpeedController
+	leaderControls = new linearTargetSpeedController
+	leaderControls.environment = env
 	leader = scene.leader = yield addVehicle scene, leaderControls
 	leader.body.controls = leaderControls
 	leader.physical.position.x = -1.75
 	leader.physical.position.z = 20
 
-	speeds = [0, 20, 40, 60]*2
-	dists = [500 + (Math.random() - 0.5)*200 for speed in speeds]
-
-	
+	speeds = [0, 20, 40, 60]*3
 	shuffleArray speeds
+
 	while speeds[*-1] == 0
 		shuffleArray speeds
 	
+	dists = [Math.max((500 + (Math.random() - 0.5)*200)*Math.sign(speed), Math.random()*5 + 5) for speed in speeds]
+
 	sequence = for speed, i in speeds
-		[dists.slice(0, i + 1).reduce((a, b) -> (a+b)) + 20, speed/3.6]
+		[dists[i], speed/3.6]
 
+	goalDistance = 0
+	for speed, i in speeds
+		goalDistance += dists[i] * Math.sign(speed)	
 
-	goalDistance = distance
 	finishSign = yield assets.FinishSign!
-	finishSign.position.z = sequence[sequence.length - 1][0]
+	finishSign.position.z = goalDistance
 	finishSign.addTo scene
 	finishSign.visual.visible = false
 
@@ -1632,17 +1633,34 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	@let \scene, scene
 	yield @get \run
 
+	startTime = scene.time
+	zeroSpeed = false	
+	traveled = leader.physical.position.z
+	zeroTime = scene.time
+
 	while scene.start == false
 		yield P.delay 100
 
 	yield startLight.switchToGreen()
-	startTime = scene.time
+
+	if sequence[0][1] == 0
+		zeroSpeed := true
+		zeroTime := scene.time
 
 	scene.afterPhysics.add (dt) ->
-		if leader.physical.position.z > sequence[0][0] and sequence.length > 1
+		pastDist = leader.physical.position.z - traveled > sequence[0][0] and sequence.length > 1 and not zeroSpeed
+		pastTime = scene.time - zeroTime > sequence[0][0] and sequence.length > 1 and zeroSpeed
+
+		if pastTime || pastDist
+			traveled := leader.physical.position.z
 			sequence := sequence.slice(1)
+			zeroSpeed := false
+			if sequence[0][1] == 0
+				zeroSpeed := true
+				zeroTime := scene.time
+
 		leaderControls.target = sequence[0][1]
-		leaderControls.tick leader.getSpeed(), dt
+		leaderControls.tick leader.getSpeed(), 0, 0, false, dt
 
 	return yield @get \done
 

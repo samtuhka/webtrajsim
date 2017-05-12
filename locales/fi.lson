@@ -65,6 +65,9 @@
 
 'You drove out of the road.': 'Ajoit ulos tieltä.'
 
+'You activated the turn signal in the wrong direction': 'Näytit vilkkua väärään suuntaant'
+'You didnt use the turn signal': 'Et käyttänyt vilkkua'
+
 'Speed control': 'Nopeuden hallinta'
 '%speedControl.intro':  """
 	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.
