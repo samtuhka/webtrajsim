@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import pickle
 import os
+from uvc import get_time_monotonic
 
 def save_object(object,file_path):
 	file_path = os.path.expanduser(file_path)
@@ -75,7 +76,8 @@ if __name__ == '__main__':
 
     #create a zmq REQ socket to talk to Pupil Service/Capture
     req = ctx.socket(zmq.REQ)
-    req.connect('tcp://192.168.56.1:50020')
+
+    req.connect('tcp://192.168.56.1:{}'.format(sys.argv[3]))
 
     #convenience functions
     def send_recv_notification(n):
@@ -109,7 +111,7 @@ if __name__ == '__main__':
             continue
         
         # set calibration method to hmd calibration
-        n = {'subject':'start_plugin','name':'HMD_Calibration', 'args':{}}
+        n = {'subject':'start_plugin','name':'HMD_Calibration_3D', 'args':{}}
         print send_recv_notification(n)
 
         # start caliration routine with params. This will make pupil start sampeling pupil data.

@@ -21,7 +21,8 @@ ws = websocket.create_connection("ws://localhost:10103")
 
 #create a zmq REQ socket to talk to Pupil Service/Capture
 req = ctx.socket(zmq.REQ)
-req.connect('tcp://192.168.56.1:50020')
+
+req.connect('tcp://192.168.56.1:{}'.format(sys.argv[2]))
 
 req.send_string('SUB_PORT')
 sub_port = req.recv_string()
