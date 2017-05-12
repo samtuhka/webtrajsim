@@ -1916,13 +1916,28 @@ exportScenario \participantInformationBlindPursuit, (env) ->*
 			i -= 2
 		i += 1
 
-
-
 exportScenario \experimentOutro, (env, cb=->) ->*
 	L = env.L
 	yield ui.instructionScreen env, (...args) ->
 		@ \title .append L "The experiment is done!"
 		@ \content .append L '%experimentOutro'
+		@ \accept-button .hide()
+		cb.apply @, [env].concat ...args
+
+exportScenario \resetterOutro, (env, cb=->) ->*
+	L = env.L
+	yield ui.instructionScreen env, (...args) ->
+		@ \title .append "Resetter finished"
+		@ \content .append "If you did this accidentally use the backup restorer"
+		@ \accept-button .hide()
+		cb.apply @, [env].concat ...args
+
+
+
+exportScenario \reResetterOutro, (env, cb=->) ->*
+	L = env.L
+	yield ui.instructionScreen env, (...args) ->
+		@ \title .append L "Backup restored"
 		@ \accept-button .hide()
 		cb.apply @, [env].concat ...args
 

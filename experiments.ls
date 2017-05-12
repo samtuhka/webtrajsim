@@ -135,11 +135,11 @@ export vrIntro = seqr.bind ->*
 
 export vrExperiment = seqr.bind ->*
 	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic]
-	nTrials = 6
+	nTrials = 12
 	lanechecker = laneChecker
 
 	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
-		localStorage.setItem('scenario_id', 0)
+
 		experiment = []
 			.concat([3]*2)
 			.concat([4]*2)
@@ -147,13 +147,16 @@ export vrExperiment = seqr.bind ->*
 		experiment = shuffleArray experiment
 		experiment.push 5, 4, 3, 2, 1, 0
 		experiment.reverse()
-		localStorage.setItem('experiment', JSON.stringify(experiment))
-		localStorage.setItem('passes', 0)
 
 		env = newEnv!
 		yield scenario.participantInformation yield env.get \env
 		env.let \destroy
 		yield env
+
+		localStorage.setItem('scenario_id', 0)
+		localStorage.setItem('experiment', JSON.stringify(experiment))
+		localStorage.setItem('passes', 0)
+
 		window.location.reload()
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
@@ -169,10 +172,44 @@ export vrExperiment = seqr.bind ->*
 
 
 export resetter = seqr.bind ->*
-	localStorage.removeItem("experiment")
-	localStorage.removeItem('passes')
-	localStorage.removeItem('retries')
-	localStorage.removeItem('scenario_id')
+	if localStorage.hasOwnProperty('experiment')
+		exp = localStorage.getItem("experiment")
+		pas = localStorage.getItem('passes')
+		ret = localStorage.getItem('retries')
+		id = localStorage.getItem('scenario_id')
+
+		localStorage.setItem('experiment_copy', exp)
+		localStorage.setItem('passes_copy', pas)
+		localStorage.setItem('retries_copy', ret)
+		localStorage.setItem('scenario_id_copy', id)
+
+		localStorage.removeItem("experiment")
+		localStorage.removeItem('passes')
+		localStorage.removeItem('retries')
+		localStorage.removeItem('scenario_id')
+
+		env = newEnv!
+		yield scenario.resetterOutro yield env.get \env
+		env.let \destroy
+		yield env
+
+export backupper = seqr.bind ->*
+	if localStorage.hasOwnProperty('experiment') == false && localStorage.hasOwnProperty('experiment_copy')
+		exp = localStorage.getItem("experiment_copy")
+		pas = localStorage.getItem('passes_copy')
+		ret = localStorage.getItem('retries_copy')
+		id = localStorage.getItem('scenario_id_copy')
+
+		localStorage.setItem('experiment', exp)
+		localStorage.setItem('passes', pas)
+		localStorage.setItem('retries', ret)
+		localStorage.setItem('scenario_id', id)
+
+		env = newEnv!
+		yield scenario.reResetterOutro yield env.get \env
+		env.let \destroy
+		yield env
+	
 
 export blindFollow17 = seqr.bind ->*
 	monkeypatch = laneChecker
