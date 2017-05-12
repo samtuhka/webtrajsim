@@ -1041,7 +1041,8 @@ exportScenario \laneDriving, (env) ->*
 	locsRight.splice 2, 1 #hack to remove the "player"
 
 	for i from 0 til nR
-		controller = new TargetSpeedController2
+		controller = new linearTargetSpeedController
+		#controller.environment = env
 		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
@@ -1058,7 +1059,8 @@ exportScenario \laneDriving, (env) ->*
 		r_cars[i].follower = r_cars[(i + nR - 1) % nR]
 
 	for i from 0 til nL
-		controller = new TargetSpeedController2
+		controller = new linearTargetSpeedController
+		#controller.environment = env
 		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
@@ -1093,7 +1095,6 @@ exportScenario \laneDriving, (env) ->*
 	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
-		console.log scene.player.controls
 		setCarControls scene, cars
 
 		for car in cars
@@ -1106,9 +1107,8 @@ exportScenario \laneDriving, (env) ->*
 				car.physical.velocity.z  = car.leader.physical.velocity.z
 				car.controller.target = car.leader.getSpeed()
 				car.controller.mode = false
-
+		
 			car.controller.tick car.getSpeed(), car.controller.targetAcceleration, car.controller.angle, car.controller.mode, dt
-
 		carTeleporter scene
 		
 		if scene.player.physical.position.z - 500 > speedSign.position.z
@@ -1520,7 +1520,6 @@ class MicrosimWrapper
 
 {knuthShuffle: shuffleArray} = require 'knuth-shuffle'
 
-{TargetSpeedController} = require './controls.ls'
 followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	L = env.L
 	env.title = L "Supermiler"
@@ -1578,14 +1577,14 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	while speeds[*-1] == 0
 		shuffleArray speeds
 	
-	dists = [Math.max((500 + (Math.random() - 0.5)*200)*Math.sign(speed), Math.random()*5 + 5) for speed in speeds]
+	durations = [(Math.random()*10 + 25) for speed in speeds]
 
 	sequence = for speed, i in speeds
-		[dists[i], speed/3.6]
+		[durations[i], speed/3.6]
 
 	goalDistance = 0
 	for speed, i in speeds
-		goalDistance += dists[i] * Math.sign(speed)	
+		goalDistance += durations[i] * speed
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -1643,22 +1642,14 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	yield startLight.switchToGreen()
 
-	if sequence[0][1] == 0
-		zeroSpeed := true
-		zeroTime := scene.time
+
+	zeroTime := scene.time
 
 	scene.afterPhysics.add (dt) ->
-		pastDist = leader.physical.position.z - traveled > sequence[0][0] and sequence.length > 1 and not zeroSpeed
-		pastTime = scene.time - zeroTime > sequence[0][0] and sequence.length > 1 and zeroSpeed
-
-		if pastTime || pastDist
-			traveled := leader.physical.position.z
+		pastTime = scene.time - zeroTime > sequence[0][0] and sequence.length > 1
+		if pastTime
 			sequence := sequence.slice(1)
-			zeroSpeed := false
-			if sequence[0][1] == 0
-				zeroSpeed := true
-				zeroTime := scene.time
-
+			zeroTime := scene.time
 		leaderControls.target = sequence[0][1]
 		leaderControls.tick leader.getSpeed(), 0, 0, false, dt
 

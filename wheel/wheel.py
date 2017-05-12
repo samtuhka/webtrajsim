@@ -44,8 +44,8 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     def mapKey(code, name):
         mapping[(ecodes.EV_KEY, code)] = dict(name=name, normer=lambda ev: bool(ev.value))
 
-    FRONT_LEFT_KEY = 295 # Not defined in linux/input.h
-    FRONT_RIGHT_KEY = 294 # Not defined in linux/input.h
+    FRONT_LEFT_KEY = 297 # Not defined in linux/input.h
+    FRONT_RIGHT_KEY = 296 # Not defined in linux/input.h
     BACK_LEFT_KEY = 293 # Not defined in linux/input.h
     BACK_RIGHT_KEY = 292 # Not defined in linux/input.h
     A = 288

@@ -8,12 +8,15 @@ sounds = require './sounds.ls'
 L = (s) -> s
 
 runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
-	currentPasses = localStorage.getItem("passes") ? 0
-	currRetry = localStorage.getItem("retries") ? 1
+	currentPasses = Number(localStorage.getItem("passes")) ? 0
+	currRetry = Number(localStorage.getItem("retries")) ? 1
 	for retry from currRetry til Infinity
 		task = runScenario scenarioLoader
 		result = yield task.get \done
 		currentPasses += result.passed
+
+		localStorage.setItem('passes', currentPasses)
+		localStorage.setItem('retries', retry)
 
 		doQuit = currentPasses >= passes or retry > maxRetries
 		#if not doQuit
@@ -21,8 +24,7 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 		yield task
 		if doQuit
 			break
-		localStorage.setItem('passes', currentPasses + 1)
-		localStorage.setItem('retries', currRetry + 1)
+
 
 shuffleArray = (a) ->
 	i = a.length
@@ -134,7 +136,7 @@ export vrIntro = seqr.bind ->*
 		localStorage.setItem('experiment', JSON.stringify(experiment))
 
 export vrExperiment = seqr.bind ->*
-	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic]
+	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic, scenario.calibration, scenario.verification]
 	nTrials = 12
 	lanechecker = laneChecker
 
@@ -145,7 +147,7 @@ export vrExperiment = seqr.bind ->*
 			.concat([4]*2)
 			.concat([5]*2)
 		experiment = shuffleArray experiment
-		experiment.push 5, 4, 3, 2, 1, 0
+		experiment.push 5, 4, 3, 2, 1, 0, 6, 7
 		experiment.reverse()
 
 		env = newEnv!
@@ -188,10 +190,10 @@ export resetter = seqr.bind ->*
 		localStorage.removeItem('retries')
 		localStorage.removeItem('scenario_id')
 
-		env = newEnv!
-		yield scenario.resetterOutro yield env.get \env
-		env.let \destroy
-		yield env
+	env = newEnv!
+	yield scenario.resetterOutro yield env.get \env
+	env.let \destroy
+	yield env
 
 export backupper = seqr.bind ->*
 	if localStorage.hasOwnProperty('experiment') == false && localStorage.hasOwnProperty('experiment_copy')
@@ -205,10 +207,10 @@ export backupper = seqr.bind ->*
 		localStorage.setItem('retries', ret)
 		localStorage.setItem('scenario_id', id)
 
-		env = newEnv!
-		yield scenario.reResetterOutro yield env.get \env
-		env.let \destroy
-		yield env
+	env = newEnv!
+	yield scenario.reResetterOutro yield env.get \env
+	env.let \destroy
+	yield env
 	
 
 export blindFollow17 = seqr.bind ->*
