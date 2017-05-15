@@ -238,9 +238,9 @@ export class linearTargetSpeedController
 
 		@steering = steerAng
 
-		#controllerInfo =
-		#	targetSpeed: target
-		#@environment.logger.write controllerInfo
+		controllerInfo =
+			targetSpeed: target
+		@environment.logger.write controllerInfo
 
 		#console.log 'speed', @_speed
 		#console.log 'cumtarget', @_cumulativeTarget

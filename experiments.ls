@@ -139,6 +139,7 @@ export vrExperiment = seqr.bind ->*
 	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic, scenario.calibration, scenario.verification]
 	nTrials = 12
 	lanechecker = laneChecker
+	pass_times = [0,0,2,2,2,1,1,1]
 
 	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
 
@@ -146,6 +147,7 @@ export vrExperiment = seqr.bind ->*
 			.concat([3]*2)
 			.concat([4]*2)
 			.concat([5]*2)
+
 		experiment = shuffleArray experiment
 		experiment.push 5, 4, 3, 2, 1, 0, 6, 7
 		experiment.reverse()
@@ -164,13 +166,19 @@ export vrExperiment = seqr.bind ->*
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
 		console.log scenarios[experiment[id]], id, experiment
-		if id <= 5
-			yield runUntilPassed lanechecker scenarios[experiment[id]]
+		if id >= 2 and id <= 8:
+			yield runUntilPassed lanechecker scenarios[experiment[id]], passes: pass_times[id]
 		else
-			yield runScenario lanechecker scenarios[experiment[id]]
+			yield runUntilPassed lanechecker scenarios[experiment[id]], passes: 1, maxRetries: 2
 		localStorage.setItem('passes', 0)
 		localStorage.setItem('scenario_id', Number(id) + 1)
 		window.location.reload()
+
+	if localStorage.getItem("scenario_id") == nTrials
+		env = newEnv!
+		yield scenario.experimentOutro yield env.get \env
+		env.let \destroy
+		yield env
 
 
 export resetter = seqr.bind ->*

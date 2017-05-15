@@ -1042,7 +1042,7 @@ exportScenario \laneDriving, (env) ->*
 
 	for i from 0 til nR
 		controller = new linearTargetSpeedController
-		#controller.environment = env
+		controller.environment = env
 		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
@@ -1060,7 +1060,7 @@ exportScenario \laneDriving, (env) ->*
 
 	for i from 0 til nL
 		controller = new linearTargetSpeedController
-		#controller.environment = env
+		controller.environment = env
 		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
 		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
@@ -1581,6 +1581,8 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	sequence = for speed, i in speeds
 		[durations[i], speed/3.6]
+
+	env.logger.write followInTrafficSequence: sequence
 
 	goalDistance = 0
 	for speed, i in speeds
