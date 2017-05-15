@@ -10,13 +10,15 @@ L = (s) -> s
 runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 	currentPasses = Number(localStorage.getItem("passes")) ? 0
 	currRetry = Number(localStorage.getItem("retries")) ? 1
+
 	for retry from currRetry til Infinity
 		task = runScenario scenarioLoader
 		result = yield task.get \done
+
 		currentPasses += result.passed
 
-		localStorage.setItem('passes', currentPasses)
-		localStorage.setItem('retries', retry)
+		localStorage.setItem('passes', Number(currentPasses))
+		localStorage.setItem('retries', Number(retry))
 
 		doQuit = currentPasses >= passes or retry > maxRetries
 		#if not doQuit
@@ -41,7 +43,7 @@ export mulsimco2015 = seqr.bind ->*
 	yield env
 
 	#yield runScenario scenario.runTheLight
-	yield runUntilPassed scenario.closeTheGap, passes: 3
+	yield runUntilPassed  scenario.closeTheGap, passes: 3
 
 	yield runUntilPassed scenario.throttleAndBrake
 	yield runUntilPassed scenario.speedControl
@@ -80,7 +82,7 @@ laneChecker = wrapScenario (scn) ->
 	line = 0.0
 	name = scn.scenarioName
 	if  name == 'switchLanes' || name == 'laneDriving'
-		line = 3.5
+		line = 3.6
 	(env, ...args) ->
 		env.opts.forceSteering = true
 		env.opts.steeringNoise = true
@@ -95,7 +97,7 @@ laneChecker = wrapScenario (scn) ->
 				overedge = -10
 				for wheel in scene.player.wheels
 					overedge = Math.max (wheel.position.x - line), overedge
-					overedge = Math.max ((-7/2.0) - wheel.position.x), overedge
+					overedge = Math.max ((-3.6) - wheel.position.x), overedge
 				if not overedge? or not isFinite overedge
 					return
 				if overedge < -0.3 or scene.endtime
@@ -139,17 +141,17 @@ export vrExperiment = seqr.bind ->*
 	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic, scenario.calibration, scenario.verification]
 	nTrials = 12
 	lanechecker = laneChecker
-	pass_times = [0,0,2,2,2,1,1,1]
+	pass_times = [0,0,2,2,2,1,1,1,1,1,1]
 
 	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
 
 		experiment = []
-			.concat([3]*2)
+			.concat([3]*3)
 			.concat([4]*2)
 			.concat([5]*2)
 
 		experiment = shuffleArray experiment
-		experiment.push 5, 4, 3, 2, 1, 0, 6, 7
+		experiment.push 5, 4, 3, 2, 1, 0, 7, 6
 		experiment.reverse()
 
 		env = newEnv!
@@ -165,13 +167,14 @@ export vrExperiment = seqr.bind ->*
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
-		console.log scenarios[experiment[id]], id, experiment
-		if id >= 2 and id <= 8:
-			yield runUntilPassed lanechecker scenarios[experiment[id]], passes: pass_times[id]
+		console.log id
+		if id >= 2 and id <= 8
+			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: pass_times[id]
 		else
-			yield runUntilPassed lanechecker scenarios[experiment[id]], passes: 1, maxRetries: 2
+			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: 1, maxRetries: 2
 		localStorage.setItem('passes', 0)
 		localStorage.setItem('scenario_id', Number(id) + 1)
+		localStorage.setItem('retries', 0)
 		window.location.reload()
 
 	if localStorage.getItem("scenario_id") == nTrials

@@ -20,7 +20,7 @@
 			mutta aja tämän kerran punaista päin, jotta tiedät mitä
 			siitä seuraa.
 
-			<p>Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+			<p>Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
 '%vr.Outro': """\nJatka koetta painamalla ratin oikeanpuoleista alinta nappia."""
 
@@ -30,8 +30,9 @@
 '%closeTheGap.intro': """Tässä tehtävässä tutustutaan auton ulottuvuuksiin. Aja mahdollisimman
 			lähelle edelläolevaa autoa, mutta älä kuitenkaan törmää. Kun olet niin lähellä
 			kuin tunnet törmäämättäsi pääsevän, sammuta auto painamalla ratin A-painiketta.
-
-			Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+			
+			Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+			Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
 '%closeTheGap.outro': ({distance}) ->
 	"Pysäköit #{(distance*100).toFixed 1} senttimetrin päähän."
@@ -56,7 +57,8 @@
 			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä. Väistä myös tiellä olevat
 			esteet. Näytä vilkkua ennen kuin vaihdat kaistaa painamalla ratin oikeaa/vasenta liipaisinta.
 
-			Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+			Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+			Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
 
 '%stayOnLane.outro': ({time}) -> "Aikasi oli #{time.toFixed 2} sekuntia."
@@ -91,7 +93,8 @@
 	liipasinta. Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman
 	vähän katseita.
 
-	Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 	"""
 
 'Anticipatory speed control': 'Ennakointi nopeudenhallinnassa'
@@ -106,33 +109,26 @@
 	#{@ '%blinderIntro'}
 	"""
 
-'Lane changing': 'Otsikko???'
-'%laneChange.intro': """ 
+'Lane changing': 'Liikenteessä ajaminen'
+'%laneChange.intro': """
 	Pyri ajamaan kuten normaalistikin ajaisit.
 	Yritä kuitenkin noudattaa Suomen tieliikennelakeja (vaikka muut autot törttöilisivät): 
-	1. Oikeanpuoleinen kaista on ohituskaista. Voit käyttää sitä ohittamiseen.
+	1. Vasemmanpuoleinen kaista on ohituskaista. Voit käyttää sitä ohittamiseen.
 	2. Muista käyttää vilkkua ohittaessasi (ratin liipaisimet). 
 	3. Pyri noudattamaan 80 km/h:n nopeusrajoitusta.
 
-	Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 	"""
 	
 
 
-'Supermiler': 'Taloudellinen ajo'
+'Supermiler': 'Takana ajo'
 
 
 '%followInTraffic.intro': """
-	<p>Aja siten, että polttoaineenkulutuksesi on mahdollisimman pieni.
-
-	<p>Pyri ajotyyliin, joka tasapainottaa seuraavat tekijät:
-	1. Edelläolevaa lähellä ajaminen vähentää kulutusta ilmanvastuksen
-	vähenemisen ansiosta.
-	2. Jarruttaminen lisää kokonaiskulutusta, koska joudut kiihdyttämään
-	menetetyn nopeuden takaisin.
-	3. Auto käyttää jonkin verran polttoainetta myös muuhun kuin etenemiseen,
-	joten etenemisen kannattaa olla mahdollisimman ripeää.
-
+	<p>Pyri ajamaan edellä olevan auton takana normaalisti.
+	<p>Tässä tähtävässä et siis saa ohittaa edellä olevaa autoa.
 	<p>Tässä tehtävässä ei ole nopeusrajoituksia.
 	"""
 
@@ -143,7 +139,7 @@
 '%followInTraffic.outro': ({consumption}) ->
 	"Kulutuksesi oli #{consumption.avgLitersPer100km!.toFixed 2} l/100km."
 
-'Anticipating supermiler': 'Taloudellinen ennakoiva ajo'
+'Anticipating supermiler': 'Ennakoiva ajo'
 
 '%blindFollowInTraffic.intro': -> """
 	<p>#{@ '%followInTraffic.intro'}
@@ -309,18 +305,25 @@ yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
 'Play the noise sound': 'Soita ääniärsyke'
 
 'Calibration': 'Silmänliikekameran kalibraatio'
-'%calib.inst1' : """
+'%calibration.intro' : """
 			<p>Seuraavaksi kalibroidaan silmänliikekamera.
-			<p>Kalibraation aikanaa eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
-            		<p>Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä. Yritä olla räpsyttelemättä kun katsot pistettä.
+			<p>Kalibraation aikana eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+            		<p>Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä. 
+			<p>Yritä olla räpsyttelemättä kun katsot pistettä.
+			<p>
+			<p>Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+			<p>Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
 
 
 'Verification': 'Silmänliikekameran verifikaatio'
-'%verif.inst1' : """
+'%verification.intro' : """
 			<p>Seuraavaksi tarkastetaan kalibraation tarkkuus.
-			<p>Verifikaation aikanaa eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
+			<p>Verifikaation aikana eteesi ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
             		<p>Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä.
+			<p>
+			<p>Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+			<p>Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
 
 

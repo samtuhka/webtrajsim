@@ -30,8 +30,8 @@ def cleaner(data, timestamps):
     ref_data = []
     
     for pos, t in zip(data[valid], timestamps[valid]):
-        datum0 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':0}
-        datum1 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':1}
+        datum0 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':0, 'mm_pos': (pos[0], pos[1], pos[2])}
+        datum1 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':1, 'mm_pos': (pos[0], pos[1], pos[2])}
         ref_data.append(datum0)
         ref_data.append(datum1)
     return ref_data
@@ -111,7 +111,7 @@ if __name__ == '__main__':
             continue
         
         # set calibration method to hmd calibration
-        n = {'subject':'start_plugin','name':'HMD_Calibration_3D', 'args':{}}
+        n = {'subject':'start_plugin','name':'HMD_Calibration', 'args':{}}
         print send_recv_notification(n)
 
         # start caliration routine with params. This will make pupil start sampeling pupil data.
@@ -135,7 +135,7 @@ if __name__ == '__main__':
                 break
             else:
                     result = json.loads(result)
-                    pos = ((result['position']['x'] + 5)/10.0, (result['position']['y'] + 5)/10.0) #, result['position']['z'])
+                    pos = ((result['position']['x'] + 5)/10.0, (result['position']['y'] + 5)/10.0, result['position']['z'])
                     positions.append(pos)
                     result['pupil_timestamp'] = t
                     calibData.append(result)

@@ -160,6 +160,7 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 	doc = $ yield $.ajax "./res/signs/speedsign.svg", dataType: 'xml'
 	img = $ doc.find "svg"
 	(img.find '#limit')[0].textContent = limit
+	(img.find '#limit')[0].style.font = 'Bold 1100px Arial'
 
 	sign = new THREE.Object3D
 	face = yield svgToSign img, opts
