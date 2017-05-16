@@ -10,7 +10,7 @@ L = (s) -> s
 runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 	currentPasses = Number(localStorage.getItem("passes")) ? 0
 	currRetry = Number(localStorage.getItem("retries")) ? 1
-	console.log currentPasses
+	console.log currentPasses, currRetry
 	for retry from currRetry til Infinity
 		task = runScenario scenarioLoader
 		result = yield task.get \done
@@ -18,9 +18,8 @@ runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
 		currentPasses += result.passed
 
 		localStorage.setItem('passes', Number(currentPasses))
-		localStorage.setItem('retries', Number(retry))
-
 		doQuit = currentPasses >= passes or retry > maxRetries
+		localStorage.setItem('retries', Number(retry) + 1)
 		#if not doQuit
 		#	result.outro \content .append $ L "<p>Let's try that again.</p>"
 		yield task
@@ -104,10 +103,10 @@ laneChecker = wrapScenario (scn) ->
 					warningSound.stop()
 				else
 					warningSound.start()
-				return if overedge < 0.2
+				return if overedge < 1.0
 				title = env.L "Oops!"
 				reason = env.L "You drove out of your lane."
-				if line == 3.5
+				if line == 3.6
 					reason = env.L "You drove out of the road."
 				scenario.endingVr scene, env, title, reason, task
 
@@ -162,7 +161,7 @@ export vrExperiment = seqr.bind ->*
 		localStorage.setItem('scenario_id', 0)
 		localStorage.setItem('experiment', JSON.stringify(experiment))
 		localStorage.setItem('passes', 0)
-
+		localStorage.setItem('retries', 1)
 		window.location.reload()
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
@@ -174,7 +173,7 @@ export vrExperiment = seqr.bind ->*
 			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: 1, maxRetries: 2
 		localStorage.setItem('passes', 0)
 		localStorage.setItem('scenario_id', Number(id) + 1)
-		localStorage.setItem('retries', 0)
+		localStorage.setItem('retries', 1)
 		window.location.reload()
 
 	if localStorage.getItem("scenario_id") == nTrials
@@ -182,6 +181,17 @@ export vrExperiment = seqr.bind ->*
 		yield scenario.experimentOutro yield env.get \env
 		env.let \destroy
 		yield env
+
+
+export forwarder = seqr.bind ->*
+	if localStorage.hasOwnProperty('scenario_id')
+		id = localStorage.getItem("scenario_id")
+		localStorage.setItem('scenario_id', Number(id) + 1)
+
+export backwarder = seqr.bind ->*
+	if localStorage.hasOwnProperty('scenario_id')
+		id = localStorage.getItem("scenario_id")
+		localStorage.setItem('scenario_id', Number(id) - 1)
 
 
 export resetter = seqr.bind ->*
