@@ -283,11 +283,10 @@ exportScenario \calibration, (env) ->*
 
 	if scene.socket
 		scene.socket.send "start calibration"
-	calibLocs = [[0, 0],[-2.5, 0],[-5, 0], [2.5, 0], [5, 0], 
-			[0, 2.5], [-2.5, 2.5], [-5, 2.5], [2.5, 2.5], [5, 2.5], 
-			[0, 5], [-2.5, 5], [-5, 5], [2.5, 5], [5, 5], 
-			[0, -2.5], [-2.5, -2.5], [-5, -2.5], [2.5, -2.5], [5, -2.5],
-			[0, -5], [-2.5, -5], [-5, -5], [2.5, -5], [5, -5], [0,0]]
+	calibLocs = [[-5, 0], [0, 0], [5, 0], 
+			[-5, 2.5], [0, 2.5], [5, 2.5], 
+			[-5, 5], [0, 5], [5, 5], 
+			[-5, -2.5], [0, -2.5], [5, -2.5], [0,0], [0,0]]
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
@@ -299,11 +298,12 @@ exportScenario \calibration, (env) ->*
 			marker = 
 				x: scene.marker.position.x 
 				y: scene.marker.position.y
+				z: scene.marker.position.z
 			env.logger.write marker: marker
 			change := scene.time
 
 	scene.onTickHandled ~>
-		if scene.marker.index >= 25
+		if scene.marker.index >= 12
 			if scene.socket
 				scene.socket.send "stop"
 				scene.socket.close()
@@ -338,10 +338,10 @@ exportScenario \verification, (env) ->*
 
 	if scene.socket
 		scene.socket.send "start verification"
-	calibLocs = [[0, 0],[-2.5, 0],[-5, 0], [2.5, 0], [5, 0], 
-			[0, 2.5], [-2.5, 2.5], [-5, 2.5], [2.5, 2.5], [5, 2.5], 
-			[0, 5], [-2.5, 5], [-5, 5], [2.5, 5], [5, 5], 
-			[0, -2.5], [-2.5, -2.5], [-5, -2.5], [2.5, -2.5], [5, -2.5], [0,0]]
+	calibLocs = [[-5, 0], [0, 0], [5, 0], 
+			[-5, 2.5], [0, 2.5], [5, 2.5], 
+			[-5, 5], [0, 5], [5, 5], 
+			[-5, -2.5], [0, -2.5], [5, -2.5], [0,0], [0,0]]
 
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
@@ -349,7 +349,7 @@ exportScenario \verification, (env) ->*
 			scene.marker.index += 1
 			scene.marker.position.x = calibLocs[scene.marker.index][0]
 			scene.marker.position.y = calibLocs[scene.marker.index][1]
-			scene.marker.position.z = -30
+			scene.marker.position.z = -30 
 			marker = 
 				x: scene.marker.position.x 
 				y: scene.marker.position.y
@@ -366,7 +366,7 @@ exportScenario \verification, (env) ->*
 				x: scene.gaze.position.x
 				y: scene.gaze.position.y
 			env.logger.write gaze: gaze
-		if scene.marker.index >= 20
+		if scene.marker.index >= 12
 			exitVR env
 			if scene.socket
 				scene.socket.send "stop"
@@ -1024,7 +1024,7 @@ exportScenario \laneDriving, (env) ->*
 	mu = 1
 	sigma = 1
 	min = 0.8
-	max = 7
+	max = 8
 
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
@@ -1120,12 +1120,12 @@ exportScenario \laneDriving, (env) ->*
 		else
 			warningSound.stop()
 
-		if scene.time - startTime >= 450 && not scene.endtime
+		if scene.time - startTime >= 300 && not scene.endtime
 			title = env.L 'Passed'
 			reason = env.L ''
 			scene.passed = true
 			endingVr scene, env, title, reason, @
-
+			return false
 
 	return yield @get \done
 
@@ -1577,14 +1577,14 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	while speeds[*-1] == 0
 		shuffleArray speeds
 	
-	durations = [(Math.random()*10 + 25) for speed in speeds]
+	durations = [(Math.random()*10 + 25) + (Math.sign(speed)*20 - 20) for speed in speeds]
 
 	sequence = for speed, i in speeds
 		[durations[i], speed/3.6]
 
 	env.logger.write followInTrafficSequence: sequence
 
-	goalDistance = 0
+	goalDistance = 20
 	for speed, i in speeds
 		goalDistance += durations[i] * speed
 
