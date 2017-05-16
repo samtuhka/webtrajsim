@@ -145,7 +145,7 @@ export vrExperiment = seqr.bind ->*
 	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
 
 		experiment = []
-			.concat([3]*3)
+			.concat([3]*2)
 			.concat([4]*2)
 			.concat([5]*2)
 
@@ -167,7 +167,7 @@ export vrExperiment = seqr.bind ->*
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
 		console.log id
-		if id >= 2 and id <= 8
+		if id <= 5
 			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: pass_times[id]
 		else
 			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: 1, maxRetries: 2

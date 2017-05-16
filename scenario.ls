@@ -780,6 +780,8 @@ turnSignal = (env, scene, listener) ->
 			scene.player.ts = 0
 			env.logger.write turnSignal: "ts off (manuall)"
 			offSound.play()
+		if scene.player.ts == 0 and loopSound.isPlaying
+			loopSound.stop()
 
 	scene.onTickHandled ~>
 		dir = scene.player.ts
