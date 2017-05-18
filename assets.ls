@@ -164,6 +164,7 @@ export SpeedSign = seqr.bind (limit, {height=2, poleRadius=0.07/2}=opts={}) ->*
 
 	sign = new THREE.Object3D
 	face = yield svgToSign img, opts
+	face.scale.set 1.2, 1.2, 1.2
 	face.position.y = height
 	face.position.z = -poleRadius - 0.01
 	face.rotation.y = Math.PI

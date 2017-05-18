@@ -65,7 +65,7 @@ export baseScene = seqr.bind (env) ->*
 			impulse = (Math.random() - 0.5)*2*0.01
 			_cumnoise := 0.001*impulse + 0.999*_cumnoise
 
-	player = yield addVehicle scene, controls, "res/viva/2006-VIVA-VT3-Sedan-SE.dae", caropts
+	player = yield addVehicle scene, controls, "res/viva/2006-VIVA-VT3-Sedan-SE.dae", false, caropts
 	player.eye.add scene.camera
 	player.physical.position.x = -1.75
 	scene.player = player
@@ -768,7 +768,7 @@ turnSignal = (env, scene, listener) ->
 			scene.player.ts = 0
 			env.logger.write turnSignal: "ts off (manual)"
 			offSound.play()
-		if btn == "backRight" and isOn and scene.player.ts == 0
+		else if btn == "backRight" and isOn and scene.player.ts == 0
 			scene.player.ts = 1
 			scene.player.ts_value = env.controls.steering
 			scene.player.ts_start = scene.player.physical.position.clone()
@@ -780,6 +780,8 @@ turnSignal = (env, scene, listener) ->
 			scene.player.ts = 0
 			env.logger.write turnSignal: "ts off (manuall)"
 			offSound.play()
+		if scene.player.ts == 0 and loopSound.isPlaying
+			loopSound.stop()
 
 	scene.onTickHandled ~>
 		dir = scene.player.ts
@@ -1043,7 +1045,7 @@ exportScenario \laneDriving, (env) ->*
 	for i from 0 til nR
 		controller = new linearTargetSpeedController
 		controller.environment = env
-		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
+		car = scene.right = yield addVehicle scene, controller, "res/viva/NPCViva.dae", false
 		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
 		car.visual.add carhorn
@@ -1061,7 +1063,7 @@ exportScenario \laneDriving, (env) ->*
 	for i from 0 til nL
 		controller = new linearTargetSpeedController
 		controller.environment = env
-		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae"
+		car = scene.left = yield addVehicle scene, controller, "res/viva/NPCViva.dae", false
 		car.controller = car.body.controls = controller
 		carhorn = car.carhorn = carHorn listener
 		car.visual.add carhorn
@@ -1161,7 +1163,7 @@ exportScenario \closeTheGap, (env) ->*
 		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
 
 	env.controls.change (btn, isOn) !~>
-		return unless btn == 'A' and isOn
+		return unless btn == 'A' and isOn and distanceToLeader! < 50 and scene.player.getSpeed() < 10
 		distance = distanceToLeader!
 		distance += 1.47 # HACK!
 		
@@ -1191,7 +1193,7 @@ exportScenario \throttleAndBrake, (env) ->*
 
 	stopSign = yield assets.StopSign!
 		..position.x = -4
-		..position.z = goalDistance + 10
+		..position.z = goalDistance + 15
 		..addTo scene
 
 	failOnCollisionVR env, @, scene
@@ -1243,6 +1245,7 @@ laneChecker = (scene, env, scn) ->
 				reason = env.L 'You didnt use the turn signal'
 			scene.passed = false
 			endingVr scene, env, title, reason, scn
+			return false
 		prevLane := lane
 
 
@@ -1267,7 +1270,7 @@ exportScenario \switchLanes, (env) ->*
 
 	stopSign = yield assets.StopSign!
 		..position.x = -4
-		..position.z = goalDistance + 10
+		..position.z = goalDistance + 15
 		..addTo scene
 
 	failOnCollisionVR env, @, scene
@@ -1313,6 +1316,7 @@ exportScenario \switchLanes, (env) ->*
 		reason =  L '%stayOnLane.outro', time: time
 		scene.passed = true
 		endingVr scene, env, title, reason, @
+		return false
 
 	return yield @get \done
 
@@ -1332,7 +1336,7 @@ exportScenario \stayOnLane, (env) ->*
 
 	stopSign = yield assets.StopSign!
 		..position.x = -4
-		..position.z = goalDistance + 10
+		..position.z = goalDistance + 15
 		..addTo scene
 
 	failOnCollisionVR env, @, scene
@@ -1455,7 +1459,7 @@ speedControl = exportScenario \speedControl, (env) ->*
 
 	stopSign = yield assets.StopSign!
 		..position.x = -4
-		..position.z = goalDistance + 10
+		..position.z = goalDistance + 15
 		..addTo scene
 
 	failOnCollisionVR env, @, scene
@@ -1481,6 +1485,7 @@ speedControl = exportScenario \speedControl, (env) ->*
 		reason =  L '%speedControl.outro', time: time, timePenalty: timePenalty
 		scene.passed = true
 		endingVr scene, env, title, reason, @
+		return false
 	return yield @get \done
 
 exportScenario \blindSpeedControl, (env) ->*
@@ -1566,12 +1571,12 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	leaderControls = new linearTargetSpeedController
 	leaderControls.environment = env
-	leader = scene.leader = yield addVehicle scene, leaderControls
+	leader = scene.leader = yield addVehicle scene, leaderControls, "res/viva/NPCViva.dae", true
 	leader.body.controls = leaderControls
 	leader.physical.position.x = -1.75
 	leader.physical.position.z = 20
 
-	speeds = [0, 20, 40, 60]*3
+	speeds = [0, 20, 40, 60]*2
 	shuffleArray speeds
 
 	while speeds[*-1] == 0
@@ -1582,11 +1587,15 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	sequence = for speed, i in speeds
 		[durations[i], speed/3.6]
 
-	env.logger.write followInTrafficSequence: sequence
-
+	totalTime = 0
 	goalDistance = 20
 	for speed, i in speeds
+		totalTime += durations[i]
 		goalDistance += durations[i] * speed
+
+
+	env.logger.write followInTrafficSequence: sequence
+
 
 	finishSign = yield assets.FinishSign!
 	finishSign.position.z = goalDistance
@@ -1625,16 +1634,17 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	#while not traffic.isInStandstill()
 	#	traffic.step 1/60
 
-	finishSign.bodyPassed(scene.player.physical).then ~>
-		time = scene.time - startTime
-		title = L 'Passed'
-		reason =  L '%followInTraffic.outro', consumption: consumption
-		scene.passed = true
-		endingVr scene, env, title, reason, @
+	#finishSign.bodyPassed(scene.player.physical).then ~>
+	#	time = scene.time - startTime
+	#	title = L 'Passed'
+	#	reason =  L '%followInTraffic.outro', consumption: consumption
+	#	scene.passed = true
+	#	endingVr scene, env, title, reason, @
+	#	return false
 	@let \scene, scene
 	yield @get \run
 
-	startTime = scene.time
+
 	zeroSpeed = false	
 	traveled = leader.physical.position.z
 	zeroTime = scene.time
@@ -1644,7 +1654,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	yield startLight.switchToGreen()
 
-
+	startTime = scene.time
 	zeroTime := scene.time
 
 	scene.afterPhysics.add (dt) ->
@@ -1654,7 +1664,14 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 			zeroTime := scene.time
 		leaderControls.target = sequence[0][1]
 		leaderControls.tick leader.getSpeed(), 0, 0, false, dt
-
+	scene.onTickHandled ~>
+		if scene.time - startTime > totalTime
+			time = scene.time - startTime
+			title = L 'Passed'
+			reason =  L '%followInTraffic.outro', consumption: consumption
+			scene.passed = true
+			endingVr scene, env, title, reason, @
+			return false
 	return yield @get \done
 
 

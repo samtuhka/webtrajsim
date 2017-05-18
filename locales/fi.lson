@@ -30,6 +30,7 @@
 '%closeTheGap.intro': """Tässä tehtävässä tutustutaan auton ulottuvuuksiin. Aja mahdollisimman
 			lähelle edelläolevaa autoa, mutta älä kuitenkaan törmää. Kun olet niin lähellä
 			kuin tunnet törmäämättäsi pääsevän, sammuta auto painamalla ratin A-painiketta.
+			Jos ajat kaistan ulkopuolelle, simulaattori alkaa soittamaan varoitusääntä.
 			
 			Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
 			Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
@@ -56,6 +57,7 @@
 '%switchLane.intro': """Tutustutaan auton ominaisuuksiin. Ylitä maaliviiva mahdollisimman lyhyessä ajassa,
 			mutta älä aja päin punaisia ja pysähdy ennen stop-merkkiä. Väistä myös tiellä olevat
 			esteet. Näytä vilkkua ennen kuin vaihdat kaistaa painamalla ratin oikeaa/vasenta liipaisinta.
+			Peli alkaa soittamaan varoitusääntä, jos ajat ulos tieltä.
 
 			Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
 			Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
@@ -73,9 +75,10 @@
 'Speed control': 'Nopeuden hallinta'
 '%speedControl.intro':  """
 	<p>Aja niin nopeasti kuin pystyt, mutta noudattaen nopeusrajoituksia.
-	Ylinopeuden ajamisesta kerääntyy aikasakkoa.
+	Peli alkaa soittamaan varoitusääntä, jos ajat ylinopeutta (tai ajat ulos kaistalta).
 
-	Paina ratin oikeanpuoleista alinta nappia, kun olet valmis aloittamaan.
+	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 	"""
 'Penalty': 'Aikasakko'
 'Speed limit': 'Nopeusrajoitus'
@@ -98,7 +101,6 @@
 	"""
 
 'Anticipatory speed control': 'Ennakointi nopeudenhallinnassa'
-
 '%forcedBlinderIntro': """
 	<p>Tässä tehtävässä mitataan myös kykyäsi toimia häirinnän alaisena. Tienäkymä peittyy
 	hetkittäin.
@@ -111,11 +113,11 @@
 
 'Lane changing': 'Liikenteessä ajaminen'
 '%laneChange.intro': """
-	Pyri ajamaan kuten normaalistikin ajaisit.
+	Pyri ajamaan mahdollisimman nopeasti.
 	Yritä kuitenkin noudattaa Suomen tieliikennelakeja (vaikka muut autot törttöilisivät): 
 	1. Vasemmanpuoleinen kaista on ohituskaista. Voit käyttää sitä ohittamiseen.
 	2. Muista käyttää vilkkua ohittaessasi (ratin liipaisimet). 
-	3. Pyri noudattamaan 80 km/h:n nopeusrajoitusta.
+	3. Pyri noudattamaan 80 km/h:n nopeusrajoitusta (varoitusääni).
 
 	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
 	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
@@ -127,7 +129,7 @@
 
 
 '%followInTraffic.intro': """
-	<p>Pyri ajamaan edellä olevan auton takana normaalisti.
+	<p>Pyri ajamaan edellä olevan auton lähellä, pitäen kuitenkin mielestäsi hyvän turvavälin. 
 	<p>Tässä tähtävässä et siis saa ohittaa edellä olevaa autoa.
 	<p>Tässä tehtävässä ei ole nopeusrajoituksia.
 	"""
