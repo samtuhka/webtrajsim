@@ -173,19 +173,29 @@ addCalibrationMarker = (scene) ->
 	calibMaterial = new THREE.MeshBasicMaterial do
 		color: 0xffffff
 		map: tex
-	geo = new THREE.CircleGeometry(1, 32)
+	geo = new THREE.CircleGeometry(0.1, 32)
 	mesh = new THREE.Mesh geo, calibMaterial
-	mesh.position.x = 0
-	mesh.position.y = -4
-	mesh.position.z = -30
+	mesh.position.x = -0.5
+	mesh.position.y = 0.5
+	mesh.position.z = -3
 	scene.camera.add mesh
 	mesh.index = 0
 	scene.marker = mesh
 
 
+addGazePointer = (scene) ->
+	mat = new THREE.MeshBasicMaterial {color: 0xf00fff}
+	geo = new THREE.CircleGeometry(0.01, 0.01, 10, 32)
+	mesh = new THREE.Mesh geo, mat
+	mesh.position.x = 0
+	mesh.position.y = 0
+	mesh.position.z = 0
+	scene.camera.add mesh
+	scene.pointer = mesh
+
 addGazeMarker = (scene) ->
 	mat = new THREE.MeshBasicMaterial {color: 0xf00fff}
-	geo = new THREE.CircleGeometry(0.5, 32)
+	geo = new THREE.CircleGeometry(0.05, 32)
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.x = 1000
 	mesh.position.y = 1000
@@ -283,10 +293,11 @@ exportScenario \calibration, (env) ->*
 
 	if scene.socket
 		scene.socket.send "start calibration"
-	calibLocs = [[-5, 0], [0, 0], [5, 0], 
-			[-5, 2.5], [0, 2.5], [5, 2.5], 
-			[-5, 5], [0, 5], [5, 5], 
-			[-5, -2.5], [0, -2.5], [5, -2.5], [0,0], [0,0]]
+	calibLocs = [ [-0.5, 0.5, -2.5], [0, 0.5, -2.5], [0.5, 0.5, -2],
+			[-0.5, 0.25, -3.5], [0.5, 0.25, -3], 
+			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
+			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
+			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
@@ -294,7 +305,7 @@ exportScenario \calibration, (env) ->*
 			scene.marker.index += 1
 			scene.marker.position.x = calibLocs[scene.marker.index][0]
 			scene.marker.position.y = calibLocs[scene.marker.index][1]
-			scene.marker.position.z = -30
+			scene.marker.position.z = -3 #calibLocs[scene.marker.index][2]
 			marker = 
 				x: scene.marker.position.x 
 				y: scene.marker.position.y
@@ -303,7 +314,7 @@ exportScenario \calibration, (env) ->*
 			change := scene.time
 
 	scene.onTickHandled ~>
-		if scene.marker.index >= 12
+		if scene.marker.index >= 14
 			if scene.socket
 				scene.socket.send "stop"
 				scene.socket.close()
@@ -338,35 +349,60 @@ exportScenario \verification, (env) ->*
 
 	if scene.socket
 		scene.socket.send "start verification"
-	calibLocs = [[-5, 0], [0, 0], [5, 0], 
-			[-5, 2.5], [0, 2.5], [5, 2.5], 
-			[-5, 5], [0, 5], [5, 5], 
-			[-5, -2.5], [0, -2.5], [5, -2.5], [0,0], [0,0]]
+
+	calibLocs = [ [-0.5, 0.5, -2.5], [0, 0.5, -2.5], [0.5, 0.5, -2],
+			[-0.5, 0.25, -3.5], [0.5, 0.25, -3], 
+			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
+			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
+			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
 
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 3 > change
 			scene.marker.index += 1
 			scene.marker.position.x = calibLocs[scene.marker.index][0]
-			scene.marker.position.y = calibLocs[scene.marker.index][1]
-			scene.marker.position.z = -30 
+			scene.marker.position.y = calibLocs[scene.marker.index][1] 
+			scene.marker.position.z = -3 #calibLocs[scene.marker.index][2]
 			marker = 
 				x: scene.marker.position.x 
 				y: scene.marker.position.y
+				z: scene.marker.position.z
 			env.logger.write marker: marker
 			change := scene.time
-
+	gaze0 = new THREE.Vector3(0,0,0)
+	gaze1 = new THREE.Vector3(0,0,0)
 	scene.onTickHandled ~>
 		if scene.msg
 			if typeof scene.msg === 'string'
 				scene.msg = JSON.parse(scene.msg)
-			scene.gaze.position.x = scene.msg.x*10 - 5
-			scene.gaze.position.y = scene.msg.y*10 - 5
+			
+			if scene.msg.id == 0 and scene.msg.conf > 0.4
+				gaze0.x = scene.msg.x
+				gaze0.y = scene.msg.y
+				gaze0.z = scene.msg.time
+			if scene.msg.id == 1 and scene.msg.conf > 0.4
+				gaze1.x = scene.msg.x
+				gaze1.y = scene.msg.y
+				gaze1.z = scene.msg.time
+			if Math.abs(gaze0.z - gaze1.z) < 0.1
+				scene.gaze.position.x = (gaze0.x + gaze1.x) / 2.0 - 0.5 #/ 1000.0
+				scene.gaze.position.y = (gaze0.y + gaze1.y) / 2.0 - 0.5 #/ 1000.0
+			if gaze0.z - gaze1.z > 0.1
+				scene.gaze.position.x = gaze0.x - 0.5
+				scene.gaze.position.y = gaze0.y - 0.5
+			if gaze1.z - gaze0.z > 0.1
+				scene.gaze.position.x = gaze1.x - 0.5
+				scene.gaze.position.y = gaze1.y - 0.5
+			
+			#scene.gaze.position.x =  scene.msg.x - 0.5
+			#scene.gaze.position.y =  scene.msg.y - 0.5
+			scene.gaze.position.z =  -3 #Math.max(Math.min(scene.msg.z / 1000.0, -1), -5)
 			gaze = 
 				x: scene.gaze.position.x
 				y: scene.gaze.position.y
+				z: scene.gaze.position.z
 			env.logger.write gaze: gaze
-		if scene.marker.index >= 12
+		if scene.marker.index >= 14
 			exitVR env
 			if scene.socket
 				scene.socket.send "stop"
@@ -797,7 +833,7 @@ turnSignal = (env, scene, listener) ->
 				env.logger.write turnSignal: "ts off (automatic)"
 				
 
-setCarControls = (scene, cars) ->
+setCarControls = (env, scene, cars) ->
 	scene.player.behindPlayerRight = 0
 	scene.player.behindPlayerLeft = 0
 		
@@ -827,8 +863,10 @@ setCarControls = (scene, cars) ->
 
 				if playHorn && not car.carhorn.isPlaying && not scene.endtime
 					car.carhorn.play()
+					env.logger.write carhorn: car.body.id
 				if car.carhorn.isPlaying && (playHorn == false || scene.endtime)
 					car.carhorn.stop()
+					env.logger.write carhornStop: car.body.id
 
 
 				if  pos.distanceTo(playerPos) < pos.distanceTo(leader.physical.position)
@@ -1020,13 +1058,13 @@ exportScenario \laneDriving, (env) ->*
 	lt = 100/3.6
 	rt = 70/3.6
 
-	nR = 5
+	nR = 6
 	nL = 6
 
 	mu = 1
 	sigma = 1
-	min = 0.8
-	max = 8
+	min = 0.7
+	max = 5
 
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
@@ -1097,7 +1135,7 @@ exportScenario \laneDriving, (env) ->*
 	yield startLight.switchToGreen()
 
 	scene.afterPhysics.add (dt) ->
-		setCarControls scene, cars
+		setCarControls env, scene, cars
 
 		for car in cars
 			if car.lane == 1.75

@@ -45,7 +45,13 @@ while True:
         msg = sub.recv()  # bytes
         gaze = loads(msg, encoding='utf-8')
         pos = gaze['norm_pos']
-        pos = {'x': pos[0], 'y': pos[1]}
+        #pos = gaze['gaze_point_3d']
+        #normal = gaze['gaze_normals_3d']
+        #if 1 in normal.keys():
+        #   normal = normal[1]
+        #else:
+        #   normal = normal[0]
+        pos = {'x': pos[0], 'y': pos[1], 'conf': gaze['confidence'], 'id': gaze['id'], 'time': gaze['timestamp']} #, 'z': pos[2], 'xn': normal[0], 'yn': normal[1], 'zn': normal[2]}
         ws.send(json.dumps(pos))
         result = ws.recv()
         if result == "stop":

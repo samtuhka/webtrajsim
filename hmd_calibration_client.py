@@ -30,8 +30,8 @@ def cleaner(data, timestamps):
     ref_data = []
     
     for pos, t in zip(data[valid], timestamps[valid]):
-        datum0 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':0, 'mm_pos': (pos[0], pos[1], pos[2])}
-        datum1 = {'norm_pos': (pos[0], pos[1]),'timestamp':t,'id':1, 'mm_pos': (pos[0], pos[1], pos[2])}
+        datum0 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':0, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
+        datum1 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':1, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
         ref_data.append(datum0)
         ref_data.append(datum1)
     return ref_data
@@ -91,11 +91,7 @@ if __name__ == '__main__':
 
     n = {'subject': 'recording.should_stop'}
     print send_recv_notification(n)
-    time.sleep(2)
-
-    n = {'subject': 'recording.should_start', 'session_name': sys.argv[1]}
-    print send_recv_notification(n)
-    time.sleep(2)
+    time.sleep(10)
 
     # set start eye windows
     n = {'subject':'eye_process.should_start.0','eye_id':0, 'args':{}}
@@ -104,18 +100,22 @@ if __name__ == '__main__':
     print send_recv_notification(n)
     time.sleep(2)
 
+    n = {'subject': 'recording.should_start', 'session_name': sys.argv[1]}
+    print send_recv_notification(n)
+    time.sleep(2)
+
+    # set calibration method to hmd calibration
+    n = {'subject':'start_plugin','name':'HMD_Calibration', 'args':{}}
+    print send_recv_notification(n)
+
     while True:
         res = ws.recv()
         
         if res != "start calibration":
             continue
         
-        # set calibration method to hmd calibration
-        n = {'subject':'start_plugin','name':'HMD_Calibration', 'args':{}}
-        print send_recv_notification(n)
-
         # start caliration routine with params. This will make pupil start sampeling pupil data.
-        n = {'subject':'calibration.should_start', 'hmd_video_frame_size':(1000,1000), 'outlier_threshold':35}
+        n = {'subject':'calibration.should_start', 'hmd_video_frame_size':(1080,1200), 'outlier_threshold':35}
         print send_recv_notification(n)
         
         positions = []
@@ -135,7 +135,7 @@ if __name__ == '__main__':
                 break
             else:
                     result = json.loads(result)
-                    pos = ((result['position']['x'] + 5)/10.0, (result['position']['y'] + 5)/10.0, result['position']['z'])
+                    pos = (result['position']['x'], result['position']['y'], result['position']['z'])
                     positions.append(pos)
                     result['pupil_timestamp'] = t
                     calibData.append(result)
@@ -156,8 +156,8 @@ if __name__ == '__main__':
         print send_recv_notification(n)
 
         time.sleep(2)
-        n = {'subject':'service_process.should_stop'}
-        print send_recv_notification(n)
+        #n = {'subject':'service_process.should_stop'}
+        #print send_recv_notification(n)
 
         save_object(calibData, sys.argv[2] + str(time.time()))
 
