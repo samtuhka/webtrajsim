@@ -1063,8 +1063,8 @@ exportScenario \laneDriving, (env) ->*
 
 	mu = 1
 	sigma = 1
-	min = 0.7
-	max = 5
+	min = 1
+	max = 7
 
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
