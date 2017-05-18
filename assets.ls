@@ -402,6 +402,7 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 	dome = new THREE.Object3D
 	scene.visual.add dome
 	sky = new THREE.Sky
+	sky.mesh.scale.set 0.01, 0.01, 0.01
 	dome.add sky.mesh
 
 	sunlight = new THREE.DirectionalLight 0xffffff, 0.5

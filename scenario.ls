@@ -504,7 +504,7 @@ addFakeMirror = (scene, env, ind, y) ->
 	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
 
 	FOV = 30.0*(h/w)
-	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 450000
+	camera = new THREE.PerspectiveCamera FOV, w/h, 0.01, 4500
 	scene.player.body.add camera
 	camera.position.x = (max.x + min.x) / 2.0
 	camera.position.y = (max.y + min.y) / 2.0
