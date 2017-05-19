@@ -95,12 +95,12 @@ generateRock = (seed=Math.random()) ->
 
 export addGround = (scene) ->
 	#scene.visual.fog = new THREE.Fog(0xffffff, 0.1, 1000)
-	groundTex = THREE.ImageUtils.loadTexture 'res/world/grass2.png'
+	groundTex = THREE.ImageUtils.loadTexture 'res/world/grass2.jpg'
 	terrainSize = 1000
 	textureSize = 10
 	textureRep = terrainSize/textureSize
 	anisotropy = 16
-	groundNorm = THREE.ImageUtils.loadTexture 'res/world/grass2_norm.png'
+	groundNorm = THREE.ImageUtils.loadTexture 'res/world/grass2_norm.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
 	groundTex.repeat.set textureRep, textureRep
@@ -110,7 +110,7 @@ export addGround = (scene) ->
 	groundMaterial = new THREE.MeshPhongMaterial do
 		color: 0xffffff
 		map: groundTex
-		normalMap: groundNorm
+		#normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
 	terrain.receiveShadow = true
@@ -142,7 +142,7 @@ export addGround = (scene) ->
 	roadMat = new THREE.MeshPhongMaterial do
 		map: roadTex
 		shininess: 20
-		normalMap: roadNorm
+		#normalMap: roadNorm
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
@@ -178,7 +178,7 @@ export addGround = (scene) ->
 	terrain.add mergeObject rocks
 
 
-	treeline = THREE.ImageUtils.loadTexture 'res/world/metsaa.png'
+	treeline = THREE.ImageUtils.loadTexture 'res/world/trees.png'
 	treeline.wrapS = treeline.wrapT = THREE.RepeatWrapping
 	treeline.repeat.set 10, 1
 	treeline.anisotropy = anisotropy
@@ -188,9 +188,9 @@ export addGround = (scene) ->
 		map: treeline
 		transparent: true
 		side: THREE.DoubleSide
-	treeGeo = new THREE.PlaneGeometry 1000, 13
+	treeGeo = new THREE.PlaneBufferGeometry 1000, 15
 	treeline = new THREE.Mesh treeGeo, treeMat
-	treeline.position.y = 3
+	treeline.position.y = 5
 	treeline.position.x = -200
 	treeline.rotation.y = Math.PI*0.5
 	treelineLeft = treeline.clone()
@@ -199,13 +199,20 @@ export addGround = (scene) ->
 	treelineFront = treeline.clone()
 	treelineFront.position.x = 0
 	treelineFront.rotation.y = 0
-	treelineFront.position.z = 0
+	treelineFront.position.z = 1500
 	treelineBack = treelineFront.clone()
+	treelineBack.position.z = -1500
+	sideTrees = new THREE.Object3D()
+	sideTrees.add treeline
+	sideTrees.add treelineLeft
 	
-	terrain.add treeline
-	terrain.add treelineLeft
-	scene.visual.add treelineFront
-	scene.visual.add treelineBack
+	aheadTrees = new THREE.Object3D()
+	aheadTrees.add treelineFront
+	aheadTrees.add treelineBack
+	aheadTrees = mergeObject aheadTrees
+	terrain.add mergeObject sideTrees
+
+	scene.visual.add aheadTrees
 
 	scene.visual.add terrain
 	ahead = terrain.clone()
@@ -216,8 +223,7 @@ export addGround = (scene) ->
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
-		treelineFront.position.z = position.z + 1500
-		treelineBack.position.z = position.z - 1500
+		aheadTrees.position.z = position.z
 		nTerrains = Math.floor (position.z+terrainSize/2.0)/terrainSize
 		terrain.position.z = nTerrains*terrainSize
 		ahead.position.z = terrain.position.z + terrainSize
