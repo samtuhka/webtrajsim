@@ -43,8 +43,8 @@ export class Scene
 			bodies: []*/
 
 		@visual ?= new THREE.Scene
-		FOV = 170.0*(9/16)
-		@camera ?= new THREE.PerspectiveCamera FOV, 16/9.0, 0.01, 4500
+		FOV = 70.0*(9/16)
+		@camera ?= new THREE.PerspectiveCamera FOV, 16/9.0, 0.01, 10000
 
 		@time = 0
 
@@ -99,7 +99,7 @@ export addGround = (scene) ->
 	terrainSize = 1000
 	textureSize = 10
 	textureRep = terrainSize/textureSize
-	anisotropy = 16
+	anisotropy = 8
 	groundNorm = THREE.ImageUtils.loadTexture 'res/world/grass2_norm.jpg'
 	groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping
 	groundNorm.wrapS = groundNorm.wrapT = THREE.RepeatWrapping
@@ -183,8 +183,7 @@ export addGround = (scene) ->
 	treeline.repeat.set 10, 1
 	treeline.anisotropy = anisotropy
 	treeline.minFilter = THREE.LinearMipMapLinearFilter
-	treeMat = new THREE.MeshPhongMaterial do
-		color: 0xffffff
+	treeMat = new THREE.MeshLambertMaterial do
 		map: treeline
 		transparent: true
 		side: THREE.DoubleSide

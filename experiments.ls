@@ -328,7 +328,8 @@ export singleScenario = seqr.bind ->*
 	# TODO: The control flow is a mess!
 	opts = deparam window.location.search.substring 1
 	scn = scenario[opts.singleScenario]
-	yield runScenario scn
+	monkeypatch = laneChecker
+	yield runScenario monkeypatch scn
 
 
 export calibration = seqr.bind ->*

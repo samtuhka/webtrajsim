@@ -375,7 +375,7 @@ exportScenario \verification, (env) ->*
 		if scene.msg
 			if typeof scene.msg === 'string'
 				scene.msg = JSON.parse(scene.msg)
-			
+			/*
 			if scene.msg.id == 0 and scene.msg.conf > 0.4
 				gaze0.x = scene.msg.x
 				gaze0.y = scene.msg.y
@@ -393,9 +393,9 @@ exportScenario \verification, (env) ->*
 			if gaze1.z - gaze0.z > 0.1
 				scene.gaze.position.x = gaze1.x - 0.5
 				scene.gaze.position.y = gaze1.y - 0.5
-			
-			#scene.gaze.position.x =  scene.msg.x - 0.5
-			#scene.gaze.position.y =  scene.msg.y - 0.5
+			*/
+			scene.gaze.position.x =  scene.msg.x - 0.5
+			scene.gaze.position.y =  scene.msg.y - 0.5
 			scene.gaze.position.z =  -3 #Math.max(Math.min(scene.msg.z / 1000.0, -1), -5)
 			gaze = 
 				x: scene.gaze.position.x
@@ -1164,6 +1164,7 @@ exportScenario \laneDriving, (env) ->*
 			title = env.L 'Passed'
 			reason = env.L ''
 			scene.passed = true
+			warningSound.stop()
 			endingVr scene, env, title, reason, @
 			return false
 
