@@ -643,7 +643,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 	car_vel = car.getSpeed()
 	lead_vel = leader.getSpeed()
 	minDist = 7.5
-	th = 1
+	th = 0.5
 	a = 10
 	b = 10
 
