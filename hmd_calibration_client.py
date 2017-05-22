@@ -100,21 +100,16 @@ if __name__ == '__main__':
     print send_recv_notification(n)
     time.sleep(2)
 
-    # Measure round trip delay
-    t = time()
-    socket.send_string('t')
-    print(socket.recv_string())
-    print('Round trip command delay:', time()-t)
-
     # set current Pupil time to 0.0
-    t = time()
-    socket.send_string('T 0.0')
-    print(socket.recv_string())
-    print('Round trip command delay:', time()-t)
-    with open("pupil_info.txt", "w") as text_file:
+    t = time.time()
+    req.send_string('T 0.0')
+    print(req.recv_string())
+    delay = time.time()-t
+    print('Round trip command delay:', delay)
+    with open(sys.argv[2] + "/pupil_info.txt", "w") as text_file:
       text_file.write("Pupil timebase: %f" % (0.0))
-      text_file.write("Timebase set at: %f" % (t))
-       text_file.write("Roundtrip delay: %f" % (delay))
+      text_file.write("\nTimebase set at: %f" % (t))
+      text_file.write("\nRoundtrip delay: %f" % (delay))
 
 
     n = {'subject': 'recording.should_start', 'session_name': sys.argv[1]}
