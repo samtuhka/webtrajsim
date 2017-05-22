@@ -23,29 +23,29 @@ def cleaner(data, timestamps):
     timestamps = np.array(timestamps)[1:]
     valid = np.ones(len(timestamps), dtype=bool)
     for loc in data[changeLocs]:
-        index = np.where(data == loc)[0][0]
-        ts = timestamps[index]
-        removed = (timestamps >= ts) & (timestamps <= ts + 0.5)
-        valid = valid & ~removed
+	index = np.where(data == loc)[0][0]
+	ts = timestamps[index]
+	removed = (timestamps >= ts) & (timestamps <= ts + 0.5)
+	valid = valid & ~removed
     ref_data = []
     
     for pos, t in zip(data[valid], timestamps[valid]):
-        datum0 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':0, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
-        datum1 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':1, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
-        ref_data.append(datum0)
-        ref_data.append(datum1)
+	datum0 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':0, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
+	datum1 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':1, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
+	ref_data.append(datum0)
+	ref_data.append(datum1)
     return ref_data
 
 class Socket(WebSocket):
 
     def handleMessage(self):
-        if self.data == "Webtrajsim here":
-            global webtrajsim
-            webtrajsim = self.address
+	if self.data == "Webtrajsim here":
+	    global webtrajsim
+	    webtrajsim = self.address
 	else:
-        	for client in clients:
-            		if client != self:
-                		client.sendMessage(self.data)
+		for client in clients:
+			if client != self:
+				client.sendMessage(self.data)
 
     def handleConnected(self):
        print(self.address, 'connected')
@@ -55,9 +55,9 @@ class Socket(WebSocket):
        clients.remove(self)
        print(self.address, 'closed')
        if self.address == webtrajsim:
-           for client in clients:
-                client.sendMessage('stop')
-                
+	   for client in clients:
+		client.sendMessage('stop')
+		
 if __name__ == '__main__':
     
     clients = []
@@ -81,13 +81,13 @@ if __name__ == '__main__':
 
     #convenience functions
     def send_recv_notification(n):
-        # REQ REP requirese lock step communication with multipart msg (topic,msgpack_encoded dict)
-        req.send_multipart(('notify.%s'%n['subject'], msgpack.dumps(n)))
-        return req.recv()
+	# REQ REP requirese lock step communication with multipart msg (topic,msgpack_encoded dict)
+	req.send_multipart(('notify.%s'%n['subject'], msgpack.dumps(n)))
+	return req.recv()
 
     def get_pupil_timestamp():
-        req.send('t') #see Pupil Remote Plugin for details
-        return float(req.recv())
+	req.send('t') #see Pupil Remote Plugin for details
+	return float(req.recv())
 
     n = {'subject': 'recording.should_stop'}
     print send_recv_notification(n)
@@ -100,6 +100,23 @@ if __name__ == '__main__':
     print send_recv_notification(n)
     time.sleep(2)
 
+    # Measure round trip delay
+    t = time()
+    socket.send_string('t')
+    print(socket.recv_string())
+    print('Round trip command delay:', time()-t)
+
+    # set current Pupil time to 0.0
+    t = time()
+    socket.send_string('T 0.0')
+    print(socket.recv_string())
+    print('Round trip command delay:', time()-t)
+    with open("pupil_info.txt", "w") as text_file:
+      text_file.write("Pupil timebase: %f" % (0.0))
+      text_file.write("Timebase set at: %f" % (t))
+       text_file.write("Roundtrip delay: %f" % (delay))
+
+
     n = {'subject': 'recording.should_start', 'session_name': sys.argv[1]}
     print send_recv_notification(n)
     time.sleep(2)
@@ -109,57 +126,57 @@ if __name__ == '__main__':
     print send_recv_notification(n)
 
     while True:
-        res = ws.recv()
-        
-        if res != "start calibration":
-            continue
-        
-        # start caliration routine with params. This will make pupil start sampeling pupil data.
-        n = {'subject':'calibration.should_start', 'hmd_video_frame_size':(1080,1200), 'outlier_threshold':35}
-        print send_recv_notification(n)
-        
-        positions = []
-        timestamps = []
-        ref_data = []
-        calibData = []
-        
-        while True:
-            message = "getCalib"
-            ws.send(message)
-            result = ws.recv()
-            t = get_pupil_timestamp()
-            
-            if result == "stop":
-                if len(positions) > 0:
-                    ref_data = cleaner(positions, timestamps)
-                break
-            else:
-                    result = json.loads(result)
-                    pos = (result['position']['x'], result['position']['y'], result['position']['z'])
-                    positions.append(pos)
-                    result['pupil_timestamp'] = t
-                    calibData.append(result)
-                    timestamps.append(t)
+	res = ws.recv()
+	
+	if res != "start calibration":
+	    continue
+	
+	# start caliration routine with params. This will make pupil start sampeling pupil data.
+	n = {'subject':'calibration.should_start', 'hmd_video_frame_size':(1080,1200), 'outlier_threshold':35}
+	print send_recv_notification(n)
+	
+	positions = []
+	timestamps = []
+	ref_data = []
+	calibData = []
+	
+	while True:
+	    message = "getCalib"
+	    ws.send(message)
+	    result = ws.recv()
+	    t = get_pupil_timestamp()
+	    
+	    if result == "stop":
+		if len(positions) > 0:
+		    ref_data = cleaner(positions, timestamps)
+		break
+	    else:
+		    result = json.loads(result)
+		    pos = (result['position']['x'], result['position']['y'], result['position']['z'])
+		    positions.append(pos)
+		    result['pupil_timestamp'] = t
+		    calibData.append(result)
+		    timestamps.append(t)
 
-        print "finished"
+	print "finished"
 
-        # Send ref data to Pupil Capture/Service:
-        # This notification can be sent once at the end or multiple times.
-        # During one calibraiton all new data will be appended.
-        n = {'subject':'calibration.add_ref_data','ref_data':ref_data}
-        print send_recv_notification(n)
+	# Send ref data to Pupil Capture/Service:
+	# This notification can be sent once at the end or multiple times.
+	# During one calibraiton all new data will be appended.
+	n = {'subject':'calibration.add_ref_data','ref_data':ref_data}
+	print send_recv_notification(n)
 
-        # stop calibration
-        # Pupil will correlate pupil and ref data based on timestamps,
-        # compute the gaze mapping params, and start a new gaze mapper.
-        n = {'subject':'calibration.should_stop'}
-        print send_recv_notification(n)
+	# stop calibration
+	# Pupil will correlate pupil and ref data based on timestamps,
+	# compute the gaze mapping params, and start a new gaze mapper.
+	n = {'subject':'calibration.should_stop'}
+	print send_recv_notification(n)
 
-        time.sleep(2)
-        #n = {'subject':'service_process.should_stop'}
-        #print send_recv_notification(n)
+	time.sleep(2)
+	#n = {'subject':'service_process.should_stop'}
+	#print send_recv_notification(n)
 
-        save_object(calibData, sys.argv[2] + str(time.time()))
+	save_object(calibData, sys.argv[2] + str(time.time()))
 
 
 
