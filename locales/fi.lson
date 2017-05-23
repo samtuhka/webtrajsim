@@ -114,10 +114,13 @@
 'Lane changing': 'Liikenteessä ajaminen'
 '%laneChange.intro': """
 	Pyri ajamaan mahdollisimman nopeasti.
-	Yritä kuitenkin noudattaa Suomen tieliikennelakeja (vaikka muut autot törttöilisivät): 
+	Yritä kuitenkin noudattaa Suomen tieliikennelakeja (vaikka muut autot törttöilisivät):
 	1. Vasemmanpuoleinen kaista on ohituskaista. Voit käyttää sitä ohittamiseen.
-	2. Muista käyttää vilkkua ohittaessasi (ratin liipaisimet). 
+	2. Muista käyttää vilkkua ohittaessasi (ratin liipaisimet).
 	3. Pyri noudattamaan 80 km/h:n nopeusrajoitusta (10%:n ylinopeudesta varoitusääni).
+	4. Pysy tiellä (varoitusääni pienestä poisajautumisesta, hylkäys isosta)
+
+	Jos törmäät, joudut aloittamaan tehtävän alusta. 
 
 	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
 	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
@@ -129,9 +132,14 @@
 
 
 '%followInTraffic.intro': """
-	<p>Pyri ajamaan edellä olevan auton lähellä, pitäen kuitenkin mielestäsi hyvän turvavälin. 
-	<p>Tässä tähtävässä et siis saa ohittaa edellä olevaa autoa.
-	<p>Tässä tehtävässä ei ole nopeusrajoituksia.
+	Pyri ajamaan edellä olevan auton lähellä, pitäen kuitenkin mielestäsi hyvän turvavälin. 
+	Tässä tähtävässä et siis saa ohittaa edellä olevaa autoa.
+	Tässä tehtävässä ei ole nopeusrajoituksia.
+
+	Jos törmäät, joudut aloittamaan tehtävän alusta. 
+
+	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 	"""
 
 'Draft saving': 'Ilmanvastussäästö'
@@ -144,8 +152,19 @@
 'Anticipating supermiler': 'Ennakoiva ajo'
 
 '%blindFollowInTraffic.intro': -> """
-	<p>#{@ '%followInTraffic.intro'}
-	#{@ '%blinderIntro'}
+	Pyri ajamaan edellä olevan auton lähellä, pitäen kuitenkin mielestäsi hyvän turvavälin. 
+	Tässä tähtävässä et siis saa ohittaa edellä olevaa autoa.
+	Tässä tehtävässä ei ole nopeusrajoituksia.
+
+	Tässä tehtävässä mitataan myös ennakointikykyäsi laskemalla, kuinka usein
+	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasemmanpuoleista
+	liipasinta. Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman
+	vähän katseita.
+
+	Jos törmäät, joudut aloittamaan tehtävän alusta. 
+
+	Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+	Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 	"""
 
 'Distracted supermiler': 'Taloudellinen ajo ja rajattu näkyvyys'

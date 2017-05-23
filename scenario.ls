@@ -1615,13 +1615,13 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	leader.physical.position.x = -1.75
 	leader.physical.position.z = 20
 
-	speeds = [0, 20, 40, 60]*2
+	speeds = [20, 40, 60]*3
 	shuffleArray speeds
 
 	while speeds[*-1] == 0
 		shuffleArray speeds
 	
-	durations = [(Math.random()*10 + 25) + (Math.sign(speed)*20 - 20) for speed in speeds]
+	durations = [(Math.random()*10 + 20) for speed in speeds]
 
 	sequence = for speed, i in speeds
 		[durations[i], speed/3.6]
