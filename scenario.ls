@@ -268,7 +268,7 @@ export calbrationScene = seqr.bind (env, startMsg) ->*
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	return scene
 
-exportScenario \calibration, (env) ->*
+calibration = exportScenario \calibration, (env, mini = false) ->*
 	scene = yield calbrationScene env, "start calibration"
 
 
@@ -298,6 +298,8 @@ exportScenario \calibration, (env) ->*
 			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
 			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
 			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
+
+	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
 	
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
@@ -314,7 +316,7 @@ exportScenario \calibration, (env) ->*
 			change := scene.time
 
 	scene.onTickHandled ~>
-		if scene.marker.index >= 14
+		if scene.marker.index >= calibLocs.length - 1
 			if scene.socket
 				scene.socket.send "stop"
 				scene.socket.close()
@@ -324,7 +326,46 @@ exportScenario \calibration, (env) ->*
 	return yield @get \done
 
 
-exportScenario \verification, (env) ->*
+exportScenario \miniCalibration, (env) ->*
+	L = env.L
+	base = calibration env, true
+
+	scene = yield base.get \scene
+	@let \scene, scene
+
+	yield @get \run
+	base.let \run
+
+	@get \done .then (result) ->
+		base.let \done, result
+
+	result = yield base.get \done
+
+	@let \done, result
+
+	return result
+
+exportScenario \miniVerification, (env) ->*
+	L = env.L
+	base = verification env, true
+
+	scene = yield base.get \scene
+	@let \scene, scene
+
+	yield @get \run
+	base.let \run
+
+	@get \done .then (result) ->
+		base.let \done, result
+
+	result = yield base.get \done
+
+	@let \done, result
+
+	return result
+
+
+verification = exportScenario \verification, (env, mini = false) ->*
 	scene = yield calbrationScene env, " start verification"
 
 	env.title =  env.L "Verification"
@@ -355,6 +396,7 @@ exportScenario \verification, (env) ->*
 			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
 			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
 			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
+	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
 
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
@@ -375,34 +417,34 @@ exportScenario \verification, (env) ->*
 		if scene.msg
 			if typeof scene.msg === 'string'
 				scene.msg = JSON.parse(scene.msg)
-			/*
-			if scene.msg.id == 0 and scene.msg.conf > 0.4
+			
+			if scene.msg.id == 0
 				gaze0.x = scene.msg.x
 				gaze0.y = scene.msg.y
 				gaze0.z = scene.msg.time
-			if scene.msg.id == 1 and scene.msg.conf > 0.4
+			if scene.msg.id == 1
 				gaze1.x = scene.msg.x
 				gaze1.y = scene.msg.y
 				gaze1.z = scene.msg.time
 			if Math.abs(gaze0.z - gaze1.z) < 0.1
-				scene.gaze.position.x = (gaze0.x + gaze1.x) / 2.0 - 0.5 #/ 1000.0
-				scene.gaze.position.y = (gaze0.y + gaze1.y) / 2.0 - 0.5 #/ 1000.0
+				scene.gaze.position.x = ((gaze0.x + gaze1.x) / 2.0) - 0.5 #/ 1000.0
+				scene.gaze.position.y = ((gaze0.y + gaze1.y) / 2.0) - 0.5 #/ 1000.0
 			if gaze0.z - gaze1.z > 0.1
 				scene.gaze.position.x = gaze0.x - 0.5
 				scene.gaze.position.y = gaze0.y - 0.5
 			if gaze1.z - gaze0.z > 0.1
 				scene.gaze.position.x = gaze1.x - 0.5
 				scene.gaze.position.y = gaze1.y - 0.5
-			*/
-			scene.gaze.position.x =  scene.msg.x - 0.5
-			scene.gaze.position.y =  scene.msg.y - 0.5
+			
+			#scene.gaze.position.x =  scene.msg.x - 0.5
+			#scene.gaze.position.y =  scene.msg.y - 0.5
 			scene.gaze.position.z =  -3 #Math.max(Math.min(scene.msg.z / 1000.0, -1), -5)
 			gaze = 
 				x: scene.gaze.position.x
 				y: scene.gaze.position.y
 				z: scene.gaze.position.z
 			env.logger.write gaze: gaze
-		if scene.marker.index >= 14
+		if scene.marker.index >= calibLocs.length - 1
 			exitVR env
 			if scene.socket
 				scene.socket.send "stop"
