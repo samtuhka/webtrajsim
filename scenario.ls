@@ -998,18 +998,41 @@ addWarning = (scene, env) ->
 	scene.player.body.add warner
 	scene.warner = warner
 
+
+roadLimit = (scene, limit, dist) ->
+	titleFont = 'Bold 300px Arial'
+	tex = new THREEx.DynamicTexture(1024,1024)
+	tex.drawText(limit, undefined, 512, 'white', titleFont)
+	tex.texture.wrapS = THREE.RepeatWrapping
+	tex.texture.repeat.x = -1
+	tex.texture.anisotropy = 16
+	tex.minFilter = THREE.LinearFilter
+	material = new THREE.MeshBasicMaterial( {color: 0xffffff, map: tex.texture, transparent: true, side: THREE.DoubleSide} )
+	instGeo = new THREE.PlaneGeometry(8,8)
+
+	instMesh = new THREE.Mesh instGeo, material
+
+	instMesh.rotation.x = Math.PI*0.5
+	instMesh.position.y = 0.01
+	instMesh.position.x = -1.75
+	instMesh.position.z = dist
+	scene.visual.add instMesh
+
 		
 instructions3D = (scene, env, x = -1.75) ->
 	
 	instTex = text3D env.title, env.content
 	instTex.texture.wrapS = THREE.RepeatWrapping
 	instTex.texture.repeat.x = -1
-	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide, depthTest: false} )
+	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthTest: false} )
 	instGeo = new THREE.PlaneGeometry(4, 2)
 	instMesh = new THREE.Mesh instGeo, material
-	background = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.BackSide, transparent: true, opacity: 0.8, depthTest: false})
+	background = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.DoubleSide, transparent: true, opacity: 0.8, depthTest: false})
+	invisBG = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.DoubleSide, transparent: true, opacity: 0.0, depthTest: true})
 	background.position.z = 0.01
+	invisBG.position.z = 0.02
 	instMesh.add background
+	instMesh.add invisBG
 	instTex.texture.needsUpdate = true
 
 	instMesh.position.y = 1.5
@@ -1491,6 +1514,7 @@ speedControl = exportScenario \speedControl, (env) ->*
 		sign.position.z = dist
 		sign.position.x = -4
 		scene.visual.add sign
+		roadLimit scene, String(limit), dist
 	limits.reverse()
 	currentLimit = ->
 		mypos = scene.player.physical.position.z
@@ -1516,7 +1540,7 @@ speedControl = exportScenario \speedControl, (env) ->*
 			warningSound.stop()
 			return
 		
-		if not scene.endtime && speed - 5 > limit 
+		if not scene.endtime && speed > limit*1.1 
 			warningSound.start()
 
 		limitSign.warning()

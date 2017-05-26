@@ -22,7 +22,7 @@
 
 			<p>Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
-'%vr.Outro': """\nJatka koetta painamalla ratin oikeanpuoleista alinta nappia."""
+'%vr.Outro': """\nJatka koetta painamalla ratin oikeanpuoleista alinta nappia (RSB)."""
 
 '%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
 

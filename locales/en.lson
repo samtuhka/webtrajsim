@@ -182,7 +182,7 @@ reporting (for example scientific articles) in such format that your
 identity is not disclosed.
 """
 
-'%vr.Outro': """\nContinue by pressing the right red button on the wheel."""
+'%vr.Outro': """\nContinue by pressing the lower right button on the wheel (RSB)."""
 
 '%intro.backgroundInfo': """
 <p>Next we will ask some background information about you.
