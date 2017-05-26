@@ -272,7 +272,7 @@ calibration = exportScenario \calibration, (env, mini = false) ->*
 	scene = yield calbrationScene env, "start calibration"
 
 
-	env.title =  env.L "Calibration"
+	env.title =  env.L "Eye tracker calibration"
 	env.content =  env.L '%calibration.intro'	
 	instructions3D scene, env, 0
 
@@ -713,7 +713,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
 		new THREE.PlaneGeometry 1, 1
-		new THREE.MeshBasicMaterial color: 0x000000, side: THREE.DoubleSide
+		new THREE.MeshBasicMaterial color: 0xeeeeee, side: THREE.DoubleSide
 
 	mask.position.y = 1.23 - 0.07
 	mask.position.x = 0.37 - 0.03
@@ -1004,7 +1004,7 @@ instructions3D = (scene, env, x = -1.75) ->
 	instTex = text3D env.title, env.content
 	instTex.texture.wrapS = THREE.RepeatWrapping
 	instTex.texture.repeat.x = -1
-	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide,  depthTest: false} )
+	material = new THREE.MeshBasicMaterial( {color: 0x000000, map: instTex.texture, transparent: true, opacity: 0.9, side: THREE.BackSide, depthTest: false} )
 	instGeo = new THREE.PlaneGeometry(4, 2)
 	instMesh = new THREE.Mesh instGeo, material
 	background = new THREE.Mesh instGeo, new THREE.MeshBasicMaterial({color: 0xffffff,  side: THREE.BackSide, transparent: true, opacity: 0.8, depthTest: false})
@@ -1926,7 +1926,6 @@ exportScenario \participantInformation, (env) ->*
 				* value: 'yearly', label: L "Few times a year"
 				* value: 'none', label: L "Not at all"
 				* value: 'ex-player', label: L "I have played, but not anymore"
-
 	i = 0
 	while i < dialogs.length
 		result = yield ui.inputDialog env, dialogs[i]
@@ -2006,6 +2005,16 @@ exportScenario \participantInformationBlindPursuit, (env) ->*
 		if result.canceled
 			i -= 2
 		i += 1
+
+
+exportScenario \experimentIntro, (env) ->*
+	L = env.L
+	yield ui.inputDialog env, ->
+		@ \title .text L "Welcome to the simulator experiment!"
+		@ \text .append L "%intro.introduction"
+		@ \accept .text L "Next"
+		@ \cancel-button .hide!
+
 
 exportScenario \experimentOutro, (env, cb=->) ->*
 	L = env.L

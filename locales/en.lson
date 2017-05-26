@@ -6,19 +6,52 @@
 
 '%runTheLight.outro': """From here on, the trial will be disqualified if you
 			run any red lights."""
-			
+
+
+'Close the gap': 'Tight parking practice'			
 '%closeTheGap.intro': """
-			Let's get familiar with the car's dimensions. Drive as close as you
-			to the car before you without colliding. When you're done, press the
-			red button on the right side of the wheel."""
+		Park your car as close as possible to the car in front of you without colliding. 
+		When you are satisfied, press the A-button on the wheel. 
+		 
+		If you’re off the track you will hear a warning sound. 
+		 
+		Reset the virtual camera (LSB)
+		 
+		When ready, press (RSB)
+		"""
+
+
+'Switch lanes': 'Lane changing practice'
+'%switchLane.intro': """
+		Drive the track as fast as you can without crashing
+		 
+		Don’t run the red light and stop before the stop sign
+		 
+		Use the turn signal when when changing lanes. 
+		Signals are given from the left/right triggers on the back of the steering wheel
+		 
+		If you collide you will have to start the task again
+		 
+		Reset the virtual camera (LSB)
+		 
+		When ready, press (RSB)
+		"""
+'Lane changing': 'Driving in traffic task'
 '%laneChange.intro': """
-
-			Here be instructions
-
-			Reset vr-headset pose with the left lever
-
-			When you're ready to start, press the red button
-			on the right side of the wheel"""
+		Drive as fast as you can. 
+		 
+		However, remember to obey the Finnish traffic code (even when the other cars don’t)
+		1. Left lane is overtaking lane. You can use it to bypass cars. 
+		2. Remember to use turn signals when changing lanes (wheel’s triggers)
+		3. Try to follow the 80 km/h speed limit (speeding over 10% will cause a warning sound)
+		4. Stay on the road (warning sound from a small drift and disqualification from a big one)
+		 
+		If you collide you will have to start the task again
+		 
+		Take a comfortable posture and reset the virtual camera (LSB)
+		 
+		When ready, press (RSB)
+		"""
 
 
 '%closeTheGap.outro': ({distance}) -> "You got within #{(distance*100).toFixed 1} cm."
@@ -28,9 +61,15 @@
 			"""
 '%throttleAndBrake.outro': ({time}) -> "Your time was <strong>#{time.toFixed 2}</strong> seconds."
 
+'Speed control': 'Speed control practice'
 '%speedControl.intro':  """
-	<p>Drive as fast as you can without breaking the speed limit. Going over the limit
-	results in penality time.
+	Drive as fast as you can while observing speed limits. 
+	 
+	If you speed over 10% of the limit or drive out of your lane, you will hear a warning sound.
+	 
+	Reset the virtual camera (LSB)
+	 
+	When ready, press (RSB)
 	"""
 
 '%speedControl.outro': ({time, timePenalty}) -> """
@@ -49,26 +88,40 @@ while taking as few glances as you can."""
 	#{@ '%blinderIntro'}
 	"""
 
+'Supermiler': 'Car following task'
 '%followInTraffic.intro': """
-	<p>Drive in the traffic trying to get as much mileage as you can.
+	Follow the vehicle in front. Keep a headway which you find appropriate.
+	 
+	Overtaking the vehicle in front is forbidden. There are no speed limits.
+	 
+	If you collide you will have to start the task again
+	 
+	Take a comfortable posture and reset the virtual camera (LSB)
+	 
+	When ready, press (RSB)
 
-	<p>Note that closer you drive to vehicle before you, the less fuel
-	you consume due to the lesser air resistance. But you waste good momentum
-	by braking, so try to find a balance where you can keep a short
-	headway without having to brake too much.
-
-	<p>There are no speed limits in this task.
 	"""
 
 '%followInTraffic.outro': ({consumption}) ->
 	"Your consumption was #{consumption.avgLitersPer100km!.toFixed 2} l/100km."
 
+'Anticipating supermiler': 'Anticipatory car following task'
 '%blindFollowInTraffic.intro': -> """
-	<p>#{@ '%followInTraffic.intro'}
-	#{@ '%blinderIntro'}
+	Follow the vehicle in front. Keep a headway which you find appropriate.
+	 
+	Do not pass the car. There are no speed limits
+	 
+	The road view is blocked. You can take a glimpse of the road by pressing left side trigger. 
+	Try to complete the task as well as possible while using as few glimpses as possible. 
+	 
+	If you collide you will have to start the task again
+	 
+	Take a comfortable posture and reset the virtual camera (LSB)
+	 
+	When ready, press (RSB)
 	"""
 
-'%intro.introduction': """
+'%intro.introductionOld': """
 <p>The purpose of this experiment is to research speed control, anticipation
 and attention sharing of drivers.
 
@@ -86,6 +139,41 @@ are Jami Pekkanen, Teemu Itkonen and Otto Lappi.
 At any point you can cancel or stop your participation or refuse to take
 any instructed action.
 """
+
+'%intro.introduction': """
+<p>
+The simulated car has automatic gears, so you don’t need to use the clutch pedal or change gears. Use only your right foot.
+<p>
+Familiarize yourself with LSB, RSB and A buttons and back triggers of the steering wheel. You won’t see them in the VR-simulation. 
+<p>
+The experiment will take approximately one hour.
+<p>
+Between trials you can take a break if needed. You can also abort the experiment whenever you want.
+<p>
+Outline of the experiment:
+<p>- calibration of the eye-tracker
+<p>- practice driving
+<p>- three tasks (multiple repetitions of each)
+"""
+
+'%calibration.intro' : """
+			Targets will appear in front of you.
+			Hold your gaze in the middle of the target and try not to blink much. 
+			 
+			Take a comfortable posture. 
+			Look straight ahead and reset virtual camera’s angle by pressing the lower left button (LSB)
+			 
+			When you’re ready to start, press the lower right button (RSB). 
+			"""
+
+'%verification.intro' : """
+			Look at the middle of appearing targets.
+			 
+			Take a comfortable posture. 
+			Look straight ahead and reset virtual camera’s angle by pressing the left lower button (LSB)
+			 
+			When you’re ready to start, press the right lower button (RSB). 
+			"""
 
 "%intro.dataUse": """
 <p>Data from your performance will be logged during the experiment.

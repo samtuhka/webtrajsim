@@ -140,7 +140,7 @@ export vrExperiment = seqr.bind ->*
 	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic, scenario.calibration, scenario.verification]
 	nTrials = 12
 	lanechecker = laneChecker
-	pass_times = [2,2,2,1,1,1,1,1,1]
+	pass_times = [1, 1, 2,2,2,1,1,1,1,1,1]
 
 	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
 
@@ -150,11 +150,11 @@ export vrExperiment = seqr.bind ->*
 			.concat([5]*2)
 
 		experiment = shuffleArray experiment
-		experiment.push 5, 4, 3, 2, 1, 0
+		experiment.push 5, 4, 3, 2, 1, 0, 7, 6
 		experiment.reverse()
 
 		env = newEnv!
-		yield scenario.participantInformation yield env.get \env
+		yield scenario.experimentIntro yield env.get \env
 		env.let \destroy
 		yield env
 
