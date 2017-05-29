@@ -856,7 +856,7 @@ turnSignal = (env, scene, listener) ->
 		else if btn == "backRight" and isOn and scene.player.ts != 0 
 			loopSound.stop()
 			scene.player.ts = 0
-			env.logger.write turnSignal: "ts off (manuall)"
+			env.logger.write turnSignal: "ts off (manual)"
 			offSound.play()
 		if scene.player.ts == 0 and loopSound.isPlaying
 			loopSound.stop()
@@ -2033,12 +2033,26 @@ exportScenario \participantInformationBlindPursuit, (env) ->*
 
 exportScenario \experimentIntro, (env) ->*
 	L = env.L
-	yield ui.inputDialog env, ->
-		@ \title .text L "Welcome to the simulator experiment!"
-		@ \text .append L "%intro.introduction"
-		@ \accept .text L "Next"
-		@ \cancel-button .hide!
-
+	dialogs =
+		->
+			@ \title .text L "Subject ID"
+			@ \accept .text L "Next"
+			@ \cancel-button .hide!
+			input = $("""<input name="birthyear" type="number" min="0" max="1000" style="color: black">""")
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
+		->
+			@ \title .text L "Welcome to the simulator experiment!"
+			@ \text .append L "%intro.introduction"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+	i = 0
+	while i < dialogs.length
+		result = yield ui.inputDialog env, dialogs[i]
+		console.log result
+		if result.canceled
+			i -= 2
+		i += 1
 
 exportScenario \experimentOutro, (env, cb=->) ->*
 	L = env.L

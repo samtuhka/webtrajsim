@@ -378,7 +378,7 @@ yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
 			Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
 			Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
-
+'Subject ID': 'Koehenkilö numero'
 
 '%soundSpook.instruction': """
 Sulje silmäsi, kun kuulet merkkiäänen ja pidä ne suljettuna, kunnes
