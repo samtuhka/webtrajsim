@@ -77,7 +77,7 @@ if __name__ == '__main__':
     #create a zmq REQ socket to talk to Pupil Service/Capture
     req = ctx.socket(zmq.REQ)
 
-    req.connect('tcp://192.168.56.1:{}'.format(sys.argv[3]))
+    req.connect('tcp://0.0.0.0:{}'.format(sys.argv[3]))
 
     #convenience functions
     def send_recv_notification(n):

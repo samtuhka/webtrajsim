@@ -234,7 +234,12 @@ export calbrationScene = seqr.bind (env, startMsg) ->*
 
 	addCalibrationMarker scene
 
-	socket = new WebSocket "ws://localhost:10103"
+	opts = {}
+	opts <<< deparam window.location.search.substring 1
+	url = "ws://169.254.219.68:10103"
+	if opts.pupil?
+		url = opts.pupil
+	socket = new WebSocket url
 
 	socket.onopen = ->
 		console.log("socket open")
@@ -1267,7 +1272,7 @@ exportScenario \closeTheGap, (env) ->*
 		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
 
 	env.controls.change (btn, isOn) !~>
-		return unless btn == 'A' and isOn and distanceToLeader! < 50 and scene.player.getSpeed() < 10
+		return unless btn == 'A' and isOn and distanceToLeader! < 50 and scene.player.getSpeed() < 3
 		distance = distanceToLeader!
 		distance += 1.47 # HACK!
 		

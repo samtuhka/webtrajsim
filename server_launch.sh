@@ -4,8 +4,8 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-SESSDIR="/home/tru/host/sessions/`date +%s`"
-PUPILPORT=64559
+SESSDIR="/home/samtuhka/sessions/`date +%s`"
+PUPILPORT=50020
 
 mkdir -p $SESSDIR
 mkdir -p "$SESSDIR/verifications/"
