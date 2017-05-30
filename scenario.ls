@@ -218,6 +218,7 @@ enterVR = (env) ->
 	if not env.vreffect.isPresenting && env.vreffect.getVRDisplay()
 		env.vreffect.requestPresent()
 
+deparam = require 'jquery-deparam'
 export calbrationScene = seqr.bind (env, startMsg) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
@@ -234,8 +235,7 @@ export calbrationScene = seqr.bind (env, startMsg) ->*
 
 	addCalibrationMarker scene
 
-	opts = {}
-	opts <<< deparam window.location.search.substring 1
+	opts = deparam window.location.search.substring 1
 	url = "ws://169.254.219.68:10103"
 	if opts.pupil?
 		url = opts.pupil
@@ -1086,6 +1086,9 @@ getTH = (params) ->
 	#th = Math.min th, params.max
 
 	th = Math.random()*(params.max - params.min) + params.min
+	th = jStat.exponential.sample(0.5) + 1
+	while th < params.min || th > params.max
+		th = jStat.exponential.sample(0.5) + 1
 	return th
 
 

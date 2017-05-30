@@ -145,12 +145,15 @@ export vrExperiment = seqr.bind ->*
 	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
 
 		experiment = []
-			.concat([3]*2)
+			.concat([3]*3)
 			.concat([4]*2)
 			.concat([5]*2)
 
 		experiment = shuffleArray experiment
-		experiment.push 5, 4, 3, 2, 1, 0, 7, 6
+		firstThree = [5, 4, 3]
+		firstThree = shuffleArray firstThree
+		experiment = experiment.concat firstThree
+		experiment.push 2, 1, 0, 7, 6
 		experiment.reverse()
 
 		env = newEnv!
