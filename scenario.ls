@@ -1057,7 +1057,7 @@ instructions3D = (scene, env, x = -1.75) ->
 
 #ugh... really ugly
 carTeleporter = (scene) ->
-	scene.left.th = getTH scene.params
+	scene.left.th = getTH scene.params, true
 	scene.right.th = getTH scene.params
 
 	if scene.player.behindPlayerLeft > 3
@@ -1081,14 +1081,14 @@ carTeleporter = (scene) ->
 			scene.right.physical.velocity.z = scene.right.leader.physical.velocity.z
 			scene.right.physical.velocity.x = 0
 			scene.right = scene.right.follower
-getTH = (params) ->
+getTH = (params, exponent = false) ->
 	#th = Math.max jStat.lognormal.sample(params.mu, params.sigma), params.min
 	#th = Math.min th, params.max
 
 	th = Math.random()*(params.max - params.min) + params.min
-	th = jStat.exponential.sample(0.5) + 1
-	while th < params.min || th > params.max
+	if exponent
 		th = jStat.exponential.sample(0.5) + 1
+		th = Math.min th, params.max
 	return th
 
 
@@ -1100,10 +1100,10 @@ startPositions = (ths, speed, behind, adj = 0) ->
 		startPositions.push pos
 	return startPositions
 
-startingTHs = (scene, size) ->
+startingTHs = (scene, size, exponent) ->
 	list = []
 	for i from 0 til size
-		list.push getTH(scene.params)
+		list.push getTH(scene.params, exponent)
 	return list
 
 exportScenario \laneDriving, (env) ->*
@@ -1131,18 +1131,18 @@ exportScenario \laneDriving, (env) ->*
 	lt = 100/3.6
 	rt = 70/3.6
 
-	nR = 6
-	nL = 6
+	nR = 7
+	nL = 7
 
 	mu = 1
 	sigma = 1
 	min = 1
-	max = 7
+	max = 8
 
 	scene.params = {lt: lt, rt: rt, mu: mu, sigma: sigma, min: min, max: max}
 
-	thsLeft = startingTHs scene, nL
-	thsRight = startingTHs scene, nR + 1
+	thsLeft = startingTHs scene, nL, true
+	thsRight = startingTHs scene, nR + 1, false
 	
 	locsLeft = startPositions thsLeft, lt, 3, lt*0.5
 	locsRight = startPositions thsRight, rt, 2

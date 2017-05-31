@@ -339,6 +339,14 @@ export calibration = seqr.bind ->*
 	yield runScenario scenario.calibration
 	yield runScenario scenario.verification
 
+export miniCalibration = seqr.bind ->*
+	yield runScenario scenario.miniCalibration
+	yield runScenario scenario.miniVerification
+
+export laneDriving = seqr.bind ->*
+	monkeypatch = laneChecker
+	yield runUntilPassed monkeypatch(scenario.laneDriving), passes: 4
+
 
 export memkiller = seqr.bind !->*
 	#loader = scenario.minimalScenario

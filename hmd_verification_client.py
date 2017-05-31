@@ -29,7 +29,7 @@ sub_port = req.recv_string()
 
 # open a sub port to listen to pupil
 sub = ctx.socket(zmq.SUB)
-sub.connect("tcp://192.168.56.1:{}".format(sub_port))
+sub.connect("tcp://0.0.0.0:{}".format(sub_port))
 sub.setsockopt_string(zmq.SUBSCRIBE, 'gaze')
 
 while True:
