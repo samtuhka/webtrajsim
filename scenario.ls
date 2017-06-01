@@ -443,8 +443,8 @@ verification = exportScenario \verification, (env, mini = false) ->*
 				scene.gaze.position.y = gaze1.y - 0.5
 			*/
 			scene.gaze.position.z =  3
-			if scene.msg.conf > 0.4
-				scene.gaze.position.z =  -3 
+			#if scene.msg.conf > 0.4
+			#	scene.gaze.position.z =  -3 
 			scene.gaze.position.x =  scene.msg.x - 0.5
 			scene.gaze.position.y =  scene.msg.y - 0.5
 			#scene.gaze.position.z =  -3 #Math.max(Math.min(scene.msg.z / 1000.0, -1), -5)
