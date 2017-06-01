@@ -30,8 +30,8 @@ def cleaner(data, timestamps):
     ref_data = []
     
     for pos, t in zip(data[valid], timestamps[valid]):
-	datum0 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':0, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
-	datum1 = {'norm_pos': (pos[0]  + 0.5, pos[1]  + 0.5),'timestamp':t,'id':1, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
+	datum0 = {'norm_pos': (pos[0] + 0.5, pos[1] + 0.5),'timestamp':t,'id':0, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
+	datum1 = {'norm_pos': (pos[0] + 0.5, pos[1] + 0.5),'timestamp':t,'id':1, 'mm_pos': (pos[0] * 1000, pos[1] * 1000, -pos[2] * 1000)}
 	ref_data.append(datum0)
 	ref_data.append(datum1)
     return ref_data

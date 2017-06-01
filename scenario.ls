@@ -116,7 +116,7 @@ export baseScene = seqr.bind (env) ->*
 		rendererStats.update env.renderer
 		stats.update()
 	*/
-	addFakeMirror scene, env, 0, 0 #4.5/180*Math.PI
+	addFakeMirror scene, env, 0, 0 #5.7/180*Math.PI
 	addFakeMirror scene, env, 1, 12.5/180*Math.PI
 	addFakeMirror scene, env, 2, -12.5/180*Math.PI
 
@@ -401,6 +401,7 @@ verification = exportScenario \verification, (env, mini = false) ->*
 			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
 			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
 			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
+
 	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
 
 	change = scene.time
@@ -422,7 +423,7 @@ verification = exportScenario \verification, (env, mini = false) ->*
 		if scene.msg
 			if typeof scene.msg === 'string'
 				scene.msg = JSON.parse(scene.msg)
-			
+			/*
 			if scene.msg.id == 0
 				gaze0.x = scene.msg.x
 				gaze0.y = scene.msg.y
@@ -440,10 +441,13 @@ verification = exportScenario \verification, (env, mini = false) ->*
 			if gaze1.z - gaze0.z > 0.1
 				scene.gaze.position.x = gaze1.x - 0.5
 				scene.gaze.position.y = gaze1.y - 0.5
-			
-			#scene.gaze.position.x =  scene.msg.x - 0.5
-			#scene.gaze.position.y =  scene.msg.y - 0.5
-			scene.gaze.position.z =  -3 #Math.max(Math.min(scene.msg.z / 1000.0, -1), -5)
+			*/
+			scene.gaze.position.z =  3
+			if scene.msg.conf > 0.4
+				scene.gaze.position.z =  -3 
+			scene.gaze.position.x =  scene.msg.x - 0.5
+			scene.gaze.position.y =  scene.msg.y - 0.5
+			#scene.gaze.position.z =  -3 #Math.max(Math.min(scene.msg.z / 1000.0, -1), -5)
 			gaze = 
 				x: scene.gaze.position.x
 				y: scene.gaze.position.y
@@ -583,6 +587,7 @@ addFakeMirror = (scene, env, ind, y) ->
 	min = geometry.boundingBox.min
 	w = max.x - min.x
 	h = max.y - min.y
+	d = max.z - min.z
 	offset = new THREE.Vector2(0 - min.x, 0 - min.y)
 	range = new THREE.Vector2(max.x - min.x, max.y - min.y)
 
@@ -592,6 +597,7 @@ addFakeMirror = (scene, env, ind, y) ->
 	camera.position.x = (max.x + min.x) / 2.0
 	camera.position.y = (max.y + min.y) / 2.0
 	camera.position.z = (max.z + min.z) / 2.0
+	angle = Math.atan(d / w)*Math.sign(y)
 	camera.rotation.set(0, y, 0)
 
 	renderTarget = new THREE.WebGLRenderTarget( 256, 256, { format: THREE.RGBFormat } )
