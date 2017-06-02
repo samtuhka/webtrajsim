@@ -29,11 +29,11 @@
 'Close the gap': 'Ahdas pysäköinti -harjoite'
 '%closeTheGap.intro': """
 		Parkkeeraa mahdollisimman lähelle edessä olevaa autoa törmäämättä. 
-		Kun olet tyytyväinen, paina ratin A-painiketta. 
+		Kun olet tyytyväinen, paina ratin vasenta alanappia (LSB). 
 		 
 		Jos ajat kaistan ulkopuolelle kuulet varoitusäänen.
 		 
-		Resetoi virtuaalikamera (LSB).
+		Resetoi virtuaalikamera (Xbox nappi).
 		 
 		Kun valmis, paina (RSB).
 			"""
@@ -65,7 +65,7 @@
 	 
 	Jos törmäät, harjoite alkaa alusta.
 	 
-	Resetoi virtuaalikamera (LSB).
+	Resetoi virtuaalikamera (Xbox nappi).
 	 
 	Kun valmis, paina (RSB).
 		"""
@@ -85,7 +85,7 @@
 	 
 	Kuulet varoitusäänen, jos ajat ylinopeutta yli 10% nopeusrajoituksesta tai ajat ulos kaistalta.
 	 
-	Resetoi virtuaalikamera (LSB).
+	Resetoi virtuaalikamera (Xbox nappi).
 	 
 	Kun valmis, paina (RSB).
 	"""
@@ -101,8 +101,8 @@
 
 '%blinderIntro': """
 	<p>Tässä tehtävässä mitataan myös ennakointikykyäsi laskemalla, kuinka usein
-	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasemmanpuoleista
-	liipasinta. Yritä suorittaa tehtävä mahdollisimman hyvin, 
+	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasenta
+	alanappia (LSB). Yritä suorittaa tehtävä mahdollisimman hyvin, 
 	mutta käyttämällä mahdollisimman
 	vähän katseita.
 
@@ -133,7 +133,7 @@
 	 
 	Jos törmäät, joudut aloittamaan tehtävän alusta. 
 	 
-	Ota hyvä asento. Resetoi virtuaalikamera (LSB).
+	Ota hyvä asento. Resetoi virtuaalikamera (Xbox nappi).
 	 
 	Kun valmis, paina (RSB).
 	"""
@@ -149,7 +149,7 @@
 	 
 	Jos törmäät, joudut aloittamaan tehtävän alusta. 
 	 
-	Ota hyvä asento. Resetoi virtuaalikamera (LSB).
+	Ota hyvä asento. Resetoi virtuaalikamera (Xbox nappi).
 	 
 	Kun valmis, paina (RSB).
 	"""
@@ -168,13 +168,13 @@
 	Älä ohita edellä olevaa autoa.
 	Tehtävässä ei ole nopeusrajoituksia.
 	 
-	Tienäkymä on peitetty. Tie tulee hetkeksi näkyviin, kun painat vasemmanpuoleista 
-	liipasinta. Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman 
+	Tienäkymä on peitetty. Tie tulee hetkeksi näkyviin, kun painat vasenta 
+	alanappia (LSB). Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman 
 	vähän katseita.
 	 
 	Jos törmäät, joudut aloittamaan tehtävän alusta.
 	 
-	Ota hyvä asento. Resetoi virtuaalikamera (LSB).
+	Ota hyvä asento. Resetoi virtuaalikamera (Xbox nappi).
 	 
 	Kun valmis, paina (RSB).
 	"""
@@ -195,11 +195,11 @@
 '%intro.introduction': """
 	<p>Kokeessa et tarvitse kytkintä tai vaihteita. Käytä vain oikeaa jalkaa.
 
-	<p>Tutustu ratin näppäimiin; et tule näkemään niitä VR-näkymän ratissa: 
+	<p>Tutustu seuraaviin ratin näppäimiin; et tule näkemään niitä VR-näkymän ratissa: 
 	<p>	- takaliipasimet
 	<p>	- vasen alanappi (LSB)
 	<p>	- oikea alanappi (RSB)
-	<p>	- A-nappia
+	<p>	- Xbox-painike
 
 	<p>Kokeen kesto on noin tunti.
 

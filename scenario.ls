@@ -127,7 +127,7 @@ export baseScene = seqr.bind (env) ->*
 		obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
 
 	env.controls.change (btn) ->
-		if btn == "frontLeft"
+		if btn == "Xbox"
 			env.vrcontrols.resetPose()
 
 	scene.viva = undefined
@@ -261,7 +261,7 @@ export calbrationScene = seqr.bind (env, startMsg) ->*
 	
 
 	env.controls.change (btn) ->
-		if btn == "frontLeft"
+		if btn == "Xbox"
 			env.vrcontrols.resetPose()
 
 	scene.preroll = seqr.bind ->*
@@ -737,6 +737,7 @@ addBlinder = (scene, env) ->
 	#mask.position.y = -0.03
 	#scene.camera.add mask
 
+	mask.visible = false
 	scene.player.body.add mask
 
 	self =
@@ -744,7 +745,6 @@ addBlinder = (scene, env) ->
 		glances: 0
 	self._addOpacity = addOpacity = ->
 		return if mask.material.opacity > 0.99
-		console.log mask.material.opacity
 		mask.material.opacity += 0.1
 		if mask.material.opacity > 0.99
 			scene.leader.visual.visible = false
@@ -763,6 +763,7 @@ addBlinder = (scene, env) ->
 
 	self._showMask()
 
+
 	self._liftMask = ->
 		mask.visible = false
 		if scene.leader
@@ -771,7 +772,6 @@ addBlinder = (scene, env) ->
 		self.change.dispatch false
 		env.logger.write blinder: false
 		mask.material.opacity = 0
-		console.log mask.material.opacity
 		setTimeout showMask, 300
 
 	return self
@@ -788,7 +788,7 @@ addBlinderTask = (scene, env) ->
 
 
 	env.controls.change (btn, isOn) ->
-		return if btn != 'blinder'
+		return if btn != 'frontLeft'
 		return if isOn != true
 		self._liftMask()
 
@@ -1294,7 +1294,7 @@ exportScenario \closeTheGap, (env) ->*
 		return rawDist - scene.player.physical.boundingRadius - leader.physical.boundingRadius
 
 	env.controls.change (btn, isOn) !~>
-		return unless btn == 'A' and isOn and distanceToLeader! < 50 and scene.player.getSpeed() < 3
+		return unless btn == 'frontLeft' and isOn and distanceToLeader! < 50 and scene.player.getSpeed() < 3
 		distance = distanceToLeader!
 		distance += 1.47 # HACK!
 		
@@ -1783,8 +1783,11 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 
 	while scene.start == false
 		yield P.delay 100
-
+	
 	yield startLight.switchToGreen()
+
+	if scene.mask
+		scene.mask._showMask()
 
 	startTime = scene.time
 	zeroTime := scene.time
@@ -1816,7 +1819,7 @@ exportScenario \blindFollowInTraffic, (env) ->*
 
 	scene = yield base.get \scene
 	scene.draftIndicator.el.hide()
-	addBlinderTask scene, env
+	scene.mask = addBlinderTask scene, env
 	@let \scene, scene
 
 	yield @get \run

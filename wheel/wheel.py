@@ -49,6 +49,7 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     BACK_LEFT_KEY = 293 # Not defined in linux/input.h
     BACK_RIGHT_KEY = 292 # Not defined in linux/input.h
     A = 288
+    Xbox = 298
     mapAxis(ecodes.ABS_X, "steering", (1, -1))
     mapAxis(ecodes.ABS_Y, "throttle", (1, 0))
     mapAxis(ecodes.ABS_Z, "brake", (1, 0), (0, 255))
@@ -57,6 +58,7 @@ def run_gk25(outf=sys.stdout, inf=sys.stdin):
     mapKey(BACK_RIGHT_KEY, "backRight")
     mapKey(BACK_LEFT_KEY, "blinder")
     mapKey(A, "A")
+    mapKey(Xbox, "Xbox")
     
     
     def handlemsg(msg):

@@ -11,11 +11,11 @@
 'Close the gap': 'Tight parking practice'			
 '%closeTheGap.intro': """
 		Park your car as close as possible to the car in front of you without colliding. 
-		When you are satisfied, press the A-button on the wheel. 
+		When you are satisfied, press the lower left button (LSB) on the wheel. 
 		 
 		If you’re off the track you will hear a warning sound. 
 		 
-		Reset the virtual camera (LSB)
+		Reset the virtual camera (Xbox button)
 		 
 		When ready, press (RSB)
 		"""
@@ -32,7 +32,7 @@
 		 
 		If you collide you will have to start the task again
 		 
-		Reset the virtual camera (LSB)
+		Reset the virtual camera (Xbox button)
 		 
 		When ready, press (RSB)
 		"""
@@ -48,7 +48,7 @@
 		 
 		If you collide you will have to start the task again
 		 
-		Take a comfortable posture and reset the virtual camera (LSB)
+		Take a comfortable posture and reset the virtual camera (Xbox button)
 		 
 		When ready, press (RSB)
 		"""
@@ -96,7 +96,7 @@ while taking as few glances as you can."""
 	 
 	If you collide you will have to start the task again
 	 
-	Take a comfortable posture and reset the virtual camera (LSB)
+	Take a comfortable posture and reset the virtual camera (Xbox button)
 	 
 	When ready, press (RSB)
 
@@ -111,12 +111,12 @@ while taking as few glances as you can."""
 	 
 	Do not pass the car. There are no speed limits
 	 
-	The road view is blocked. You can take a glimpse of the road by pressing left side trigger. 
+	The road view is blocked. You can take a glimpse of the road by pressing (LSB). 
 	Try to complete the task as well as possible while using as few glimpses as possible. 
 	 
 	If you collide you will have to start the task again
 	 
-	Take a comfortable posture and reset the virtual camera (LSB)
+	Take a comfortable posture and reset the virtual camera (Xbox button)
 	 
 	When ready, press (RSB)
 	"""
@@ -144,7 +144,11 @@ any instructed action.
 <p>
 The simulated car has automatic gears, so you don’t need to use the clutch pedal or change gears. Use only your right foot.
 <p>
-Familiarize yourself with LSB, RSB and A buttons and back triggers of the steering wheel. You won’t see them in the VR-simulation. 
+You won’t see the buttons of the wheel in the VR-simulation. Familiarize yourself with the following buttons:
+<p>	- back triggers
+<p>	- lower left button (LSB)
+<p>	- lower right button (RSB)
+<p>	- Xbox-button
 <p>
 The experiment will take approximately one hour.
 <p>
@@ -161,7 +165,7 @@ Outline of the experiment:
 			Hold your gaze in the middle of the target and try not to blink much. 
 			 
 			Take a comfortable posture. 
-			Look straight ahead and reset virtual camera’s angle by pressing the lower left button (LSB)
+			Look straight ahead and reset virtual camera’s angle by pressing the Xbox button
 			 
 			When you’re ready to start, press the lower right button (RSB). 
 			"""
@@ -170,7 +174,7 @@ Outline of the experiment:
 			Look at the middle of appearing targets.
 			 
 			Take a comfortable posture. 
-			Look straight ahead and reset virtual camera’s angle by pressing the left lower button (LSB)
+			Look straight ahead and reset virtual camera’s angle by pressing the Xbox button
 			 
 			When you’re ready to start, press the right lower button (RSB). 
 			"""
