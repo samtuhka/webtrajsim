@@ -10,6 +10,50 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.spatial as sp
 
+import pyqtgraph as pg
+import pyqtgraph.exporters
+import _thread
+from pyqtgraph.Qt import QtGui, QtCore, USE_PYSIDE, USE_PYQT5
+
+class plotter():
+  def __init__(self):
+    self.gaze = [-1,-1]
+    self.ref = [-1,-1]
+    self.updateGaze = False
+    self.text = ""
+    self.clear = False
+    _thread.start_new_thread(self.thread, ())
+
+  def update(self):
+    line = np.array([self.gaze, self.ref])
+    self.plt.plot(x = np.array([self.ref[0]]), y = np.array([self.ref[1]]), pen=None, symbol='o', symbolPen = 'b')
+    if self.updateGaze:
+     self.plt.plot(line, pen='w', symbol=None)
+     self.plt.plot(x = np.array([self.gaze[0]]), y = np.array([self.gaze[1]]), pen=None, symbol='o', symbolPen = 'r')
+    if self.text:
+     txt = pg.TextItem(self.text)
+     txt.setPos(0.5, 0.5)
+     self.plt.addItem(txt)
+     self.text = ""
+    if self.clear:
+     self.plt.close()
+     self.plt_init()
+     self.clear = False
+  
+  def plt_init(self):
+   self.plt = pg.plot(title="Verification")
+   self.plt.setXRange(-0.75, 0.75, padding=0)
+   self.plt.setYRange(-0.75, 0.75, padding=0)
+   
+  def thread(self):
+   self.plt_init()
+   timer = QtCore.QTimer()
+   timer.timeout.connect(self.update)
+   timer.start(0)
+   pg.QtGui.QApplication.exec_()
+
+
+
 
 def calc_result(pt_cloud):
     pt_cloud[:,2:4] = pt_cloud[:,2:4] + 0.5
@@ -79,23 +123,25 @@ sub_port = req.recv_string()
 sub = ctx.socket(zmq.SUB)
 sub.connect("tcp://0.0.0.0:{}".format(sub_port))
 sub.setsockopt_string(zmq.SUBSCRIBE, 'gaze')
+plotter = plotter()
 
 while True:
     res = ws.recv()
     
     if res != "start verification":
         continue
-    
+
+    plotter.clear = True
     verifData = []
     refPoints = []
     prevT = 0
 
-    plt.figure("verification", figsize=(10, 10))
-    plt.clf()
-    plt.axes().set_aspect('equal')
-    plt.xlim(-0.75, 0.75)
-    plt.ylim(-0.75, 0.75)
-    plt.ion()
+    #plt.figure("verification", figsize=(10, 10))
+    #plt.clf()
+    #plt.axes().set_aspect('equal')
+    #plt.xlim(-0.75, 0.75)
+    #plt.ylim(-0.75, 0.75)
+    #plt.ion()
     
     while True:
         topic = sub.recv_string()
@@ -122,13 +168,16 @@ while True:
             result = json.loads(result)
             result['gaze'] = gaze
             refPoints.append([pos['x'], pos['y'], result['position']['x'], result['position']['y'], gaze['confidence']])
+            plotter.ref = [result['position']['x'], result['position']['y']]
             verifData.append(result)
-            if  gaze['confidence'] > 0.5:
-              plt.plot(result['position']['x'], result['position']['y'], 'o', color = 'blue', label = 'markers')
-              plt.plot(pos['x'] - 0.5, pos['y'] - 0.5, '.', color = 'red', label = 'gaze', alpha = 0.5)
-              plt.plot([pos['x'] - 0.5, result['position']['x']], [pos['y'] - 0.5, result['position']['y']], color = 'yellow', linewidth=0.1, alpha = 0.95)
-              plt.show()
-              plt.pause(0.000001)
+            if gaze['confidence'] > 0.5:
+              plotter.gaze = [pos['x'] - 0.5, pos['y'] - 0.5]
+              plotter.updateGaze = True
+            #  plt.plot(result['position']['x'], result['position']['y'], 'o', color = 'blue', label = 'markers')
+            #  plt.plot(pos['x'] - 0.5, pos['y'] - 0.5, '.', color = 'red', label = 'gaze', alpha = 0.5)
+            #  plt.plot([pos['x'] - 0.5, result['position']['x']], [pos['y'] - 0.5, result['position']['y']], color = 'yellow', linewidth=0.1, alpha = 0.95)
+            #  plt.show()
+            #  plt.pause(0.000001)
         
     save_object(verifData, sys.argv[1] + str(time.time()))
     refPoints = np.array(refPoints)
@@ -140,7 +189,8 @@ while True:
 
 
     result = calc_result(refPoints)
-    plt.text(0.5, 0.5, "Accuracy: " + str(result))
-    plt.pause(0.000001)
+    plotter.text = str(result)
+    #plt.text(0.5, 0.5, "Accuracy: " + str(result))
+    #plt.pause(0.000001)
 
     print("finished verification")
