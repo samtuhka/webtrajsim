@@ -137,12 +137,12 @@ export vrIntro = seqr.bind ->*
 		localStorage.setItem('experiment', JSON.stringify(experiment))
 
 export vrExperiment = seqr.bind ->*
-	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic, scenario.calibration, scenario.verification]
+	scenarios = [scenario.closeTheGap, scenario.switchLanes, scenario.speedControl, scenario.laneDriving, scenario.followInTraffic, scenario.blindFollowInTraffic, scenario.calibration, scenario.verification, scenario.miniCalibration, scenario.miniVerification, scenario.experimentOutro]
 	nTrials = 12
 	lanechecker = laneChecker
-	pass_times = [1, 1, 2,2,2,1,1,1,1,1,1]
+	pass_times = [1,1,2,2,2,1,1,1,1,1,1]
 
-	if localStorage.hasOwnProperty('experiment') == false || localStorage.getItem("scenario_id") == nTrials
+	if localStorage.hasOwnProperty('experiment') == false
 
 		experiment = []
 			.concat([3]*3)
@@ -150,12 +150,19 @@ export vrExperiment = seqr.bind ->*
 			.concat([5]*2)
 
 		experiment = shuffleArray experiment
-		firstThree = [5, 4, 3]
-		firstThree = shuffleArray firstThree
+		firstThree = [3, 5, 4]
+		#firstThree = shuffleArray firstThree
 		experiment = experiment.concat firstThree
 		experiment.push 2, 1, 0, 7, 6
 		experiment.reverse()
+		experiment.splice(5, 0, 8)
+		experiment.splice(6, 0, 9)
 
+		experiment.splice(12, 0, 8)
+		experiment.splice(13, 0, 9)
+		experiment.push 7
+		experiment.push 14
+		console.log experiment
 		env = newEnv!
 		yield scenario.experimentIntro yield env.get \env
 		env.let \destroy
@@ -170,7 +177,7 @@ export vrExperiment = seqr.bind ->*
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
 		console.log id
-		if id <= 5
+		if id < 5
 			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: pass_times[id]
 		else
 			yield runUntilPassed lanechecker(scenarios[experiment[id]]), passes: 1, maxRetries: 2
