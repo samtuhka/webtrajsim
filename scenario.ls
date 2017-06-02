@@ -724,7 +724,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
 		new THREE.PlaneGeometry 1, 1
-		new THREE.MeshBasicMaterial color: 0xeeeeee, side: THREE.DoubleSide
+		new THREE.MeshBasicMaterial color: 0xeeeeee, side: THREE.DoubleSide, transparent: true, opacity: 0.0
 
 	mask.position.y = 1.23 - 0.07
 	mask.position.x = 0.37 - 0.03
@@ -742,14 +742,25 @@ addBlinder = (scene, env) ->
 	self =
 		change: Signal!
 		glances: 0
+	self._addOpacity = addOpacity = ->
+		return if mask.material.opacity > 0.99
+		console.log mask.material.opacity
+		mask.material.opacity += 0.1
+		if mask.material.opacity > 0.99
+			scene.leader.visual.visible = false
+		else
+			setTimeout addOpacity, 100
 
 	self._showMask = showMask = ->
 		return if mask.visible
-		if scene.leader
-			scene.leader.visual.visible = false
+		return if not scene.start
+		#if scene.leader
+		#	scene.leader.visual.visible = false
 		mask.visible = true
 		self.change.dispatch true
 		env.logger.write blinder: true
+		addOpacity()
+
 	self._showMask()
 
 	self._liftMask = ->
@@ -759,6 +770,8 @@ addBlinder = (scene, env) ->
 		self.glances += 1
 		self.change.dispatch false
 		env.logger.write blinder: false
+		mask.material.opacity = 0
+		console.log mask.material.opacity
 		setTimeout showMask, 300
 
 	return self
@@ -1787,7 +1800,7 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 		if scene.time - startTime > totalTime
 			time = scene.time - startTime
 			title = L 'Passed'
-			reason =  L '%followInTraffic.outro', consumption: consumption
+			reason = L ''
 			scene.passed = true
 			endingVr scene, env, title, reason, @
 			return false

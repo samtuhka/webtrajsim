@@ -22,6 +22,7 @@ class plotter():
     self.updateGaze = False
     self.text = ""
     self.clear = False
+    self.verif = 1
     _thread.start_new_thread(self.thread, ())
 
   def update(self):
@@ -30,20 +31,25 @@ class plotter():
     if self.updateGaze:
      self.plt.plot(line, pen='w', symbol=None)
      self.plt.plot(x = np.array([self.gaze[0]]), y = np.array([self.gaze[1]]), pen=None, symbol='o', symbolPen = 'r')
+     self.updateGaze = False
     if self.text:
      txt = pg.TextItem(self.text)
      txt.setPos(0.5, 0.5)
      self.plt.addItem(txt)
      self.text = ""
     if self.clear:
-     self.plt.close()
-     self.plt_init()
+     if self.verif != 1:
+       self.plt_init()
+     self.verif += 1
      self.clear = False
+
   
   def plt_init(self):
-   self.plt = pg.plot(title="Verification")
+   self.plt = pg.plot(title="Verification " + str(self.verif))
    self.plt.setXRange(-0.75, 0.75, padding=0)
    self.plt.setYRange(-0.75, 0.75, padding=0)
+   self.gaze = [-1,-1]
+   self.ref = [-1,-1]
    
   def thread(self):
    self.plt_init()
@@ -126,12 +132,12 @@ sub.setsockopt_string(zmq.SUBSCRIBE, 'gaze')
 plotter = plotter()
 
 while True:
+    plotter.clear = True
     res = ws.recv()
-    
+  
     if res != "start verification":
         continue
-
-    plotter.clear = True
+    
     verifData = []
     refPoints = []
     prevT = 0
@@ -167,7 +173,7 @@ while True:
             prevT = pos['time']
             result = json.loads(result)
             result['gaze'] = gaze
-            refPoints.append([pos['x'], pos['y'], result['position']['x'], result['position']['y'], gaze['confidence']])
+            refPoints.append([pos['x'], pos['y'], result['position']['x'], result['position']['y'], gaze['confidence'], gaze['timestamp']])
             plotter.ref = [result['position']['x'], result['position']['y']]
             verifData.append(result)
             if gaze['confidence'] > 0.5:
@@ -181,6 +187,7 @@ while True:
         
     save_object(verifData, sys.argv[1] + str(time.time()))
     refPoints = np.array(refPoints)
+    np.save("{}verification_{}.npy".format(sys.argv[1], plotter.verif), refPoints)
     size = len(refPoints)
     refPoints = refPoints[refPoints[:,4] > 0.5]
     sizeCleaned = len(refPoints)
