@@ -102,7 +102,7 @@
 '%blinderIntro': """
 	<p>Tässä tehtävässä mitataan myös ennakointikykyäsi laskemalla, kuinka usein
 	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasenta
-	alanappia (LSB). Yritä suorittaa tehtävä mahdollisimman hyvin, 
+	alanappia (LSB). Yritä suorittaa tehtävä samalla tavalla kuin aikaisemmin, 
 	mutta käyttämällä mahdollisimman
 	vähän katseita.
 
@@ -164,13 +164,14 @@
 'Anticipating supermiler': 'Ennakoiva takana ajo -tehtävä'
 
 '%blindFollowInTraffic.intro': -> """
-	Seuraa edellä ajavaa autoa. Pidä omasta mielestäsi sopiva turvaväli.
+	Seuraa edelläajavaa autoa niin kuin ajaisit ruuhkaisella maantiellä.
 	Älä ohita edellä olevaa autoa.
 	Tehtävässä ei ole nopeusrajoituksia.
 	 
 	Tienäkymä on peitetty. Tie tulee hetkeksi näkyviin, kun painat vasenta 
-	alanappia (LSB). Yritä suorittaa tehtävä mahdollisimman hyvin, mutta käyttämällä mahdollisimman 
-	vähän katseita.
+	alanappia (LSB). Yritä suorittaa tehtävä samalla tavalla kuin aikaisemmin, 
+	mutta käyttämällä mahdollisimman vähän katseita.
+
 	 
 	Jos törmäät, joudut aloittamaan tehtävän alusta.
 	 
