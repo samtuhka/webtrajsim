@@ -50,6 +50,7 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
 	scene.player.roadPhase = {direction: "None", phase: "None"}
 	scene.end = false
 	scene.player.pos = 0
+	scene.player.minDist = 1000
 	scene.player.react = false
 	scene.predict = []
 	for i from 0 til 5

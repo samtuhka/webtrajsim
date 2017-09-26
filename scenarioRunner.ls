@@ -146,6 +146,8 @@ export newEnv = seqr.bind !->*
 		window.gc()
 trial = 0
 
+
+
 export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scope = newEnv()
 	env = yield scope.get \env
@@ -169,6 +171,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 	scene = yield scenario.get \scene
 
+
 	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
 	@finally ->
 		THREE.Cache.clear()
@@ -180,9 +183,9 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 		renderer.dispose()
 	#renderer.shadowMapEnabled = true
 	#renderer.shadowMapType = THREE.PCFShadowMap
-	renderer.autoClear = false
-	scene.beforeRender.add -> renderer.clear()
-
+	#renderer.autoClear = false
+	#scene.beforeRender.add -> renderer.clear()
+	scene.renderer = renderer
 	render = ->
 		renderer.render scene.visual, scene.camera
 	if env.opts.enableVr
@@ -192,8 +195,10 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	#scene.beforeRender.add ->
 	#	physDebug.update()
 
+	scene.renderer = renderer
 
 	scene.onRender.add render
+
 
 	scene.onTickHandled ->
 		dump =

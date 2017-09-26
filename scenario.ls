@@ -126,12 +126,47 @@ export minimalScenario = seqr.bind (env) ->*
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	@let \scene, scene
 	yield @get \done
-
-exportScenario \freeDriving, (env) ->*
+require './multithread.js'
+exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
+	MT = new Multithread(5)
+	car = MT.process(addVehicle)
+	trafficControls = new TargetSpeedController
+	distances = [15, 70, 170, 300, 400]
+	cars = []
+	for i from 0 til 5
+		car = scene.leader = yield MT.process(scene, trafficControls)
+		car.physical.position.x = -1.75
+		car.physical.position.z = 10 + distances[i]
+		cars.push car
+	for i from 0 til 3
+		car = scene.leader = yield addVehicle scene, trafficControls
+		car.physical.position.x = 1.75
+		car.physical.position.z = 10 + distances[i]
+		car.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
+		cars.push car
 
-	# The scene would be customized here
+
+	speeds = [30, 20, 50, 100, 20, 120]*2
+	shuffleArray speeds
+	while speeds[*-1] == 0
+		shuffleArray speeds
+	speedDuration = 10
+
+	sequence = for speed, i in speeds
+		[(i+1)*speedDuration, speed/3.6]
+
+	scene.afterPhysics.add (dt) ->
+		if scene.time > sequence[0][0] and sequence.length > 1
+			sequence := sequence.slice(1)
+		trafficControls.target = sequence[0][1]
+		trafficControls.tick scene.leader.getSpeed(), dt
+		for car in cars
+			if scene.player.physical.position.z - car.physical.position.z > 400
+				car.physical.position.z += 700
+			if car.physical.position.z - scene.player.physical.position.z > 400
+				car.physical.position.z -= 700
 
 	# "Return" the scene to the caller, so they know
 	# we are ready
@@ -247,7 +282,13 @@ dif = (scene) ->
 futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
-		scene.futPos += roadSecond*dir*2
+		seed = Math.random()
+		#if seed > 0.5
+		#	dur = 1.7
+		#else
+		#	dur = 1	
+
+		scene.futPos += roadSecond*dir*1
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -317,7 +358,7 @@ probeLogic = (scene) ->
 			futPos scene
 		scene.dT = scene.time
 
-fixLogic = (scene, sound) ->
+fixLogic = (scene, sound, s) ->
 	roadPosition scene
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
@@ -325,15 +366,20 @@ fixLogic = (scene, sound) ->
 		else
 			scene.probeIndx += 1
 			futPos scene
-			sound.play()
-			console.log scene.fixcircles
-			if scene.probeIndx % 2 == 0
-				scene.fixcircles[0].children[0].material.color.g = 1.0
-				scene.fixcircles[1].children[0].material.color.g = 0.0
-			else
-				scene.fixcircles[1].children[0].material.color.g = 1.0
-				scene.fixcircles[0].children[0].material.color.g = 0.0
+			calculateFuture scene, 1, s/3.6
+			#sound.play()
 		scene.dT = scene.time
+		handleFixLocs scene
+		chance = Math.random()
+		scene.fixcircles[0].children[0].visible = false
+		scene.fixcircles[1].children[0].visible = false
+		scene.showTime = 0.25
+		#if chance > 0.5
+		#	scene.showTime = 0.4
+	if scene.time - scene.dT > scene.showTime
+		scene.fixcircles[0].children[0].visible = true
+		scene.fixcircles[1].children[0].visible = true
+
 triangle = (s) ->
 	triA = new THREE.Shape()
 	triA.moveTo(0,0)
@@ -469,40 +515,26 @@ objectLoc = (object, x, y) ->
 	w = aspect/ratio
 	h = 1/ratio
 	heigth = object.heigth
-	object.position.x = (w*x - w/2) * heigth
-	object.position.y = (h*y - h/2) * heigth
+	#object.position.x = (w*x - w/2) * heigth
+	#object.position.y = (h*y - h/2) * heigth
+
+	object.position.x = y
+	object.position.y = 0.1
+	object.position.z = x
+	#console.log x, y
 
 handleFixLocs = (scene) ->
-	aspect = window.innerWidth / window.innerHeight
-	vFOV = scene.camera.fov/100
-	hFOV = aspect*vFOV
 	p500 = scene.predict[0]
 	p1000 = scene.predict[1]
 	p2000 = scene.predict[2]
 	p4000 = scene.predict[3]
 
-	v1 = new THREE.Vector3(p500.y, 0, p500.x)
-	v1.project(scene.camera)
-	x1 = (v1.x+1)*0.5
-	y1 =(v1.y+1)*0.5
+	objectLoc scene.fixcircles[0], p500.x, p500.y
+	#objectLoc scene.fixcircles[1],  p1000.x, p1000.y
+	#objectLoc scene.fixcircles[2],  p2000.x, p2000.y
+	#objectLoc scene.fixcircles[3],  p4000.x, p4000.y
 
-	v2 = new THREE.Vector3(p1000.y, 0, p1000.x)
-	v2.project(scene.camera)
-	x2 = (v2.x+1)*0.5
-	y2 =(v2.y+1)*0.5
 
-	v3 = new THREE.Vector3(p2000.y, 0, p2000.x)
-	v3.project(scene.camera)
-	x3 = (v3.x+1)*0.5
-	y3 =(v3.y+1)*0.5
-
-	v4 = new THREE.Vector3(p4000.y, 0, p4000.x)
-	v4.project(scene.camera)
-	x4 = (v4.x+1)*0.5
-	y4 =(v4.y+1)*0.5
-	lis = [[x1, y1],[x2, y2],[x3, y3],[x4, y4]]
-	objectLoc scene.fixcircles[0], lis[1][0], lis[1][1]
-	objectLoc scene.fixcircles[1], lis[3][0], lis[3][1]
 
 search = (scene) ->
 	speed = scene.player.getSpeed()
@@ -513,9 +545,20 @@ search = (scene) ->
 	z = scene.player.physical.position.z
 	x = scene.player.physical.position.x
 	t = true
-	for i from 0 til 8
-		l = 0 + i*(1/8)
-		r = 1/8 + i*(1/8)
+	
+	s = 0
+	e = 1
+
+	if scene.player.minDist > 5
+		s = -5
+		e = 5
+		d = 0.05 / scene.centerLine.getLength()
+
+	for i from s til e
+		l = Math.max (scene.player.pos + (i - 1)*(1/40.0)), 0
+		r = Math.min (scene.player.pos + (i + 1)*(1/40.0)), 1
+		l = Math.min l, 1
+		r = Math.max r, 0
 		while t == true
 			if Math.abs(r - l) <= d
 				pos = ((l + r) / 2)
@@ -539,12 +582,13 @@ search = (scene) ->
 			else
 				r = rT
 	scene.player.pos = minPos
+	scene.player.minDist = minC
 	scene.player.posXY = scene.centerLine.getPointAt(minPos)
 	return minPos
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [0.5, 1, 2, 4, -0.1]
+	fut = [1.5, 1.55, Math.random()*2 + 1, Math.random()*2 + 1, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
@@ -569,7 +613,7 @@ future = Math.floor(opts.fut)
 tri = Math.floor(opts.tri)
 automatic = Math.floor(opts.aut)
 if speed === NaN
-		speed = 80
+		speed = 60
 if xrad === NaN
 		xrad = ((speed/3.6)*22 / Math.PI)
 if automatic === NaN
@@ -757,7 +801,7 @@ handleReaction = (env, scene, i) ->
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
-addFixationCross = (scene, radius = 2.5, c = 0x000000, circle = false) ->
+addFixationCross = (scene, radius = 2.5, c = 0xB7B3B3, circle = false) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
 	angle = (vFOV/2) * Math.PI/180
@@ -765,11 +809,14 @@ addFixationCross = (scene, radius = 2.5, c = 0x000000, circle = false) ->
 	size = (Math.tan(angle) * 1.7 * 2) * ratio
 
 	fixObj = new THREE.Object3D()
-
-	material = new THREE.MeshBasicMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1.0
-
-	if circle
-		geo = new THREE.RingGeometry(size*0.95, size, 64)
+	c = 0xF7FE2E
+	material = new THREE.MeshStandardMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1
+	#texture = new THREE.Texture assets.SineGratingBitmap resolution: 512, cycles: 64
+	#texture.needsUpdate = true
+	#material = new THREE.MeshLambertMaterial map: texture,transparent: true, opacity: 0.2
+	size = 1
+	if true
+		geo = new THREE.SphereGeometry(size*0.2, 64, 64)
 		circle = new THREE.Mesh geo, material
 		fixObj.add circle
 	else
@@ -781,11 +828,11 @@ addFixationCross = (scene, radius = 2.5, c = 0x000000, circle = false) ->
 		ironR = new THREE.Mesh geo, material
 		ironR.position.x = size
 
-		geo = new THREE.CircleGeometry(size*0.1, 64)
+		geo = new THREE.CircleGeometry(size*0.5, 64)
 		dot = new THREE.Mesh geo, material
 
-		fixObj.add ironR
-		fixObj.add ironL
+		#fixObj.add ironR
+		#fixObj.add ironL
 		fixObj.add dot
 		
 
@@ -793,9 +840,9 @@ addFixationCross = (scene, radius = 2.5, c = 0x000000, circle = false) ->
 	fixObj.position.z = -1.7
 	fixObj.heigth = size
 	fixObj.ratio = ratio
-	scene.camera.add fixObj
+	scene.visual.add fixObj
 	scene.fixcircles.push fixObj
-	objectLoc fixObj, -0.1, -0.1
+	objectLoc fixObj, -10.1, -10.1
 	fixObj.visible = true
 
 markersVisible = (scene) ->
@@ -809,6 +856,8 @@ addBackgroundColor = (scene) ->
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.z = -1100
 	scene.camera.add mesh
+	#console.log scene
+
 
 
 addMarkerScreen = (scene, env) ->
@@ -837,36 +886,41 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-
-
-
-exportScenario \fixSwitch, (env) ->*
+exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep.wav')
 	annoyingSound.setVolume(0.05)
 
+
+	annoyingSound2 = new THREE.Audio(listener)
+	annoyingSound2.load('res/sounds/beep-01a.wav')
+	annoyingSound2.setVolume(0.05)
+
 	if rx == undefined
-		rx = xrad
+		rx = 120
 	if ry == undefined
-		ry = yrad
+		ry = rx
 	if l == undefined
-		l = length
+		l = 70
 	if s == undefined
-		s = speed
+		s = 60
 
 	scene = yield basecircleDriving env, rx, ry, l
-	scene.params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 120}
+	scene.params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 500}
 
 	scene.fixcircles = []
-	addFixationCross scene
-	addFixationCross scene
+	addFixationCross scene, 1.5
+	addFixationCross scene, 1.5
+	addFixationCross scene, 1.5
+	addFixationCross scene, 1.5
+
 	
-	scene.fixcircles[0].children[0].material.color.g = 1.0
-	
-	addMarkerScreen scene, env
-	addBackgroundColor scene
+	#scene.fixcircles[0].children[0].material.color.g = 1.0
+	#scene.fixcircles[3].children[0].material.color.r = 1.0
+
+
 
 
 	startPoint = 0.5*l/scene.centerLine.getLength()
@@ -878,6 +932,9 @@ exportScenario \fixSwitch, (env) ->*
 	rw = scene.centerLine.width
 	@let \scene, scene
 	yield @get \run
+
+	addMarkerScreen scene, env
+	addBackgroundColor scene
 
 	calculateFuture scene, 1, s/3.6
 	handleFixLocs scene
@@ -900,11 +957,9 @@ exportScenario \fixSwitch, (env) ->*
 
 	scene.onTickHandled ~>
 		handleSpeed scene, s
-		calculateFuture scene, 1, s/3.6
-		handleFixLocs scene
 
-		fixLogic scene, annoyingSound
-
+		search(scene)
+		fixLogic scene, annoyingSound, s
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
@@ -916,6 +971,8 @@ exportScenario \fixSwitch, (env) ->*
 		else
 			scene.outside.out = false
 
+
+		handleSound annoyingSound2, scene, cnt
 
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
@@ -1624,6 +1681,32 @@ addReactionTest = seqr.bind (scene, env) ->*
 		#env.renderer.render react.scene, react.camera
 
 	return react
+
+
+
+require './three.js/examples/Mirror.js'
+#require './three.js/examples/MirrorNode.js'
+addMirror = (scene, env) ->
+	mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: 0.0, textureWidth: window.innerWidth, textureHeight: window.innerHeight, debugMode: true})
+	mirrorMesh = new THREE.Mesh do
+		new THREE.PlaneBufferGeometry 0.5, 0.5
+		mirror.material
+
+	mirrorMesh.position.y = 0 
+	mirrorMesh.position.x = 0.5
+	mirrorMesh.position.z = -1.43 
+	#mirrorMesh.rotation.y = -Math.PI*0.45
+	
+	mirrorMesh.add mirror
+
+
+
+	scene.camera.add mirrorMesh
+
+	scene.mirror = mirror
+	scene.beforeRender.add (dt) ->
+		mirror.renderer = env.renderer
+		mirror.render()
 
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do

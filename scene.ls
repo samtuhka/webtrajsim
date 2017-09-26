@@ -44,7 +44,7 @@ export class Scene
 
 		@visual ?= new THREE.Scene
 		FOV = 70.0*(9/16)
-		@camera ?= new THREE.PerspectiveCamera FOV, 1, 0.01, 450000
+		@camera ?= new THREE.PerspectiveCamera FOV, 1.6, 0.01, 450000
 
 		@time = 0
 
@@ -145,6 +145,7 @@ export addGround = (scene) ->
 		map: roadTex
 		shininess: 20
 		normalMap: roadNorm
+		shading: THREE.FlatShading
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
@@ -240,7 +241,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		c = 0.5522847498307933984022516322796
 		ox = rX * c
 		oy = rY * c
-		dy = -2*rY
+		dy = -2*rX
 		k = (terrainSize/2 - rX - 1.75) - 500
 		circle = new THREE.CurvePath()
 		straight = new THREE.LineCurve3(new THREE.Vector3(-s, rX + k, 0), new THREE.Vector3(0, rX + k, 0))
@@ -305,6 +306,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
+	road.visible = false
 	terrain.add road
 
 	rocks = new THREE.Object3D()
@@ -350,8 +352,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 		rock.matrixAutoUpdate = false
 		rocks.add rock
 
-	terrain.add mergeObject rocks
-
+	#terrain.add mergeObject rocks
+	#terrain.visible= false
 	scene.visual.add terrain
 
 	position = new THREE.Vector3

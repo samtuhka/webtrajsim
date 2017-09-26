@@ -51,6 +51,7 @@ loadViva = Co ->*
 		obj.position.z = 0
 		for child in obj.children
 			child.position.sub shift
+		console.log shift
 		obj.updateMatrixWorld(true)
 
 	originToGeometry = (obj) ->
@@ -80,6 +81,7 @@ loadViva = Co ->*
 			child.position.sub shift
 		obj.updateMatrixWorld(true)
 
+
 	applyPosition = (obj) ->
 		obj.updateMatrixWorld(true)
 		pos = obj.position.clone()
@@ -94,6 +96,7 @@ loadViva = Co ->*
 	applyPosition body
 
 	/*lights = []
+
 	body.traverse (obj) ->
 		return if obj.name != "Headlight"
 		light = new THREE.SpotLight()
@@ -114,9 +117,17 @@ loadViva = Co ->*
 
 	body.add ...lights*/
 
-
 	body = mergeObject body
 	brakeLightMaterials = []
+
+	mirrors = []
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'Silver_White'
+				mirrors.push obj
+	body.mirrors = mirrors
+
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
@@ -126,7 +137,7 @@ loadViva = Co ->*
 	eye = new THREE.Object3D
 	eye.position.y = 1.23
 	eye.position.z = 0.1
-	eye.position.x = 0.37
+	eye.position.x = 0.3
 	eye.rotation.y = Math.PI
 
 	#eye.position.x += 10.0
@@ -217,8 +228,8 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 			frictionSlip: 1									# Wheel friction
 		wi = car.wheelInfos[wii]
 		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
-
-		visual.add wheel
+		#wheel.visible = false
+		#visual.add wheel
 
 		syncModels.add ->
 			car.updateWheelTransform wii
