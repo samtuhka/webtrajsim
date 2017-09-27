@@ -33,7 +33,8 @@ export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
 			impulse = (Math.random() - 0.5)*2*0.01
 			_cumnoise := 0.001*impulse + 0.999*_cumnoise
 
-	player = yield addVehicle scene, controls, caropts
+	#player = yield addVehicle scene, controls, caropts
+	player = yield addVehicle scene, controls, "res/viva/2006-VIVA-VT3-Sedan-SE.dae", false, caropts
 	player.eye.add scene.camera
 	player.physical.position.x = scene.centerLine.getPointAt(0).y
 	for i from 0 til player.body.children.length - 1

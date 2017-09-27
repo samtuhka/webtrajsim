@@ -811,44 +811,25 @@ addFixationCross = (scene, radius = 2.5, c = 0xB7B3B3, circle = false) ->
 	fixObj = new THREE.Object3D()
 	c = 0xF7FE2E
 	material = new THREE.MeshStandardMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1
-	#texture = new THREE.Texture assets.SineGratingBitmap resolution: 512, cycles: 64
-	#texture.needsUpdate = true
-	#material = new THREE.MeshLambertMaterial map: texture,transparent: true, opacity: 0.2
-	size = 1
-	if true
-		geo = new THREE.SphereGeometry(size*0.2, 64, 64)
-		circle = new THREE.Mesh geo, material
-		fixObj.add circle
-	else
-		height = size*0.8
-		geo = new THREE.PlaneGeometry(size * 0.1, height)
-		ironL = new THREE.Mesh geo, material
-		ironL.position.x = -size
+	size = 0.2
 
-		ironR = new THREE.Mesh geo, material
-		ironR.position.x = size
-
-		geo = new THREE.CircleGeometry(size*0.5, 64)
-		dot = new THREE.Mesh geo, material
-
-		#fixObj.add ironR
-		#fixObj.add ironL
-		fixObj.add dot
+	geo = new THREE.SphereGeometry(size, 64, 64)
+	circle = new THREE.Mesh geo, material
+	fixObj.add circle
 		
 
 
-	fixObj.position.z = -1.7
+	fixObj.position.y = -10
 	fixObj.heigth = size
 	fixObj.ratio = ratio
 	scene.visual.add fixObj
 	scene.fixcircles.push fixObj
-	objectLoc fixObj, -10.1, -10.1
+	#objectLoc fixObj, -10.1, -10.1
 	fixObj.visible = true
 
 markersVisible = (scene) ->
 	for marker in scene.markers
 		marker.visible = true
-
 
 addBackgroundColor = (scene) ->
 	geo = new THREE.PlaneGeometry 4000, 4000
@@ -856,6 +837,27 @@ addBackgroundColor = (scene) ->
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.z = -1100
 	scene.camera.add mesh
+	#console.log scene
+
+addBackgroundColorFun = (scene) ->
+	geo = new THREE.SphereGeometry 2000, 2000
+	
+	moonTex = THREE.ImageUtils.loadTexture 'res/world/moon.jpg'
+
+	mat = new THREE.MeshPhongMaterial do
+		map: moonTex
+		shininess: 20
+		transparent: true
+		side: THREE.DoubleSide
+
+	#mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true
+	mesh = new THREE.Mesh geo, mat
+	#mesh.position.z = -1100
+	mesh.rotation.y = 1.25*Math.PI
+	#mesh.rotation.x = 2.5*Math.PI
+	#mesh.rotation.z = 0.5*Math.PI
+	mesh.position.y = 200
+	scene.visual.add mesh
 	#console.log scene
 
 
@@ -925,7 +927,8 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 
 	startPoint = 0.5*l/scene.centerLine.getLength()
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
-	scene.player.physical.position.z = -0.5*l
+	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).x
+	scene.player.physical.quaternion.setFromEuler(0, Math.PI*1.5 ,0, 'XYZ')
 	scene.playerControls.throttle = 0
 
 
@@ -948,6 +951,7 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 
 
 	startTime = scene.time
+	scene.prevOp = startTime
 	scene.dT = startTime
 	scene.probeIndx = 0
 
@@ -956,6 +960,12 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	futPos scene
 
 	scene.onTickHandled ~>
+
+
+		if (scene.time - scene.prevOp) > 0.5
+			scene.prevOp = scene.time
+			scene.road.material.opacity = Math.max scene.road.material.opacity - 0.005, 0
+			
 		handleSpeed scene, s
 
 		search(scene)

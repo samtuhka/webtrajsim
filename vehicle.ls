@@ -36,8 +36,8 @@ loadCorolla = Co ->*
 	wheels: scene.getObjectByName "Wheels"
 	eye: eye
 
-loadViva = Co ->*
-	vehicle = yield loadCollada "res/viva/2006-VIVA-VT3-Sedan-SE.dae"
+loadViva = Co (path) ->*
+	vehicle = yield loadCollada path
 	scene = vehicle.scene
 	car = scene.getObjectByName "Car"
 
@@ -51,7 +51,6 @@ loadViva = Co ->*
 		obj.position.z = 0
 		for child in obj.children
 			child.position.sub shift
-		console.log shift
 		obj.updateMatrixWorld(true)
 
 	originToGeometry = (obj) ->
@@ -81,7 +80,6 @@ loadViva = Co ->*
 			child.position.sub shift
 		obj.updateMatrixWorld(true)
 
-
 	applyPosition = (obj) ->
 		obj.updateMatrixWorld(true)
 		pos = obj.position.clone()
@@ -95,8 +93,10 @@ loadViva = Co ->*
 	body = car.getObjectByName "Body"
 	applyPosition body
 
-	/*lights = []
+	
 
+
+	/*lights = []
 	body.traverse (obj) ->
 		return if obj.name != "Headlight"
 		light = new THREE.SpotLight()
@@ -117,27 +117,133 @@ loadViva = Co ->*
 
 	body.add ...lights*/
 
-	body = mergeObject body
-	brakeLightMaterials = []
+	checkMirrors = (obj) ->
+		for material in obj.material.materials ? [obj.material]
+			if material.name == 'MirrorCenter' || material.name == 'MirrorLeft' || material.name == 'MirrorRight'
+				return true
+		return false
 
-	mirrors = []
+	checkTransparent = (obj) ->
+		for material in obj.material.materials ? [obj.material]
+			if material.transparent == true
+				return true
+		return false
+
+	steeringwheel = null
+	body.traverse (obj) ->
+		return if obj.name != "econo_sw"
+		steeringwheel := obj.clone()
+		position = obj.matrixWorld.getPosition()
+		#steeringwheel.position.copy position
+		#steeringwheel.position.z -= 0.1
+		#steeringwheel.position.y += 0.15
+		#steeringwheel.position.x += 0.02
+		obj.parent.remove(obj)
+
+	
+	#this is really dumb, used to hide a seam on the mesh of the car that allows you to see the headlights
+	if path != "res/viva/NPCViva.dae"
+		hideMesh = new THREE.Mesh new THREE.BoxGeometry(1.5, 0.3, 0.2), new THREE.MeshBasicMaterial {color: 0x000000}
+		hideMesh.position.z = 1.2
+		hideMesh.position.y = 0.8
+		hideMesh.position.x = 0
+		body.add hideMesh
+	
+	groupmaterial = new THREE.MultiMaterial()
+	toBeDeleted = []
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
-			if material.name == 'Silver_White'
-				mirrors.push obj
-	body.mirrors = mirrors
+			if path == "res/viva/NPCViva.dae" || (checkTransparent(obj) == false && checkMirrors(obj) == false && material.name != '__Carpet' &&  material.name != 'Upholstery_1')
+				material.transparent = false
+				if material not in groupmaterial.materials
+					groupmaterial.materials.push material
+				obj.material = groupmaterial
+				j = groupmaterial.materials.indexOf(material)
+				for i from 0 til obj.geometry.faces.length
+					obj.geometry.faces[i].materialIndex = j
+					groupmaterial.materials[j].needsUpdate = true
+			else if material.transparent
+				toBeDeleted.push obj
+	for obj in toBeDeleted
+		obj.parent.remove obj
+	
+	body = mergeObject body
+	#body.children[0].geometry.computeBoundingBox()
+	#console.log body.children[0].geometry
+	#sfdsfdfdf
 
+	body.traverse (obj) ->
+		return if not obj.geometry?
+		obj.geometry.sortFacesByMaterialIndex()
+
+
+	wheelmaterial = new THREE.MultiMaterial()
+
+	if steeringwheel
+		normals = []
+		steeringwheel.traverse (obj) ->
+			return if not obj.material?
+			for material in obj.material.materials ? [obj.material]
+				material.transparent = false
+
+				obj.geometry.computeFaceNormals()
+				obj.geometry.computeVertexNormals()
+				normals.push(obj.geometry)
+				if material not in wheelmaterial.materials
+					wheelmaterial.materials.push material
+				obj.material = wheelmaterial
+				j = wheelmaterial.materials.indexOf(material)
+				for i from 0 til obj.geometry.faces.length
+					obj.geometry.faces[i].materialIndex = j
+					wheelmaterial.materials[j].needsUpdate = true
+		
+		steeringwheel = mergeObject steeringwheel
+		steeringwheel.normals = normals
+		geometry = steeringwheel.children[0].geometry
+		geometry.sortFacesByMaterialIndex()
+		geometry.center()
+		geometry.computeBoundingBox()
+		max = geometry.boundingBox.max
+		min = geometry.boundingBox.min
+		steeringwheel.position.z = 0.58  - (max.z - min.z)*0.5
+		steeringwheel.position.y = 0.95
+		steeringwheel.position.x = 0.37
+
+
+	body.add steeringwheel
+
+	body.steeringwheel = steeringwheel
+
+	body.traverse (obj) ->
+		return if not obj.geometry?
+		if path == "res/viva/NPCViva.dae"
+			obj.geometry = new THREE.BufferGeometry().fromGeometry(obj.geometry)
+
+
+	brakeLightMaterials = []
 	body.traverse (obj) ->
 		return if not obj.material?
 		for material in obj.material.materials ? [obj.material]
 			if material.name == 'Red'
 				brakeLightMaterials.push material
+	mirrors = []
+	body.traverse (obj) ->
+		return if not obj.material?
+		if checkMirrors(obj)
+			mirrors.push obj
+
+	body.traverse (obj) ->
+		return if not obj.material?
+		for material in obj.material.materials ? [obj.material]
+			if material.name == "Speedometer"
+				body.tricycle = obj
+	body.mirrors = mirrors
 
 	eye = new THREE.Object3D
-	eye.position.y = 1.23
+	eye.position.y = 1.20
 	eye.position.z = 0.1
-	eye.position.x = 0.3
+	eye.position.x = 0.37
 	eye.rotation.y = Math.PI
 
 	#eye.position.x += 10.0
@@ -145,10 +251,41 @@ loadViva = Co ->*
 
 	body.add eye
 	wheels = scene.getObjectByName "Wheels"
+
 	#applyPosition wheels
+	
+	wheelMerging = (wheel) ->
+		wheel.traverse (obj) ->
+			return if not obj.material?
+			for material in obj.material.materials ? [obj.material]
+				if material not in groupmaterial.materials
+					groupmaterial.materials.push material
+				obj.material = groupmaterial
+				j = groupmaterial.materials.indexOf(material)
+				for i from 0 til obj.geometry.faces.length
+					obj.geometry.faces[i].materialIndex = j
+					groupmaterial.materials[j].needsUpdate = true
+
+	wheelsNew = new THREE.Object3D
+	i = 0
 	for let wheel in wheels.children
+		wheelMerging wheel
 		originToGeometry wheel
+		position = wheel.matrixWorld.getPosition()
+		wheel = mergeObject wheel
+		wheel.children[0].geometry.center()
+		wheel.children[0].geometry.sortFacesByMaterialIndex()
+		wheel.children[0].geometry = new THREE.BufferGeometry().fromGeometry(wheel.children[0].geometry)
+		wheel.position.copy position
+		console.log wheel.position
 		wheel.position.y += 0.1
+		wheelsNew.add wheel
+		index = (Math.floor i/2) * 2
+		wheel.children[0].material = wheelsNew.children[index].children[0].material
+		wheel.children[0].geometry = wheelsNew.children[index].children[0].geometry
+		i += 1
+	wheels = wheelsNew
+
 	body: body
 	wheels: wheels
 	eye: eye
@@ -160,8 +297,16 @@ loadViva = Co ->*
 				material.emissive.r = 0
 			material.needsUpdate = true
 
-export addVehicle = Co (scene, controls=new DummyControls, {objectName, steeringNoise=-> 0.0}={}) ->*
-	{body, wheels, eye, setBrakelight} = yield loadViva()
+export addVehicle = Co (scene, controls=new DummyControls, path="res/viva/NPCViva.dae", brakes=false, {objectName, steeringNoise=-> 0.0}={}) ->*
+	
+	if not scene.viva
+		{body, wheels, eye, setBrakelight} = yield loadViva(path)
+		scene.viva = {body, wheels, eye, setBrakelight}
+	else
+		body = scene.viva.body.clone()
+		wheels = scene.viva.wheels
+		eye = scene.viva.eye.clone()
+		setBrakelight = scene.viva.setBrakelight
 
 	syncModels = new Signal
 
@@ -197,7 +342,8 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 	brakePower = 1000										# Brake power
 	brakeExponent = 2000										# Brake response
 	brakeResponse = (pedal) -> (brakeExponent**pedal - 1)/brakeExponent*brakePower
-	maxSteer = 0.8
+	#maxSteer = 0.8											#replaced by steerRatio
+	steerRatio = (1.0 / 15.0) * (450/180.0 * Math.PI)
 	maxCentering = 0.4
 	maxCenteringSpeed = 10
 	steeringDeadzone = 0.005
@@ -207,7 +353,6 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 	#	centering = Math.min centering, maxCentering
 	#	controls.set autocenter: centering
 	controls.set autocenter: 0.6
-
 
 	wheels = wheels.children
 	wheelModels = []
@@ -228,8 +373,8 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 			frictionSlip: 1									# Wheel friction
 		wi = car.wheelInfos[wii]
 		#wheel = new THREE.Mesh w, new THREE.MeshFaceMaterial wm
-		#wheel.visible = false
-		#visual.add wheel
+
+		visual.add wheel
 
 		syncModels.add ->
 			car.updateWheelTransform wii
@@ -237,17 +382,20 @@ export addVehicle = Co (scene, controls=new DummyControls, {objectName, steering
 			wheel.quaternion.copy wi.worldTransform.quaternion
 
 		scene.beforePhysics.add (dt) ->
-			setBrakelight controls.brake > 0
+			if brakes
+				setBrakelight controls.brake > 0
 			mag = Math.abs controls.steering
 			dir = Math.sign controls.steering
 			mag -= steeringDeadzone
 			mag = Math.max mag, 0
-			steering = mag*dir*maxSteer
+			steering = mag*dir*steerRatio
 			steering += steeringNoise dt
 			if z > 0
 				# Front wheels
-				wi.brake = brakeResponse controls.brake
-				wi.steering = maxSteer*steering
+				brake = controls.brake
+				brake =  Math.min 1, 2*brake if path!="res/viva/NPCViva.dae"
+				wi.brake = brakeResponse brake
+				wi.steering = steering
 			else
 				# Back wheels
 				wi.engineForce = -enginePower*controls.throttle*controls.direction
