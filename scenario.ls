@@ -288,7 +288,7 @@ futPos = (scene) ->
 		#else
 		#	dur = 1	
 
-		scene.futPos += roadSecond*dir*1
+		scene.futPos += roadSecond*dir*1.75
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -369,10 +369,10 @@ fixLogic = (scene, sound, s) ->
 			calculateFuture scene, 1, s/3.6
 			#sound.play()
 		scene.dT = scene.time
-		handleFixLocs scene
+		handleFixLocs scene, scene.probeIndx%2
 		chance = Math.random()
-		scene.fixcircles[0].children[0].visible = false
-		scene.fixcircles[1].children[0].visible = false
+		scene.fixcircles[scene.probeIndx%2].children[0].visible = false
+		#scene.fixcircles[1].children[0].visible = false
 		scene.showTime = 0.25
 		#if chance > 0.5
 		#	scene.showTime = 0.4
@@ -519,17 +519,17 @@ objectLoc = (object, x, y) ->
 	#object.position.y = (h*y - h/2) * heigth
 
 	object.position.x = y
-	object.position.y = 0.1
+	object.position.y = 0.10
 	object.position.z = x
 	#console.log x, y
 
-handleFixLocs = (scene) ->
+handleFixLocs = (scene, i = 0) ->
 	p500 = scene.predict[0]
 	p1000 = scene.predict[1]
 	p2000 = scene.predict[2]
 	p4000 = scene.predict[3]
 
-	objectLoc scene.fixcircles[0], p500.x, p500.y
+	objectLoc scene.fixcircles[i], p500.x, p500.y
 	#objectLoc scene.fixcircles[1],  p1000.x, p1000.y
 	#objectLoc scene.fixcircles[2],  p2000.x, p2000.y
 	#objectLoc scene.fixcircles[3],  p4000.x, p4000.y
@@ -588,7 +588,7 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [1.5, 1.55, Math.random()*2 + 1, Math.random()*2 + 1, -0.1]
+	fut = [2, 2, Math.random()*2 + 1, Math.random()*2 + 1, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
@@ -801,7 +801,7 @@ handleReaction = (env, scene, i) ->
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
-addFixationCross = (scene, radius = 2.5, c = 0xB7B3B3, circle = false) ->
+addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
 	angle = (vFOV/2) * Math.PI/180
@@ -809,17 +809,26 @@ addFixationCross = (scene, radius = 2.5, c = 0xB7B3B3, circle = false) ->
 	size = (Math.tan(angle) * 1.7 * 2) * ratio
 
 	fixObj = new THREE.Object3D()
-	c = 0xF7FE2E
-	material = new THREE.MeshStandardMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1
+	material = new THREE.MeshPhongMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1, shininess: 20
 	size = 0.2
 
+	shadowGeo = new THREE.CircleGeometry(size, 32)
+	shadowMat = new THREE.MeshStandardMaterial color: 0x000000, transparent: true, depthTest: true, depthWrite: true, opacity: 0.5, side: THREE.DoubleSide
+
 	geo = new THREE.SphereGeometry(size, 64, 64)
+	shadow = new THREE.Mesh shadowGeo, shadowMat
+	shadow.rotation.x = Math.PI*0.5
+	shadow.position.y = -0.18
 	circle = new THREE.Mesh geo, material
+	circle.receiveShadow = false
+	circle.castShadow = true
+
 	fixObj.add circle
+	#fixObj.add shadow
 		
 
 
-	fixObj.position.y = -10
+	fixObj.position.y = -10000
 	fixObj.heigth = size
 	fixObj.ratio = ratio
 	scene.visual.add fixObj
@@ -835,8 +844,8 @@ addBackgroundColor = (scene) ->
 	geo = new THREE.PlaneGeometry 4000, 4000
 	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true
 	mesh = new THREE.Mesh geo, mat
-	mesh.position.z = -1100
-	scene.camera.add mesh
+	mesh.position.z = -2100
+	#scene.camera.add mesh
 	#console.log scene
 
 addBackgroundColorFun = (scene) ->
@@ -925,10 +934,10 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 
 
 
-	startPoint = 0.5*l/scene.centerLine.getLength()
+	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).x
-	scene.player.physical.quaternion.setFromEuler(0, Math.PI*1.5 ,0, 'XYZ')
+	#scene.player.physical.quaternion.setFromEuler(0, Math.PI*2.0 ,0, 'XYZ')
 	scene.playerControls.throttle = 0
 
 
@@ -946,7 +955,7 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	scene.visibTime = 2
 
 	while not env.controls.catch == true
-			yield P.delay 100
+		yield P.delay 100
 	env.controls.probeReact = false
 
 

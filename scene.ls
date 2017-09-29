@@ -150,6 +150,7 @@ export addGround = (scene) ->
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = 0
+	road.receiveShadow = true
 	terrain.add road
 
 	rocks = new THREE.Object3D()
@@ -194,14 +195,14 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
-eulerSpiral = (k) ->
+eulerSpiral = (k, terrainSize) ->
 	x = require('./road_x.json') 
 	y = require('./road_y.json')
 	vectors = []
 	path = new THREE.CurvePath()
 	for i from 0 til x.length - 1
-		vec0 = new THREE.Vector3(x[i]*k, y[i]*k, 0)
-		vec1 = new THREE.Vector3(x[i + 1]*k, y[i + 1]*k, 0)
+		vec0 = new THREE.Vector3(y[i]*k, x[i]*k - terrainSize, 0)
+		vec1 = new THREE.Vector3(y[i + 1]*k, x[i + 1]*k - terrainSize, 0)
 		line = new THREE.LineCurve3(vec0, vec1)
 		path.add(line)
 	#path = new THREE.Path(vectors)
@@ -214,7 +215,7 @@ eulerSpiral = (k) ->
 
 export addCircleGround = (scene, rx, ry, length) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
-	terrainSize = 1000
+	terrainSize = 800
 	textureSize = 40
 	textureRep = terrainSize/textureSize
 	anisotropy = 8
@@ -231,7 +232,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		#normalMap: groundNorm
 		shininess: 20
 	terrain = new THREE.Object3D
-	#terrain.receiveShadow = true
+	terrain.receiveShadow = true
 	groundGeometry = new THREE.PlaneGeometry terrainSize, terrainSize, 0, 0
 	ground = new THREE.Mesh groundGeometry, groundMaterial
 	ground.castShadow = false
@@ -289,7 +290,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 		return circle
 
 
-	circle = eulerSpiral(200)
+	circle = eulerSpiral(175, terrainSize)
+
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
@@ -326,6 +328,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
 	#road.visible = false
+	road.receiveShadow = true
 	scene.road = road
 
 
@@ -375,12 +378,28 @@ export addCircleGround = (scene, rx, ry, length) ->
 	#terrain.add mergeObject rocks
 	#terrain.visible= false
 
+
+	left = terrain.clone()
+	right = terrain.clone()
+	left.position.x =  terrainSize
+	right.position.x = -terrainSize
+	terrain.add left
+	terrain.add right
+
 	scene.visual.add terrain
+
+
+
 	ahead = terrain.clone()
 	behind = terrain.clone()
+
 	scene.visual.add road
 	scene.visual.add ahead
 	scene.visual.add behind
+
+
+
+
 
 	position = new THREE.Vector3
 	scene.beforeRender.add ->
@@ -389,3 +408,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		terrain.position.z = nTerrains*terrainSize
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
+
+
+
+

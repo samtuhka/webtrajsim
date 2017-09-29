@@ -392,11 +392,11 @@ export TrafficLight = seqr.bind ->*
 			scene.physics.removeBody watcher
 
 SunCalc = require 'suncalc'
-export addSky = (scene, {location=[60, 0], date}={}) ->
+export addSky = (scene, {location=[0, 0], date}={}) ->
 	if not date?
 		date = new Date 1970, 5, 24, 12
 
-	distance = 4500
+	distance = 40
 	dome = new THREE.Object3D
 	scene.visual.add dome
 	sky = new THREE.Sky
@@ -404,20 +404,20 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 
 	sunlight = new THREE.DirectionalLight 0xffffff, 0.5
 		..castShadow = true
-		..shadowCameraNear = distance/2
-		..shadowCameraFar = distance*2
-		..shadowCameraLeft = -distance
-		..shadowCameraRight = distance
-		..shadowCameraTop = distance
-		..shadowCameraBottom = -distance
-		..shadowMapWidth = 2048
-		..shadowMapHeight = 2048
-		..shadowBias = 0.0001
-		..shadowDarkness = 1.0
+		..shadow.camera.near = distance/2
+		..shadow.camera.far = distance*2
+		..shadow.camera.left = -distance
+		..shadow.camera.right = distance
+		..shadow.camera.top = distance
+		..shadow.camera.bottom = -distance
+		..shadow.mapSize.width = 2048
+		..shadow.mapSize.height = 2048
+		..shadow.bias = 0.1
+		..shadow.Darkness = 1.0
 		..target = dome
-		#..shadowCameraVisible = true
 		#
-	dome.add sunlight
+	scene.visual.add sunlight
+
 	#hemiLight = new THREE.HemisphereLight 0xffffff, 0xffffff, 0.5
 	#	..position.set 0, 4500, 0
 	#scene.visual.add hemiLight
@@ -429,14 +429,18 @@ export addSky = (scene, {location=[60, 0], date}={}) ->
 		position.setFromMatrixPosition scene.camera.matrixWorld
 		dome.position.z = position.z
 		dome.position.x = position.x
+		sunlight.position.z = position.z
+		sunlight.position.x = position.x
 
 	updatePosition = ->
 		degs = SunCalc.getPosition date, ...location
 
+		position = new THREE.Vector3 0, 0, 4500
+		position.applyEuler new THREE.Euler -degs.altitude, degs.azimuth, 0, "YXZ"
+		sky.uniforms.sunPosition.value.copy position
+
 		position = new THREE.Vector3 0, 0, distance
 		position.applyEuler new THREE.Euler -degs.altitude, degs.azimuth, 0, "YXZ"
-		#position = new THREE.Vector3 0, distance, 0
-		sky.uniforms.sunPosition.value.copy position
 		sunlight.position.copy position
 
 	updatePosition()

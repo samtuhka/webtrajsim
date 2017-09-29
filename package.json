@@ -15,7 +15,7 @@
     "system-text": "^0.1.0",
     "systemjs": "^0.19.28",
     "systemjs-plugin-json": "^0.2.3",
-    "three": "^0.83.0"
+    "three": "^0.87.0"
   },
   "devDependencies": {
     "bluebird": "^3.0.5",

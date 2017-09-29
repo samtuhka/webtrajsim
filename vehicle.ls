@@ -247,7 +247,7 @@ loadViva = Co (path) ->*
 	eye.rotation.y = Math.PI
 
 	#eye.position.x += 10.0
-	#eye.rotation.y -= Math.PI/2.0
+	#eye.rotation.x += Math.PI/2.0
 
 	body.add eye
 	wheels = scene.getObjectByName "Wheels"
@@ -279,6 +279,7 @@ loadViva = Co (path) ->*
 		wheel.position.copy position
 		console.log wheel.position
 		wheel.position.y += 0.1
+		wheel.visible = false
 		wheelsNew.add wheel
 		index = (Math.floor i/2) * 2
 		wheel.children[0].material = wheelsNew.children[index].children[0].material

@@ -16,6 +16,14 @@ window.THREE = THREE = require 'three'
 window.CANNON = require 'cannon'
 require './node_modules/cannon/tools/threejs/CannonDebugRenderer.js'
 
+require './node_modules/three/examples/js/shaders/CopyShader.js'
+require './node_modules/three/examples/js/postprocessing/EffectComposer.js'
+require './node_modules/three/examples/js/postprocessing/ShaderPass.js'
+require './node_modules/three/examples/js/postprocessing/RenderPass.js'
+require './node_modules/three/examples/js/shaders/DigitalGlitch.js'
+require './node_modules/three/examples/js/postprocessing/GlitchPass.js'
+require './node_modules/three/examples/js/shaders/SSAOShader.js'
+
 eachFrame = (f) -> new P (accept, reject) ->
 	stopped = false
 	clock = new THREE.Clock
@@ -181,11 +189,50 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 		# And similar hack for three.js
 		renderer.render (new THREE.Scene), scene.camera
 		renderer.dispose()
-	#renderer.shadowMapEnabled = true
-	#renderer.shadowMapType = THREE.PCFShadowMap
+	renderer.shadowMap.enabled = true
+	renderer.shadowMap.type = THREE.PCFShadowMap
 	#renderer.autoClear = false
 	#scene.beforeRender.add -> renderer.clear()
 	scene.renderer = renderer
+
+	
+	/*
+	composer = new THREE.EffectComposer(renderer)
+	composer.setSize(1920, 1080 )
+	renderPass = new THREE.RenderPass(scene.visual, scene.camera)
+	composer.addPass(renderPass)
+
+
+	depthMaterial = new THREE.MeshDepthMaterial()
+	depthMaterial.depthPacking = THREE.RGBADepthPacking
+	#depthMaterial.blending = THREE.NoBlending
+
+
+	pars = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }
+	depthRenderTarget = new THREE.WebGLRenderTarget( 1920, 1080, pars )
+	depthRenderTarget.texture.name = "SSAOShader.rt"
+	
+	ssaoPass = new THREE.ShaderPass( THREE.SSAOShader )
+	ssaoPass.renderToScreen = true
+	ssaoPass.uniforms['size'].value.set(1920, 1080)
+	ssaoPass.uniforms['cameraNear'].value = 0.1
+	ssaoPass.uniforms['cameraFar'].value = 1000
+	ssaoPass.uniforms['lumInfluence'].value = 0.3
+	ssaoPass.uniforms[ 'aoClamp' ].value = 0.1
+	#ssaoPass.uniforms[ 'onlyAO' ].value = 1
+	ssaoPass.uniforms[ "tDepth" ].value = depthRenderTarget.texture
+
+	
+	composer.addPass(ssaoPass)
+
+	gpass = new THREE.GlitchPass()
+	gpass.renderToScreen = true
+	#composer.addPass(gpass)
+	*/
+
+
+
+
 	render = ->
 		renderer.render scene.visual, scene.camera
 	if env.opts.enableVr
