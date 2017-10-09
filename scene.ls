@@ -226,17 +226,17 @@ export addCircleGround = (scene, rx, ry, length) ->
 	groundNorm.repeat.set textureRep, textureRep
 	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
 	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
-	groundMaterial = new THREE.MeshPhongMaterial do
-		color: 0xffffff
+	groundMaterial = new THREE.MeshBasicMaterial do
+		#color: 0x7F7F7F
 		map: groundTex
 		#normalMap: groundNorm
-		shininess: 20
+		#shininess: 20
 	terrain = new THREE.Object3D
-	terrain.receiveShadow = true
+	#terrain.receiveShadow = true
 	groundGeometry = new THREE.PlaneGeometry terrainSize, terrainSize, 0, 0
 	ground = new THREE.Mesh groundGeometry, groundMaterial
-	ground.castShadow = false
-	ground.receiveShadow = true
+	#ground.castShadow = false
+	#ground.receiveShadow = true
 	ground.rotation.x = -Math.PI/2.0
 	# To avoid z-fighting. Should be handled by
 	# polygon offset, but it gives very weird results
@@ -261,7 +261,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 		ox = rX * c
 		oy = rY * c
 		dy = -2*rX
-		k = (terrainSize/2 - rX - 1.75) - 500
+		k = (terrainSize/2 - rX - 1.75)
 		circle = new THREE.CurvePath()
 		straight = new THREE.LineCurve3(new THREE.Vector3(-s, rX + k, 0), new THREE.Vector3(0, rX + k, 0))
 		circle.add(straight)
@@ -290,7 +290,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 		return circle
 
 
-	circle = eulerSpiral(175, terrainSize)
+	circle = generateCircle(rx, ry, length)  
+	#circle = eulerSpiral(rx, terrainSize)
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
@@ -311,6 +312,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 		shininess: 20
 		normalMap: roadNorm
 		transparent: true
+		side: THREE.DoubleSide
+		depthWrite: true
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
@@ -328,7 +331,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
 	#road.visible = false
-	road.receiveShadow = true
+	#road.receiveShadow = true
 	scene.road = road
 
 

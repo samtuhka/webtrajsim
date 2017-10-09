@@ -14,6 +14,53 @@
 				System.import('./ui-main.ls');
 			});
 		</script>
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			uniform vec2 uvScale;
+			varying vec2 vUv;
+			varying float vAlpha;
+			uniform vec2 resolution;
+			varying vec4 v;
+
+			void main()
+			{	
+
+				vUv = (uv*2.0 - 1.0);
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0);
+				gl_Position = projectionMatrix * mvPosition;
+				v = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				v.x = v.x / v.z;
+				v.y = v.y / v.z;
+
+			}
+
+		</script>
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			varying vec2 vUv;
+			uniform float time;
+			uniform float cycles;
+			varying vec3 vNormal;
+			varying vec4 v;
+
+
+			void main()	{
+
+				vec2 position = vUv;
+
+				float x = position.x;
+				float y = position.y;
+				float pi = 3.141592653589793;
+				float d = sqrt(x*x + y*y);
+				float v = (cos(x*cycles*pi) + 1.0)/2.0;
+				float v2 = cos(d * pi/2.0);
+				if (d >= 1.0) {
+					v2 = 0.0;
+				}
+				gl_FragColor = vec4(0.7,0.7,0.7,max(min(0.7 - d, 1.0), 0.0));
+			}
+		</script>
+
 		</template>
 		<template id="launch-static">
 		<script src="ui-main.ls.js"></script>

@@ -1,7 +1,6 @@
 THREE = require 'three'
 Cannon = require 'cannon'
 $ = require 'jquery'
-
 P = require 'bluebird'
 seqr = require './seqr.ls'
 
@@ -64,13 +63,14 @@ export SineGratingBitmap = ({resolution=1024, cycles=8}={}) ->
 	ctx = canvas.getContext '2d'
 	img = ctx.createImageData resolution, resolution
 
-	setPixel = (x, y, value) ->
+	setPixel = (x, y, value, value2) ->
 		i = (y*resolution + x)*4
 		c = value*255
-		img.data[i] = 255
-		img.data[i + 1] = 255
-		img.data[i + 2] = 255
-		img.data[i + 3] = c
+		c2 = value2*255
+		img.data[i] = c
+		img.data[i + 1] = c
+		img.data[i + 2] = c
+		img.data[i + 3] = c2
 
 	for x til resolution
 		for y til resolution
@@ -79,9 +79,9 @@ export SineGratingBitmap = ({resolution=1024, cycles=8}={}) ->
 			d = Math.sqrt (rx**2 + ry**2)
 
 			v = (Math.cos(rx*cycles*Math.PI) + 1)/2
-			v *= Math.cos d*Math.PI/2
-			v *= d < 1.0
-			setPixel x, y, v
+			v2 = Math.cos d*Math.PI/2
+			v2 *= d < 1.0
+			setPixel x, y, v, v2
 	ctx.putImageData img, 0, 0
 	return canvas
 

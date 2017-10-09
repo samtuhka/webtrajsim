@@ -234,6 +234,9 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 
 
 	render = ->
+		gl = renderer.context
+		gl.enable(gl.BLEND)
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 		renderer.render scene.visual, scene.camera
 	if env.opts.enableVr
 		render = enableVr env, renderer, scene

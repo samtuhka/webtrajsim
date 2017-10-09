@@ -126,7 +126,7 @@ export minimalScenario = seqr.bind (env) ->*
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 	@let \scene, scene
 	yield @get \done
-require './multithread.js'
+
 exportScenario \laneDriving, (env) ->*
 	# Load the base scene
 	scene = yield baseScene env
@@ -288,7 +288,7 @@ futPos = (scene) ->
 		#else
 		#	dur = 1	
 
-		scene.futPos += roadSecond*dir*1.75
+		scene.futPos += roadSecond*scene.params.updateTime
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -369,16 +369,21 @@ fixLogic = (scene, sound, s) ->
 			calculateFuture scene, 1, s/3.6
 			#sound.play()
 		scene.dT = scene.time
-		handleFixLocs scene, scene.probeIndx%2
-		chance = Math.random()
-		scene.fixcircles[scene.probeIndx%2].children[0].visible = false
+		n = scene.params.targets
+		handleFixLocs scene, scene.probeIndx%n
+		#chance = Math.random()
+		#scene.fixcircles[scene.probeIndx%n].children[0].visible = false
 		#scene.fixcircles[1].children[0].visible = false
-		scene.showTime = 0.25
+		scene.showTime = 0.0
 		#if chance > 0.5
 		#	scene.showTime = 0.4
-	if scene.time - scene.dT > scene.showTime
-		scene.fixcircles[0].children[0].visible = true
-		scene.fixcircles[1].children[0].visible = true
+	#if scene.time - scene.dT >= scene.showTime
+	#	scene.fixcircles[0].children[0].visible = true
+	#	scene.fixcircles[1].children[0].visible = true
+	#	scene.fixcircles[2].children[0].visible = true
+	#	scene.fixcircles[3].children[0].visible = true
+
+
 
 triangle = (s) ->
 	triA = new THREE.Shape()
@@ -509,19 +514,24 @@ createProbes = (scene, n) ->
 		probe.missed = 0
 		scene.probes.push(probe)
 
-objectLoc = (object, x, y) ->
-	aspect = window.innerWidth / window.innerHeight
-	ratio = object.ratio
-	w = aspect/ratio
-	h = 1/ratio
-	heigth = object.heigth
-	#object.position.x = (w*x - w/2) * heigth
-	#object.position.y = (h*y - h/2) * heigth
+objectLoc = (object, x, y, scene) ->
 
 	object.position.x = y
-	object.position.y = 0.10
+	object.position.y = -0.05
 	object.position.z = x
+
+	#console.log scene.camera.matrixWorld
+	#console.log scene.camera.matrixWorld
+
+
+
 	#console.log x, y
+
+rotateObjects = (scene) ->
+	scene.fixcircles[0].children[0].rotation.setFromRotationMatrix(scene.camera.matrixWorld, 'XYZ')
+	scene.fixcircles[1].children[0].rotation.setFromRotationMatrix(scene.camera.matrixWorld, 'XYZ')
+	scene.fixcircles[2].children[0].rotation.setFromRotationMatrix(scene.camera.matrixWorld, 'XYZ')
+	scene.fixcircles[3].children[0].rotation.setFromRotationMatrix(scene.camera.matrixWorld, 'XYZ')
 
 handleFixLocs = (scene, i = 0) ->
 	p500 = scene.predict[0]
@@ -529,7 +539,8 @@ handleFixLocs = (scene, i = 0) ->
 	p2000 = scene.predict[2]
 	p4000 = scene.predict[3]
 
-	objectLoc scene.fixcircles[i], p500.x, p500.y
+
+	objectLoc scene.fixcircles[i], p500.x, p500.y, scene
 	#objectLoc scene.fixcircles[1],  p1000.x, p1000.y
 	#objectLoc scene.fixcircles[2],  p2000.x, p2000.y
 	#objectLoc scene.fixcircles[3],  p4000.x, p4000.y
@@ -588,14 +599,17 @@ search = (scene) ->
 
 calculateFuture = (scene, r, speed) ->
 	t1 = search(scene)
-	fut = [2, 2, Math.random()*2 + 1, Math.random()*2 + 1, -0.1]
+	th = scene.params.headway
+	fut = [th, th, th, -0.1]
 	for i from 0 til 5
 		point = scene.centerLine.getPointAt(t1)
 		dist = speed*fut[i]
 		t2 = t1 + dist/scene.centerLine.getLength()*r
 		if t2 >= 1
+			scene.end = true if scene.params.direction == 1
 			t2 -= 1
 		if t2 < 0
+			scene.end = true if scene.params.direction == -1
 			t2 = 1 - Math.abs(t2)
 		point2 = scene.centerLine.getPoint(t2)
 		scene.predict[i] = point2
@@ -801,6 +815,8 @@ handleReaction = (env, scene, i) ->
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
+
+
 addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 	vFOV = scene.camera.fov
 	aspect = screen.width / screen.height
@@ -809,19 +825,31 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 	size = (Math.tan(angle) * 1.7 * 2) * ratio
 
 	fixObj = new THREE.Object3D()
-	material = new THREE.MeshPhongMaterial color: c, transparent: true, depthTest: true, depthWrite: true, opacity: 1, shininess: 20
-	size = 0.2
 
-	shadowGeo = new THREE.CircleGeometry(size, 32)
-	shadowMat = new THREE.MeshStandardMaterial color: 0x000000, transparent: true, depthTest: true, depthWrite: true, opacity: 0.5, side: THREE.DoubleSide
+	cycles = 18.0
+	size = 1
+	uniform = {cycles: { type: "f", value: cycles }}
 
-	geo = new THREE.SphereGeometry(size, 64, 64)
-	shadow = new THREE.Mesh shadowGeo, shadowMat
-	shadow.rotation.x = Math.PI*0.5
-	shadow.position.y = -0.18
+	#texture = new THREE.Texture assets.SineGratingBitmap resolution: 512, cycles: cycles
+	#texture.magFilter = THREE.NearestFilter
+	#texture.minFilter = THREE.LinearMipMapLinearFilter
+	#texture.needsUpdate = true
+
+	material = new THREE.ShaderMaterial vertexShader: document.getElementById( 'vertexShader' ).textContent, fragmentShader: document.getElementById( 'fragmentShader' ).textContent, transparent: true, uniforms: uniform
+	#material.precision =  "highp"
+	material.needsUpdate = true
+
+
+
+
+	#material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, map: texture,transparent: true, opacity: 1.0
+
+	geo = new THREE.CircleGeometry(size, 32)
 	circle = new THREE.Mesh geo, material
-	circle.receiveShadow = false
-	circle.castShadow = true
+	#circle.position.y = size/2.0 + 0.1
+	circle.rotation.x = -Math.PI*0.5
+	#circle.receiveShadow = false
+	#circle.castShadow = true
 
 	fixObj.add circle
 	#fixObj.add shadow
@@ -910,16 +938,17 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	annoyingSound2.setVolume(0.05)
 
 	if rx == undefined
-		rx = 120
+		rx = 50
 	if ry == undefined
 		ry = rx
 	if l == undefined
-		l = 70
+		l = 0
 	if s == undefined
-		s = 60
+		yaw = 18.0
+		s = yaw/360.0*2*Math.PI*50*3.6
 
 	scene = yield basecircleDriving env, rx, ry, l
-	scene.params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 500}
+	scene.params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 500, updateTime: 0.75, headway: 2.0, targets: 4}
 
 	scene.fixcircles = []
 	addFixationCross scene, 1.5
@@ -948,9 +977,13 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	addMarkerScreen scene, env
 	addBackgroundColor scene
 
+
+	markersVisible scene
 	calculateFuture scene, 1, s/3.6
 	handleFixLocs scene
-	markersVisible scene
+	search(scene)
+	fixLogic scene, annoyingSound, s
+	#rotateObjects scene
 
 	scene.visibTime = 2
 
@@ -979,6 +1012,7 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 
 		search(scene)
 		fixLogic scene, annoyingSound, s
+		#rotateObjects scene
 
 		z = scene.player.physical.position.z
 		x = scene.player.physical.position.x
@@ -1703,8 +1737,6 @@ addReactionTest = seqr.bind (scene, env) ->*
 
 
 
-require './three.js/examples/Mirror.js'
-#require './three.js/examples/MirrorNode.js'
 addMirror = (scene, env) ->
 	mirror = new THREE.Mirror(env.renderer, scene.camera, { clipBias: 0.0, textureWidth: window.innerWidth, textureHeight: window.innerHeight, debugMode: true})
 	mirrorMesh = new THREE.Mesh do
