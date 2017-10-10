@@ -4,6 +4,10 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
+
+SESSDIR="/home/samtuhka/sessions/`date +%s`"
+mkdir -p $SESSDIR
+
 BROWSER="chromium --user-data-dir=chromium-data --allow-file-access-from-files"
 #BROWSER="firefox -no-remote -new-instance -profile firefox-data"
 #BROWSER="primusrun ./firefox/firefox/firefox"
@@ -23,6 +27,9 @@ SHOST=0.0.0.0
 SPORT=8000
 WHOST=localhost
 WPORT=10101
+
+./wslog --port 10102 --host 0.0.0.0 > "$SESSDIR/simulator.jsons" &
+
 ./wheel/websocketd --port=$WPORT --address=$WHOST ./wheel/wheel.py&
 #python3 -m http.server --bind $SHOST $PORT &
 #export vblank_mode=0
