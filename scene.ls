@@ -227,8 +227,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
 	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
 	groundMaterial = new THREE.MeshBasicMaterial do
-		#color: 0x7F7F7F
-		map: groundTex
+		color: 0x7F7F7F
+		#map: groundTex
 		#normalMap: groundNorm
 		#shininess: 20
 	terrain = new THREE.Object3D
@@ -247,7 +247,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 3.5/1.5*3.5
+	roadWidth = 3.5
 	roadLenght = 4*roadWidth
 	shape = new THREE.Shape()
 	shape.moveTo(0, -0.5*roadWidth)
@@ -290,8 +290,8 @@ export addCircleGround = (scene, rx, ry, length) ->
 		return circle
 
 
-	circle = generateCircle(rx, ry, length)  
-	#circle = eulerSpiral(rx, terrainSize)
+	#circle = generateCircle(rx, ry, length)  
+	circle = eulerSpiral(rx, terrainSize)
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
@@ -308,10 +308,11 @@ export addCircleGround = (scene, rx, ry, length) ->
 	#roadTex.repeat.set textureRep/2.0, 1
 	#roadNorm.repeat.set textureRep/2.0, 1
 	roadMat = new THREE.MeshPhongMaterial do
-		map: roadTex
-		shininess: 20
-		normalMap: roadNorm
-		transparent: true
+		#map: roadTex
+		#shininess: 20
+		#normalMap: roadNorm
+		color: 0xffffff
+		#transparent: true
 		side: THREE.DoubleSide
 		depthWrite: true
 	faces = roadGeo.faces
@@ -330,7 +331,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
-	#road.visible = false
+	road.visible = false
 	#road.receiveShadow = true
 	scene.road = road
 

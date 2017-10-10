@@ -197,7 +197,7 @@ export singleScenario = seqr.bind ->*
 	scnName = opts.singleScenario
 	while true
 		if scnName == "circleDriving" || scnName == "circleDrivingRev"
-			yield runScenarioCurve scn
+			yield runScenario scn
 		else
 			yield runScenario scn
 

@@ -286,9 +286,14 @@ futPos = (scene) ->
 		#if seed > 0.5
 		#	dur = 1.7
 		#else
-		#	dur = 1	
-
-		scene.futPos += roadSecond*scene.params.updateTime
+		#	dur = 1
+		newRandom = Math.random()
+		oldRandom = scene.random	
+		if newRandom > 0.75 && oldRandom <= 0.75
+			scene.futPos += roadSecond*scene.params.updateTime*2
+		else
+			scene.futPos += roadSecond*scene.params.updateTime
+		scene.random = newRandom
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -371,12 +376,19 @@ fixLogic = (scene, sound, s) ->
 		scene.dT = scene.time
 		n = scene.params.targets
 		handleFixLocs scene, scene.probeIndx%n
+		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 1.0
 		#chance = Math.random()
 		#scene.fixcircles[scene.probeIndx%n].children[0].visible = false
 		#scene.fixcircles[1].children[0].visible = false
 		scene.showTime = 0.0
 		#if chance > 0.5
 		#	scene.showTime = 0.4
+	n = scene.params.targets
+	#console.log scene.fixcircles
+	if scene.probeIndx?
+		val = scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value
+		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = Math.max val - 0.05, 0.0
+
 	#if scene.time - scene.dT >= scene.showTime
 	#	scene.fixcircles[0].children[0].visible = true
 	#	scene.fixcircles[1].children[0].visible = true
@@ -828,7 +840,7 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 	cycles = 18.0
 	size = 1
-	uniform = {cycles: { type: "f", value: cycles }}
+	uniform = {cycles: { type: "f", value: cycles }, trans: {type: "f", value: 0.0}}
 
 	#texture = new THREE.Texture assets.SineGratingBitmap resolution: 512, cycles: cycles
 	#texture.magFilter = THREE.NearestFilter
@@ -956,7 +968,7 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	addFixationCross scene, 1.5
 	addFixationCross scene, 1.5
 
-	
+	scene.random = 0
 	#scene.fixcircles[0].children[0].material.color.g = 1.0
 	#scene.fixcircles[3].children[0].material.color.r = 1.0
 

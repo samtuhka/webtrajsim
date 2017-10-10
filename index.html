@@ -42,6 +42,7 @@
 			uniform float cycles;
 			varying vec3 vNormal;
 			varying vec4 v;
+			uniform float trans;
 
 
 			void main()	{
@@ -57,7 +58,7 @@
 				if (d >= 1.0) {
 					v2 = 0.0;
 				}
-				gl_FragColor = vec4(0.7,0.7,0.7,max(min(0.7 - d, 1.0), 0.0));
+				gl_FragColor = vec4(0.7,0.7,0.7,max(min(0.7 - d - trans, 1.0), 0.0));
 			}
 		</script>
 
