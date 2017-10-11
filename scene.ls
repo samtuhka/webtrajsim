@@ -289,9 +289,14 @@ export addCircleGround = (scene, rx, ry, length) ->
 
 		return circle
 
+	deparam = require 'jquery-deparam'
+	opts = deparam window.location.search.substring 1
 
-	#circle = generateCircle(rx, ry, length)  
-	circle = eulerSpiral(rx, terrainSize)
+	if opts.euler?
+		circle = eulerSpiral(rx, terrainSize)
+	else
+		circle = generateCircle(rx, ry, length)  
+
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
@@ -331,7 +336,10 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0
 	road.position.y = -0.09
-	road.visible = false
+
+
+	if opts.hideRoad?
+		road.visible = false
 	#road.receiveShadow = true
 	scene.road = road
 

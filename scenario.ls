@@ -363,19 +363,21 @@ probeLogic = (scene) ->
 			futPos scene
 		scene.dT = scene.time
 
-fixLogic = (scene, sound, s) ->
+fixLogic = (env, scene, sound, s) ->
 	roadPosition scene
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
 			scene.end = true
 		else
 			scene.probeIndx += 1
-			futPos scene
+			futPos scene 
 			calculateFuture scene, 1, s/3.6
+			env.logger.write futPos: scene.futPos
 			#sound.play()
 		scene.dT = scene.time
 		n = scene.params.targets
 		handleFixLocs scene, scene.probeIndx%n
+		env.logger.write probe: scene.fixcircles[scene.probeIndx%n].position
 		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 1.0
 		#chance = Math.random()
 		#scene.fixcircles[scene.probeIndx%n].children[0].visible = false
@@ -994,7 +996,7 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	calculateFuture scene, 1, s/3.6
 	handleFixLocs scene
 	search(scene)
-	fixLogic scene, annoyingSound, s
+	fixLogic env, scene, annoyingSound, s
 	#rotateObjects scene
 
 	scene.visibTime = 2
@@ -1023,7 +1025,7 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 		handleSpeed scene, s
 
 		search(scene)
-		fixLogic scene, annoyingSound, s
+		fixLogic env, scene, annoyingSound, s
 		#rotateObjects scene
 
 		z = scene.player.physical.position.z
