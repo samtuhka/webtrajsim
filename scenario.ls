@@ -707,6 +707,8 @@ export briefInst = seqr.bind (env, inst, scene) ->*
 export basecircleDriving = seqr.bind (env, params) ->*
 
 	scene = yield circleScene env, params
+	addMarkerScreen scene, env
+	addBackgroundColor scene
 	return scene
 
 onInnerLane = (scene) ->
@@ -981,8 +983,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	#scene.fixcircles[0].children[0].material.color.g = 1.0
 	#scene.fixcircles[3].children[0].material.color.r = 1.0
 	
-	addMarkerScreen scene, env
-	addBackgroundColor scene
+
 
 
 
@@ -994,13 +995,11 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	scene.playerControls.throttle = 0
 
 
+	title = "%fixSwitchPrac.title" 
+	text = "%fixSwitchPrac.intro"
 
-	rw = scene.centerLine.width
-	@let \scene, scene
-	yield @get \run
-
-
-
+	title = "%fixSwitch.title" if hide 
+	text = "%fixSwitch.intro" if hide
 
 
 	markersVisible scene
@@ -1012,17 +1011,13 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 
 	scene.visibTime = 2
 
-
-	title = "%fixSwitchPrac.title" 
-	text = "%fixSwitchPrac.intro"
-
-	title = "%fixSwitch.title" if hide 
-	text = "%fixSwitch.intro" if hide
-
-
 	@let \intro,
 		title: env.L title
 		content: env.L text
+
+	rw = scene.centerLine.width
+	@let \scene, scene
+	yield @get \run
 
 
 	while not env.controls.catch == true

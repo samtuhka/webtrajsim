@@ -26,10 +26,18 @@
 			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.</p>
 			"""
 '%fixSwitch.title': 'Pysy tiellä'
-'%fixSwitch.intro': """<p>BÖÖ</p>"""
-'%fixSwitchPrac.intro': """<p>BÖÖ</p>"""
 '%fixSwitchPrac.title': 'Pysy tiellä (harjoittelu)'
-
+'%fixSwitch.intro': """
+	<p>Tehtävänäsi on pysyä (nyt näkymättömällä) tiellä.
+	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
+	<p>Tien pinnalla näkyy merkkejä. 
+	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
+'%fixSwitchPrac.intro': """
+	<p>Tehtävänäsi on pysyä tiellä.
+	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
+	<p>Tien pinnalla näkyy merkkejä.
+	<p>Ajettava rata pysyy koko kokeen ajan samana (ensimmäisen mutkan suunta voi vaihdella).
+	"""
 
 '%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
 
