@@ -1012,9 +1012,17 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 
 	scene.visibTime = 2
 
+
+	title = "%fixSwitchPrac.title" 
+	text = "%fixSwitchPrac.intro"
+
+	title = "%fixSwitch.title" if hide 
+	text = "%fixSwitch.intro" if hide
+
+
 	@let \intro,
-		title: env.L "Adfdf"
-		content: env.L "BÖÖÖÖÖ"
+		title: env.L title
+		content: env.L text
 
 
 	while not env.controls.catch == true

@@ -16,12 +16,20 @@
 'You ran the stop sign!': 'Et pysähtynyt ennen stop-merkkiä!'
 'You crashed!': 'Törmäys!'
 
+
+
+
 '%runTheLight.intro': """<p>Tästä eteenpäin sinun tulee noudattaa liikennevaloja,
 			mutta aja tämän kerran punaista päin, jotta tiedät mitä
 			siitä seuraa.</p>
 
 			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.</p>
 			"""
+'%fixSwitch.title': 'Pysy tiellä'
+'%fixSwitch.intro': """<p>BÖÖ</p>"""
+'%fixSwitchPrac.intro': """<p>BÖÖ</p>"""
+'%fixSwitchPrac.title': 'Pysy tiellä (harjoittelu)'
+
 
 '%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
 
