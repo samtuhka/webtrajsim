@@ -818,6 +818,13 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 	material = new THREE.ShaderMaterial vertexShader: document.getElementById( 'vertexShader' ).textContent, fragmentShader: document.getElementById( 'fragmentShader' ).textContent, transparent: true, uniforms: uniform
 	#material.precision =  "highp"
+
+	#material.polygonOffset = true
+	#material.depthTest = true
+	#material.polygonOffsetFactor = -1
+	#material.polygonOffsetUnits = -1
+
+
 	material.needsUpdate = true
 
 

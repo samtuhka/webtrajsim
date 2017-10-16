@@ -320,6 +320,12 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 		#transparent: true
 		side: THREE.DoubleSide
 		depthWrite: true
+	#roadMat = new THREE.ShaderMaterial vertexShader: document.getElementById( 'vertexShader' ).textContent, fragmentShader: document.getElementById( 'fragmentShaderRoad' ).textContent, transparent: true
+	#roadMat.polygonOffset = true
+	#roadMat.depthTest = true
+	#roadMat.polygonOffsetFactor = -1.0
+	#roadMat.polygonOffsetUnits = -100.0
+
 	faces = roadGeo.faces
 	roadGeo.faceVertexUvs[0] = []
 	r = 0
