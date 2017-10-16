@@ -283,7 +283,7 @@ futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
 		seed = Math.random()
-		console.log scene.futPos
+
 		scene.futPos += roadSecond*scene.params.updateTime
 		#if seed > 0.5
 		#	dur = 1.7
@@ -907,22 +907,30 @@ addMarkerScreen = (scene, env) ->
 
 
 probeOrder = (order) ->
-	o0 = [0, 4, 8, 0, 3, 6, 0, 5, 9, 1, 4, 8, 1, 6, 9, 1, 5, 11, 4, 7, 10, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 2, 7, 11]
-	o1 = [0, 5, 9, 1, 7, 10, 2, 5, 8, 0, 4, 7, 1, 4, 8, 0, 6, 11, 3, 7, 10, 3, 6, 9, 2, 8, 11, 3, 6, 9, 1, 4, 10, 2, 5, 11]
-	o2 = [0, 5, 10, 2, 6, 9, 1, 5, 9, 1, 4, 8, 0, 4, 7, 0, 7, 11, 3, 6, 11, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 1, 4, 8]
-	o3 = [0, 3, 7, 0, 8, 11, 3, 6, 10, 2, 5, 8, 1, 4, 8, 0, 5, 9, 1, 5, 9, 1, 4, 10, 2, 6, 9, 2, 7, 11, 3, 6, 11, 4, 7, 10]
-	o4 = [0, 5, 8, 0, 3, 9, 1, 5, 9, 1, 6, 11, 3, 7, 10, 2, 6, 10, 4, 7, 10, 2, 5, 11, 3, 6, 9, 1, 4, 8, 0, 4, 8, 2, 7, 11]
-	o5 = [0, 6, 10, 3, 6, 9, 1, 7, 11, 3, 7, 10, 2, 5, 8, 0, 5, 8, 0, 3, 9, 2, 5, 10, 2, 6, 9, 1, 4, 8, 1, 4, 11, 4, 7, 11] 
+	
+	p_orders = [
+	[0, 4, 8, 0, 3, 6, 0, 5, 9, 1, 4, 8, 1, 6, 9, 1, 5, 11, 4, 7, 10, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 2, 7, 11],
+	[0, 5, 9, 1, 7, 10, 2, 5, 8, 0, 4, 7, 1, 4, 8, 0, 6, 11, 3, 7, 10, 3, 6, 9, 2, 8, 11, 3, 6, 9, 1, 4, 10, 2, 5, 11],
+	[0, 5, 10, 2, 6, 9, 1, 5, 9, 1, 4, 8, 0, 4, 7, 0, 7, 11, 3, 6, 11, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 1, 4, 8],
+	[0, 3, 7, 0, 8, 11, 3, 6, 10, 2, 5, 8, 1, 4, 8, 0, 5, 9, 1, 5, 9, 1, 4, 10, 2, 6, 9, 2, 7, 11, 3, 6, 11, 4, 7, 10],
+	[0, 5, 8, 0, 3, 9, 1, 5, 9, 1, 6, 11, 3, 7, 10, 2, 6, 10, 4, 7, 10, 2, 5, 11, 3, 6, 9, 1, 4, 8, 0, 4, 8, 2, 7, 11],
+	[0, 6, 10, 3, 6, 9, 1, 7, 11, 3, 7, 10, 2, 5, 8, 0, 5, 8, 0, 3, 9, 2, 5, 10, 2, 6, 9, 1, 4, 8, 1, 4, 11, 4, 7, 11],
+	[2, 7, 11, 0, 4, 7, 2, 8, 11, 1, 4, 9, 3, 6, 9, 5, 8, 11, 2, 6, 10, 0, 3, 6, 0, 3, 8, 4, 7, 10, 1, 5, 10, 1, 5, 9],
+	[2, 6, 11, 1, 5, 8, 1, 7, 10, 0, 3, 6, 0, 6, 10, 0, 4, 9, 3, 7, 10, 1, 4, 9, 2, 5, 8, 4, 7, 11, 3, 8, 11, 2, 5, 9],
+	[0, 5, 8, 2, 6, 10, 1, 7, 10, 4, 7, 10, 3, 7, 11, 2, 5, 8, 1, 4, 9, 0, 3, 8, 2, 5, 9, 3, 6, 11, 0, 4, 9, 1, 6, 11],
+	[0, 4, 8, 2, 6, 10, 0, 3, 8, 4, 8, 11, 0, 4, 7, 3, 6, 11, 1, 5, 9, 3, 7, 10, 1, 5, 9, 1, 5, 10, 2, 6, 9, 2, 7, 11],
+	[0, 5, 8, 1, 4, 10, 1, 4, 9, 2, 5, 9, 2, 5, 8, 4, 7, 11, 1, 7, 10, 0, 3, 8, 3, 6, 9, 0, 6, 10, 3, 7, 11, 2, 6, 11],
+	[2, 5, 9, 3, 8, 11, 0, 3, 6, 2, 7, 10, 1, 4, 8, 2, 5, 10, 1, 4, 8, 0, 6, 9, 3, 7, 10, 0, 6, 11, 1, 5, 9, 4, 7, 11]]
 
-
-	p_orders = [o0, o1, o2, o3, o4, o5]
 	return p_orders[order]
 	
 	
 
 
 
-exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
+
+
 
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
@@ -934,21 +942,20 @@ exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
 	annoyingSound2.load('res/sounds/beep-01a.wav')
 	annoyingSound2.setVolume(0.05)
 
-	if rx == undefined
-		rx = 50
-	if ry == undefined
-		ry = rx
-	if l == undefined
-		l = 0
-	if s == undefined
-		#yaw = 20.0
-		s = rx*Math.PI/9.0*3.6
+
+	rx = 50
+	ry = rx
+	l = 0
+	s = rx*Math.PI/9.0*3.6
+
 	if turn == undefined
 		turn = -1
 	if hide == undefined
 		hide = false
+	if n == undefined
+		n = 0
 
-	order = probeOrder 0
+	order = probeOrder n
 	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 160, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
 
 	scene = yield basecircleDriving env, params
@@ -966,7 +973,9 @@ exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
 	scene.random = 0
 	#scene.fixcircles[0].children[0].material.color.g = 1.0
 	#scene.fixcircles[3].children[0].material.color.r = 1.0
-
+	
+	addMarkerScreen scene, env
+	addBackgroundColor scene
 
 
 
@@ -978,12 +987,13 @@ exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
 	scene.playerControls.throttle = 0
 
 
+
 	rw = scene.centerLine.width
 	@let \scene, scene
 	yield @get \run
 
-	addMarkerScreen scene, env
-	addBackgroundColor scene
+
+
 
 
 	markersVisible scene
@@ -994,6 +1004,11 @@ exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
 	#rotateObjects scene
 
 	scene.visibTime = 2
+
+	@let \intro,
+		title: env.L "Adfdf"
+		content: env.L "BÖÖÖÖÖ"
+
 
 	while not env.controls.catch == true
 		yield P.delay 100
@@ -1044,7 +1059,6 @@ exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Sait vastauksista #{correct.toFixed 2}% oikein.</p>
 				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
 				 """
 			return false

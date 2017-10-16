@@ -165,6 +165,8 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
 	scenario = scenarioLoader env, ...args
 
+	prog = trial/8.0*100
+	prog = Math.max prog, 1
 
 	intro = P.resolve undefined
 	me = @
@@ -173,6 +175,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 			@ \title .append introContent.title
 			@ \subtitle .append introContent.subtitle
 			@ \content .append introContent.content
+			@ \progress-bar .0.style.width="#{prog}%"
 			# HACK!
 			env.logger.write scenarioIntro: @el.html()
 			me.get \ready
@@ -294,10 +297,14 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	{passed, outro} = result = yield scenario
 	el.remove()
 
+	trial += 1
+	prog = trial/8.0*100
+	prog = Math.max prog, 1
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title
 			@ \subtitle .append outro.subtitle
 			@ \content .append outro.content
+			@ \progress-bar .0.style.width="#{prog}%"
 			me.let \done, passed: passed, outro: @, result: result
 	@let \outro, [outro]
 	yield outro

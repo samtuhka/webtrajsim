@@ -310,6 +310,21 @@ deparam = require 'jquery-deparam'
 opts = deparam window.location.search.substring 1
 alt = Math.floor(opts.alt)
 
+export fixSwitch = seqr.bind ->*
+	probes = [0,1,2,3]
+	turns = [1,-1,1,-1]
+	probes = shuffleArray probes
+	turns = shuffleArray turns
+	for i from 0 til 4
+		yield runScenario scenario.fixSwitch, hide:false, turn:turns[i], n:probes[i]
+	
+	turns = shuffleArray turns
+	probes = [4,5,6,7]	
+	probes = shuffleArray probes
+
+	for i from 0 til 4
+		yield runScenario scenario.fixSwitch, hide:true, turn:turns[i], n:probes[i]
+
 export circleDrivingTrue = seqr.bind ->*
 	yield runWithNewEnv scenario.participantInformation
 
