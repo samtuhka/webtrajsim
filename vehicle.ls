@@ -243,7 +243,7 @@ loadViva = Co (path) ->*
 	eye = new THREE.Object3D
 	eye.position.y = 1.20
 	eye.position.z = 0.1
-	eye.position.x = 0.37
+	eye.position.x = 0.0 #0.37
 	eye.rotation.y = Math.PI
 
 	#eye.position.x += 10.0

@@ -15,10 +15,11 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
-export circleScene = seqr.bind (env, rx, ry, length, control = true) ->*
+export circleScene = seqr.bind (env, params, control = true) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
-	yield P.resolve addCircleGround scene, rx, ry, length
+	
+	yield P.resolve addCircleGround scene, params.major_radius, params.minor_radius, params.length, params.hide, params.firstTurn
 
 	sky = yield P.resolve assets.addSky scene
 

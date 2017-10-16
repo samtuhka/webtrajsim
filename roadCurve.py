@@ -46,9 +46,9 @@ for i in range(0,20):
 
 
 
-with open('road_x.json', 'w') as outfile:
+with open('road_euler_x.json', 'w') as outfile:
     json.dump(x_list, outfile)
-with open('road_y.json', 'w') as outfile:
+with open('road_euler_y.json', 'w') as outfile:
     json.dump(y_list, outfile)
 
 

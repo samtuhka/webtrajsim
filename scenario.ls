@@ -283,62 +283,21 @@ futPos = (scene) ->
 		dir = scene.params.direction
 		roadSecond = scene.roadSecond
 		seed = Math.random()
+		console.log scene.futPos
+		scene.futPos += roadSecond*scene.params.updateTime
 		#if seed > 0.5
 		#	dur = 1.7
 		#else
 		#	dur = 1
-		newRandom = Math.random()
-		oldRandom = scene.random	
-		if newRandom > 0.75 && oldRandom <= 0.75
-			scene.futPos += roadSecond*scene.params.updateTime*2
-		else
-			scene.futPos += roadSecond*scene.params.updateTime
-		scene.random = newRandom
+		#newRandom = Math.random()
+		#oldRandom = scene.random	
+		#if newRandom > 0.75 && oldRandom <= 0.75
+		#	scene.futPos += roadSecond*scene.params.updateTime*2
+		#else
+		#	scene.futPos += roadSecond*scene.params.updateTime
+		#scene.random = newRandom
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
-
-roadPosition = (scene) ->
-	road = 1/scene.roadSecond
-	pos = scene.futPos*road
-	while pos >= 60
-		pos -= 60
-
-	pos = Math.round(pos)
-	dir = scene.params.direction
-
-	if dir == -1
-		if (pos > 0 && pos < 8) ||  (pos > 30 && pos < 38)
-			location = "straight"
-		else if pos == 0 || pos == 30
-			location = "approach"
-		else if pos == 8 || pos == 38
-			location = "exit"
-		else
-			location = "cornering"
-
-		if pos >= 38 || pos < 8
-			direction = "left"
-		else
-			direction = "right"
-
-	if dir == 1
-		if (pos > 0 && pos < 8) ||  (pos > 30 && pos < 38)
-			location = "straight"
-		else if pos == 8 || pos == 38
-			location = "approach"
-		else if pos == 0 || pos == 30
-			location = "exit"
-		else
-			location = "cornering"
-
-		if pos > 0 && pos <= 30
-			direction = "right"
-		else
-			direction = "left"
-
-	scene.player.roadPhase.direction = direction
-	scene.player.roadPhase.phase = location
-
 
 
 probeLogic = (scene) ->
@@ -364,25 +323,31 @@ probeLogic = (scene) ->
 		scene.dT = scene.time
 
 fixLogic = (env, scene, sound, s) ->
-	roadPosition scene
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
 			scene.end = true
 		else
 			scene.probeIndx += 1
-			futPos scene 
 			calculateFuture scene, 1, s/3.6
-			env.logger.write futPos: scene.futPos
+			futPos scene 
+			env.logger.write futPos: scene.centerLine.getPointAt(scene.futPos)
 			#sound.play()
 		scene.dT = scene.time
 		n = scene.params.targets
 		handleFixLocs scene, scene.probeIndx%n
 		env.logger.write probe: scene.fixcircles[scene.probeIndx%n].position
-		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 1.0
+		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 0.7
+		for fix in scene.fixcircles
+			fix.children[0].visible = true
 		#chance = Math.random()
-		#scene.fixcircles[scene.probeIndx%n].children[0].visible = false
+		probe = scene.params.probes[0]
+		if scene.probeIndx%12 == probe && scene.probeIndx > 10
+			scene.fixcircles[scene.probeIndx%n].position.y = -100
+			env.logger.write hideProbe: scene.fixcircles[scene.probeIndx%n].position
+			env.logger.write hidePos: futPos: scene.centerLine.getPointAt(scene.futPos)
+			scene.params.probes.shift()
 		#scene.fixcircles[1].children[0].visible = false
-		scene.showTime = 0.0
+		#scene.showTime = 0.0
 		#if chance > 0.5
 		#	scene.showTime = 0.4
 	n = scene.params.targets
@@ -612,7 +577,9 @@ search = (scene) ->
 	return minPos
 
 calculateFuture = (scene, r, speed) ->
-	t1 = search(scene)
+	t1 = 0
+	if scene.futPos?
+		t1 = scene.futPos
 	th = scene.params.headway
 	fut = [th, th, th, -0.1]
 	for i from 0 til 5
@@ -737,9 +704,9 @@ export briefInst = seqr.bind (env, inst, scene) ->*
 			@ \cancel-button .hide!
 	result = yield ui.inputDialog env, dialogs
 
-export basecircleDriving = seqr.bind (env, rx, ry, l, sky) ->*
+export basecircleDriving = seqr.bind (env, params) ->*
 
-	scene = yield circleScene env, rx, ry, l, sky
+	scene = yield circleScene env, params
 	return scene
 
 onInnerLane = (scene) ->
@@ -939,7 +906,23 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
+probeOrder = (order) ->
+	o0 = [0, 4, 8, 0, 3, 6, 0, 5, 9, 1, 4, 8, 1, 6, 9, 1, 5, 11, 4, 7, 10, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 2, 7, 11]
+	o1 = [0, 5, 9, 1, 7, 10, 2, 5, 8, 0, 4, 7, 1, 4, 8, 0, 6, 11, 3, 7, 10, 3, 6, 9, 2, 8, 11, 3, 6, 9, 1, 4, 10, 2, 5, 11]
+	o2 = [0, 5, 10, 2, 6, 9, 1, 5, 9, 1, 4, 8, 0, 4, 7, 0, 7, 11, 3, 6, 11, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 1, 4, 8]
+	o3 = [0, 3, 7, 0, 8, 11, 3, 6, 10, 2, 5, 8, 1, 4, 8, 0, 5, 9, 1, 5, 9, 1, 4, 10, 2, 6, 9, 2, 7, 11, 3, 6, 11, 4, 7, 10]
+	o4 = [0, 5, 8, 0, 3, 9, 1, 5, 9, 1, 6, 11, 3, 7, 10, 2, 6, 10, 4, 7, 10, 2, 5, 11, 3, 6, 9, 1, 4, 8, 0, 4, 8, 2, 7, 11]
+	o5 = [0, 6, 10, 3, 6, 9, 1, 7, 11, 3, 7, 10, 2, 5, 8, 0, 5, 8, 0, 3, 9, 2, 5, 10, 2, 6, 9, 1, 4, 8, 1, 4, 11, 4, 7, 11] 
+
+
+	p_orders = [o0, o1, o2, o3, o4, o5]
+	return p_orders[order]
+	
+	
+
+
+
+exportScenario \fixSwitch, (env, rx, hide, turn, s) ->*
 
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
@@ -958,11 +941,21 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	if l == undefined
 		l = 0
 	if s == undefined
-		yaw = 18.0
-		s = yaw/360.0*2*Math.PI*50*3.6
+		#yaw = 20.0
+		s = rx*Math.PI/9.0*3.6
+	if turn == undefined
+		turn = -1
+	if hide == undefined
+		hide = false
 
-	scene = yield basecircleDriving env, rx, ry, l
-	scene.params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 500, updateTime: 0.75, headway: 2.0, targets: 4}
+	order = probeOrder 0
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 160, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
+
+	scene = yield basecircleDriving env, params
+
+
+	scene.params = params
+	env.logger.write scenarioParams: scene.params
 
 	scene.fixcircles = []
 	addFixationCross scene, 1.5
@@ -980,7 +973,8 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).x
-	#scene.player.physical.quaternion.setFromEuler(0, Math.PI*2.0 ,0, 'XYZ')
+	if turn == -1
+		scene.player.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 	scene.playerControls.throttle = 0
 
 
@@ -1003,7 +997,6 @@ exportScenario \fixSwitch, (env, rx, ry, l, s) ->*
 
 	while not env.controls.catch == true
 		yield P.delay 100
-	env.controls.probeReact = false
 
 
 	startTime = scene.time

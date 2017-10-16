@@ -195,14 +195,17 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
-eulerSpiral = (k, terrainSize) ->
+roadLoader = (k, terrainSize, turn, euler = false) ->
 	x = require('./road_x.json') 
 	y = require('./road_y.json')
+	if euler 
+		x = require('./road_euler_x.json') 
+		y = require('./road_euler_y.json')
 	vectors = []
 	path = new THREE.CurvePath()
 	for i from 0 til x.length - 1
-		vec0 = new THREE.Vector3(y[i]*k, x[i]*k - terrainSize, 0)
-		vec1 = new THREE.Vector3(y[i + 1]*k, x[i + 1]*k - terrainSize, 0)
+		vec0 = new THREE.Vector3(y[i]*k*turn, x[i]*k - terrainSize, 0)
+		vec1 = new THREE.Vector3(y[i + 1]*k*turn, x[i + 1]*k - terrainSize, 0)
 		line = new THREE.LineCurve3(vec0, vec1)
 		path.add(line)
 	#path = new THREE.Path(vectors)
@@ -213,7 +216,7 @@ eulerSpiral = (k, terrainSize) ->
 	 
 
 
-export addCircleGround = (scene, rx, ry, length) ->
+export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
 	terrainSize = 800
 	textureSize = 40
@@ -292,15 +295,12 @@ export addCircleGround = (scene, rx, ry, length) ->
 	deparam = require 'jquery-deparam'
 	opts = deparam window.location.search.substring 1
 
-	if opts.euler?
-		circle = eulerSpiral(rx, terrainSize)
-	else
-		circle = generateCircle(rx, ry, length)  
+	circle = roadLoader(rx, terrainSize, turn)
 
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 2500, steps: 2500, bevelEnabled: false, extrudePath: circle}
+	extrudeSettings = {curveSegments: 60000, steps: 2500, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_double.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
@@ -338,7 +338,7 @@ export addCircleGround = (scene, rx, ry, length) ->
 	road.position.y = -0.09
 
 
-	if opts.hideRoad?
+	if hide
 		road.visible = false
 	#road.receiveShadow = true
 	scene.road = road
