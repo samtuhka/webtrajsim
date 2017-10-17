@@ -320,10 +320,10 @@ alt = Math.floor(opts.alt)
 export fixSwitch = seqr.bind ->*
 	
 	if localStorage.hasOwnProperty('experiment') == false
-		pracScens = [[0,1],[0,-1],[1, 1], [1, -1]]
+		pracScens = [[0,1],[0,-1]]
 		pracScens = shuffleArray pracScens
 		
-		experiment = [[2,1],[2,-1],[3, 1], [3, -1]]
+		experiment = [[1,1],[1,-1],[2, 1], [2, -1]]
 		experiment = shuffleArray experiment
 		experiment = experiment.concat pracScens
 		experiment.reverse()
@@ -341,9 +341,9 @@ export fixSwitch = seqr.bind ->*
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
 
-		if id < 4
+		if id < 2
 			task = runScenario scenario.fixSwitch, hide:false, turn:experiment[id][1], n:experiment[id][0], 
-		else if id < 8
+		else if id < 6
 			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0]
 		else
 			yield runWithNewEnv scenario.calibration, 1

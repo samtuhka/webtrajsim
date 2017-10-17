@@ -341,7 +341,7 @@ fixLogic = (env, scene, sound, s) ->
 			fix.children[0].visible = true
 		#chance = Math.random()
 		probe = scene.params.probes[0]
-		if scene.probeIndx%14 == probe && scene.probeIndx > 10
+		if scene.probeIndx%16 == probe && scene.probeIndx > 14
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
 			env.logger.write hideProbe: scene.fixcircles[scene.probeIndx%n].position
 			env.logger.write hidePos: futPos: scene.centerLine.getPointAt(scene.futPos)
@@ -970,17 +970,23 @@ probeOrder = (order, turn) ->
 		[1, 4, 12, 2, 6, 11, 2, 5, 8, 0, 3, 9, 0, 7, 10, 1, 5, 11, 2, 6, 9, 0, 6, 10, 1, 10, 13, 5, 8, 12, 4, 8, 12, 3, 7, 13, 4, 9, 13, 3, 7, 11],
 		[0, 5, 12, 2, 10, 13, 4, 8, 12, 2, 5, 11, 1, 8, 11, 1, 4, 12, 5, 9, 13, 3, 6, 9, 0, 4, 7, 2, 8, 13, 3, 6, 9, 0, 7, 11, 1, 6, 10, 3, 7, 10]]
 
+	p_orders = [[0, 3, 7, 12, 1, 5, 8, 11, 0, 6, 11, 15, 4, 7, 10, 13, 2, 5, 9, 12, 0, 4, 8, 11, 1, 5, 9, 14, 2, 5, 11, 14, 2, 5, 9, 13, 1, 6, 10, 14, 2, 6, 9, 13, 2, 7, 10, 15, 4, 7, 10, 14, 3, 7, 11, 15, 4, 8, 12, 15, 3, 6, 9, 12], [0, 3, 11, 14, 3, 7, 10, 13, 1, 4, 7, 13, 1, 4, 8, 11, 1, 4, 11, 15, 3, 6, 10, 13, 2, 6, 9, 12, 0, 5, 9, 15, 4, 9, 12, 15, 4, 8, 11, 14, 2, 5, 10, 14, 2, 7, 10, 14, 2, 5, 8, 13, 2, 5, 8, 12, 0, 6, 9, 13, 1, 9, 12, 15], [0, 4, 8, 13, 1, 4, 9, 12, 2, 6, 9, 14, 2, 6, 10, 13, 2, 6, 9, 13, 1, 6, 11, 15, 5, 8, 12, 15, 3, 7, 10, 14, 2, 5, 8, 11, 0, 3, 7, 10, 2, 6, 9, 12, 0, 4, 10, 15, 3, 7, 11, 15, 4, 7, 11, 14, 2, 5, 8, 13, 1, 8, 11, 15], [0, 6, 9, 13, 1, 4, 9, 14, 2, 5, 12, 15, 4, 8, 11, 14, 2, 7, 10, 13, 1, 4, 10, 14, 2, 6, 9, 15, 3, 6, 11, 15, 3, 7, 10, 13, 3, 8, 12, 15, 3, 7, 11, 14, 2, 6, 9, 13, 1, 5, 10, 14, 2, 5, 8, 11, 0, 5, 10, 13, 1, 5, 9, 15], [0, 3, 7, 12, 1, 5, 8, 11, 0, 6, 11, 15, 4, 7, 10, 13, 2, 5, 9, 12, 0, 4, 8, 11, 1, 5, 9, 14, 2, 5, 11, 14, 2, 5, 9, 13, 1, 6, 10, 14, 2, 6, 9, 13, 2, 7, 10, 15, 4, 7, 10, 14, 3, 7, 11, 15, 4, 8, 12, 15, 3, 6, 9, 12]]
+
 
 	probes = p_orders[order]
-	#console.log probes
 	if turn == -1
 		probes = probes.reverse()
-		for i from 0 til probes.length/3
-			a0 = probes[i*3]
-			a2 = probes[i*3 + 2]
-			probes[i*3] = a2
-			probes[i*3 + 2] = a0 
-	#console.log probes
+		for i from 0 til probes.length/4
+			a0 = probes[i*4]
+			a3 = probes[i*4 + 3]
+			probes[i*4] = a3
+			probes[i*4 + 3] = a0
+
+
+			a1 = probes[i*4 + 1]
+			a2 = probes[i*4 + 2]
+			probes[i*4 + 1] = a2
+			probes[i*4 + 2] = a1
 	return probes
 	
 	
@@ -1005,7 +1011,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	rx = 50
 	ry = rx
 	l = 0
-	s = rx*Math.PI/10.50*3.6
+	s = rx*Math.PI/12.0*3.6
 
 	if turn == undefined
 		turn = -1
@@ -1015,7 +1021,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 		n = 0
 
 	order = probeOrder n, turn
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 222, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 280, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
 
 	scene = yield basecircleDriving env, params
 
