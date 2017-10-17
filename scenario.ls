@@ -341,7 +341,7 @@ fixLogic = (env, scene, sound, s) ->
 			fix.children[0].visible = true
 		#chance = Math.random()
 		probe = scene.params.probes[0]
-		if scene.probeIndx%13 == probe && scene.probeIndx > 10
+		if scene.probeIndx%14 == probe && scene.probeIndx > 10
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
 			env.logger.write hideProbe: scene.fixcircles[scene.probeIndx%n].position
 			env.logger.write hidePos: futPos: scene.centerLine.getPointAt(scene.futPos)
@@ -715,10 +715,13 @@ onInnerLane = (scene) ->
 	pos = scene.centerLine.getPointAt(scene.player.pos)
 	posActual = scene.player.physical.position
 	c = ((posActual.z - pos.x) ^ 2 + (posActual.x - pos.y) ^ 2 ) ^ 0.5
-	if c <= 1.75
+	if c > 10
+		scene.failed = true
 		return true
-	else
+	else if c > 1.75
 		return false
+	else
+		return true
 
 onOuterLane = (x, z, rX, rY, rW, l) ->
 	if (((x ^ 2 / ((rX + 0.5*rW) ^ 2)  + (z ^ 2 / ((rY + 0.5*rW) ^ 2))) > 1)  && ((x ^ 2 / ((rX+rW) ^ 2)  + (z ^ 2 / ((rY+rW) ^ 2))) <= 1) && z >= 0)
@@ -915,8 +918,8 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-probeOrder = (order) ->
-	
+probeOrder = (order, turn) ->
+	/*
 	p_orders = [
 		[0, 4, 8, 0, 3, 6, 0, 5, 9, 1, 4, 8, 1, 6, 9, 1, 5, 11, 4, 7, 10, 3, 6, 10, 2, 8, 11, 3, 7, 10, 2, 5, 9, 2, 7, 11],
 		[0, 5, 9, 1, 7, 10, 2, 5, 8, 0, 4, 7, 1, 4, 8, 0, 6, 11, 3, 7, 10, 3, 6, 9, 2, 8, 11, 3, 6, 9, 1, 4, 10, 2, 5, 11],
@@ -941,8 +944,44 @@ probeOrder = (order) ->
 		[0, 5, 12, 5, 9, 12, 4, 8, 11, 2, 7, 11, 2, 7, 12, 3, 8, 11, 3, 6, 10, 1, 5, 8, 1, 4, 10, 1, 4, 9, 0, 6, 9, 0, 3, 6, 2, 7, 10],
 		[0, 3, 11, 2, 7, 10, 2, 6, 9, 4, 8, 12, 3, 8, 11, 6, 9, 12, 4, 7, 10, 1, 5, 9, 1, 6, 10, 1, 4, 7, 0, 5, 11, 2, 5, 8, 0, 3, 12],
 		[1, 5, 9, 0, 3, 8, 2, 6, 10, 1, 4, 12, 5, 8, 12, 4, 8, 11, 2, 5, 11, 2, 6, 9, 0, 3, 7, 0, 4, 10, 1, 7, 10, 6, 9, 12, 3, 7, 11]]
+	*/
+	p_orders = [[1, 5, 13, 5, 9, 13, 5, 8, 13, 4, 9, 12, 3, 6, 11, 3, 7, 10, 0, 4, 10, 0, 3, 9, 0, 8, 12, 2, 7, 11, 2, 7, 12, 2, 6, 11, 1, 6, 10, 1, 4, 8],
+		[1, 5, 9, 0, 4, 8, 0, 5, 11, 4, 7, 10, 1, 6, 10, 0, 4, 13, 3, 6, 11, 1, 7, 13, 7, 10, 13, 3, 8, 12, 2, 6, 9, 2, 5, 12, 3, 9, 12, 2, 8, 11],
+		[0, 4, 7, 0, 3, 9, 1, 7, 12, 2, 8, 13, 3, 6, 10, 1, 5, 11, 5, 8, 11, 1, 4, 8, 0, 9, 12, 3, 9, 12, 2, 6, 11, 2, 5, 10, 4, 7, 13, 6, 10, 13],
+		[0, 6, 12, 4, 7, 11, 2, 8, 13, 4, 8, 11, 1, 9, 13, 3, 6, 9, 3, 9, 13, 3, 8, 12, 2, 5, 12, 2, 6, 10, 1, 4, 7, 1, 5, 10, 0, 7, 10, 0, 5, 11],
+		[1, 6, 9, 0, 3, 12, 2, 7, 10, 2, 5, 11, 1, 4, 11, 2, 5, 11, 1, 7, 10, 0, 5, 13, 4, 8, 13, 3, 8, 12, 4, 8, 12, 3, 6, 9, 0, 6, 9, 7, 10, 13],
+		[1, 7, 10, 0, 4, 12, 5, 8, 11, 2, 6, 9, 0, 7, 13, 3, 6, 12, 2, 5, 13, 3, 8, 11, 2, 9, 13, 4, 8, 12, 3, 6, 10, 0, 5, 10, 1, 4, 9, 1, 7, 11],
+		[1, 5, 8, 0, 6, 13, 4, 7, 11, 2, 5, 10, 0, 5, 10, 0, 8, 11, 3, 7, 11, 1, 4, 12, 4, 9, 13, 3, 7, 10, 2, 8, 12, 2, 6, 9, 1, 6, 12, 3, 9, 13],
+		[0, 5, 8, 2, 7, 11, 3, 6, 10, 1, 5, 9, 0, 8, 12, 2, 7, 12, 2, 7, 10, 1, 4, 10, 0, 4, 13, 5, 8, 11, 1, 9, 13, 3, 6, 13, 3, 6, 11, 4, 9, 12],
+		[1, 5, 9, 1, 4, 12, 3, 6, 11, 4, 7, 10, 0, 3, 9, 2, 8, 11, 2, 7, 10, 0, 4, 8, 0, 5, 13, 5, 8, 12, 2, 7, 11, 1, 9, 13, 6, 10, 13, 3, 6, 12],
+		[1, 4, 13, 3, 6, 9, 0, 7, 11, 2, 5, 12, 2, 7, 12, 3, 9, 12, 5, 8, 13, 4, 7, 11, 1, 4, 9, 2, 8, 11, 1, 8, 13, 3, 6, 10, 0, 6, 10, 0, 5, 10],
+		[0, 4, 12, 2, 7, 13, 3, 8, 13, 4, 7, 10, 3, 6, 10, 2, 7, 11, 1, 6, 10, 0, 6, 9, 1, 4, 12, 5, 8, 11, 2, 5, 9, 0, 9, 13, 3, 8, 11, 1, 5, 12],
+		[0, 7, 10, 1, 8, 13, 3, 6, 13, 3, 6, 11, 1, 5, 8, 2, 7, 10, 0, 9, 12, 2, 6, 12, 4, 7, 11, 1, 4, 13, 4, 8, 11, 5, 9, 12, 2, 5, 10, 0, 3, 9],
+		[0, 3, 8, 0, 3, 13, 4, 9, 13, 6, 9, 12, 5, 8, 13, 4, 7, 12, 3, 6, 10, 0, 4, 9, 1, 5, 12, 2, 7, 11, 1, 8, 11, 2, 6, 11, 2, 7, 10, 1, 5, 10],
+		[0, 8, 12, 2, 6, 13, 4, 7, 10, 0, 5, 13, 5, 9, 12, 3, 6, 11, 1, 5, 8, 4, 9, 13, 3, 8, 11, 2, 6, 10, 1, 9, 12, 2, 7, 11, 1, 4, 10, 0, 3, 7],
+		[1, 4, 7, 1, 5, 13, 5, 9, 12, 2, 5, 11, 2, 6, 10, 0, 3, 9, 0, 8, 12, 4, 7, 10, 2, 8, 11, 3, 6, 13, 3, 8, 11, 1, 6, 10, 0, 9, 12, 4, 7, 13],
+		[3, 7, 11, 1, 5, 8, 0, 5, 10, 0, 6, 9, 1, 6, 11, 2, 9, 12, 3, 7, 12, 3, 7, 10, 1, 8, 11, 2, 5, 10, 0, 4, 13, 4, 9, 13, 4, 8, 12, 2, 6, 13],
+		[1, 4, 7, 2, 5, 11, 4, 9, 12, 2, 5, 11, 1, 6, 10, 1, 9, 12, 3, 8, 13, 7, 10, 13, 4, 8, 12, 2, 6, 9, 0, 3, 7, 0, 5, 8, 0, 10, 13, 3, 6, 11],
+		[0, 3, 7, 1, 8, 12, 2, 6, 13, 3, 7, 10, 1, 6, 9, 2, 8, 11, 1, 4, 13, 3, 9, 12, 2, 5, 10, 0, 5, 11, 5, 9, 13, 4, 8, 12, 4, 7, 10, 0, 6, 11],
+		[0, 4, 9, 1, 7, 10, 1, 8, 11, 2, 7, 13, 3, 7, 12, 2, 6, 12, 4, 10, 13, 3, 8, 11, 1, 5, 11, 2, 5, 9, 0, 3, 6, 0, 4, 10, 5, 8, 13, 6, 9, 12],
+		[4, 8, 11, 1, 6, 12, 2, 7, 10, 0, 4, 13, 3, 6, 9, 0, 4, 11, 1, 5, 10, 0, 9, 12, 2, 7, 13, 3, 8, 12, 2, 6, 9, 3, 7, 10, 1, 5, 11, 5, 8, 13],
+		[0, 3, 10, 0, 4, 8, 2, 5, 11, 1, 6, 11, 1, 9, 12, 2, 7, 13, 3, 6, 10, 7, 10, 13, 4, 8, 12, 3, 6, 11, 2, 5, 9, 1, 5, 9, 0, 7, 13, 4, 8, 12],
+		[0, 7, 10, 0, 4, 10, 0, 3, 6, 1, 4, 9, 1, 8, 12, 2, 5, 10, 3, 6, 13, 6, 9, 13, 5, 8, 11, 1, 5, 11, 3, 8, 11, 2, 9, 12, 2, 7, 13, 4, 7, 12],
+		[1, 4, 12, 2, 6, 11, 2, 5, 8, 0, 3, 9, 0, 7, 10, 1, 5, 11, 2, 6, 9, 0, 6, 10, 1, 10, 13, 5, 8, 12, 4, 8, 12, 3, 7, 13, 4, 9, 13, 3, 7, 11],
+		[0, 5, 12, 2, 10, 13, 4, 8, 12, 2, 5, 11, 1, 8, 11, 1, 4, 12, 5, 9, 13, 3, 6, 9, 0, 4, 7, 2, 8, 13, 3, 6, 9, 0, 7, 11, 1, 6, 10, 3, 7, 10]]
 
-	return p_orders[order]
+
+	probes = p_orders[order]
+	#console.log probes
+	if turn == -1
+		probes = probes.reverse()
+		for i from 0 til probes.length/3
+			a0 = probes[i*3]
+			a2 = probes[i*3 + 2]
+			probes[i*3] = a2
+			probes[i*3 + 2] = a0 
+	#console.log probes
+	return probes
 	
 	
 
@@ -966,7 +1005,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	rx = 50
 	ry = rx
 	l = 0
-	s = rx*Math.PI/9.75*3.6
+	s = rx*Math.PI/10.50*3.6
 
 	if turn == undefined
 		turn = -1
@@ -975,8 +1014,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	if n == undefined
 		n = 0
 
-	order = probeOrder n
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 160, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
+	order = probeOrder n, turn
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 222, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
 
 	scene = yield basecircleDriving env, params
 
@@ -1073,9 +1112,15 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 		scene.prevTime = scene.time
 		scene.player.prevSpeed = scene.player.getSpeed()*3.6
 
+		if scene.failed
+			listener.remove()
+			@let \done, passed: false, outro:
+				title: env.L "Oops!"
+				content: env.L 'You steered off the course'
+			return false
+
 		if scene.end == true || (scene.time - startTime) > 300
 			trialTime = scene.time - startTime
-			correct = scene.scoring.score/scene.scoring.maxScore * 100
 			listener.remove()
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
@@ -1085,6 +1130,14 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 			return false
 
 	return yield @get \done
+
+exportScenario \experimentOutro, (env, cb=->) ->*
+	L = env.L
+	yield ui.instructionScreen env, (...args) ->
+		@ \title .append L "The experiment is done!"
+		@ \content .append L '%experimentOutro'
+		@ \accept-button .hide()
+		cb.apply @, [env].concat ...args
 
 
 exportScenario \circleDriving, (env, rx, ry, l, s, r, st, col, fut, inst, dev, aut, visib) ->*

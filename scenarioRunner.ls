@@ -152,7 +152,11 @@ export newEnv = seqr.bind !->*
 	# Hint cg run
 	if window.gc?
 		window.gc()
-trial = 0
+
+if localStorage.hasOwnProperty('scenario_id')
+	trial = Number(localStorage.getItem("scenario_id"))
+else
+	trial = 0
 
 
 
@@ -164,6 +168,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	env.notifications = $ '<div class="notifications">' .appendTo env.container
 	env.logger.write loadingScenario: scenarioLoader.scenarioName
 	scenario = scenarioLoader env, ...args
+
 
 	prog = trial/8.0*100
 	prog = Math.max prog, 1
@@ -296,8 +301,9 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	yield ui.waitFor el~fadeOut
 	{passed, outro} = result = yield scenario
 	el.remove()
-
-	trial += 1
+	
+	if result.passed
+		trial += 1
 	prog = trial/8.0*100
 	prog = Math.max prog, 1
 	outro = ui.instructionScreen env, ->

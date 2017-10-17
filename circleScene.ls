@@ -61,6 +61,7 @@ export circleScene = seqr.bind (env, params, control = true) ->*
 	scene.targetScreen = false
 	scene.transientScreen = false
 	scene.reacted = true
+	scene.failed = false
 	scene.startTime = 0
 	scene.controlChange = false
 	scene.prev = [0,0,0,0,0]

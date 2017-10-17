@@ -15,7 +15,7 @@
 'You ran the red light!': 'Ajoit punaista päin!'
 'You ran the stop sign!': 'Et pysähtynyt ennen stop-merkkiä!'
 'You crashed!': 'Törmäys!'
-
+'You steered off the course': 'Ajoit ulos tieltä'
 
 
 
@@ -36,6 +36,7 @@
 	<p>Tehtävänäsi on pysyä tiellä.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 	<p>Tien pinnalla näkyy merkkejä.
+	<p> Myöhemmin kokeessa tiestä näkyy ainoastaan nämä merkit (eli valkoinen tekstuuri on hävitetty)
 	<p>Ajettava rata pysyy koko kokeen ajan samana (ensimmäisen mutkan suunta voi vaihdella).
 	"""
 
@@ -153,7 +154,7 @@
 <p>Tämän kokeen tarkoituksena on tutkia auton ohjaamista, tarkkavaisuutta ja ääreisnäön käyttöä.
 
 <p>Koe koostuu useasta osatehtävästä,
-jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin tunnin.
+jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan korkeintaan tunnin.
 Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
 """
 
@@ -251,9 +252,8 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 			"""
 
 '%calib.inst3' : """
-			<p>Lopuksi tarkistetaan vielä kerran silmänliikekameran kalibraatio. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
-			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
-            <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
+			<p>Tarkistetaan silmänliikekameran kalibraatio.
+			<p>Kuten kalibraatiossa, pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. 
 			"""
 
 'Dark driving practice': 'Ärsykkeen tunnistaminen (harjoittelu)'

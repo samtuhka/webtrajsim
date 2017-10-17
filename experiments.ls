@@ -8,13 +8,18 @@ sounds = require './sounds.ls'
 L = (s) -> s
 
 runUntilPassed = seqr.bind (scenarioLoader, {passes=2, maxRetries=5}={}) ->*
-	currentPasses = 0
-	for retry from 1 til Infinity
+	currentPasses = Number(localStorage.getItem("passes")) ? 0
+	currRetry = Number(localStorage.getItem("retries")) ? 1
+	console.log currentPasses, currRetry
+	for retry from currRetry til Infinity
 		task = runScenario scenarioLoader
 		result = yield task.get \done
+
 		currentPasses += result.passed
 
+		localStorage.setItem('passes', Number(currentPasses))
 		doQuit = currentPasses >= passes or retry > maxRetries
+		localStorage.setItem('retries', Number(retry) + 1)
 		#if not doQuit
 		#	result.outro \content .append $ L "<p>Let's try that again.</p>"
 		yield task
@@ -310,20 +315,109 @@ deparam = require 'jquery-deparam'
 opts = deparam window.location.search.substring 1
 alt = Math.floor(opts.alt)
 
-export fixSwitch = seqr.bind ->*
-	probes = [0,1,2,3]
-	turns = [1,-1,1,-1]
-	probes = shuffleArray probes
-	turns = shuffleArray turns
-	for i from 0 til 4
-		yield runScenario scenario.fixSwitch, hide:false, turn:turns[i], n:probes[i]
-	
-	turns = shuffleArray turns
-	probes = [4,5,6,7]	
-	probes = shuffleArray probes
 
-	for i from 0 til 4
-		yield runScenario scenario.fixSwitch, hide:true, turn:turns[i], n:probes[i]
+
+export fixSwitch = seqr.bind ->*
+	
+	if localStorage.hasOwnProperty('experiment') == false
+		pracScens = [[0,1],[0,-1],[1, 1], [1, -1]]
+		pracScens = shuffleArray pracScens
+		
+		experiment = [[2,1],[2,-1],[3, 1], [3, -1]]
+		experiment = shuffleArray experiment
+		experiment = experiment.concat pracScens
+		experiment.reverse()
+
+		yield runWithNewEnv scenario.participantInformation
+		yield runWithNewEnv scenario.calibration, 1
+		yield runWithNewEnv scenario.calibration, 3
+	
+		localStorage.setItem('scenario_id', 0)
+		localStorage.setItem('experiment', JSON.stringify(experiment))
+		localStorage.setItem('passes', 0)
+		localStorage.setItem('retries', 1)
+		window.location.reload()
+	else
+		experiment = JSON.parse(localStorage.getItem("experiment"))
+		id = localStorage.getItem("scenario_id")
+
+		if id < 4
+			task = runScenario scenario.fixSwitch, hide:false, turn:experiment[id][1], n:experiment[id][0], 
+		else if id < 8
+			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0]
+		else
+			yield runWithNewEnv scenario.calibration, 1
+			resetter()
+			env = newEnv!
+			yield scenario.experimentOutro yield env.get \env
+			env.let \destroy
+			yield env
+			window.location.reload()
+
+		result = yield task.get \done
+		yield task
+
+		if id == 3 && result.passed
+			yield runWithNewEnv scenario.calibration, 1
+
+		yield runWithNewEnv scenario.calibration, 3
+
+		if result.passed
+			localStorage.setItem('passes', 0)
+			localStorage.setItem('scenario_id', Number(id) + 1)
+			localStorage.setItem('retries', 1)
+		window.location.reload()
+
+
+export forwarder = seqr.bind ->*
+	if localStorage.hasOwnProperty('scenario_id')
+		id = localStorage.getItem("scenario_id")
+		localStorage.setItem('scenario_id', Number(id) + 1)
+
+export backwarder = seqr.bind ->*
+	if localStorage.hasOwnProperty('scenario_id')
+		id = localStorage.getItem("scenario_id")
+		localStorage.setItem('scenario_id', Number(id) - 1)
+
+
+export resetter = seqr.bind ->*
+	if localStorage.hasOwnProperty('experiment')
+		exp = localStorage.getItem("experiment")
+		pas = localStorage.getItem('passes')
+		ret = localStorage.getItem('retries')
+		id = localStorage.getItem('scenario_id')
+
+		localStorage.setItem('experiment_copy', exp)
+		localStorage.setItem('passes_copy', pas)
+		localStorage.setItem('retries_copy', ret)
+		localStorage.setItem('scenario_id_copy', id)
+
+		localStorage.removeItem("experiment")
+		localStorage.removeItem('passes')
+		localStorage.removeItem('retries')
+		localStorage.removeItem('scenario_id')
+
+	#env = newEnv!
+	#yield scenario.resetterOutro yield env.get \env
+	#env.let \destroy
+	#yield env
+
+export backupper = seqr.bind ->*
+	if localStorage.hasOwnProperty('experiment') == false && localStorage.hasOwnProperty('experiment_copy')
+		exp = localStorage.getItem("experiment_copy")
+		pas = localStorage.getItem('passes_copy')
+		ret = localStorage.getItem('retries_copy')
+		id = localStorage.getItem('scenario_id_copy')
+
+		localStorage.setItem('experiment', exp)
+		localStorage.setItem('passes', pas)
+		localStorage.setItem('retries', ret)
+		localStorage.setItem('scenario_id', id)
+
+	env = newEnv!
+	yield scenario.reResetterOutro yield env.get \env
+	env.let \destroy
+	yield env
 
 export circleDrivingTrue = seqr.bind ->*
 	yield runWithNewEnv scenario.participantInformation
