@@ -323,7 +323,7 @@ export fixSwitch = seqr.bind ->*
 		pracScens = [[0,1],[0,-1]]
 		pracScens = shuffleArray pracScens
 		
-		experiment = [[1,1],[1,-1],[2, 1], [2, -1]]
+		experiment = [[2,1],[2,-1],[3, 1], [3, -1], [4, 1], [4, -1]]
 		experiment = shuffleArray experiment
 		experiment = experiment.concat pracScens
 		experiment.reverse()
