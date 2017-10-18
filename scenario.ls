@@ -1111,10 +1111,10 @@ probeOrder = (order, turn) ->
 
 
 	probes = p_orders[order]
-	if turn == -1
-		probes = probes.reverse()
-		for i from 0 til probes.length
-			probes[i] = 15 - probes[i]
+	#if turn == -1
+	#	probes = probes.reverse()
+	#	for i from 0 til probes.length
+	#		probes[i] = 15 - probes[i]
 	return probes
 	
 	
