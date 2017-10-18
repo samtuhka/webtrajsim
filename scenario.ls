@@ -631,6 +631,116 @@ if future === NaN
 	future = 2
 n = 4
 
+
+export calbrationScene = seqr.bind (env, startMsg) ->*
+	{controls, audioContext, L} = env
+	scene = new Scene
+	eye = new THREE.Object3D
+	eye.position.x = 0
+	eye.position.z = 0
+	eye.position.y = 1.2
+	eye.rotation.y = Math.PI
+	scene.visual.add eye
+	eye.add scene.camera
+
+	bg = addBackgroundColor scene
+	scene.visual.add bg
+
+	addCalibrationMarker scene
+	addMarkerScreen scene, env
+	/*
+	opts = deparam window.location.search.substring 1
+	url = "ws://169.254.219.68:10103"
+	if opts.pupil?
+		url = opts.pupil
+	socket = new WebSocket url
+
+	socket.onopen = ->
+		console.log("socket open")
+		socket.send("Webtrajsim here")
+		scene.socket = socket
+		if scene.start
+			scene.socket.send startMsg
+
+	socket.onmessage = (e) ->
+		message = {"sceneTime": scene.time, "time": Date.now() / 1000, "position": scene.marker.position}
+		message = JSON.stringify(message)
+		scene.msg = e.data
+		if scene.start
+			socket.send message
+
+	socket.onclose = ->
+		console.log("socket closed")
+		scene.socket = false
+
+
+	env.controls.change (btn) ->
+		if btn == "Xbox"
+			env.vrcontrols.resetPose()
+	*/
+	scene.preroll = seqr.bind ->*
+		# Tick a couple of frames for the physics to settle
+		t = Date.now()
+		n = 100
+		for [0 to n]
+			scene.tick 1/60
+		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
+	return scene
+
+calibration = exportScenario \calibration, (env, mini = false) ->*
+	scene = yield calbrationScene env, "start calibration"
+
+
+	@let \scene, scene
+	yield @get \run
+
+	scene.start = false
+
+	L = env.L
+	i = 1
+	text = '%calib.inst' + i.toString()
+	yield ui.instructionScreen env, ->
+		@ \title .append L "Calibration"
+		@ \content .append L text
+		@ \accept .text L "Ready"
+		@ \progress .hide()
+		@ \progressTitle .hide()
+
+
+	#if scene.socket
+	#	scene.socket.send "start calibration"
+	calibLocs = [ [-0.5, 0.5, -2.5], [0, 0.5, -2.5], [0.5, 0.5, -2],
+			[-0.5, 0.25, -3.5], [0.5, 0.25, -3], 
+			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
+			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
+			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
+
+	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
+	
+	change = scene.time
+	scene.afterPhysics.add (dt) ->
+		if scene.time - 3 > change
+			scene.marker.index += 1
+			scene.marker.position.x = calibLocs[scene.marker.index][0]
+			scene.marker.position.y = calibLocs[scene.marker.index][1]
+			scene.marker.position.z = -3 #calibLocs[scene.marker.index][2]
+			marker = 
+				x: scene.marker.position.x 
+				y: scene.marker.position.y
+				z: scene.marker.position.z
+			env.logger.write marker: marker
+			change := scene.time
+
+	scene.onTickHandled ~>
+		if scene.marker.index >= calibLocs.length - 1
+			#if scene.socket
+			#	scene.socket.send "stop"
+			#	scene.socket.close()
+			#exitVR env
+			@let \done, passed: true
+			return false
+	return yield @get \done
+
 export instructions = seqr.bind (env, inst, scene) ->*
 	L = env.L
 	title = "Circle driving"
@@ -704,11 +814,30 @@ export briefInst = seqr.bind (env, inst, scene) ->*
 			@ \cancel-button .hide!
 	result = yield ui.inputDialog env, dialogs
 
+
+addCalibrationMarker = (scene) ->
+	tex = THREE.ImageUtils.loadTexture 'res/markers/CalibrationMarker.png'
+	calibMaterial = new THREE.MeshBasicMaterial do
+		color: 0xffffff
+		map: tex
+	geo = new THREE.CircleGeometry(0.1, 32)
+	mesh = new THREE.Mesh geo, calibMaterial
+	mesh.position.x = -0.5
+	mesh.position.y = 0.5
+	mesh.position.z = -3
+	scene.camera.add mesh
+	mesh.index = 0
+	scene.marker = mesh
+
+
+
+
+
 export basecircleDriving = seqr.bind (env, params) ->*
 
 	scene = yield circleScene env, params
 	addMarkerScreen scene, env
-	addBackgroundColor scene
+	#addBackgroundColor scene
 	return scene
 
 onInnerLane = (scene) ->
@@ -866,7 +995,7 @@ addBackgroundColor = (scene) ->
 	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.z = -2100
-	#scene.camera.add mesh
+	scene.camera.add mesh
 	#console.log scene
 
 addBackgroundColorFun = (scene) ->
@@ -984,17 +1113,8 @@ probeOrder = (order, turn) ->
 	probes = p_orders[order]
 	if turn == -1
 		probes = probes.reverse()
-		for i from 0 til probes.length/4
-			a0 = probes[i*4]
-			a3 = probes[i*4 + 3]
-			probes[i*4] = a3
-			probes[i*4 + 3] = a0
-
-
-			a1 = probes[i*4 + 1]
-			a2 = probes[i*4 + 2]
-			probes[i*4 + 1] = a2
-			probes[i*4 + 2] = a1
+		for i from 0 til probes.length
+			probes[i] = 15 - probes[i]
 	return probes
 	
 	
@@ -1025,6 +1145,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 		turn = -1
 	if hide == undefined
 		hide = false
+	if env.opts.hideRoad
+		hide = true
 	if n == undefined
 		n = 0
 
@@ -2696,7 +2818,7 @@ exportScenario \experimentOutro, (env, cb=->) ->*
 		cb.apply @, [env].concat ...args
 
 
-exportScenario \calibration, (env, i) ->*
+exportScenario \calibrationInst, (env, i) ->*
 	L = env.L
 	text = '%calib.inst' + i.toString()
 	yield ui.instructionScreen env, ->

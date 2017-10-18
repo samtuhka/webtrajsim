@@ -329,8 +329,8 @@ export fixSwitch = seqr.bind ->*
 		experiment.reverse()
 
 		yield runWithNewEnv scenario.participantInformation
-		yield runWithNewEnv scenario.calibration, 1
-		yield runWithNewEnv scenario.calibration, 3
+		yield runWithNewEnv scenario.calibrationInst, 1
+		yield runWithNewEnv scenario.calibrationInst, 3
 	
 		localStorage.setItem('scenario_id', 0)
 		localStorage.setItem('experiment', JSON.stringify(experiment))
@@ -343,10 +343,10 @@ export fixSwitch = seqr.bind ->*
 
 		if id < 2
 			task = runScenario scenario.fixSwitch, hide:false, turn:experiment[id][1], n:experiment[id][0], 
-		else if id < 6
+		else if id < 8
 			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0]
 		else
-			yield runWithNewEnv scenario.calibration, 1
+			yield runWithNewEnv scenario.calibrationInst, 1
 			resetter()
 			env = newEnv!
 			yield scenario.experimentOutro yield env.get \env
@@ -357,10 +357,10 @@ export fixSwitch = seqr.bind ->*
 		result = yield task.get \done
 		yield task
 
-		if id == 3 && result.passed
-			yield runWithNewEnv scenario.calibration, 1
+		#if id == 3 && result.passed
+		#	yield runWithNewEnv scenario.calibrationInst, 1
 
-		yield runWithNewEnv scenario.calibration, 3
+		yield runWithNewEnv scenario.calibrationInst, 3
 
 		if result.passed
 			localStorage.setItem('passes', 0)
