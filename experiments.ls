@@ -315,7 +315,15 @@ deparam = require 'jquery-deparam'
 opts = deparam window.location.search.substring 1
 alt = Math.floor(opts.alt)
 
-
+shuffle = (array) ->
+	while true
+		array = shuffleArray array
+		quit = true
+		for i from 1 til array.length
+			if array[i][0] == array[i - 1][0]
+				quit = false
+		break if quit
+	return array
 
 export fixSwitch = seqr.bind ->*
 	
@@ -324,7 +332,10 @@ export fixSwitch = seqr.bind ->*
 		pracScens = shuffleArray pracScens
 		
 		experiment = [[2,1],[2,-1],[3, 1], [3, -1], [4, 1], [4, -1]]
-		experiment = shuffleArray experiment
+
+		experiment = shuffle experiment
+		console.log experiment
+			
 		experiment = experiment.concat pracScens
 		experiment.reverse()
 

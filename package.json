@@ -16,7 +16,8 @@
     "systemjs": "^0.19.28",
     "systemjs-plugin-json": "^0.2.3",
     "three": "^0.87.0",
-    "numeric": "^1.2.6"
+    "numeric": "^1.2.6",
+    "stats": "git+https://github.com/mrdoob/stats.js/"
   },
   "devDependencies": {
     "bluebird": "^3.0.5",

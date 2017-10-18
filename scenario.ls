@@ -691,6 +691,20 @@ calibration = exportScenario \calibration, (env, mini = false) ->*
 	scene = yield calbrationScene env, "start calibration"
 
 
+	calibLocs = [ [-1.0, 0.4, -2.5], [0, 0.4, -2.5], [1.0, 0.4, -2],
+			[-1.0, 0.2, -2.5], [0, 0.2, -2.5], [1.0, 0.2, -2],
+			[-1.0, 0.0, -2.5], [0, 0.0, -2.5], [1.0, 0.0, -2],
+			[-1.0, -0.2, -2.5], [0, -0.2, -2.5], [1.0, -0.2, -2],
+			[-1.0, -0.4, -2.5], [0, -0.4, -2.5], [1.0, -0.4, -2]]
+
+	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
+
+
+
+	scene.marker.position.x = calibLocs[0][0]
+	scene.marker.position.y = calibLocs[0][1]
+	scene.marker.position.z = -3 #calibLocs[scene.marker.index][2]
+
 	@let \scene, scene
 	yield @get \run
 
@@ -709,14 +723,10 @@ calibration = exportScenario \calibration, (env, mini = false) ->*
 
 	#if scene.socket
 	#	scene.socket.send "start calibration"
-	calibLocs = [ [-0.5, 0.5, -2.5], [0, 0.5, -2.5], [0.5, 0.5, -2],
-			[-0.5, 0.25, -3.5], [0.5, 0.25, -3], 
-			[-0.5, 0, -3], [0, 0, -2.8], [0.5, 0, -3.5],
-			[-0.5, -0.25, -3.5], [0.5, -0.25, -3],
-			[-0.5, -0.5, -2.9], [0, -0.5, -3], [0.5, -0.5, -2.5], [0,0, -3], [0,0, -2]]
 
-	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
-	
+
+
+
 	change = scene.time
 	scene.afterPhysics.add (dt) ->
 		if scene.time - 3 > change
@@ -737,7 +747,8 @@ calibration = exportScenario \calibration, (env, mini = false) ->*
 			#	scene.socket.send "stop"
 			#	scene.socket.close()
 			#exitVR env
-			@let \done, passed: true
+			@let \done, passed: true, outro:
+				title: env.L "Done"
 			return false
 	return yield @get \done
 
@@ -832,11 +843,21 @@ addCalibrationMarker = (scene) ->
 
 
 
-
+Stats = require './node_modules/stats.js'
 export basecircleDriving = seqr.bind (env, params) ->*
 
 	scene = yield circleScene env, params
 	addMarkerScreen scene, env
+
+	stats = new Stats(0)
+	stats.domElement.style.position	= 'absolute'
+	stats.domElement.style.right	= '400px'
+	stats.domElement.style.bottom	= '40px'
+	document.body.appendChild stats.domElement
+
+	scene.onRender.add (dt) ->
+		stats.update()
+
 	#addBackgroundColor scene
 	return scene
 
