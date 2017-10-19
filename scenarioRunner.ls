@@ -170,7 +170,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scenario = scenarioLoader env, ...args
 
 
-	prog = trial/8.0*100
+	prog = trial/10.0*100
 	prog = Math.max prog, 1
 
 	intro = P.resolve undefined
@@ -304,7 +304,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	
 	if result.passed
 		trial += 1
-	prog = trial/8.0*100
+	prog = trial/10.0*100
 	prog = Math.max prog, 1
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title

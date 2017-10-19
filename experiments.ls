@@ -331,10 +331,9 @@ export fixSwitch = seqr.bind ->*
 		pracScens = [[0,1],[0,-1]]
 		pracScens = shuffleArray pracScens
 		
-		experiment = [[2,1],[2,-1],[3, 1], [3, -1], [4, 1], [4, -1]]
+		experiment = [[2,1],[2,-1],[3, 1], [3, -1], [4, 1], [4, -1], [5, 1], [5, -1]]
 
 		experiment = shuffle experiment
-		console.log experiment
 			
 		experiment = experiment.concat pracScens
 		experiment.reverse()
@@ -354,7 +353,7 @@ export fixSwitch = seqr.bind ->*
 
 		if id < 2
 			task = runScenario scenario.fixSwitch, hide:false, turn:experiment[id][1], n:experiment[id][0], 
-		else if id < 8
+		else if id < 10
 			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0]
 		else
 			yield runWithNewEnv scenario.calibrationInst, 1

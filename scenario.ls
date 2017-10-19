@@ -693,11 +693,11 @@ calibration = exportScenario \calibration, (env, mini = false) ->*
 
 	calibLocs = [ [-1.0, 0.4, -2.5], [0, 0.4, -2.5], [1.0, 0.4, -2],
 			[-1.0, 0.2, -2.5], [0, 0.2, -2.5], [1.0, 0.2, -2],
-			[-1.0, 0.0, -2.5], [0, 0.0, -2.5], [1.0, 0.0, -2],
-			[-1.0, -0.2, -2.5], [0, -0.2, -2.5], [1.0, -0.2, -2],
+			[-1.0, 0.0, -2.5], [-0.5, 0.0, -2.5], [0, 0.0, -2.5], [0.5, 0.0, -2.5], [1.0, 0.0, -2],
+			[-1.0, -0.2, -2.5], [-0.5,-0.2, -2.5], [0, -0.2, -2.5], [0.5, -0.2, -2.5], [1.0, -0.2, -2],
 			[-1.0, -0.4, -2.5], [0, -0.4, -2.5], [1.0, -0.4, -2]]
 
-	calibLocs = [ [-0.5, 0.5, -2.5], [0.5, 0.5, -2.5], [-0.5, -0.5, -2], [0.5, -0.5, -3.5], [0.5, -0.5, -3.5]] if mini
+	calibLocs = [[-0.75, 0.0, -2.5], [0, 0.0, -2.5], [0.75, 0.0, -2.5],[-0.75,-0.2, -2.5], [0, -0.2, -2.5], [0.75, -0.2, -2.5]] if mini
 
 
 
@@ -2643,6 +2643,16 @@ exportScenario \participantInformation, (env) ->*
 			@ \text .append L "%intro.introduction"
 			@ \accept .text L "Next"
 			@ \cancel-button .hide!
+		->
+			@ \title .text L "Participation is voluntary"
+			@ \text .append L "%intro.participantRights"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "I wish to participate"
+		->
+			@ \title .text L "Collection and use of data"
+			@ \text .append L "%intro.dataUse"
+			@ \cancel .text L "Previous"
+			@ \accept .text L "I accept the usage of my data"
 		->
 			@ \title .text L "Background information"
 			@ \text .append L "%intro.backgroundInfo"
