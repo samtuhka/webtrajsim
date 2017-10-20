@@ -36,8 +36,8 @@
 '%fixSwitchPrac.intro': """
 	<p>Tehtävänäsi on pysyä tiellä.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Tien pinnalla näky harmaita merkkejä.
-	<p> Myöhemmin kokeessa tiestä näkyy ainoastaan nämä merkit (eli valkoinen tekstuuri on hävitetty)
+	<p>Tien pinnalla näkyy harmaita merkkejä.
+	<p> Myöhemmin kokeessa tiestä näkyy ainoastaan nämä merkit (eli valkoinen tie on hävitetty)
 	<p>Ajettava rata pysyy koko kokeen ajan samana (ensimmäisen mutkan suunta voi vaihdella).
 	"""
 
