@@ -351,10 +351,11 @@ fixLogic = (env, scene, sound, s) ->
 		#if chance > 0.5
 		#	scene.showTime = 0.4
 	n = scene.params.targets
-	#console.log scene.fixcircles
-	if scene.probeIndx?
+
+	if scene.probeIndx > 0
 		val = scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value
-		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = Math.max val - 0.05, 0.0
+		t = (scene.time - scene.dT)*60.0
+		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = Math.max 0.7 - 0.0467*t, 0.0
 
 	#if scene.time - scene.dT >= scene.showTime
 	#	scene.fixcircles[0].children[0].visible = true
