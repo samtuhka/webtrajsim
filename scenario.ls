@@ -849,14 +849,14 @@ export basecircleDriving = seqr.bind (env, params) ->*
 	scene = yield circleScene env, params
 	addMarkerScreen scene, env
 
-	stats = new Stats(0)
-	stats.domElement.style.position	= 'absolute'
-	stats.domElement.style.right	= '400px'
-	stats.domElement.style.bottom	= '40px'
-	document.body.appendChild stats.domElement
+	#stats = new Stats(0)
+	#stats.domElement.style.position	= 'absolute'
+	#stats.domElement.style.right	= '400px'
+	#stats.domElement.style.bottom	= '40px'
+	#document.body.appendChild stats.domElement
 
-	scene.onRender.add (dt) ->
-		stats.update()
+	#scene.onRender.add (dt) ->
+	#	stats.update()
 
 	#addBackgroundColor scene
 	return scene
