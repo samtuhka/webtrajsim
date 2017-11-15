@@ -633,6 +633,60 @@ if future === NaN
 n = 4
 
 
+export synch = seqr.bind (env, startMsg) ->*
+	{controls, audioContext, L} = env
+	scene = new Scene
+	eye = new THREE.Object3D
+	eye.position.x = 0
+	eye.position.z = 0
+	eye.position.y = 1.2
+	eye.rotation.y = Math.PI
+	scene.visual.add eye
+	eye.add scene.camera
+
+
+	scene.onStart ->
+		env.container.addClass "hide-cursor"
+	scene.onExit ->
+		env.container.removeClass "hide-cursor"
+
+	dark = addBackgroundColor scene, 0x000000
+	light = addBackgroundColor scene, 0xffffff
+	light.visible = false
+	#scene.visual.add bg
+
+	scene.preroll = seqr.bind ->*
+		# Tick a couple of frames for the physics to settle
+		t = Date.now()
+		n = 100
+		for [0 to n]
+			scene.tick 1/60
+		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
+
+
+	@let \scene, scene
+	yield @get \run
+	start = scene.time
+
+	i = 0
+
+	scene.onTickHandled ~>
+		i := i + 1
+		if i % 60 == 0
+			light.visible = true
+			dark.visible = false
+			env.logger.write flash: Date.now() / 100000.0
+		if (i - 1)  % 60 == 0
+			dark.visible = true
+			light.visible = false
+			env.logger.write flashEnd: Date.now() / 100000.0
+		if scene.time - start > 20.5
+				@let \done, passed: true, outro:
+					title: env.L "Done"
+				return false
+	return yield @get \done
+
+
 export calbrationScene = seqr.bind (env, startMsg) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
@@ -859,7 +913,7 @@ export basecircleDriving = seqr.bind (env, params) ->*
 	#scene.onRender.add (dt) ->
 	#	stats.update()
 
-	#addBackgroundColor scene
+	addBackgroundColor scene
 	return scene
 
 onInnerLane = (scene) ->
@@ -964,7 +1018,7 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 	fixObj = new THREE.Object3D()
 
 	cycles = 18.0
-	size = 1
+	size = 0.5
 	uniform = {cycles: { type: "f", value: cycles }, trans: {type: "f", value: 0.0}}
 
 	#texture = new THREE.Texture assets.SineGratingBitmap resolution: 512, cycles: cycles
@@ -1012,12 +1066,13 @@ markersVisible = (scene) ->
 	for marker in scene.markers
 		marker.visible = true
 
-addBackgroundColor = (scene) ->
+addBackgroundColor = (scene, c = 0x7F7F7F) ->
 	geo = new THREE.PlaneGeometry 4000, 4000
-	mat = new THREE.MeshBasicMaterial color: 0xd3d3d3, depthTest: true
+	mat = new THREE.MeshBasicMaterial color: c, depthTest: true
 	mesh = new THREE.Mesh geo, mat
 	mesh.position.z = -2100
 	scene.camera.add mesh
+	return mesh
 	#console.log scene
 
 addBackgroundColorFun = (scene) ->
