@@ -4,7 +4,7 @@ trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-SESSDIR="/media/tru/Transcend/sessions/`date +%s`"
+SESSDIR="/home/tru/headway17/`date +%s`"
 PUPILPORT=50020
 
 mkdir -p $SESSDIR

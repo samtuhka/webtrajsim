@@ -107,12 +107,12 @@ while taking as few glances as you can."""
 
 'Anticipating supermiler': 'Anticipatory car following task'
 '%blindFollowInTraffic.intro': -> """
-	Follow the vehicle in front as you would in a crowded highway
+	Follow the vehicle in front. Keep a headway which you find appropriate.
 	 
 	Do not pass the car. There are no speed limits
 	 
-	The road view is blocked. You can take a glimpse of the road by pressing (LSB). 
-	Try to drive as you did without the blinder, with as little glances as possible.
+	The road view is blocked by a mask. You can take a glimpse of the road by pressing (LSB).
+	Try to drive as you did without the mask while using as few glimpses as possible.
 	 
 	If you collide you will have to start the task again
 	 

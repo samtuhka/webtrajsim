@@ -23,6 +23,7 @@ class plotter():
     self.text = ""
     self.clear = False
     self.verif = 1
+    self.finished = False
     _thread.start_new_thread(self.thread, ())
 
   def update(self):
@@ -37,10 +38,10 @@ class plotter():
      txt.setPos(0.5, 0.5)
      self.plt.addItem(txt)
      self.text = ""
-    if self.clear:
-     if self.verif != 1:
-       self.plt_init()
+    if self.clear and self.finished:
+     self.plt_init()
      self.verif += 1
+     self.finished = False
      self.clear = False
 
   
@@ -173,6 +174,7 @@ while True:
             prevT = pos['time']
             result = json.loads(result)
             result['gaze'] = gaze
+            result['received_timestamp'] = time.time()
             refPoints.append([pos['x'], pos['y'], result['position']['x'], result['position']['y'], gaze['confidence'], gaze['timestamp']])
             plotter.ref = [result['position']['x'], result['position']['y']]
             verifData.append(result)
@@ -192,6 +194,7 @@ while True:
     refPoints = refPoints[refPoints[:,4] > 0.5]
     sizeCleaned = len(refPoints)
     print("valid: " + str(sizeCleaned/size))
+    plotter.finished = True
     gaze, ref = refPoints[:,0:2],refPoints[:,2:4]
 
 

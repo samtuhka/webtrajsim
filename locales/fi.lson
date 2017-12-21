@@ -102,7 +102,7 @@
 '%blinderIntro': """
 	<p>Tässä tehtävässä mitataan myös ennakointikykyäsi laskemalla, kuinka usein
 	joudut katsomaan tietä. Tie tulee hetkeksi näkyviin, kun painat vasenta
-	alanappia (LSB). Yritä suorittaa tehtävä samalla tavalla kuin aikaisemmin, 
+	ala nappia (LSB). Yritä suorittaa tehtävä mahdollisimman hyvin,
 	mutta käyttämällä mahdollisimman
 	vähän katseita.
 
@@ -164,7 +164,7 @@
 'Anticipating supermiler': 'Ennakoiva takana ajo -tehtävä'
 
 '%blindFollowInTraffic.intro': -> """
-	Seuraa edelläajavaa autoa niin kuin ajaisit ruuhkaisella maantiellä.
+	Seuraa edellä ajavaa autoa. Pidä omasta mielestäsi sopiva turvaväli.
 	Älä ohita edellä olevaa autoa.
 	Tehtävässä ei ole nopeusrajoituksia.
 	 
@@ -172,7 +172,6 @@
 	alanappia (LSB). Yritä suorittaa tehtävä samalla tavalla kuin aikaisemmin, 
 	mutta käyttämällä mahdollisimman vähän katseita.
 
-	 
 	Jos törmäät, joudut aloittamaan tehtävän alusta.
 	 
 	Ota hyvä asento. Resetoi virtuaalikamera (Xbox nappi).
@@ -365,18 +364,20 @@ yrität pysyä liikkumatta, vaikka säikähtäisit ärsykettä.
 			Pidä katse kiinni maalitaulun keskellä. 
 			Yritä olla räpyttelemättä katsoessasi maalitaulua.
 
-			Ota hyvä asento. 
-			Katso suoraan eteenpäin ja resetoi virtuaalikameran asento ratin vasemalla alanapilla (LSB).
+			Ota hyvä asento.
+			Katso suoraan eteenpäin ja resetoi virtuaalikameran asento Xbox napilla.
 			Kun olet valmis aloittamaan, paina oikeanpuoleista alinta nappia (RSB)
 			"""
 
 
 'Verification': 'Kalibraation tarkistus'
 '%verification.intro' : """
-			Katso ilmestyvien maalitaulujen keskelle.
-            		Pidä katse kiinni maalitaulun keskelle sijaitsevassa mustassa pisteessä.
+			Eteesi ilmestyy maalitauluja.
+			Pidä katse kiinni maalitaulun keskellä.
+			Yritä olla räpyttelemättä katsoessasi maalitaulua.
 
-			Ota hyvä asento, ja resetoi virtuaalikameran asento painamalla vasenta alanappia (LSB).
+			Ota hyvä asento.
+			Katso suoraan eteenpäin ja resetoi virtuaalikameran asento Xbox napilla.
 			Paina ratin oikeanpuoleista alinta nappia (RSB), kun olet valmis aloittamaan.
 			"""
 'Subject ID': 'Koehenkilö numero'

@@ -4,11 +4,16 @@ import sys
 import websockets
 import asyncio
 import argh
+import json
+import time
 
 def logserver(outfile=sys.stdout):
     async def logger(sock, path):
         while True:
             msg = await sock.recv()
+            msg = json.loads(msg)
+            msg['fixed_ts'] = time.time()
+            msg = str(msg)
             outfile.write(msg)
             outfile.write('\n')
             outfile.flush()

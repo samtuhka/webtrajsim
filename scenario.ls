@@ -663,8 +663,8 @@ addSpeedometer = (scene, env) ->
 
 	scene.onTickHandled ->
 		upd += 1
-		if upd == 15
-			upd -= 15
+		if upd >= 15
+			upd := 0
 			speed = scene.player.getSpeed()*3.6
 			dynamicTexture.clear()
 			dynamicTexture.drawText(Math.round(speed), undefined, 126, 'red', font)
@@ -724,7 +724,7 @@ getAccelerationIDM = (car, leader, maxVel) ->
 addBlinder = (scene, env) ->
 	mask = new THREE.Mesh do
 		new THREE.PlaneGeometry 1, 1
-		new THREE.MeshBasicMaterial color: 0xeeeeee, side: THREE.DoubleSide, transparent: true, opacity: 0.0
+		new THREE.MeshBasicMaterial color: 0xeeeeee, side: THREE.DoubleSide
 
 	mask.position.y = 1.23 - 0.07
 	mask.position.x = 0.37 - 0.03
@@ -737,7 +737,6 @@ addBlinder = (scene, env) ->
 	#mask.position.y = -0.03
 	#scene.camera.add mask
 
-	mask.visible = false
 	scene.player.body.add mask
 
 	self =
@@ -753,13 +752,12 @@ addBlinder = (scene, env) ->
 
 	self._showMask = showMask = ->
 		return if mask.visible
-		return if not scene.start
-		#if scene.leader
-		#	scene.leader.visual.visible = false
+		if scene.leader
+			scene.leader.visual.visible = false
 		mask.visible = true
 		self.change.dispatch true
 		env.logger.write blinder: true
-		addOpacity()
+		#addOpacity()
 
 	self._showMask()
 
@@ -771,7 +769,7 @@ addBlinder = (scene, env) ->
 		self.glances += 1
 		self.change.dispatch false
 		env.logger.write blinder: false
-		mask.material.opacity = 0
+		#mask.material.opacity = 0
 		setTimeout showMask, 300
 
 	return self
@@ -842,14 +840,14 @@ failOnCollision = (env, scn, scene) ->
 
 turnSignal = (env, scene, listener) ->
 
-	loopSound = new THREE.Audio(listener)
+	loopSound = scene.loopSound = new THREE.Audio(listener)
 	loopSound.load('res/sounds/turn_loop.wav')
 	loopSound.loop = true
 
-	onSound = new THREE.Audio(listener)
+	onSound = scene.onSound = new THREE.Audio(listener)
 	onSound.load('res/sounds/turn_on.wav')
 
-	offSound = new THREE.Audio(listener)
+	offSound = scene.offSound = new THREE.Audio(listener)
 	offSound.load('res/sounds/turn_off.wav')
 
 	scene.player.ts = 0
@@ -893,10 +891,13 @@ turnSignal = (env, scene, listener) ->
 			else
 				scene.player.ts_value = Math.max scene.player.ts_value, env.controls.steering
 			if env.controls.steering*dir > 0 && scene.player.ts_value*dir < 0
-				loopSound.stop()
+				if loopSound.isPlaying
+					loopSound.stop()
 				scene.player.ts = 0
 				offSound.play()
 				env.logger.write turnSignal: "ts off (automatic)"
+		if scene.endtime and loopSound.isPlaying
+			loopSound.stop()
 				
 
 setCarControls = (env, scene, cars) ->
@@ -987,6 +988,7 @@ export endingVr = (scene, env, title, reason, scn) ->
 
 	scene.endtime = scene.time
 	scene.engineSounds.stop()
+
 	env.logger.write endTime: scene.endtime
 
 	env.controls.change (btn, isOn) !~>
@@ -1786,8 +1788,8 @@ followInTraffic = exportScenario \followInTraffic, (env, {distance=2000}={}) ->*
 	
 	yield startLight.switchToGreen()
 
-	if scene.mask
-		scene.mask._showMask()
+	#if scene.mask
+	#	scene.mask._showMask()
 
 	startTime = scene.time
 	zeroTime := scene.time
@@ -2068,7 +2070,7 @@ exportScenario \experimentIntro, (env) ->*
 			@ \title .text L "Subject ID"
 			@ \accept .text L "Next"
 			@ \cancel-button .hide!
-			input = $("""<input name="birthyear" type="number" min="0" max="1000" style="color: black">""")
+			input = $("""<input name="subjectId" type="number" min="0" max="1000" style="color: black">""")
 			.appendTo @ \inputs
 			setTimeout input~focus, 0
 		->

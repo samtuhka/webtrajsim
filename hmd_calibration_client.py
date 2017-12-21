@@ -150,6 +150,7 @@ if __name__ == '__main__':
 		    pos = (result['position']['x'], result['position']['y'], result['position']['z'])
 		    positions.append(pos)
 		    result['pupil_timestamp'] = t
+		    result['received_timestamp'] = time.time()
 		    calibData.append(result)
 		    timestamps.append(t)
 
