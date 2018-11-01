@@ -87,10 +87,10 @@
 		<script src="ui-main.ls.js"></script>
 		</template>
 		<script type="text/javascript">
-			var template = "#launch-static";
-			if(document.location.protocol == "file:") {
-				template = "#launch-dynamic";
-			}
+			var template = "#launch-dynamic";
+			//if(document.location.protocol == "file:") {
+			//	template = "#launch-dynamic";
+			//}
 			template = document.querySelector(template);
 			document.write(template.innerHTML);
 		</script>
