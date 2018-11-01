@@ -341,7 +341,7 @@ fixLogic = (env, scene, sound, s) ->
 			fix.children[0].visible = true
 		#chance = Math.random()
 		probe = scene.params.probes[0]
-		if scene.probeIndx%16 == probe && scene.probeIndx > 14
+		if scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n)
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
 			env.logger.write hideProbe: scene.fixcircles[scene.probeIndx%n].position
 			env.logger.write hidePos: futPos: scene.centerLine.getPointAt(scene.futPos)
@@ -1018,7 +1018,7 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 	fixObj = new THREE.Object3D()
 
 	cycles = 18.0
-	size = 0.5
+	size = 1.0
 	uniform = {cycles: { type: "f", value: cycles }, trans: {type: "f", value: 0.0}}
 
 	#texture = new THREE.Texture assets.SineGratingBitmap resolution: 512, cycles: cycles
@@ -1187,6 +1187,24 @@ probeOrder = (order, turn) ->
 			[0, 5, 11, 15, 3, 6, 9, 14, 2, 7, 10, 13, 1, 5, 8, 12, 0, 4, 8, 12, 1, 4, 10, 14, 2, 7, 11, 15, 3, 6, 9, 13]]
 
 
+	p_orders = [[1, 1, 3, 2, 1, 1, 0, 4, 4, 3, 3, 3, 4, 3, 2, 1, 0, 4, 4, 3],
+				[1, 0, 2, 3, 2, 2, 1, 2, 2, 3, 4, 4, 3, 2, 4, 3, 4, 4, 4, 3],
+				[1, 0, 4, 4, 3, 4, 3, 2, 4, 4, 3, 3, 2, 3, 3, 2, 1, 0, 0, 4],
+				[0, 0, 1, 2, 4, 3, 3, 2, 2, 1, 1, 0, 2, 2, 4, 3, 3, 2, 3, 4],
+				[0, 0, 1, 2, 4, 3, 3, 2, 2, 1, 1, 0, 2, 2, 4, 3, 3, 2, 3, 4],
+				[2, 1, 2, 1, 4, 4, 3, 4, 3, 4, 3, 2, 1, 0, 0, 4, 4, 3, 3, 4]]
+	p_orders = [[4, 4, 3, 3, 2, 1, 0, 0, 2, 0, 1, 4, 2, 1, 0, 1, 5, 5, 5, 3],
+				[4, 4, 3, 1, 5, 5, 3, 2, 0, 0, 0, 2, 0, 1, 5, 3, 1, 3, 4, 2],
+				[1, 5, 5, 3, 4, 4, 2, 0, 2, 2, 1, 0, 0, 0, 1, 3, 3, 5, 3, 4],
+				[1, 0, 0, 1, 0, 4, 5, 5, 4, 5, 3, 2, 3, 5, 3, 2, 0, 1, 4, 2],
+				[0, 0, 5, 3, 4, 2, 3, 5, 4, 3, 2, 1, 1, 0, 1, 1, 5, 4, 2, 3],
+				[4, 3, 3, 1, 0, 2, 1, 0, 1, 3, 1, 0, 1, 2, 5, 4, 2, 4, 5, 5]]
+	p_orders = [[0, 3, 0, 4, 0, 4, 0, 3, 1, 4, 0, 5, 3, 6, 2, 5, 1, 4, 1, 5, 1, 4, 1, 5, 2, 6, 2, 5, 3, 6, 3, 6, 2, 6, 2, 6],
+				[2, 6, 2, 6, 3, 6, 3, 6, 2, 5, 1, 4, 0, 3, 0, 4, 1, 4, 1, 6, 2, 5, 1, 5, 1, 4, 0, 3, 0, 4, 0, 5, 2, 5, 3, 6],
+				[2, 5, 1, 4, 0, 3, 0, 4, 1, 4, 1, 4, 0, 5, 3, 6, 2, 6, 2, 6, 3, 6, 2, 6, 2, 5, 1, 5, 2, 5, 1, 4, 0, 3, 0, 3],
+				[0, 3, 0, 5, 1, 6, 3, 6, 2, 5, 1, 4, 1, 4, 3, 6, 2, 5, 2, 6, 2, 5, 1, 4, 0, 3, 0, 4, 2, 5, 1, 4, 0, 3, 2, 6],
+				[1, 4, 0, 3, 2, 5, 1, 4, 0, 3, 0, 3, 1, 4, 0, 6, 2, 6, 3, 6, 3, 6, 2, 5, 2, 5, 1, 4, 0, 5, 2, 6, 2, 5, 1, 4],
+				[1, 4, 1, 5, 1, 4, 0, 4, 0, 3, 0, 4, 0, 3, 0, 4, 2, 6, 2, 5, 3, 6, 2, 5, 1, 6, 3, 6, 2, 5, 3, 6, 2, 5, 1, 4]]
 	probes = p_orders[order]
 	#if turn == -1
 	#	probes = probes.reverse()
@@ -1216,7 +1234,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	rx = 50
 	ry = rx
 	l = 0
-	s = rx*Math.PI/12.0*3.6
+	s = rx*Math.PI/14.0*3.6
 
 	if turn == undefined
 		turn = -1
@@ -1228,7 +1246,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 		n = 0
 
 	order = probeOrder n, turn
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 152, updateTime: 0.75, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide}
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7}
 
 	scene = yield basecircleDriving env, params
 
@@ -1253,7 +1271,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).x
-	if turn == -1
+	if turn != -1
 		scene.player.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 	scene.playerControls.throttle = 0
 
