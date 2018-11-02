@@ -285,17 +285,6 @@ futPos = (scene) ->
 		seed = Math.random()
 
 		scene.futPos += roadSecond*scene.params.updateTime
-		#if seed > 0.5
-		#	dur = 1.7
-		#else
-		#	dur = 1
-		#newRandom = Math.random()
-		#oldRandom = scene.random	
-		#if newRandom > 0.75 && oldRandom <= 0.75
-		#	scene.futPos += roadSecond*scene.params.updateTime*2
-		#else
-		#	scene.futPos += roadSecond*scene.params.updateTime
-		#scene.random = newRandom
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -335,17 +324,22 @@ fixLogic = (env, scene, sound, s) ->
 		scene.dT = scene.time
 		n = scene.params.targets
 		handleFixLocs scene, scene.probeIndx%n
-		env.logger.write probe: scene.fixcircles[scene.probeIndx%n].position
+		#env.logger.write probe: scene.fixcircles[scene.probeIndx%n].position
 		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 0.7
 		for fix in scene.fixcircles
 			fix.children[0].visible = true
 		#chance = Math.random()
 		probe = scene.params.probes[0]
+        hidden = false
 		if scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n)
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
-			env.logger.write hideProbe: scene.fixcircles[scene.probeIndx%n].position
-			env.logger.write hidePos: futPos: scene.centerLine.getPointAt(scene.futPos)
+            hidden = true
 			scene.params.probes.shift()
+		env.logger.write do
+			probe: scene.fixcircles[scene.probeIndx%n].position
+			roadPosition: futPos: scene.centerLine.getPointAt(scene.futPos)
+			identity: scene.probeIndx%scene.params.waypoint_n
+            hide: hidden
 		#scene.fixcircles[1].children[0].visible = false
 		#scene.showTime = 0.0
 		#if chance > 0.5
@@ -540,7 +534,9 @@ search = (scene) ->
 	s = 0
 	e = 1
 
-	if scene.player.minDist > 5
+	if scene.player.minDist > 5 && scene.time - scene.lastSlowSearch > 0.2
+		console.log "slow search"
+		scene.lastSlowSearch = scene.time
 		s = -5
 		e = 5
 		d = 0.05 / scene.centerLine.getLength()
@@ -1218,18 +1214,14 @@ probeOrder = (order, turn) ->
 
 exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 
-
-
 	listener = new THREE.AudioListener()
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep.wav')
 	annoyingSound.setVolume(0.05)
 
-
 	annoyingSound2 = new THREE.Audio(listener)
 	annoyingSound2.load('res/sounds/beep-01a.wav')
 	annoyingSound2.setVolume(0.05)
-
 
 	rx = 50
 	ry = rx
@@ -1249,6 +1241,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7}
 
 	scene = yield basecircleDriving env, params
+	scene.lastSlowSearch = -5
 
 
 	scene.params = params
@@ -1259,14 +1252,10 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 	addFixationCross scene, 1.5
 	addFixationCross scene, 1.5
 	addFixationCross scene, 1.5
-
+	
 	scene.random = 0
 	#scene.fixcircles[0].children[0].material.color.g = 1.0
 	#scene.fixcircles[3].children[0].material.color.r = 1.0
-	
-
-
-
 
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
@@ -1316,11 +1305,9 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 
 	scene.onTickHandled ~>
 
-
-		if (scene.time - scene.prevOp) > 0.5
-			scene.prevOp = scene.time
-			scene.road.material.opacity = Math.max scene.road.material.opacity - 0.005, 0
-			
+		#if (scene.time - scene.prevOp) > 0.5
+		#	scene.prevOp = scene.time
+		#	scene.road.material.opacity = Math.max scene.road.material.opacity - 0.005, 0
 		handleSpeed scene, s
 
 		search(scene)
@@ -1356,7 +1343,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 			@let \done, passed: true, outro:
 				title: env.L "Passed"
 				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekunttia.</p>
+				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
+                <p>Olit kokonaisuudessaan #{scene.outside.totalTime.toFixed 2} sekuntia tien ulkopuolella.</p>
 				 """
 			return false
 
