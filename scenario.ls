@@ -330,16 +330,16 @@ fixLogic = (env, scene, sound, s) ->
 			fix.children[0].visible = true
 		#chance = Math.random()
 		probe = scene.params.probes[0]
-        hidden = false
-		if scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n)
+		hidden = false
+		if scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
-            hidden = true
+			hidden = true
 			scene.params.probes.shift()
 		env.logger.write do
 			probe: scene.fixcircles[scene.probeIndx%n].position
 			roadPosition: futPos: scene.centerLine.getPointAt(scene.futPos)
 			identity: scene.probeIndx%scene.params.waypoint_n
-            hide: hidden
+			hide: hidden
 		#scene.fixcircles[1].children[0].visible = false
 		#scene.showTime = 0.0
 		#if chance > 0.5
@@ -1200,7 +1200,10 @@ probeOrder = (order, turn) ->
 				[2, 5, 1, 4, 0, 3, 0, 4, 1, 4, 1, 4, 0, 5, 3, 6, 2, 6, 2, 6, 3, 6, 2, 6, 2, 5, 1, 5, 2, 5, 1, 4, 0, 3, 0, 3],
 				[0, 3, 0, 5, 1, 6, 3, 6, 2, 5, 1, 4, 1, 4, 3, 6, 2, 5, 2, 6, 2, 5, 1, 4, 0, 3, 0, 4, 2, 5, 1, 4, 0, 3, 2, 6],
 				[1, 4, 0, 3, 2, 5, 1, 4, 0, 3, 0, 3, 1, 4, 0, 6, 2, 6, 3, 6, 3, 6, 2, 5, 2, 5, 1, 4, 0, 5, 2, 6, 2, 5, 1, 4],
-				[1, 4, 1, 5, 1, 4, 0, 4, 0, 3, 0, 4, 0, 3, 0, 4, 2, 6, 2, 5, 3, 6, 2, 5, 1, 6, 3, 6, 2, 5, 3, 6, 2, 5, 1, 4]]
+				[1, 4, 1, 5, 1, 4, 0, 4, 0, 3, 0, 4, 0, 3, 0, 4, 2, 6, 2, 5, 3, 6, 2, 5, 1, 6, 3, 6, 2, 5, 3, 6, 2, 5, 1, 4],
+				[0, 4, 0, 5, 1, 5, 2, 6, 2, 6, 2, 5, 1, 4, 0, 3, 1, 4, 0, 4, 3, 6, 2, 6, 3, 6, 3, 6, 2, 5, 1, 4, 0, 3, 1, 5],
+				[0, 4, 0, 4, 0, 3, 0, 4, 0, 3, 1, 4, 1, 4, 1, 6, 3, 6, 3, 6, 3, 6, 2, 5, 2, 5, 1, 4, 2, 5, 2, 5, 1, 6, 2, 5],
+				[0, 3, 1, 4, 2, 6, 3, 6, 3, 6, 3, 6, 2, 5, 1, 4, 0, 5, 1, 4, 1, 4, 0, 4, 0, 3, 0, 5, 2, 6, 2, 5, 2, 5, 1, 4]]
 	probes = p_orders[order]
 	#if turn == -1
 	#	probes = probes.reverse()
@@ -1212,9 +1215,10 @@ probeOrder = (order, turn) ->
 
 
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false}={}) ->*
 
 	listener = new THREE.AudioListener()
+
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep.wav')
 	annoyingSound.setVolume(0.05)
@@ -1236,9 +1240,13 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0}={}) ->*
 		hide = true
 	if n == undefined
 		n = 0
+	if allVisible == undefined
+		allVisible = false
+	if env.opts.allVisible
+		allVisible = true
 
 	order = probeOrder n, turn
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7}
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7, no_missing: allVisible}
 
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
