@@ -350,13 +350,15 @@ export fixSwitch = seqr.bind ->*
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
-
-		if id == 0
-			task = runScenario scenario.fixSwitch, hide:false, turn:experiment[id][1], allVisible = true, n:experiment[id][0] 
+		console.log "aaa", id
+		if id < 1
+			console.log "true"
+			task = runScenario scenario.fixSwitch, hide: false, turn:experiment[id][1], allVisible:true, n:experiment[id][0], 
 		else if id < 3
-			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible = true, n:experiment[id][0] 
+			console.log "aaa"
+			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible:true, n:experiment[id][0]
 		else if id < 13
-			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0]
+			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0],
 		else
 			yield runWithNewEnv scenario.calibrationInst, 1
 			resetter()

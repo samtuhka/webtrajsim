@@ -90,24 +90,6 @@ export circleScene = seqr.bind (env, params, control = true) ->*
 	scene.onExit ->
 		env.container.removeClass "hide-cursor"
 
-
-	rendererStats = new THREEx.RendererStats()
-	rendererStats.domElement.style.position	= 'absolute'
-	rendererStats.domElement.style.right = '100px'
-	rendererStats.domElement.style.top = '100px'
-
-	stats = new Stats()
-	stats.domElement.style.position	= 'absolute'
-	stats.domElement.style.right	= '400px'
-	stats.domElement.style.bottom	= '40px'
-	document.body.appendChild stats.domElement
-
-	document.body.appendChild rendererStats.domElement
-
-	scene.onRender.add (dt) ->
-		rendererStats.update env.renderer
-		stats.update()
-
 	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
 		t = Date.now()

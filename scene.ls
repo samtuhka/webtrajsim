@@ -300,7 +300,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 10000, steps: 2500, bevelEnabled: false, extrudePath: circle}
+	extrudeSettings = {curveSegments: 1000, steps: 1000, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_double.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
@@ -326,18 +326,18 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 	#roadMat.polygonOffsetFactor = -1.0
 	#roadMat.polygonOffsetUnits = -100.0
 
-	faces = roadGeo.faces
-	roadGeo.faceVertexUvs[0] = []
+	#faces = roadGeo.faces
+	#roadGeo.faceVertexUvs[0] = []
 	r = 0
 
 	circum = Math.round(circle.getLength() / (roadLenght))
 	x = circum * 4 / (roadGeo.faces.length / 2)
-	for i in [0 til roadGeo.faces.length/2 ]
-		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
-		roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])
-		roadGeo.faceVertexUvs[0].push([t[1], t[2], t[3]])
-		r += x
-	roadGeo.uvsNeedUpdate = true
+	#for i in [0 til roadGeo.faces.length/2 ]
+	#	t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
+	#	roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])
+	#	roadGeo.faceVertexUvs[0].push([t[1], t[2], t[3]])
+	#	r += x
+	#roadGeo.uvsNeedUpdate = true
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0

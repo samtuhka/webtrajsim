@@ -535,7 +535,7 @@ search = (scene) ->
 	e = 1
 
 	if scene.player.minDist > 5 && scene.time - scene.lastSlowSearch > 0.2
-		console.log "slow search"
+		#console.log "slow search"
 		scene.lastSlowSearch = scene.time
 		s = -5
 		e = 5
@@ -1218,7 +1218,7 @@ probeOrder = (order, turn) ->
 exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false}={}) ->*
 
 	listener = new THREE.AudioListener()
-
+	console.log hide, turn, n, allVisible
 	annoyingSound = new THREE.Audio(listener)
 	annoyingSound.load('res/sounds/beep.wav')
 	annoyingSound.setVolume(0.05)
@@ -1247,7 +1247,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false}=
 
 	order = probeOrder n, turn
 	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7, no_missing: allVisible}
-
+	console.log params
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
 
