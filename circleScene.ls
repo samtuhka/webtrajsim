@@ -15,6 +15,9 @@ L = (s) -> s
 
 ui = require './ui.ls'
 
+require './threex/threex.rendererstats.js'
+require './threex/stats.js'
+
 export circleScene = seqr.bind (env, params, control = true) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
@@ -86,6 +89,24 @@ export circleScene = seqr.bind (env, params, control = true) ->*
 		env.container.addClass "hide-cursor"
 	scene.onExit ->
 		env.container.removeClass "hide-cursor"
+
+
+	rendererStats = new THREEx.RendererStats()
+	rendererStats.domElement.style.position	= 'absolute'
+	rendererStats.domElement.style.right = '100px'
+	rendererStats.domElement.style.top = '100px'
+
+	stats = new Stats()
+	stats.domElement.style.position	= 'absolute'
+	stats.domElement.style.right	= '400px'
+	stats.domElement.style.bottom	= '40px'
+	document.body.appendChild stats.domElement
+
+	document.body.appendChild rendererStats.domElement
+
+	scene.onRender.add (dt) ->
+		rendererStats.update env.renderer
+		stats.update()
 
 	scene.preroll = seqr.bind ->*
 		# Tick a couple of frames for the physics to settle
