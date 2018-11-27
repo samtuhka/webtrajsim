@@ -300,7 +300,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 1000, steps: 1000, extrudePath: circle}
+	extrudeSettings = {curveSegments: 1000, steps: 1000, depth: 0, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_double.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'

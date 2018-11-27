@@ -1278,6 +1278,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false}=
 
 	title = "%fixSwitch.title" if hide 
 	text = "%fixSwitch.intro" if hide
+	title = "%fixSwitchPrac.title" if allVisible
 
 
 	markersVisible scene
