@@ -325,7 +325,7 @@ fixLogic = (env, scene, sound, s) ->
 		n = scene.params.targets
 		handleFixLocs scene, scene.probeIndx%n
 		#env.logger.write probe: scene.fixcircles[scene.probeIndx%n].position
-		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 0.7
+		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 0.0
 		for fix in scene.fixcircles
 			fix.children[0].visible = true
 		#chance = Math.random()
@@ -346,10 +346,10 @@ fixLogic = (env, scene, sound, s) ->
 		#	scene.showTime = 0.4
 	n = scene.params.targets
 
-	if scene.probeIndx > 0
-		val = scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value
-		t = (scene.time - scene.dT)*60.0
-		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = Math.max 0.7 - 0.0467*t, 0.0
+	#if scene.probeIndx > 0
+	#	val = scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value
+	#	t = (scene.time - scene.dT)*60.0
+	#	scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = Math.max 0.7 - 0.0467*t, 0.0
 
 	#if scene.time - scene.dT >= scene.showTime
 	#	scene.fixcircles[0].children[0].visible = true
