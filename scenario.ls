@@ -1215,7 +1215,7 @@ probeOrder = (order, turn) ->
 
 
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 140}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1248,7 +1248,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false}
 		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
 
 	order = probeOrder n, turn
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7, no_missing: allVisible}
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7, no_missing: allVisible}
 	console.log params
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
@@ -1278,9 +1278,9 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false}
 	title = "%fixSwitchPrac.title" 
 	text = "%fixSwitchPrac.intro"
 
-	title = "%fixSwitch.title" if hide 
-	text = "%fixSwitch.intro" if hide
-	title = "%fixSwitchPrac.title" if allVisible
+	title = "%fixSwitch.title" if dur == 140
+	text = "%fixSwitchGaps.intro" if dur == 140
+	text = "%fixSwitchGapless.intro" if (dur == 140 && allVisible)
 
 
 	markersVisible scene
