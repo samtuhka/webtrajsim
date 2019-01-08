@@ -352,8 +352,8 @@ export fixSwitch = seqr.bind ->*
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
-		if if id < 3
-			task = runScenario scenario.fixSwitch, hide:Boolean(experiment[id][3]), turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0], dur = 50
+		if id < 3
+			task = runScenario scenario.fixSwitch, hide:Boolean(experiment[id][3]), turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0], dur:50
 		else if id < 16
 			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0]
 		else
