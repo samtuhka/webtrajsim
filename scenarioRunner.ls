@@ -170,7 +170,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scenario = scenarioLoader env, ...args
 
 
-	prog = trial/20.0*100
+	prog = trial/19.0*100
 	prog = Math.max prog, 1
 
 	intro = P.resolve undefined
@@ -302,9 +302,9 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	{passed, outro} = result = yield scenario
 	el.remove()
 	
-	if result.passed
+	if (result.passed || trial >= 3)
 		trial += 1
-	prog = trial/10.0*100
+	prog = trial/19.0*100
 	prog = Math.max prog, 1
 	outro = ui.instructionScreen env, ->
 			@ \title .append outro.title

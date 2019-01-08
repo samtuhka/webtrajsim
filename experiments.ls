@@ -326,10 +326,9 @@ shuffle = (array) ->
 	return array
 
 export fixSwitch = seqr.bind ->*
-	
+
 	if localStorage.hasOwnProperty('experiment') == false
 		pracScens = [[0,1, 0, 0],[1, 1, 1, 1],[1,-1, 0, 1]]
-		pracScens = shuffleArray pracScens
 		
 		gap_scenarios = [[2,1, 0],[2,-1, 0],[3, 1, 0], [3, -1, 0], [4, 1, 0], [4, -1, 0], [5, 1, 0], [5, -1, 0],[6, 1, 0],[6, -1, 0]]
 		gapless_scenarios = [[2,1, 1],[2,-1, 1],[3, 1, 1], [3, -1, 1], [4, 1, 1], [4, -1, 1]]
@@ -340,22 +339,22 @@ export fixSwitch = seqr.bind ->*
 		experiment = experiment.concat pracScens
 		experiment.reverse()
 
-		yield runWithNewEnv scenario.participantInformation
-		yield runWithNewEnv scenario.calibrationInst, 1
-		yield runWithNewEnv scenario.calibrationInst, 3
+		#yield runWithNewEnv scenario.participantInformation
+		#yield runWithNewEnv scenario.calibrationInst, 1
+		#yield runWithNewEnv scenario.calibrationInst, 3
 	
 		localStorage.setItem('scenario_id', 0)
 		localStorage.setItem('experiment', JSON.stringify(experiment))
 		localStorage.setItem('passes', 0)
-		localStorage.setItem('retries', 1)
+		localStorage.setItem('retries', 0)
 		window.location.reload()
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
 		if id < 3
-			task = runScenario scenario.fixSwitch, hide:Boolean(experiment[id][3]), turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0], dur:50
-		else if id < 16
-			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0]
+			task = runScenario scenario.fixSwitch, hide:(experiment[id][3] > 0), turn:experiment[id][1], allVisible: (experiment[id][2] > 0), n:experiment[id][0], dur:50
+		else if id < 19
+			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible: (experiment[id][2] > 0), n:experiment[id][0]
 		else
 			yield runWithNewEnv scenario.calibrationInst, 1
 			resetter()
@@ -373,7 +372,7 @@ export fixSwitch = seqr.bind ->*
 
 		yield runWithNewEnv scenario.calibrationInst, 3
 
-		if result.passed
+		if (result.passed || id >= 3)
 			localStorage.setItem('passes', 0)
 			localStorage.setItem('scenario_id', Number(id) + 1)
 			localStorage.setItem('retries', 1)

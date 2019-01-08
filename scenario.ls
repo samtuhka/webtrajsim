@@ -1279,8 +1279,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	text = "%fixSwitchPrac.intro"
 
 	title = "%fixSwitch.title" if dur == 140
-	text = "%fixSwitchGaps.intro" if dur == 140
-	text = "%fixSwitchGapless.intro" if (dur == 140 && allVisible)
+	text = "%fixSwitchGaps.intro" if hide
+	text = "%fixSwitchGapless.intro" if (hide && allVisible)
 
 
 	markersVisible scene
