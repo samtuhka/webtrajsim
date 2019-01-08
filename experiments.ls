@@ -328,10 +328,12 @@ shuffle = (array) ->
 export fixSwitch = seqr.bind ->*
 	
 	if localStorage.hasOwnProperty('experiment') == false
-		pracScens = [[0,1],[1,1],[1,-1]]
+		pracScens = [[0,1, 0, 0],[1, 1, 1, 1],[1,-1, 0, 1]]
 		pracScens = shuffleArray pracScens
 		
-		experiment = [[2,1],[2,-1],[3, 1], [3, -1], [4, 1], [4, -1], [5, 1], [5, -1],[6, 1],[6, -1]]
+		gap_scenarios = [[2,1, 0],[2,-1, 0],[3, 1, 0], [3, -1, 0], [4, 1, 0], [4, -1, 0], [5, 1, 0], [5, -1, 0],[6, 1, 0],[6, -1, 0]]
+		gapless_scenarios = [[2,1, 1],[2,-1, 1],[3, 1, 1], [3, -1, 1], [4, 1, 1], [4, -1, 1]]
+		experiment = gap_scenarios.concat gapless_scenarios
 
 		experiment = shuffle experiment
 			
@@ -350,12 +352,10 @@ export fixSwitch = seqr.bind ->*
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
-		if id < 1
-			task = runScenario scenario.fixSwitch, hide: false, turn:experiment[id][1], allVisible:true, n:experiment[id][0], 
-		else if id < 3
-			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible:true, n:experiment[id][0]
-		else if id < 13
-			task = runScenario scenario.fixSwitch, hide:true, turn:experiment[id][1], n:experiment[id][0],
+		if if id < 3
+			task = runScenario scenario.fixSwitch, hide:Boolean(experiment[id][3]), turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0]
+		else if id < 16
+			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible:Boolean(experiment[id][2]), n:experiment[id][0]
 		else
 			yield runWithNewEnv scenario.calibrationInst, 1
 			resetter()
