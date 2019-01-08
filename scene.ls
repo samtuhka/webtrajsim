@@ -230,9 +230,9 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
 	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
 	groundMaterial = new THREE.MeshBasicMaterial do
-		color: 0x7F7F7F
-		#map: groundTex
-		#normalMap: groundNorm
+		#color: 0x7F7F7F
+		map: groundTex
+		normalMap: groundNorm
 		#shininess: 20
 	terrain = new THREE.Object3D
 	#terrain.receiveShadow = true
@@ -302,7 +302,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 	scene.centerLine.width = roadWidth
 	extrudeSettings = {curveSegments: 1000, steps: 1000, depth: 0, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
-	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_double.png'
+	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_edges.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
 	roadNorm.anisotropy = roadTex.anisotropy = anisotropy
 	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
@@ -313,31 +313,32 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 	#roadTex.repeat.set textureRep/2.0, 1
 	#roadNorm.repeat.set textureRep/2.0, 1
 	roadMat = new THREE.MeshPhongMaterial do
-		#map: roadTex
+		map: roadTex
 		#shininess: 20
 		#normalMap: roadNorm
-		color: 0xffffff
-		#transparent: true
-		side: THREE.DoubleSide
-		depthWrite: true
+		#color: 0xffffff
+		transparent: true
+		opacity: 0.9
+		#side: THREE.DoubleSide
+		#depthWrite: true
 	#roadMat = new THREE.ShaderMaterial vertexShader: document.getElementById( 'vertexShader' ).textContent, fragmentShader: document.getElementById( 'fragmentShaderRoad' ).textContent, transparent: true
 	#roadMat.polygonOffset = true
 	#roadMat.depthTest = true
 	#roadMat.polygonOffsetFactor = -1.0
 	#roadMat.polygonOffsetUnits = -100.0
 
-	#faces = roadGeo.faces
-	#roadGeo.faceVertexUvs[0] = []
+	faces = roadGeo.faces
+	roadGeo.faceVertexUvs[0] = []
 	r = 0
 
 	circum = Math.round(circle.getLength() / (roadLenght))
 	x = circum * 4 / (roadGeo.faces.length / 2)
-	#for i in [0 til roadGeo.faces.length/2 ]
-	#	t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
-	#	roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])
-	#	roadGeo.faceVertexUvs[0].push([t[1], t[2], t[3]])
-	#	r += x
-	#roadGeo.uvsNeedUpdate = true
+	for i in [0 til roadGeo.faces.length/2 ]
+		t = [new THREE.Vector2(r, 0), new THREE.Vector2(r, 1), new THREE.Vector2(r + x, 1), new THREE.Vector2(r + x, 0)]
+		roadGeo.faceVertexUvs[0].push([t[0], t[1], t[3]])
+		roadGeo.faceVertexUvs[0].push([t[1], t[2], t[3]])
+		r += x
+	roadGeo.uvsNeedUpdate = true
 	road = new THREE.Mesh roadGeo, roadMat
 	road.rotation.x = -Math.PI/2.0
 	road.rotation.z = -Math.PI/2.0

@@ -325,7 +325,7 @@ fixLogic = (env, scene, sound, s) ->
 		n = scene.params.targets
 		handleFixLocs scene, scene.probeIndx%n
 		#env.logger.write probe: scene.fixcircles[scene.probeIndx%n].position
-		scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 0.0
+		#scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = 0.0
 		for fix in scene.fixcircles
 			fix.children[0].visible = true
 		#chance = Math.random()
@@ -1036,9 +1036,9 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 
 
-	#material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, map: texture,transparent: true, opacity: 1.0
+	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
 
-	geo = new THREE.CircleGeometry(size, 32)
+	geo = new THREE.CircleGeometry(0.25, 32)
 	circle = new THREE.Mesh geo, material
 	#circle.position.y = size/2.0 + 0.1
 	circle.rotation.x = -Math.PI*0.5
@@ -1215,7 +1215,7 @@ probeOrder = (order, turn) ->
 
 
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1239,11 +1239,13 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false}=
 	if env.opts.hideRoad
 		hide = true
 	if n == undefined
-		n = 0
+		n = -1
 	if allVisible == undefined
 		allVisible = false
 	if env.opts.allVisible
 		allVisible = true
+	if n == -1
+		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
 
 	order = probeOrder n, turn
 	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: 140, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7, no_missing: allVisible}
@@ -3903,6 +3905,19 @@ exportScenario \vsyncTest, (env) ->*
 			cyan.visible = false
 			red.visible = true
 
+	rendererStats = new THREEx.RendererStats()
+	rendererStats.domElement.style.position	= 'absolute'
+	rendererStats.domElement.style.right = '100px'
+	rendererStats.domElement.style.top = '100px'
+	stats = new Stats()
+	stats.domElement.style.position	= 'absolute'
+	stats.domElement.style.right	= '400px'
+	stats.domElement.style.bottom	= '40px'
+	document.body.appendChild stats.domElement
+	document.body.appendChild rendererStats.domElement
+	scene.onRender.add (dt) ->
+		rendererStats.update env.renderer
+		stats.update()
 
 	@let \scene, scene
 	yield @get \run

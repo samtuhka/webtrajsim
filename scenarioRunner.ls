@@ -170,7 +170,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scenario = scenarioLoader env, ...args
 
 
-	prog = trial/13.0*100
+	prog = trial/14.0*100
 	prog = Math.max prog, 1
 
 	intro = P.resolve undefined

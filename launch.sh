@@ -3,7 +3,7 @@
 trap 'kill -HUP 0' EXIT
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
-
+DISPLAY=":1.1"
 
 SESSDIR="/home/tru/birch18/sessions/`date +%s`"
 mkdir -p $SESSDIR
