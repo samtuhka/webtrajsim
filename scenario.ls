@@ -491,7 +491,7 @@ createProbes = (scene, n) ->
 objectLoc = (object, x, y, scene) ->
 
 	object.position.x = y
-	object.position.y = -0.05
+	object.position.y = -0.08
 	object.position.z = x
 
 	#console.log scene.camera.matrixWorld
