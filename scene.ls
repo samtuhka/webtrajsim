@@ -196,10 +196,10 @@ export addGround = (scene) ->
 		behind.position.z = terrain.position.z - terrainSize
 
 roadLoader = (k, terrainSize, turn, euler = false) ->
-	x = require('./road_x.json') 
-	y = require('./road_y.json')
+	x = require('./road60_x.json')
+	y = require('./road60_y.json')
 	if euler 
-		x = require('./road_euler_x.json') 
+		x = require('./road_euler_x.json')
 		y = require('./road_euler_y.json')
 	vectors = []
 	path = new THREE.CurvePath()

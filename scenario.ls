@@ -1204,6 +1204,36 @@ probeOrder = (order, turn) ->
 				[0, 4, 0, 5, 1, 5, 2, 6, 2, 6, 2, 5, 1, 4, 0, 3, 1, 4, 0, 4, 3, 6, 2, 6, 3, 6, 3, 6, 2, 5, 1, 4, 0, 3, 1, 5],
 				[0, 4, 0, 4, 0, 3, 0, 4, 0, 3, 1, 4, 1, 4, 1, 6, 3, 6, 3, 6, 3, 6, 2, 5, 2, 5, 1, 4, 2, 5, 2, 5, 1, 6, 2, 5],
 				[0, 3, 1, 4, 2, 6, 3, 6, 3, 6, 3, 6, 2, 5, 1, 4, 0, 5, 1, 4, 1, 4, 0, 4, 0, 3, 0, 5, 2, 6, 2, 5, 2, 5, 1, 4]]
+	#5 of each on 60 degrees
+	p_orders = [[2, 1, 2, 0, 2, 0, 1, 4, 4, 3, 4, 3, 3, 1, 2, 0, 4, 2, 1, 0, 0, 4, 3, 3, 1],
+				[3, 4, 4, 2, 0, 4, 4, 3, 1, 2, 1, 4, 3, 3, 2, 1, 1, 2, 0, 0, 3, 2, 0, 0, 1],
+				[2, 4, 3, 1, 4, 4, 2, 0, 0, 1, 2, 4, 3, 1, 0, 3, 2, 0, 0, 2, 1, 1, 4, 3, 3],
+				[1, 4, 4, 3, 1, 4, 4, 3, 1, 0, 3, 2, 2, 0, 1, 0, 1, 0, 3, 4, 2, 0, 3, 2, 2],
+				[3, 1, 4, 3, 1, 3, 2, 1, 4, 2, 0, 1, 4, 2, 0, 2, 0, 0, 1, 0, 3, 3, 4, 4, 2],
+				[0, 3, 3, 1, 0, 0, 1, 0, 1, 1, 3, 4, 2, 4, 2, 0, 2, 2, 3, 4, 2, 3, 1, 4, 4],
+				[1, 3, 3, 4, 3, 1, 0, 2, 1, 2, 0, 0, 0, 0, 1, 3, 4, 2, 2, 3, 4, 2, 1, 4, 4],
+				[0, 1, 3, 4, 3, 4, 3, 1, 1, 1, 4, 4, 2, 2, 0, 0, 2, 4, 3, 3, 2, 2, 0, 0, 1],
+				[0, 2, 1, 4, 3, 2, 3, 1, 0, 1, 3, 3, 4, 4, 4, 4, 2, 1, 0, 2, 2, 0, 3, 1, 0],
+				[0, 1, 4, 2, 2, 0, 0, 2, 2, 0, 1, 1, 3, 4, 4, 2, 0, 3, 4, 3, 3, 1, 1, 4, 3],
+				[1, 3, 3, 2, 1, 2, 4, 3, 2, 0, 0, 0, 1, 1, 2, 0, 2, 1, 0, 4, 4, 3, 4, 4, 3],
+				[4, 4, 2, 1, 2, 3, 4, 3, 1, 2, 2, 1, 0, 0, 0, 0, 1, 1, 0, 4, 3, 3, 3, 4, 2]
+				]
+
+	#6 of each on 60 degrees
+	p_orders = [[0, 1, 0, 1, 0, 0, 4, 2, 3, 2, 0, 4, 4, 3, 2, 1, 1, 3, 2, 4, 3, 2, 1, 3, 4, 4, 3, 2, 0, 1],
+				[3, 2, 0, 2, 1, 0, 1, 0, 1, 1, 3, 4, 4, 4, 4, 3, 2, 2, 2, 1, 0, 1, 3, 2, 0, 0, 4, 3, 3, 4],
+				[0, 1, 1, 0, 0, 1, 1, 2, 4, 4, 3, 4, 3, 1, 0, 0, 2, 4, 3, 2, 4, 3, 2, 1, 2, 2, 0, 3, 3, 4],
+				[4, 3, 4, 3, 2, 0, 2, 2, 3, 3, 1, 2, 0, 0, 2, 0, 0, 3, 1, 1, 1, 2, 1, 0, 3, 1, 4, 4, 4, 4],
+				[4, 3, 4, 4, 3, 3, 1, 4, 2, 2, 0, 0, 0, 1, 1, 1, 0, 4, 2, 0, 4, 3, 2, 3, 1, 1, 2, 0, 3, 2],
+				[0, 2, 1, 3, 1, 1, 2, 0, 1, 0, 1, 0, 3, 4, 4, 4, 3, 2, 3, 4, 2, 2, 4, 4, 3, 3, 1, 0, 0, 2],
+				[2, 4, 4, 2, 0, 0, 0, 0, 4, 2, 0, 2, 4, 3, 4, 3, 4, 2, 1, 3, 1, 1, 1, 1, 2, 1, 0, 3, 3, 3],
+				[0, 1, 0, 2, 4, 2, 4, 4, 3, 1, 2, 1, 0, 4, 2, 4, 3, 3, 3, 4, 2, 0, 3, 1, 0, 1, 0, 3, 2, 1],
+				[0, 2, 2, 0, 2, 2, 4, 3, 4, 4, 4, 3, 4, 3, 1, 1, 1, 0, 2, 0, 0, 1, 3, 1, 2, 0, 4, 3, 3, 1],
+				[0, 2, 2, 0, 2, 2, 4, 3, 4, 4, 4, 3, 4, 3, 1, 1, 1, 0, 2, 0, 0, 1, 3, 1, 2, 0, 4, 3, 3, 1],
+				[3, 1, 0, 4, 3, 2, 1, 4, 3, 2, 1, 4, 2, 1, 0, 4, 2, 3, 2, 4, 3, 4, 2, 0, 0, 1, 0, 0, 1, 3],
+				[3, 1, 4, 4, 3, 3, 1, 1, 2, 4, 2, 0, 4, 2, 0, 0, 2, 0, 1, 0, 3, 3, 4, 4, 2, 0, 2, 1, 3, 1],
+				[2, 3, 2, 2, 3, 1, 4, 4, 2, 0, 1, 3, 2, 4, 3, 3, 1, 1, 1, 0, 0, 1, 0, 0, 0, 4, 4, 4, 2, 3]
+				]
 	probes = p_orders[order]
 	#if turn == -1
 	#	probes = probes.reverse()
@@ -1211,11 +1241,8 @@ probeOrder = (order, turn) ->
 	#		probes[i] = 15 - probes[i]
 	return probes
 	
-	
 
-
-
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 140}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 155}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1230,7 +1257,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	rx = 50
 	ry = rx
 	l = 0
-	s = rx*Math.PI/14.0*3.6
+	s = rx*Math.PI/15.0*3.6
 
 	if turn == undefined
 		turn = -1
@@ -1248,7 +1275,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
 
 	order = probeOrder n, turn
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 7, no_missing: allVisible}
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: 5, no_missing: allVisible}
 	console.log params
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
