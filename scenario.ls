@@ -2905,15 +2905,6 @@ exportScenario \participantInformationBlindPursuit, (env) ->*
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
 		->
-			@ \title .text L "E-mail address"
-			@ \text .append L "%intro.email"
-			@ \accept .text L "Next"
-			@ \cancel .text L "Previous"
-			input = $('<input name="email" type="email" style="color: black">')
-			.prop "placeholder", L "E-mail address"
-			.appendTo @ \inputs
-			setTimeout input~focus, 0
-		->
 			@ \title .text L "Birth year"
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
