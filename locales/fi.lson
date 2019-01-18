@@ -32,7 +32,7 @@
 	<p>Tehtävänäsi on pysyä (nyt näkymättömällä) tiellä.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 	<p>Tien pinnalla näkyy harmaita merkkejä. 
-	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
+	<p>Ajettava rata on sama kuin aiemmin.</p>"""
 '%fixSwitchPrac.intro': """
 	<p>Tehtävänäsi on pysyä tiellä.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
@@ -44,12 +44,12 @@
 	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
 	<p>Punaisten merkkien välillä voi olla <b>pidempiä aukkoja</b>. 
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
+	<p>Ajettava rata on sama kuin aiemmin.</p>"""
 '%fixSwitchGapless.intro': """
 	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
 	<p>Punaiset merkit ilmestyvät aina <b>tasavälein</b>.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
+	<p>Ajettava rata on sama kuin aiemmin.</p>"""
 
 
 

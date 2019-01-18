@@ -329,6 +329,7 @@ export fixSwitch = seqr.bind ->*
 
 	if localStorage.hasOwnProperty('experiment') == false
 		pracScens = [[0,1, 0, 0],[1, 1, 1, 1],[1,-1, 0, 1]]
+		pracScens.reverse()
 		
 		gap_scenarios = [[2,1, 0],[2,-1, 0],[3, 1, 0], [3, -1, 0], [4, 1, 0], [4, -1, 0], [5, 1, 0], [5, -1, 0],[6, 1, 0],[6, -1, 0]]
 		gapless_scenarios = [[2,1, 1],[2,-1, 1],[3, 1, 1], [3, -1, 1], [4, 1, 1], [4, -1, 1]]
@@ -339,9 +340,9 @@ export fixSwitch = seqr.bind ->*
 		experiment = experiment.concat pracScens
 		experiment.reverse()
 
-		#yield runWithNewEnv scenario.participantInformation
-		#yield runWithNewEnv scenario.calibrationInst, 1
-		#yield runWithNewEnv scenario.calibrationInst, 3
+		yield runWithNewEnv scenario.participantInformation
+		yield runWithNewEnv scenario.calibrationInst, 1
+		yield runWithNewEnv scenario.calibrationInst, 3
 	
 		localStorage.setItem('scenario_id', 0)
 		localStorage.setItem('experiment', JSON.stringify(experiment))
