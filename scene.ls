@@ -195,12 +195,13 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
-roadLoader = (k, terrainSize, turn, euler = false) ->
-	x = require('./road60_x.json')
-	y = require('./road60_y.json')
-	if euler 
-		x = require('./road_euler_x.json')
-		y = require('./road_euler_y.json')
+roadLoader = (k, terrainSize, turn, degrees60 = true) ->
+	if degrees60 
+		x = require('./road60_x.json')
+		y = require('./road60_y.json')
+	else
+		x = require('./road90_x.json')
+		y = require('./road90_y.json')
 	vectors = []
 	path = new THREE.CurvePath()
 	for i from 0 til x.length - 1
@@ -294,8 +295,8 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 
 	deparam = require 'jquery-deparam'
 	opts = deparam window.location.search.substring 1
-
-	circle = roadLoader(rx, terrainSize, turn)
+	degrees60 = scene.params.waypoint_n < 7
+	circle = roadLoader(rx, terrainSize, turn, degrees60)
 
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
