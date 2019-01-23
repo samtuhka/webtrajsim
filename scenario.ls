@@ -284,7 +284,9 @@ futPos = (scene) ->
 		roadSecond = scene.roadSecond
 		seed = Math.random()
 
-		scene.futPos += roadSecond*scene.params.updateTime
+		updateTime = 5 / scene.params.waypoint_n
+		scene.futPos += roadSecond*updateTime
+
 		if scene.futPos > 1 || scene.futPos < 0
 			scene.futPos -= dir
 
@@ -345,6 +347,7 @@ fixLogic = (env, scene, sound, s) ->
 		#scene.showTime = 0.0
 		#if chance > 0.5
 		#	scene.showTime = 0.4
+		waypointFoil scene
 	n = scene.params.targets
 
 	#if scene.probeIndx > 0
@@ -1003,7 +1006,13 @@ handleReaction = (env, scene, i) ->
 	if not pYes and not pNo and scene.reacted == false
 		scene.controlChange = true
 
-
+waypointFoil = (scene) ->
+	wp_n = params.waypoint_n
+	wp = scene.probeIndx%params.waypoint_n
+	if wp == 0 && wp_n == 5
+		scene.params.waypoint_n = 6
+	if wp == 0 && wp_n == 6
+		scene.params.waypoint_n = 5
 
 addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 	vFOV = scene.camera.fov
