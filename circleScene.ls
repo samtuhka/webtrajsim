@@ -105,18 +105,4 @@ export circleScene = seqr.bind (env, params, control = true) ->*
 			scene.tick 1/60
 		console.log "Prewarming FPS", (n/(Date.now() - t)*1000)
 
-
-	rendererStats = new THREEx.RendererStats()
-	rendererStats.domElement.style.position	= 'absolute'
-	rendererStats.domElement.style.right = '100px'
-	rendererStats.domElement.style.top = '100px'
-	stats = new Stats()
-	stats.domElement.style.position	= 'absolute'
-	stats.domElement.style.right	= '400px'
-	stats.domElement.style.bottom	= '40px'
-	document.body.appendChild stats.domElement
-	document.body.appendChild rendererStats.domElement
-	scene.onRender.add (dt) ->
-		rendererStats.update env.renderer
-		stats.update()
 	return scene

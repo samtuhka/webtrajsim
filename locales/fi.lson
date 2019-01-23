@@ -42,7 +42,7 @@
 	"""
 '%fixSwitchGaps.intro': """
 	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
-	<p>Punaisten merkkien välillä voi olla <b>pidempiä aukkoja</b>. 
+	<p>Aukot punaisten merkkien välillä voi olla eripituisia. 
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 	<p>Ajettava rata on sama kuin aiemmin.</p>"""
 '%fixSwitchGapless.intro': """

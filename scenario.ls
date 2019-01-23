@@ -331,8 +331,9 @@ fixLogic = (env, scene, sound, s) ->
 		#chance = Math.random()
 		probe = scene.params.probes[0]
 		hidden = false
-		if scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
+		if scene.probeIndx > scene.lastMiss + 2 && scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
+			scene.lastMiss = scene.probeIndx
 			hidden = true
 			scene.params.probes.shift()
 		env.logger.write do
@@ -1279,7 +1280,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	console.log params
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
-
+	scene.lastMiss = -100
 
 	scene.params = params
 	env.logger.write scenarioParams: scene.params
@@ -1303,9 +1304,9 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 
 
 	title = "%fixSwitchPrac.title" 
-	text = "%fixSwitchPrac.intro"
+	text = "%fixSwitchPrac.intro" #aukot voi olla eripitusia
 
-	title = "%fixSwitch.title" if dur == 140
+	title = "%fixSwitch.title" if dur == 155
 	text = "%fixSwitchGaps.intro" if hide
 	text = "%fixSwitchGapless.intro" if (hide && allVisible)
 
