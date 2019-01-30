@@ -319,6 +319,7 @@ fixLogic = (env, scene, sound, s) ->
 			scene.end = true
 		else
 			scene.probeIndx += 1
+			scene.adjInd += 1
 			currPos = scene.futPos
 			futPos scene
 			waypointFoil scene
@@ -1001,13 +1002,16 @@ handleReaction = (env, scene, i) ->
 
 waypointFoil = (scene) ->
 	wp_n = scene.params.waypoint_n
-	wp = scene.probeIndx%wp_n
-	if wp == wp_n - 1 && wp_n == 5
+	wp = scene.adjInd%wp_n
+	chance = Math.random()
+	if wp == wp_n - 1 && wp_n == 5 && seed > 0.5
 		scene.params.waypoint_n = 6
 		scene.params.headway = 1 + (5.0/6.0)
+		scene.adjInd = 6 - 1
 	else if wp == wp_n - 1 && wp_n == 6
 		scene.params.waypoint_n = 5
 		scene.params.headway = 1 + (5.0/6.0)
+		scene.adjInd = 5 - 1
 	else 
 		scene.params.headway = 2*(5/scene.params.waypoint_n)
 
@@ -1181,7 +1185,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	annoyingSound2 = new THREE.Audio(listener)
 	annoyingSound2.load('res/sounds/beep-01a.wav')
 	annoyingSound2.setVolume(0.05)
-
+	degrees60 = true
 	rx = 50
 	ry = rx
 	l = 0
@@ -1197,7 +1201,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	if hide == undefined
 		hide = false
 	if env.opts.hideRoad
-		hide = true
+		hide = env.opts.hideRoad > 0
 	if n == undefined
 		n = -1
 	if allVisible == undefined
@@ -1269,6 +1273,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	scene.prevOp = startTime
 	scene.dT = startTime
 	scene.probeIndx = 0
+	scene.adjInd = 0
 
 	scene.roadSecond = (s/3.6) /  scene.centerLine.getLength()
 	scene.futPos = startPoint

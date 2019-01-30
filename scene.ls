@@ -217,7 +217,7 @@ roadLoader = (k, terrainSize, turn, degrees60 = true) ->
 	 
 
 
-export addCircleGround = (scene, rx, ry, length, hide, turn) ->
+export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
 	terrainSize = 800
 	textureSize = 40
@@ -295,7 +295,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn) ->
 
 	deparam = require 'jquery-deparam'
 	opts = deparam window.location.search.substring 1
-	degrees60 = scene.params.waypoint_n < 7
+	degrees60 = waypoint_n < 7
 	circle = roadLoader(rx, terrainSize, turn, degrees60)
 
 
