@@ -332,7 +332,7 @@ fixLogic = (env, scene, sound, s) ->
 			fix.children[0].visible = true
 		probe = scene.params.probes[0]
 		hidden = false
-		if scene.probeIndx > scene.lastMiss + 2 && scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
+		if scene.probeIndx > scene.lastMiss + 3 && scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
 			scene.lastMiss = scene.probeIndx
 			hidden = true
