@@ -1004,7 +1004,7 @@ waypointFoil = (scene) ->
 	wp_n = scene.params.waypoint_n
 	wp = scene.adjInd%wp_n
 	chance = Math.random()
-	if wp == wp_n - 1 && wp_n == 5 && seed > 0.5
+	if wp == wp_n - 1 && wp_n == 5 && chance > 0.5
 		scene.params.waypoint_n = 6
 		scene.params.headway = 1 + (5.0/6.0)
 		scene.adjInd = 6 - 1
