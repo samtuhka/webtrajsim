@@ -1046,7 +1046,6 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 
 
-
 	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
 
 	geo = new THREE.CircleGeometry(0.25, 32)
@@ -1185,7 +1184,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	annoyingSound2 = new THREE.Audio(listener)
 	annoyingSound2.load('res/sounds/beep-01a.wav')
 	annoyingSound2.setVolume(0.05)
-	degrees60 = true
+	degrees60 = false
 	rx = 50
 	ry = rx
 	l = 0
