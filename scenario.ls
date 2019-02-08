@@ -284,7 +284,7 @@ futPos = (scene) ->
 		roadSecond = scene.roadSecond
 		seed = Math.random()
 
-		updateTime = 5 / scene.params.waypoint_n
+		updateTime = scene.params.updateTime
 		scene.futPos += roadSecond*updateTime
 
 		if scene.futPos > 1 || scene.futPos < 0
@@ -322,7 +322,7 @@ fixLogic = (env, scene, sound, s) ->
 			scene.adjInd += 1
 			currPos = scene.futPos
 			futPos scene
-			waypointFoil scene
+			#waypointFoil scene
 			calculateFuture scene, 1, s/3.6, currPos
 			env.logger.write futPos: scene.centerLine.getPointAt(scene.futPos)
 		scene.dT = scene.time
