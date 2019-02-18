@@ -18,6 +18,20 @@
 'You crashed!': 'Törmäys!'
 'You steered off the course': 'Ajoit ulos tieltä'
 
+'Questionnaire': 'Loppukysely'
+'Did you try to predict turn changes by counting the waypoints that had appeared on the ground?': 'Koetitko kokeen aikana ennustaa mutkan suunnan vaihdoksia laskemalla merkkien ja pidempien aukkojen määrää?'
+'Did you use any strategy to predict when the turn changes?': """
+	<p>Kokeessa oli tilanteita, joissa merkkien välillä oli normaalia pidempiä aukkoja. Välillä mutkan suunta vaihtui näiden pidempien aukkojen aikana.</p>
+	<p>Käytitkö kokeen aikana jotain tietoista strategiaa päättelemään milloin mutkan suunta on vaihtunut?</p>
+"""
+'Describe your strategy' : 'Kuvaile strategiasi lyhyesti'
+'Yes. Counting the missing waypoints there were always': 'Kyllä. Laskien tyhjät välit mukaan, merkkejä ilmestyi yhden mutkan aikana aina'
+"waypoints" : 'kpl'
+'Yes': 'Kyllä. Kuvaile strategiasi lyhyesti'
+'No': 'En'
+'Tried': 'Yritin, mutta en onnistuneesti'
+
+
 
 
 '%runTheLight.intro': """<p>Tästä eteenpäin sinun tulee noudattaa liikennevaloja,

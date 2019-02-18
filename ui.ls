@@ -76,7 +76,7 @@ export instructionScreen = seqr.bind ({container, controls}, cb) ->*
 	yield new P (accept) -> background.fadeOut accept
 	background.remove()
 
-export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
+export inputDialog = seqr.bind ({container, controls, logger}, cb, allowCatch = true) ->*
 	api = configTemplate (require './templates/inputDialog.html'), cb
 	el = api.el
 	form = el.find "form"
@@ -96,7 +96,7 @@ export inputDialog = seqr.bind ({container, controls, logger}, cb) ->*
 	yield waitFor background~fadeIn
 	screen = true
 	controls.change (btn, isOn) !->
-		if btn == "catch" and isOn and screen
+		if btn == "catch" and isOn and screen and allowCatch
 			form.submit()
 
 	form.on "submit" (e) ~>

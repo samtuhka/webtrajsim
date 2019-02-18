@@ -326,7 +326,6 @@ shuffle = (array) ->
 	return array
 
 export fixSwitch = seqr.bind ->*
-
 	if localStorage.hasOwnProperty('experiment') == false
 		pracScens = [[0,1, 0, 0],[1, 1, 1, 1],[1,-1, 0, 1]]
 		pracScens.reverse()
@@ -352,17 +351,17 @@ export fixSwitch = seqr.bind ->*
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
+		id = 22
 		if id < 3
 			task = runScenario scenario.fixSwitch, hide:(experiment[id][3] > 0), turn:experiment[id][1], allVisible: (experiment[id][2] > 0), n:experiment[id][0], dur:50
 		else if id < 19
 			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible: (experiment[id][2] > 0), n:experiment[id][0]
 		else
 			yield runWithNewEnv scenario.calibrationInst, 1
+			yield runWithNewEnv scenario.birchOutro
 			resetter()
 			env = newEnv!
-			yield scenario.experimentOutro yield env.get \env
-			env.let \destroy
-			yield env
+			yield runWithNewEnv scenario.experimentOutro
 			window.location.reload()
 
 		result = yield task.get \done
@@ -372,7 +371,6 @@ export fixSwitch = seqr.bind ->*
 		#	yield runWithNewEnv scenario.calibrationInst, 1
 
 		yield runWithNewEnv scenario.calibrationInst, 3
-
 		if (result.passed || id >= 3)
 			localStorage.setItem('passes', 0)
 			localStorage.setItem('scenario_id', Number(id) + 1)

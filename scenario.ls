@@ -2660,6 +2660,63 @@ exportScenario \forcedBlindFollowInTraffic, (env, opts) ->*
 
 	return result
 
+
+exportScenario \birchOutro, (env) ->*
+	L = env.L
+	currentYear = (new Date).getFullYear()
+	radioSelect = (name, ...options) ->
+		for {value, label} in options
+			$ """
+			<div class="radio">
+				<label>
+					<input type="radio" name="#name" value="#value">
+					#label
+				</label>
+			</div>
+			"""
+
+	dialogs =
+		->
+			@ \title .text L "Questionnaire"
+			@ \text .append L "Did you use any strategy to predict when the turn changes?"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "strategy",
+				* value: 'Yes', label: L "Yes"
+			input = $("""<textarea name="strategy" cols = "40" rows = "5" style="color: black">""")
+			.appendTo @ \inputs
+			@ \inputs .append radioSelect "strategy",
+				* value: 'No', label: L "No"
+		->
+			@ \title .text L "Questionnaire"
+			@ \text .append L "Did you try to predict turn changes by counting the waypoints that had appeared on the ground?"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "selectCounting",
+				* value: 'Yes', label: L "Kyllä, johdonmukaisesti"
+				* value: 'Yes', label: L "Kyllä, silloin tällöin"
+				* value: 'Tried', label: L "Tried"
+				* value: 'No', label: L "No"
+		->
+			@ \title .text L "Questionnaire"
+			@ \text .append L "Laskien tyhjät kohdat mukaan arvioi kuinka monen merkin pituinen yksi mutka oli"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			wp = L "waypoints"
+			input = $("""<input name="waypoints" type="number" min="0" max="20" style="color: black">""")
+			.appendTo @ \inputs
+
+	i = 0
+	while i < dialogs.length
+		result = yield ui.inputDialog env, dialogs[i], false
+		form = result.formData
+		console.log form
+		if result.canceled
+			i -= 2
+		#else if form.length > 0 && form[0].name == 'selectCounting' &&  form[0].value == 'No'
+		#	i += 1
+		i += 1
+
 exportScenario \participantInformation, (env) ->*
 	L = env.L
 	currentYear = (new Date).getFullYear()
