@@ -2699,7 +2699,7 @@ exportScenario \birchOutro, (env) ->*
 				* value: 'No', label: L "No"
 		->
 			@ \title .text L "Questionnaire"
-			@ \text .append L "Laskien tyhjät kohdat mukaan arvioi kuinka monen merkin pituinen yksi mutka oli"
+			@ \text .append L "Arvioi kuinka monen (normaalin välein sijoitetun) merkin pituinen yksi mutka oli"
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
 			wp = L "waypoints"
@@ -2752,6 +2752,13 @@ exportScenario \participantInformation, (env) ->*
 			@ \text .append L "%intro.backgroundInfo"
 			@ \accept .text L "Next"
 			@ \cancel .text L "Previous"
+		->
+			@ \title .text L "Participant ID"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			input = $("""<input name="participant_id" type="number" min="0" max="200" style="color: black">""")
+			.appendTo @ \inputs
+			setTimeout input~focus, 0
 		->
 			@ \title .text L "Birth year"
 			@ \accept .text L "Next"
