@@ -314,6 +314,10 @@ probeLogic = (scene) ->
 		scene.dT = scene.time
 
 fixLogic = (env, scene, sound, s) ->
+	if scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + 2].position.y > -0.1
+		for i from 0 til 3
+			scene.fixcircles[scene.probeIndx + 2 + i].position.y = -100
+		
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
 			scene.end = true
@@ -327,16 +331,17 @@ fixLogic = (env, scene, sound, s) ->
 			env.logger.write futPos: scene.centerLine.getPointAt(scene.futPos)
 		scene.dT = scene.time
 		n = scene.params.targets
-		handleFixLocs scene, scene.probeIndx%n
-		for fix in scene.fixcircles
-			fix.children[0].visible = true
+		s = Math.random()
+		#handleFixLocs scene, scene.probeIndx%n
+		#for fix in scene.fixcircles
+		#	fix.children[0].visible = true
+		scene.fixcircles[scene.probeIndx].position.y = -0.08
+		if scene.fixcircles[scene.probeIndx + 2].turn_wp == true && s > 0.5
+			for i from 0 til 3
+				scene.fixcircles[scene.probeIndx + 2 + i].position.y = -0.08
 		probe = scene.params.probes[0]
 		hidden = false
-		if scene.probeIndx > scene.lastMiss + 3 && scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
-			scene.fixcircles[scene.probeIndx%n].position.y = -100
-			scene.lastMiss = scene.probeIndx
-			hidden = true
-			scene.params.probes.shift()
+
 		env.logger.write do
 			probe: scene.fixcircles[scene.probeIndx%n].position
 			roadPosition: futPos: scene.centerLine.getPointAt(scene.futPos)
@@ -1048,7 +1053,7 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
 
-	geo = new THREE.CircleGeometry(0.25, 32)
+	geo = new THREE.CircleGeometry(0.5, 32)
 	circle = new THREE.Mesh geo, material
 	#circle.position.y = size/2.0 + 0.1
 	circle.rotation.x = -Math.PI*0.5
@@ -1173,7 +1178,7 @@ probeOrder = (order, turn, degrees60 = true) ->
 	return probes
 	
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 155}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 120}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1192,7 +1197,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		s = rx*Math.PI/15.0*3.6
 		wp_n = 5
 	else
-		s = rx*Math.PI/14.0*3.6
+		s = rx*Math.PI/6*3.6
 		wp_n = 7
 
 	if turn == undefined
@@ -1211,7 +1216,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
 
 	order = probeOrder n, turn, degrees60
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: wp_n, no_missing: allVisible}
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 0.75, headway: 1.5, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: wp_n, no_missing: allVisible}
 	console.log params
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
@@ -1219,6 +1224,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 
 	scene.params = params
 	env.logger.write scenarioParams: scene.params
+
 
 	scene.fixcircles = []
 	addFixationCross scene, 1.5
@@ -1264,8 +1270,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	yield @get \run
 
 
-	while not env.controls.catch == true
-		yield P.delay 100
+
 
 
 	startTime = scene.time
@@ -1276,7 +1281,26 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 
 	scene.roadSecond = (s/3.6) /  scene.centerLine.getLength()
 	scene.futPos = startPoint
+	#futPos scene
+
+	scene.fixcircles = []
+	for i from 0 til dur + 5
+		currPos = scene.futPos
+		futPos scene
+		addFixationCross scene, 1.5
+		calculateFuture scene, 1, s/3.6, currPos
+		handleFixLocs scene, i
+		if i > 0
+			scene.fixcircles[i].position.y = -100
+		if Math.abs(scene.fixcircles[i].position.x + 850) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false
+			scene.fixcircles[i].turn_wp = true
+		else
+			scene.fixcircles[i].turn_wp = false
+	scene.futPos = startPoint
 	futPos scene
+
+	while not env.controls.catch == true
+		yield P.delay 100
 
 	scene.onTickHandled ~>
 

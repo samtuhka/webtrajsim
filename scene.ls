@@ -200,8 +200,8 @@ roadLoader = (k, terrainSize, turn, degrees60 = true) ->
 		x = require('./road60_x.json')
 		y = require('./road60_y.json')
 	else
-		x = require('./road90_x.json')
-		y = require('./road90_y.json')
+		x = require('./road_beech_x.json')
+		y = require('./road_beech_y.json')
 	vectors = []
 	path = new THREE.CurvePath()
 	for i from 0 til x.length - 1
@@ -251,7 +251,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 3.5
+	roadWidth = 2
 	roadLenght = 4*roadWidth
 	shape = new THREE.Shape()
 	shape.moveTo(0, -0.5*roadWidth)
