@@ -314,9 +314,10 @@ probeLogic = (scene) ->
 		scene.dT = scene.time
 
 fixLogic = (env, scene, sound, s) ->
-	if scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + 2].position.y > -0.1
+	dist = 1
+	if scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
 		for i from 0 til 3
-			scene.fixcircles[scene.probeIndx + 2 + i].position.y = -100
+			scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
 		
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
@@ -336,9 +337,9 @@ fixLogic = (env, scene, sound, s) ->
 		#for fix in scene.fixcircles
 		#	fix.children[0].visible = true
 		scene.fixcircles[scene.probeIndx].position.y = -0.08
-		if scene.fixcircles[scene.probeIndx + 2].turn_wp == true && s > 0.5
+		if scene.fixcircles[scene.probeIndx + dist].turn_wp == true && s > 0.5
 			for i from 0 til 3
-				scene.fixcircles[scene.probeIndx + 2 + i].position.y = -0.08
+				scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
 		probe = scene.params.probes[0]
 		hidden = false
 
@@ -1197,7 +1198,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		s = rx*Math.PI/15.0*3.6
 		wp_n = 5
 	else
-		s = rx*Math.PI/6*3.6
+		s = rx*Math.PI/4.5*3.6
 		wp_n = 7
 
 	if turn == undefined

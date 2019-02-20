@@ -25,7 +25,7 @@ def rotate(rad,x,y):
     return x1, y1
 
 dur = 0.75
-speed = 30
+speed = 40
 
 for i in range(0,20):
     s = (2*np.pi)/(360/speed)*dur
@@ -33,7 +33,8 @@ for i in range(0,20):
     c = (speed/360*dur)*np.pi
     x,y = curve(np.pi, np.pi + c, 0)
     x2,y2 = curve(c,0, -2*np.cos(c),  -np.sin(c)*2)
-    r = s
+    rand = np.random.randint(0,3)
+    r = rand*s
 
     x3,y3 = rotate(-c, x2, y2)
     x3 += x2[-1] + 1
