@@ -335,6 +335,7 @@ fixLogic = (env, scene, sound, s) ->
 		if scene.probeIndx > scene.lastMiss + 3 && scene.probeIndx%scene.params.waypoint_n == probe && scene.probeIndx > (scene.params.waypoint_n) && scene.params.no_missing != true
 			scene.fixcircles[scene.probeIndx%n].position.y = -100
 			scene.lastMiss = scene.probeIndx
+			scene.invisInd = probe
 			hidden = true
 			scene.params.probes.shift()
 		env.logger.write do
@@ -907,7 +908,7 @@ export basecircleDriving = seqr.bind (env, params) ->*
 	#scene.onRender.add (dt) ->
 	#	stats.update()
 
-	addBackgroundColor scene
+	#addBackgroundColor scene
 	return scene
 
 onInnerLane = (scene) ->
@@ -1046,9 +1047,9 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 
 
-	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
+	#material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
 
-	geo = new THREE.CircleGeometry(0.25, 32)
+	geo = new THREE.CircleGeometry(size, 32)
 	circle = new THREE.Mesh geo, material
 	#circle.position.y = size/2.0 + 0.1
 	circle.rotation.x = -Math.PI*0.5
@@ -1130,7 +1131,7 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 
-probeOrder = (order, turn, degrees60 = true) ->
+probeOrder = (order, turn, degrees = 120) ->
 
 
 	#6 of each on 60 degrees
@@ -1152,8 +1153,34 @@ probeOrder = (order, turn, degrees60 = true) ->
 			[1, 0, 4, 4, 3, 2, 1, 1, 0, 0, 4, 3, 2, 3, 2, 1, 3, 2, 2, 2, 1, 1, 0, 0, 0, 3, 4, 4, 4, 3]
 			]
 	probes = p_orders[order]
-	if degrees60
+	if degrees == 60
 		return probes
+
+	p_orders = [[5, 9, 3, 7, 1, 7, 2, 6, 4, 8, 3, 8, 2, 6, 0, 6, 4, 8, 2, 9, 3, 7, 1, 5, 0, 4, 0, 5, 1, 9],
+		[2, 6, 1, 8, 5, 9, 3, 7, 1, 6, 0, 4, 2, 7, 4, 8, 3, 7, 3, 9, 0, 5, 0, 4, 8, 2, 6, 1, 5, 9],
+		[3, 7, 2, 6, 1, 0, 5, 9, 5, 0, 4, 8, 2, 7, 1, 5, 9, 3, 7, 6, 1, 6, 0, 4, 9, 4, 8, 2, 8, 3],
+		[0, 5, 9, 5, 1, 9, 4, 0, 4, 8, 2, 7, 2, 7, 1, 5, 3, 9, 3, 8, 2, 6, 0, 4, 8, 6, 3, 7, 1, 6],
+		[5, 0, 6, 0, 4, 8, 2, 6, 0, 4, 8, 2, 7, 1, 6, 2, 9, 3, 7, 1, 5, 9, 1, 5, 9, 3, 4, 8, 3, 7],
+		[3, 9, 4, 8, 3, 7, 1, 5, 0, 4, 9, 3, 0, 6, 0, 4, 8, 2, 7, 2, 7, 1, 5, 2, 6, 6, 1, 8, 5, 9],
+		[1, 9, 4, 8, 2, 6, 0, 4, 8, 3, 7, 2, 8, 3, 7, 6, 1, 6, 0, 4, 9, 5, 1, 5, 9, 3, 0, 5, 2, 7],
+		[1, 6, 1, 8, 2, 6, 2, 7, 3, 7, 1, 5, 0, 4, 0, 4, 8, 3, 8, 5, 9, 4, 2, 6, 0, 5, 9, 3, 7, 9],
+		[5, 9, 7, 1, 7, 1, 6, 0, 4, 8, 2, 6, 2, 6, 0, 4, 9, 3, 9, 5, 0, 4, 8, 2, 8, 3, 7, 3, 1, 5],
+		[3, 7, 2, 6, 0, 7, 1, 6, 1, 5, 0, 4, 9, 5, 9, 3, 8, 2, 6, 1, 5, 3, 8, 2, 8, 7, 4, 0, 4, 9],
+		[2, 7, 1, 5, 9, 4, 2, 0, 5, 9, 3, 7, 1, 6, 0, 6, 0, 4, 8, 3, 3, 7, 1, 5, 9, 4, 8, 8, 2, 6],
+		[3, 7, 2, 7, 2, 7, 1, 5, 0, 6, 1, 5, 1, 6, 0, 9, 5, 9, 3, 8, 3, 0, 4, 8, 4, 9, 4, 8, 2, 6],
+		[2, 8, 4, 1, 6, 0, 6, 2, 6, 0, 5, 9, 3, 0, 4, 8, 3, 7, 1, 5, 9, 3, 7, 1, 5, 9, 4, 8, 2, 7],
+		[2, 7, 1, 5, 0, 7, 2, 6, 0, 5, 9, 4, 1, 8, 3, 8, 3, 0, 4, 8, 2, 6, 1, 5, 9, 6, 4, 9, 3, 7],
+		[3, 7, 1, 5, 9, 6, 2, 6, 0, 4, 8, 2, 1, 9, 3, 7, 1, 5, 0, 7, 2, 6, 0, 4, 8, 5, 9, 4, 8, 3],
+		[0, 5, 9, 4, 3, 8, 2, 6, 0, 4, 8, 7, 1, 5, 9, 3, 7, 2, 8, 2, 7, 1, 6, 0, 5, 9, 3, 4, 1, 6],
+		[0, 6, 5, 2, 6, 5, 9, 4, 8, 2, 8, 3, 9, 3, 7, 1, 7, 1, 5, 0, 4, 8, 2, 6, 3, 7, 1, 0, 4, 9],
+		[0, 5, 1, 5, 1, 6, 3, 8, 2, 2, 7, 1, 9, 6, 0, 4, 8, 3, 7, 3, 7, 2, 6, 0, 4, 8, 4, 9, 5, 9]
+		]
+
+	probes = p_orders[order]
+	if degrees == 120
+		return probes
+
+
 	p_orders = [[2, 1, 5, 5, 3, 3, 3, 0, 4, 2, 6, 4, 3, 2, 6, 1, 0, 0, 6, 4, 1, 0, 5, 2, 6, 4, 1, 5],
 				[2, 6, 3, 1, 5, 4, 2, 0, 6, 3, 0, 6, 3, 2, 0, 4, 1, 1, 5, 3, 0, 4, 4, 1, 5, 5, 2, 6],
 				[5, 2, 6, 3, 0, 0, 6, 3, 0, 4, 1, 6, 3, 2, 6, 3, 1, 5, 4, 2, 1, 0, 4, 1, 5, 2, 4, 5],
@@ -1173,7 +1200,7 @@ probeOrder = (order, turn, degrees60 = true) ->
 	return probes
 	
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 155}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 160}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1184,13 +1211,16 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	annoyingSound2 = new THREE.Audio(listener)
 	annoyingSound2.load('res/sounds/beep-01a.wav')
 	annoyingSound2.setVolume(0.05)
-	degrees60 = false
+	degrees = 120
 	rx = 50
 	ry = rx
 	l = 0
-	if degrees60
+	if degrees == 60
 		s = rx*Math.PI/15.0*3.6
 		wp_n = 5
+	else if degrees == 120
+		s = rx*Math.PI/15.0*3.6
+		wp_n = 10
 	else
 		s = rx*Math.PI/14.0*3.6
 		wp_n = 7
@@ -1209,8 +1239,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		allVisible = true
 	if n == -1
 		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
-
-	order = probeOrder n, turn, degrees60
+	hide
+	order = probeOrder n, turn, degrees
 	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: wp_n, no_missing: allVisible}
 	console.log params
 	scene = yield basecircleDriving env, params
@@ -1237,11 +1267,10 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		scene.player.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 	scene.playerControls.throttle = 0
 
-
 	title = "%fixSwitchPrac.title" 
 	text = "%fixSwitchPrac.intro" #aukot voi olla eripitusia
 
-	title = "%fixSwitch.title" if dur == 155
+	title = "%fixSwitch.title" if dur == 160
 	text = "%fixSwitchGaps.intro" if hide
 	text = "%fixSwitchGapless.intro" if (hide && allVisible)
 

@@ -195,10 +195,13 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
-roadLoader = (k, terrainSize, turn, degrees60 = true) ->
-	if degrees60 
+roadLoader = (k, terrainSize, turn, degrees) ->
+	if degrees ==  60
 		x = require('./road60_x.json')
 		y = require('./road60_y.json')
+	else if degrees == 120
+		x = require('./road120_x.json')
+		y = require('./road120_y.json')
 	else
 		x = require('./road90_x.json')
 		y = require('./road90_y.json')
@@ -231,9 +234,9 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
 	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
 	groundMaterial = new THREE.MeshBasicMaterial do
-		#color: 0x7F7F7F
-		map: groundTex
-		normalMap: groundNorm
+		color: 0x7F7F7F
+		#map: groundTex
+		#normalMap: groundNorm
 		#shininess: 20
 	terrain = new THREE.Object3D
 	#terrain.receiveShadow = true
@@ -295,13 +298,18 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 
 	deparam = require 'jquery-deparam'
 	opts = deparam window.location.search.substring 1
-	degrees60 = waypoint_n < 7
-	circle = roadLoader(rx, terrainSize, turn, degrees60)
+	if waypoint_n < 7
+		degrees = 60
+	else if waypoint_n > 9
+		degrees = 120
+	else
+		degrees = 90
+	circle = roadLoader(rx, terrainSize, turn, degrees)
 
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 1000, steps: 1000, depth: 0, bevelEnabled: false, extrudePath: circle}
+	extrudeSettings = {curveSegments: 1400, steps: 1400, depth: 0, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_edges.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
