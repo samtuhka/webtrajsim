@@ -18,22 +18,6 @@
 'You crashed!': 'Törmäys!'
 'You steered off the course': 'Ajoit ulos tieltä'
 
-'Questionnaire': 'Loppukysely'
-'Did you try to predict turn changes by counting the waypoints that had appeared on the ground?': 'Koetitko kokeen aikana ennustaa mutkan suunnan vaihdoksia laskemalla merkkien ja pidempien aukkojen määrää?'
-'Did you use any strategy to predict when the turn changes?': """
-	<p>Kokeessa oli tilanteita, joissa merkkien välillä oli normaalia pidempiä aukkoja. Välillä mutkan suunta vaihtui näiden pidempien aukkojen aikana.</p>
-	<p>Käytitkö kokeen aikana jotain tietoista strategiaa päättelemään milloin mutkan suunta on vaihtunut?</p>
-"""
-'Describe your strategy' : 'Kuvaile strategiasi lyhyesti'
-'Yes. Counting the missing waypoints there were always': 'Kyllä. Laskien tyhjät välit mukaan, merkkejä ilmestyi yhden mutkan aikana aina'
-"waypoints" : 'kpl'
-'Yes': 'Kyllä. Kuvaile strategiasi lyhyesti'
-'No': 'En'
-'Tried': 'Yritin, mutta en onnistuneesti'
-
-
-
-
 '%runTheLight.intro': """<p>Tästä eteenpäin sinun tulee noudattaa liikennevaloja,
 			mutta aja tämän kerran punaista päin, jotta tiedät mitä
 			siitä seuraa.</p>
@@ -46,24 +30,25 @@
 	<p>Tehtävänäsi on pysyä (nyt näkymättömällä) tiellä.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 	<p>Tien pinnalla näkyy harmaita merkkejä. 
-	<p>Ajettava rata on sama kuin aiemmin.</p>"""
+	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
 '%fixSwitchPrac.intro': """
 	<p>Tehtävänäsi on pysyä tiellä.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Tien pinnalla näkyy valkoiset merkkejä.
-	<p> Myöhemmin kokeessa tiestä näkyy ainoastaan nämä merkit (eli valkoiset reunaviivat on hävitetty)
+	<p>Tien pinnalla näkyy harmaita merkkejä.
+	<p> Myöhemmin kokeessa tiestä näkyy ainoastaan nämä merkit (eli valkoinen tie on hävitetty)
 	<p>Ajettava rata pysyy koko kokeen ajan samana (ensimmäisen mutkan suunta voi vaihdella).
 	"""
 '%fixSwitchGaps.intro': """
-	<p>Tehtävänäsi on pysyä valkoisten merkkien osoittamalla tiellä.
-	<p>Aukot valkoisten merkkien välillä ovat silloin tällöin normaalia pidempiä.
+	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
+	<p>Punaisten merkkien välillä voi olla <b>pidempiä aukkoja</b>. 
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Ajettava rata on sama kuin aiemmin.</p>"""
+	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
+
 '%fixSwitchGapless.intro': """
-	<p>Tehtävänäsi on pysyä valkoisten merkkien osoittamalla tiellä.
-	<p>Aukot valkoisten merkkien välillä ovat aina lyhyitä.
+	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
+	<p>Punaiset merkit ilmestyvät aina <b>tasavälein</b>.
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Ajettava rata on sama kuin aiemmin.</p>"""
+	<p>Ajettava rata on sama kuin harjoitteluissa. </p>"""
 
 
 
@@ -269,13 +254,13 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 '%calib.inst1' : """
 			<p>Seuraavaksi kalibroidaan silmänliikekamera. Ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
 			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
-            <p>Pidä katse kiinni maalitaulun keskelle olevassa mustassa pisteessä. Yritä olla räpsyttelemättä kun katsot pistettä.
+            <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
 			"""
 
 '%calib.inst2' : """
 			<p>Kalibroidaan silmänliikekamera uudestaan. Kuten aikasemmin, ota mukava asento ja katso kuvaruudun keskelle. Yritä olla liikuttelematta päätä kalibraation aikana.
 			<p>Ruudulle ilmestyy yksi kerrallaan maalitauluja, joita sinun pitää katsoa.
-            <p>Pidä katse kiinni maalitaulun keskelle olevassa mustassa pisteessä. Yritä olla räpsyttelemättä kun katsot pistettä.
+            <p>Pidä katse kiinni maalitaulun keskelle ilmestyvässä vihreässä pisteessä. Yritä olla räpsyttelemättä kun katsot vihreää pistettä.
 			"""
 
 '%calib.inst3' : """
