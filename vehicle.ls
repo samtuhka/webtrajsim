@@ -353,7 +353,7 @@ export addVehicle = Co (scene, controls=new DummyControls, path="res/viva/NPCViv
 	#	centering = (bodyPhys.velocity.norm()/maxCenteringSpeed)*maxCentering
 	#	centering = Math.min centering, maxCentering
 	#	controls.set autocenter: centering
-	controls.set autocenter: 0.6
+	controls.set autocenter: 0.9
 
 	wheels = wheels.children
 	wheelModels = []

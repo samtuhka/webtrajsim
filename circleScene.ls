@@ -74,12 +74,16 @@ export circleScene = seqr.bind (env, params, control = true) ->*
 	gainNode = audioContext.createGain()
 	gainNode.connect audioContext.destination
 	engineSounds.connect gainNode
+	scene.prevGain = 0
 	scene.afterPhysics.add ->
 		rev = Math.abs(player.getSpeed())/(200/3.6)
 		rev = Math.max 0.1, rev
 		rev = (rev + 0.1)/1.1
 		gain = scene.playerControls.throttle
 		gain = (gain + 0.5)/1.5
+		if Math.abs(gain - scene.prevGain) > 0.03
+			gain = scene.prevGain + Math.sign(gain - scene.prevGain)*0.03
+		scene.prevGain = gain
 		gainNode.gain.value = gain
 		engineSounds.setPitch rev*2000
 	scene.onStart.add engineSounds.start

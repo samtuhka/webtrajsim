@@ -188,7 +188,7 @@ export runScenario = seqr.bind (scenarioLoader, ...args) !->*
 	scene = yield scenario.get \scene
 
 
-	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
+	renderer = env.renderer = new THREE.WebGLRenderer antialias: true powerPreference: 'high-performance'
 	@finally ->
 		THREE.Cache.clear()
 		# A hack to clear some caches in Cannon. Doesn't
@@ -334,7 +334,7 @@ export runScenarioCurve = seqr.bind (scenarioLoader, rx, ry, l, s, rev, stat, fo
 	env.logger.write scenarioParameters: scene.params
 	#env.logger.write probeOrder: scene.order
 
-	renderer = env.renderer = new THREE.WebGLRenderer antialias: true
+	renderer = env.renderer = new THREE.WebGLRenderer antialias: true powerPreference: 'high-performance'
 	@finally ->
 		THREE.Cache.clear()
 		# A hack to clear some caches in Cannon

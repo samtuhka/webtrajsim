@@ -309,12 +309,12 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 100, steps: 2000, depth: 0, bevelEnabled: false, extrudePath: circle}
+	extrudeSettings = {curveSegments: 100, steps: 4000, depth: 0, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_edges.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'
-	roadNorm.anisotropy = roadTex.anisotropy = anisotropy
-	#roadTex.minFilter = THREE.LinearMipMapLinearFilter
+	roadNorm.anisotropy = roadTex.anisotropy = 16
+	roadTex.minFilter = THREE.LinearMipMapLinearFilter
 	#roadNorm.minFilter = roadTex.minFilter = THREE.LinearFilter
 	roadTex.minFilter = THREE.LinearMipMapLinearFilter
 	roadTex.wrapS = roadTex.wrapT = THREE.RepeatWrapping
