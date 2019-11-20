@@ -20,7 +20,7 @@
     "stats": "git+https://github.com/mrdoob/stats.js/"
   },
   "devDependencies": {
-    "bluebird": "^3.0.5",
+    "bluebird": "3.0.5",
     "cheerio": "^0.19.0",
     "imports-loader": "^0.6.3",
     "jade": "^1.9.2",
