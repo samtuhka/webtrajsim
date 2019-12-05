@@ -14,6 +14,7 @@ THREE = require 'three'
 # compromise parameters
 export class Scene
 	({@minStepDuration=1/60, @camera, @visual, @physics}={}) ->
+		@minStepDuration = 1/200
 		@ <<<
 			beforePhysics: new Signal
 			onPhysics: new Signal
@@ -219,7 +220,7 @@ roadLoader = (k, terrainSize, turn, degrees60 = true) ->
 
 export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
-	terrainSize = 800
+	terrainSize = 2800
 	textureSize = 40
 	textureRep = terrainSize/textureSize
 	anisotropy = 8
@@ -251,7 +252,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 2
+	roadWidth = 3.5
 	roadLenght = 4*roadWidth
 	shape = new THREE.Shape()
 	shape.moveTo(0, -0.5*roadWidth)
@@ -301,7 +302,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)
 	scene.centerLine.width = roadWidth
-	extrudeSettings = {curveSegments: 1000, steps: 1000, depth: 0, bevelEnabled: false, extrudePath: circle}
+	extrudeSettings = {curveSegments: 1000, steps: 4000, depth: 0, bevelEnabled: false, extrudePath: circle}
 	roadGeo = new THREE.ExtrudeGeometry shape, extrudeSettings
 	roadTex = THREE.ImageUtils.loadTexture 'res/world/road_edges.png'
 	roadNorm = THREE.ImageUtils.loadTexture 'res/world/road_texture.norm.jpg'

@@ -5,7 +5,7 @@ trap 'kill -HUP 0' EXIT
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 DISPLAY=":1.1"
 
-SESSDIR="/home/tru/birch18/sessions/`date +%s`"
+SESSDIR="/home/tru/beech19/sessions/`date +%s`"
 mkdir -p $SESSDIR
 
 BROWSER="chromium --test-type --ignore-gpu-blacklist --no-sandbox --disable-gpu-sandbox --user-data-dir=chromium-data --allow-file-access-from-files --start-fullscreen"
@@ -35,6 +35,6 @@ WPORT=10101
 #export vblank_mode=0
 #export __GL_FSAA_MODE=11
 #$BROWSER "http://$SHOST:$SPORT/index.html?controller=ws://$WHOST:$WPORT/"
-$BROWSER "file://$PWD/index.html?experiment=fixSwitch&controller=ws://$WHOST:$WPORT/&disableDefaultLogger=true&wsLogger=ws://localhost:10102/"
+$BROWSER "file://$PWD/index.html?experiment=singleScenario&singleScenario=fixSwitch&controller=ws://$WHOST:$WPORT/&disableDefaultLogger=true&wsLogger=ws://localhost:10102/"
 #$BROWSER "file://$PWD/index.html"
 #$BROWSER "http://$SHOST:$SPORT/index.html"
