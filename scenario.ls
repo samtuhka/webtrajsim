@@ -318,6 +318,9 @@ fixLogic = (env, scene, sound, s) ->
 	if scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
 		for i from 0 til 3
 			scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
+			env.logger.write do
+				probeIndex: scene.probeIndx + dist + i
+				preview: false
 		
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
@@ -333,13 +336,14 @@ fixLogic = (env, scene, sound, s) ->
 		scene.dT = scene.time
 		n = scene.params.targets
 		s = Math.random()
-		#handleFixLocs scene, scene.probeIndx%n
-		#for fix in scene.fixcircles
-		#	fix.children[0].visible = true
+
 		scene.fixcircles[scene.probeIndx].position.y = -0.08
 		if scene.fixcircles[scene.probeIndx + dist].turn_wp == true && s > 0.5
 			for i from 0 til 3
 				scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
+				env.logger.write do
+					probeIndex: scene.probeIndx + dist + i
+					preview: true
 		probe = scene.params.probes[0]
 		hidden = false
 
@@ -350,16 +354,7 @@ fixLogic = (env, scene, sound, s) ->
 			hide: hidden
 	n = scene.params.targets
 
-	#if scene.probeIndx > 0
-	#	val = scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value
-	#	t = (scene.time - scene.dT)*60.0
-	#	scene.fixcircles[scene.probeIndx%n].children[0].material.uniforms.trans.value = Math.max 0.7 - 0.0467*t, 0.0
 
-	#if scene.time - scene.dT >= scene.showTime
-	#	scene.fixcircles[0].children[0].visible = true
-	#	scene.fixcircles[1].children[0].visible = true
-	#	scene.fixcircles[2].children[0].visible = true
-	#	scene.fixcircles[3].children[0].visible = true
 
 
 
