@@ -1293,6 +1293,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	text = "%fixSwitchPrac.intro" #aukot voi olla eripitusia
 
 	title = "%fixSwitch.title" if dur == 160
+	title = "%fixSwitch.titleGapless" if dur == 160 && allVisible
 	text = "%fixSwitchGaps.intro" if hide
 	text = "%fixSwitchGapless.intro" if (hide && allVisible)
 
@@ -2824,6 +2825,7 @@ exportScenario \participantInformation, (env) ->*
 			@ \inputs .append radioSelect "gender",
 				* value: 'female', label: L "Female"
 				* value: 'male', label: L "Male"
+				* value: 'other', label: L "Other"
 		->
 			@ \title .text L "Driving license year"
 			@ \text .append L "%intro.license"

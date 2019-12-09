@@ -41,6 +41,7 @@
 			<p>Paina ratin oikeanpuoleista punaista nappia, kun olet valmis.</p>
 			"""
 '%fixSwitch.title': 'Pysy tiellä'
+'%fixSwitch.titleGapless': 'Pysy tiellä'
 '%fixSwitchPrac.title': 'Pysy tiellä (harjoittelu)'
 '%fixSwitch.intro': """
 	<p>Tehtävänäsi on pysyä (nyt näkymättömällä) tiellä.
@@ -56,12 +57,12 @@
 	"""
 '%fixSwitchGaps.intro': """
 	<p>Tehtävänäsi on pysyä valkoisten merkkien osoittamalla tiellä.
-	<p>Aukot valkoisten merkkien välillä ovat silloin tällöin normaalia pidempiä.
+	<p>Aukot valkoisten merkkien välillä ovat <b>silloin tällöin normaalia pidempiä.</b>
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 	<p>Ajettava rata on sama kuin aiemmin.</p>"""
 '%fixSwitchGapless.intro': """
 	<p>Tehtävänäsi on pysyä valkoisten merkkien osoittamalla tiellä.
-	<p>Aukot valkoisten merkkien välillä ovat aina lyhyitä.
+	<p>Aukot valkoisten merkkien välillä ovat <b>aina lyhyitä.</b>
 	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
 	<p>Ajettava rata on sama kuin aiemmin.</p>"""
 
@@ -181,7 +182,7 @@
 <p>Tämän kokeen tarkoituksena on tutkia silmänliikkeitä ohjaustehtävässä.
 
 <p>Koe koostuu useasta osatehtävästä,
-jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan korkeintaan tunnin.
+jotka esitellään kokeen edetessä. Koe kestää kokonaisuudessaan noin puolitoista tuntia.
 Voit kysyä kokeenjohtajalta lisätietoa sinulle epäselvistä asioista milloin tahansa.
 """
 
@@ -216,6 +217,7 @@ siihen lähetetä tähän kokeeseen liittymätöntä viestintää."""
 'Gender': 'Sukupuoli'
 'Female': 'Nainen'
 'Male': 'Mies'
+'Other': 'Muu'
 
 'Driving license year': 'Kuljettajatutkinnon suoritus'
 '%intro.license': """Anna vuosi, jona olet saanut B-luokan ajo-oikeuden (henkilöauto).
