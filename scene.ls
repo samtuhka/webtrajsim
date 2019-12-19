@@ -196,13 +196,11 @@ export addGround = (scene) ->
 		ahead.position.z = terrain.position.z + terrainSize
 		behind.position.z = terrain.position.z - terrainSize
 
-roadLoader = (k, terrainSize, turn, degrees60 = true) ->
-	if degrees60 
-		x = require('./road60_x.json')
-		y = require('./road60_y.json')
-	else
-		x = require('./road_beech_x.json')
-		y = require('./road_beech_y.json')
+roadLoader = (k, terrainSize, turn, degrees60 = true, trackID = -1) ->
+	console.log trackID, "ausfhu"
+	tracks = require('./res/tracks/all_tracks.json')
+	x = tracks[trackID][0]
+	y = tracks[trackID][1]
 	vectors = []
 	path = new THREE.CurvePath()
 	for i from 0 til x.length - 1
@@ -218,7 +216,7 @@ roadLoader = (k, terrainSize, turn, degrees60 = true) ->
 	 
 
 
-export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
+export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n, trackID) ->
 	groundTex = THREE.ImageUtils.loadTexture 'res/world/ground_moon.png'
 	terrainSize = 2800
 	textureSize = 40
@@ -232,9 +230,9 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	groundNorm.anisotropy = groundTex.anisotropy = anisotropy
 	#groundNorm.minFilter = groundTex.minFilter = THREE.LinearFilter
 	groundMaterial = new THREE.MeshBasicMaterial do
-		#color: 0x7F7F7F
-		map: groundTex
-		normalMap: groundNorm
+		color: 0x7F7F7F
+		#map: groundTex
+		#normalMap: groundNorm
 		#shininess: 20
 	terrain = new THREE.Object3D
 	#terrain.receiveShadow = true
@@ -297,7 +295,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n) ->
 	deparam = require 'jquery-deparam'
 	opts = deparam window.location.search.substring 1
 	degrees60 = waypoint_n < 7
-	circle = roadLoader(rx, terrainSize, turn, degrees60)
+	circle = roadLoader(rx, terrainSize, turn, degrees60, trackID)
 
 
 	scene.centerLine = circle #generateCircle(rx, ry, length)

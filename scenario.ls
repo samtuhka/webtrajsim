@@ -316,8 +316,11 @@ probeLogic = (scene) ->
 fixLogic = (env, scene, sound, s) ->
 	dist = 1
 	if scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
-		for i from 0 til 3
+		for i from 0 til 2
 			scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
+			if i == 0 && scene.switcheroo
+				pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
+				scene.fixcircles[scene.probeIndx + dist + i].position.x = -2850 + Math.abs(-2850 - pos)*Math.sign(-2850 - pos)
 			env.logger.write do
 				probeIndex: scene.probeIndx + dist + i
 				preview: false
@@ -330,28 +333,40 @@ fixLogic = (env, scene, sound, s) ->
 			scene.adjInd += 1
 			currPos = scene.futPos
 			futPos scene
-			#waypointFoil scene
 			calculateFuture scene, 1, s/3.6, currPos
 			env.logger.write futPos: scene.centerLine.getPointAt(scene.futPos)
 		scene.dT = scene.time
 		n = scene.params.targets
 		s = Math.random()
 
+
+
+		if s > 2
+			scene.switcheroo = true
+		else
+			scene.switcheroo = false
+
 		scene.fixcircles[scene.probeIndx].position.y = -0.08
-		if scene.fixcircles[scene.probeIndx + dist].turn_wp == true && s > 0.5
-			for i from 0 til 3
-				scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
-				env.logger.write do
-					probeIndex: scene.probeIndx + dist + i
-					preview: true
-		probe = scene.params.probes[0]
-		hidden = false
+		if scene.fixcircles[scene.probeIndx + dist].turn_wp == true
+			preview = scene.params.previews[0]
+			scene.params.previews.shift()
+			console.log preview, scene.params.previews
+			if preview
+				for i from 0 til 2
+					scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
+					if i == 0 && scene.switcheroo
+						pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
+						scene.fixcircles[scene.probeIndx + dist + i].position.x = -2850 + Math.abs(-2850 - pos)*Math.sign(-2850 - pos)
+					env.logger.write do
+						probeIndex: scene.probeIndx + dist + i
+						preview: true
+						switcheroo: scene.switcheroo
+
 
 		env.logger.write do
-			probe: scene.fixcircles[scene.probeIndx%n].position
-			roadPosition: futPos: scene.centerLine.getPointAt(scene.futPos)
-			identity: scene.probeIndx%scene.params.waypoint_n
-			hide: hidden
+			probePos: scene.fixcircles[scene.probeIndx].position
+			roadPosition: scene.centerLine.getPointAt(scene.futPos)
+			identity: scene.probeIndx
 	n = scene.params.targets
 
 
@@ -908,7 +923,7 @@ export basecircleDriving = seqr.bind (env, params) ->*
 	#scene.onRender.add (dt) ->
 	#	stats.update()
 
-	addBackgroundColor scene
+	#addBackgroundColor scene
 	return scene
 
 onInnerLane = (scene) ->
@@ -1049,7 +1064,7 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
 
-	geo = new THREE.CircleGeometry(0.5, 32)
+	geo = new THREE.CircleGeometry(0.75, 32)
 	circle = new THREE.Mesh geo, material
 	#circle.position.y = size/2.0 + 0.1
 	circle.rotation.x = -Math.PI*0.5
@@ -1130,9 +1145,12 @@ addMarkerScreen = (scene, env) ->
 		scene.markers.push marker
 		marker.visible = true
 
+prevOrder = (order) ->
+	previews = [[false, false, false, true, false, false, true, false, true, false],[false, true, true, false, false, false, true, false, false, false]
+	[true, false, true, true, false, false, false, false, true, true],[true, true, true, false, false, true, true, false, true, false],[true, true, true, true, false, true, true, true, false, true],[true, false, false, true, false, false, false, false, true, true],[true, true, true, false, false, true, true, false, false, true],[false, true, true, true, false, true, false, true, true, true],[false, false, true, false, false, true, false, false, true, false],[true, false, true, false, true, false, false, false, true, true]]
+	return previews[order]
 
 probeOrder = (order, turn, degrees60 = true) ->
-
 
 	#6 of each on 60 degrees
 	p_orders = [
@@ -1174,7 +1192,7 @@ probeOrder = (order, turn, degrees60 = true) ->
 	return probes
 	
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 120}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, dur = 120, trackID = 0}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1189,12 +1207,11 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	rx = 50
 	ry = rx
 	l = 0
-	if degrees60
-		s = rx*Math.PI/15.0*3.6
-		wp_n = 5
-	else
-		s = rx*Math.PI/4.5*3.6
-		wp_n = 7
+
+	s = 125
+	rx = s/(Math.PI/4.5*3.6)
+	console.log rx, s, "3sfj"
+	wp_n = 7
 
 	if turn == undefined
 		turn = -1
@@ -1203,7 +1220,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	if env.opts.hideRoad
 		hide = env.opts.hideRoad > 0
 	if n == undefined
-		n = -1
+		n = 0
 	if allVisible == undefined
 		allVisible = false
 	if env.opts.allVisible
@@ -1212,7 +1229,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
 
 	order = probeOrder n, turn, degrees60
-	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 0.75, headway: 1.5, targets: 4, probes: order, firstTurn: turn, hide: hide, waypoint_n: wp_n, no_missing: allVisible}
+	previews = prevOrder n
+	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, previews: previews, ident: n, firstTurn: turn, hide: hide, waypoint_n: wp_n, no_missing: allVisible, track: trackID}
 	console.log params
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
@@ -1286,9 +1304,10 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		addFixationCross scene, 1.5
 		calculateFuture scene, 1, s/3.6, currPos
 		handleFixLocs scene, i
+		#console.log scene.fixcircles[i].position.x
 		if i > 0
 			scene.fixcircles[i].position.y = -100
-		if Math.abs(scene.fixcircles[i].position.x + 850) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false
+		if Math.abs(scene.fixcircles[i].position.x + 2850) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false && scene.fixcircles[i - 2].turn_wp == false
 			scene.fixcircles[i].turn_wp = true
 		else
 			scene.fixcircles[i].turn_wp = false
