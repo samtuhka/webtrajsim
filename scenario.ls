@@ -319,6 +319,7 @@ fixLogic = (env, scene, sound, s) ->
 		for i from 0 til 2
 			scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
 			if i == 0 && scene.switcheroo
+				scene.switcheroo = false
 				pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
 				scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
 			env.logger.write do
@@ -341,10 +342,7 @@ fixLogic = (env, scene, sound, s) ->
 
 
 
-		if s > 2
-			scene.switcheroo = true
-		else
-			scene.switcheroo = false
+
 
 		scene.fixcircles[scene.probeIndx].position.y = -0.08
 		if scene.fixcircles[scene.probeIndx + dist].turn_wp == true
@@ -352,6 +350,10 @@ fixLogic = (env, scene, sound, s) ->
 			scene.params.previews.shift()
 			console.log preview, scene.params.previews
 			if preview
+				if s > 2.0
+					scene.switcheroo = true
+				else
+					scene.switcheroo = false
 				for i from 0 til 2
 					scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
 					if i == 0 && scene.switcheroo
@@ -1234,7 +1236,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, 
 	scene = yield basecircleDriving env, params
 	scene.lastSlowSearch = -5
 	scene.lastMiss = -100
-
+	scene.switcheroo = false
 	scene.params = params
 	env.logger.write scenarioParams: scene.params
 
