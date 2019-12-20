@@ -197,7 +197,6 @@ export addGround = (scene) ->
 		behind.position.z = terrain.position.z - terrainSize
 
 roadLoader = (k, terrainSize, turn, degrees60 = true, trackID = -1) ->
-	console.log trackID, "ausfhu"
 	tracks = require('./res/tracks/all_tracks.json')
 	x = tracks[trackID][0]
 	y = tracks[trackID][1]

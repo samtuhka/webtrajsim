@@ -3,7 +3,7 @@ import numpy as np
 from scipy.special import fresnel
 import json
 import math
-
+import random
 
 dist = 0
 
@@ -25,15 +25,25 @@ dur = 1
 yaw_dur = dur*1
 yaw_rate = 40
 
+turn_n = 20
+
 
 tracks = []
-for track in range(10):
+
+for track in range(15):
     x_list = []
     y_list = []
+    #print(straights)
+    #straights = random.sample(straights, len(straights))
+    while True:
+        straights = [np.random.randint(4,7) for i in range(turn_n - 1)]
+        if np.sum(straights) == 5*len(straights):
+            break
+
 
     x_adj = 0
     y_adj = 0
-    for i in range(0,20):
+    for i in range(0,turn_n):
         s = (2*np.pi)/(360/yaw_rate)*dur
 
         c = (yaw_rate/360*yaw_dur)*np.pi
@@ -66,14 +76,16 @@ for track in range(10):
         else:
             addy += y_adj
         rand = np.random.randint(4,7)
-        
-        y_adj += (y4[-1] - y[0]) - rand*s
+        if i < turn_n - 1:
+            y_adj += (y4[-1] - y[0]) - straights[i]*s
+        else:
+            y_adj += (y4[-1] - y[0])
 
         x_list += addx.tolist()
         y_list += addy.tolist()
 
     x_list = [-1] + x_list + [-1]
-    y_list = [10*s] + y_list + [y_list[-1] - 10*s]
+    y_list = [10*s] + y_list + [y_list[-1] - 100*s]
     tracks.append([x_list, y_list])
     with open('./res/tracks/track_{}_x.json'.format(track), 'w') as outfile:
         json.dump(x_list, outfile)

@@ -314,13 +314,13 @@ probeLogic = (scene) ->
 		scene.dT = scene.time
 
 fixLogic = (env, scene, sound, s) ->
-	dist = 1
-	if scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
+	dist = 2
+	if scene.time - scene.dT > 0.4 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
 		for i from 0 til 2
 			scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
 			if i == 0 && scene.switcheroo
 				pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
-				scene.fixcircles[scene.probeIndx + dist + i].position.x = -2850 + Math.abs(-2850 - pos)*Math.sign(-2850 - pos)
+				scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
 			env.logger.write do
 				probeIndex: scene.probeIndx + dist + i
 				preview: false
@@ -356,7 +356,7 @@ fixLogic = (env, scene, sound, s) ->
 					scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
 					if i == 0 && scene.switcheroo
 						pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
-						scene.fixcircles[scene.probeIndx + dist + i].position.x = -2850 + Math.abs(-2850 - pos)*Math.sign(-2850 - pos)
+						scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
 					env.logger.write do
 						probeIndex: scene.probeIndx + dist + i
 						preview: true
@@ -1146,8 +1146,7 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 prevOrder = (order) ->
-	previews = [[false, false, false, true, false, false, true, false, true, false],[false, true, true, false, false, false, true, false, false, false]
-	[true, false, true, true, false, false, false, false, true, true],[true, true, true, false, false, true, true, false, true, false],[true, true, true, true, false, true, true, true, false, true],[true, false, false, true, false, false, false, false, true, true],[true, true, true, false, false, true, true, false, false, true],[false, true, true, true, false, true, false, true, true, true],[false, false, true, false, false, true, false, false, true, false],[true, false, true, false, true, false, false, false, true, true]]
+	previews = [[false, true, false, true, false, false, true, true, true, true, false, false, true, true, false, true, false, false, false, true],[true, false, false, false, false, true, true, false, false, true, false, false, false, true, true, true, true, false, true, false],[false, true, false, false, true, false, true, true, false, false, false, true, false, false, false, true, false, false, true, true],[true, true, false, true, true, false, false, false, false, true, false, false, true, true, false, true, true, true, false, false],[false, false, false, true, true, true, false, true, false, true, false, true, true, true, false, true, true, true, false, false],[true, true, false, true, false, false, false, true, false, true, true, true, true, true, true, true, false, false, true, false],[false, false, true, true, true, false, false, true, false, true, false, false, false, true, true, false, false, false, true, true],[true, false, true, true, true, false, false, true, true, false, false, false, true, true, false, false, true, false, true, false],[true, true, true, true, false, false, true, true, false, false, true, false, false, true, false, false, true, true, false, true],[true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, false, true, false, false, true]]
 	return previews[order]
 
 probeOrder = (order, turn, degrees60 = true) ->
@@ -1192,7 +1191,7 @@ probeOrder = (order, turn, degrees60 = true) ->
 	return probes
 	
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, dur = 120, trackID = 0}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, dur = 130, trackID = 0}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1204,13 +1203,13 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, 
 	annoyingSound2.load('res/sounds/beep-01a.wav')
 	annoyingSound2.setVolume(0.05)
 	degrees60 = false
-	rx = 50
-	ry = rx
+
 	l = 0
 
-	s = 125
+	s = 100
 	rx = s/(Math.PI/4.5*3.6)
-	console.log rx, s, "3sfj"
+	ry = rx
+
 	wp_n = 7
 
 	if turn == undefined
@@ -1252,6 +1251,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, 
 
 	startPoint = 0
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
+	scene.startX = scene.player.physical.position.x 
 	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).x
 	if turn != -1
 		scene.player.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
@@ -1304,11 +1304,12 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, 
 		addFixationCross scene, 1.5
 		calculateFuture scene, 1, s/3.6, currPos
 		handleFixLocs scene, i
-		#console.log scene.fixcircles[i].position.x
+		console.log scene.fixcircles[i].position.x
 		if i > 0
 			scene.fixcircles[i].position.y = -100
-		if Math.abs(scene.fixcircles[i].position.x + 2850) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false && scene.fixcircles[i - 2].turn_wp == false
+		if Math.abs(scene.fixcircles[i].position.x - scene.startX) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false && scene.fixcircles[i - 2].turn_wp == false
 			scene.fixcircles[i].turn_wp = true
+			scene.fixcircles[i].position.y = 1
 		else
 			scene.fixcircles[i].turn_wp = false
 	scene.futPos = startPoint
