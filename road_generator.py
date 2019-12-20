@@ -30,7 +30,7 @@ turn_n = 20
 
 tracks = []
 
-for track in range(15):
+for track in range(10):
     x_list = []
     y_list = []
     #print(straights)

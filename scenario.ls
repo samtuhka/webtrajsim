@@ -313,18 +313,41 @@ probeLogic = (scene) ->
 			futPos scene
 		scene.dT = scene.time
 
+showPreview = (env, dist, scene) -> 
+	s = Math.random()
+	scene.checkPreview = false
+	if s > 2.0
+		scene.switcheroo = true
+	else
+		scene.switcheroo = false
+	for i from -1 til 2
+		console.log i
+		scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
+		if i == 0 && scene.switcheroo
+			pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
+			scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
+		env.logger.write do
+			probeIndex: scene.probeIndx + dist + i
+			preview: true
+			switcheroo: scene.switcheroo
+
+removePreview = (env, dist, scene) ->
+	for i from -1 til 2
+		scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
+		if i == 0 && scene.switcheroo
+			scene.switcheroo = false
+			pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
+			scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
+		env.logger.write do
+			probeIndex: scene.probeIndx + dist + i
+			preview: false 
+
+
 fixLogic = (env, scene, sound, s) ->
-	dist = 2
-	if scene.time - scene.dT > 0.4 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
-		for i from 0 til 2
-			scene.fixcircles[scene.probeIndx + dist + i].position.y = -100
-			if i == 0 && scene.switcheroo
-				scene.switcheroo = false
-				pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
-				scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
-			env.logger.write do
-				probeIndex: scene.probeIndx + dist + i
-				preview: false
+	dist = scene.dist
+
+	if dist > 0 && scene.time - scene.dT > 0.4 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
+		removePreview env, dist, scene
 		
 	if dif(scene)==true
 		if scene.probeIndx == scene.params.duration
@@ -338,32 +361,14 @@ fixLogic = (env, scene, sound, s) ->
 			env.logger.write futPos: scene.centerLine.getPointAt(scene.futPos)
 		scene.dT = scene.time
 		n = scene.params.targets
-		s = Math.random()
-
-
-
-
 
 		scene.fixcircles[scene.probeIndx].position.y = -0.08
 		if scene.fixcircles[scene.probeIndx + dist].turn_wp == true
-			preview = scene.params.previews[0]
+			scene.checkPreview = scene.params.previews[0][0]
 			scene.params.previews.shift()
-			console.log preview, scene.params.previews
-			if preview
-				if s > 2.0
-					scene.switcheroo = true
-				else
-					scene.switcheroo = false
-				for i from 0 til 2
-					scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
-					if i == 0 && scene.switcheroo
-						pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
-						scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
-					env.logger.write do
-						probeIndex: scene.probeIndx + dist + i
-						preview: true
-						switcheroo: scene.switcheroo
-
+		
+		if scene.fixcircles[scene.probeIndx].turn_wp == true
+			scene.dist = scene.params.previews[0][1]
 
 		env.logger.write do
 			probePos: scene.fixcircles[scene.probeIndx].position
@@ -371,7 +376,8 @@ fixLogic = (env, scene, sound, s) ->
 			identity: scene.probeIndx
 	n = scene.params.targets
 
-
+	if scene.checkPreview and scene.time - scene.dT >= 0.0
+		showPreview env, dist, scene
 
 
 
@@ -1062,9 +1068,7 @@ addFixationCross = (scene, radius = 2.5, c = 0xFF0000, circle = false) ->
 
 	material.needsUpdate = true
 
-
-
-	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFF0000,transparent: true, opacity: 1.0
+	material = new THREE.MeshBasicMaterial side: THREE.DoubleSide, color: 0xFFFFFF,transparent: true, opacity: 1.0
 
 	geo = new THREE.CircleGeometry(0.75, 32)
 	circle = new THREE.Mesh geo, material
@@ -1148,7 +1152,7 @@ addMarkerScreen = (scene, env) ->
 		marker.visible = true
 
 prevOrder = (order) ->
-	previews = [[false, true, false, true, false, false, true, true, true, true, false, false, true, true, false, true, false, false, false, true],[true, false, false, false, false, true, true, false, false, true, false, false, false, true, true, true, true, false, true, false],[false, true, false, false, true, false, true, true, false, false, false, true, false, false, false, true, false, false, true, true],[true, true, false, true, true, false, false, false, false, true, false, false, true, true, false, true, true, true, false, false],[false, false, false, true, true, true, false, true, false, true, false, true, true, true, false, true, true, true, false, false],[true, true, false, true, false, false, false, true, false, true, true, true, true, true, true, true, false, false, true, false],[false, false, true, true, true, false, false, true, false, true, false, false, false, true, true, false, false, false, true, true],[true, false, true, true, true, false, false, true, true, false, false, false, true, true, false, false, true, false, true, false],[true, true, true, true, false, false, true, true, false, false, true, false, false, true, false, false, true, true, false, true],[true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, false, true, false, false, true]]
+	previews = [[[false,0], [true,1], [true,3], [true,3], [true,3], [false,0], [true,1], [true,3], [false,0], [false,0], [false,0], [true,1], [false,0], [true,3], [false,0], [false,0], [true,3], [true,3], [true,1], [false,0]],[[true,3], [false,0], [true,3], [false,0], [true,1], [true,1], [true,1], [true,1], [false,0], [true,1], [false,0], [true,3], [false,0], [false,0], [true,3], [false,0], [true,3], [false,0], [true,1], [false,0]],[[true,3], [false,0], [false,0], [true,3], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [false,0], [true,1], [false,0], [true,3], [true,3], [true,3], [false,0], [false,0], [true,3], [false,0]],[[false,0], [false,0], [true,1], [true,1], [false,0], [true,1], [true,1], [true,3], [true,3], [true,1], [true,3], [false,0], [false,0], [false,0], [false,0], [true,3], [false,0], [true,3], [false,0], [true,1]],[[true,3], [true,1], [false,0], [false,0], [false,0], [false,0], [false,0], [true,1], [true,1], [false,0], [false,0], [true,1], [true,1], [false,0], [true,1], [true,3], [false,0], [true,1], [true,1], [false,0]],[[true,1], [false,0], [true,1], [false,0], [true,1], [false,0], [false,0], [true,3], [true,3], [true,3], [false,0], [true,1], [true,1], [true,1], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0]],[[true,3], [true,3], [true,1], [true,1], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [true,1], [false,0], [false,0], [true,3], [false,0], [false,0], [true,1], [false,0], [false,0], [false,0]],[[false,0], [false,0], [true,3], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [true,1], [false,0], [true,1], [false,0], [false,0], [false,0], [true,3], [false,0], [true,3], [true,3]],[[true,1], [false,0], [false,0], [false,0], [true,1], [true,3], [false,0], [false,0], [false,0], [false,0], [true,3], [true,1], [true,1], [true,1], [false,0], [true,3], [false,0], [true,1], [true,3], [false,0]],[[true,3], [true,3], [false,0], [true,3], [false,0], [true,3], [true,1], [true,3], [true,1], [false,0], [true,3], [true,3], [false,0], [false,0], [false,0], [false,0], [true,1], [true,3], [false,0], [false,0]]]
 	return previews[order]
 
 probeOrder = (order, turn, degrees60 = true) ->
@@ -1240,7 +1244,8 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, 
 	scene.params = params
 	env.logger.write scenarioParams: scene.params
 
-
+	scene.dist = previews[0][1]
+	console.log scene.dist
 	scene.fixcircles = []
 	addFixationCross scene, 1.5
 	addFixationCross scene, 1.5
