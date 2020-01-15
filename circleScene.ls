@@ -22,7 +22,7 @@ export circleScene = seqr.bind (env, params, control = true) ->*
 	{controls, audioContext, L} = env
 	scene = new Scene
 	
-	yield P.resolve addCircleGround scene, params.major_radius, params.minor_radius, params.length, params.hide, params.firstTurn, params.waypoint_n
+	yield P.resolve addCircleGround scene, params.major_radius, params.minor_radius, params.length, params.hide, params.firstTurn, params.waypoint_n, params.track
 
 	sky = yield P.resolve assets.addSky scene
 
