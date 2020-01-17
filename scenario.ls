@@ -338,6 +338,7 @@ removePreview = (env, dist, scene) ->
 			scene.switcheroo = false
 			pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
 			scene.fixcircles[scene.probeIndx + dist + i].position.x = scene.startX + Math.abs(scene.startX - pos)*Math.sign(scene.startX - pos)
+		scene.fixcircles[scene.probeIndx].position.y = -0.08
 		env.logger.write do
 			probeIndex: scene.probeIndx + dist + i
 			preview: false 
@@ -346,7 +347,7 @@ removePreview = (env, dist, scene) ->
 fixLogic = (env, scene, sound, s) ->
 	dist = scene.dist
 
-	if dist > 0 && scene.time - scene.dT > 0.4 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
+	if dist > 0 && scene.time - scene.dT > 0.3 && scene.fixcircles[scene.probeIndx + dist].position.y > -0.1
 		removePreview env, dist, scene
 		
 	if dif(scene)==true
@@ -941,7 +942,7 @@ onInnerLane = (scene) ->
 	if c > 10
 		scene.failed = true
 		return true
-	else if c > 1.75
+	else if c > (2.5/2.0)
 		return false
 	else
 		return true
@@ -1197,7 +1198,7 @@ probeOrder = (order, turn, degrees60 = true) ->
 	return probes
 	
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, dur = 130, trackID = 0}={}) ->*
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 130, trackID = 0}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1316,7 +1317,6 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=0, allVisible = false, 
 			scene.fixcircles[i].position.y = -100
 		if Math.abs(scene.fixcircles[i].position.x - scene.startX) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false && scene.fixcircles[i - 2].turn_wp == false
 			scene.fixcircles[i].turn_wp = true
-			scene.fixcircles[i].position.y = 1
 		else
 			scene.fixcircles[i].turn_wp = false
 	scene.futPos = startPoint

@@ -14,7 +14,7 @@ THREE = require 'three'
 # compromise parameters
 export class Scene
 	({@minStepDuration=1/60, @camera, @visual, @physics}={}) ->
-		@minStepDuration = 1/200
+		@minStepDuration = 1/60
 		@ <<<
 			beforePhysics: new Signal
 			onPhysics: new Signal
@@ -249,7 +249,7 @@ export addCircleGround = (scene, rx, ry, length, hide, turn, waypoint_n, trackID
 	terrain.add ground
 	scene.physics.add groundBody
 
-	roadWidth = 3.5
+	roadWidth = 2.5
 	roadLenght = 4*roadWidth
 	shape = new THREE.Shape()
 	shape.moveTo(0, -0.5*roadWidth)
