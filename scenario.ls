@@ -321,7 +321,6 @@ showPreview = (env, dist, scene) ->
 	else
 		scene.switcheroo = false
 	for i from -1 til 2
-		console.log i
 		scene.fixcircles[scene.probeIndx + dist + i].position.y = -0.08
 		if i == 0 && scene.switcheroo
 			pos = scene.fixcircles[scene.probeIndx + dist + i].position.x
@@ -351,6 +350,7 @@ fixLogic = (env, scene, sound, s) ->
 		removePreview env, dist, scene
 		
 	if dif(scene)==true
+		console.log scene.probeIndx
 		if scene.probeIndx == scene.params.duration
 			scene.end = true
 		else
@@ -369,12 +369,16 @@ fixLogic = (env, scene, sound, s) ->
 			scene.params.previews.shift()
 		
 		if scene.fixcircles[scene.probeIndx].turn_wp == true
-			scene.dist = scene.params.previews[0][1]
+			if scene.params.previews.length > 0
+				scene.dist = scene.params.previews[0][1]
+			else
+				scene.dist = 0
 
 		env.logger.write do
 			probePos: scene.fixcircles[scene.probeIndx].position
 			roadPosition: scene.centerLine.getPointAt(scene.futPos)
 			identity: scene.probeIndx
+			dist: scene.dist
 	n = scene.params.targets
 
 	if scene.checkPreview and scene.time - scene.dT >= 0.0
@@ -1152,8 +1156,12 @@ addMarkerScreen = (scene, env) ->
 		scene.markers.push marker
 		marker.visible = true
 
-prevOrder = (order) ->
-	previews = [[[false,0], [true,1], [true,3], [true,3], [true,3], [false,0], [true,1], [true,3], [false,0], [false,0], [false,0], [true,1], [false,0], [true,3], [false,0], [false,0], [true,3], [true,3], [true,1], [false,0]],[[true,3], [false,0], [true,3], [false,0], [true,1], [true,1], [true,1], [true,1], [false,0], [true,1], [false,0], [true,3], [false,0], [false,0], [true,3], [false,0], [true,3], [false,0], [true,1], [false,0]],[[true,3], [false,0], [false,0], [true,3], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [false,0], [true,1], [false,0], [true,3], [true,3], [true,3], [false,0], [false,0], [true,3], [false,0]],[[false,0], [false,0], [true,1], [true,1], [false,0], [true,1], [true,1], [true,3], [true,3], [true,1], [true,3], [false,0], [false,0], [false,0], [false,0], [true,3], [false,0], [true,3], [false,0], [true,1]],[[true,3], [true,1], [false,0], [false,0], [false,0], [false,0], [false,0], [true,1], [true,1], [false,0], [false,0], [true,1], [true,1], [false,0], [true,1], [true,3], [false,0], [true,1], [true,1], [false,0]],[[true,1], [false,0], [true,1], [false,0], [true,1], [false,0], [false,0], [true,3], [true,3], [true,3], [false,0], [true,1], [true,1], [true,1], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0]],[[true,3], [true,3], [true,1], [true,1], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [true,1], [false,0], [false,0], [true,3], [false,0], [false,0], [true,1], [false,0], [false,0], [false,0]],[[false,0], [false,0], [true,3], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [true,1], [false,0], [true,1], [false,0], [false,0], [false,0], [true,3], [false,0], [true,3], [true,3]],[[true,1], [false,0], [false,0], [false,0], [true,1], [true,3], [false,0], [false,0], [false,0], [false,0], [true,3], [true,1], [true,1], [true,1], [false,0], [true,3], [false,0], [true,1], [true,3], [false,0]],[[true,3], [true,3], [false,0], [true,3], [false,0], [true,3], [true,1], [true,3], [true,1], [false,0], [true,3], [true,3], [false,0], [false,0], [false,0], [false,0], [true,1], [true,3], [false,0], [false,0]]]
+prevOrder = (order, practice) ->
+
+	if practice
+		previews = [[[true,3], [true,3], [false,0], [true,1], [false,0], [true,3], [false,0], [true,3], [false,0], [true,1], [false,0], [false,0], [false,0], [true,1], [true,1], [false,0], [false,0], [true,1], [true,3], [false,0]],[[false,0], [true,1], [true,3], [false,0], [true,3], [true,3], [true,3], [true,1], [true,3], [false,0], [false,0], [false,0], [false,0], [true,1], [true,1], [false,0], [true,1], [false,0], [false,0], [false,0]],[[true,3], [false,0], [false,0], [true,3], [false,0], [true,1], [false,0], [true,1], [true,1], [true,3], [true,3], [false,0], [true,1], [false,0], [false,0], [false,0], [true,3], [false,0], [true,1], [false,0]]]
+		return previews[order]
+	previews = [[[true,1], [false,0], [false,0], [true,3], [true,1], [true,3], [true,3], [false,0], [false,0], [true,1], [false,0], [true,1], [false,0], [true,3], [true,1], [false,0], [false,0], [true,3], [false,0], [false,0]],[[true,3], [false,0], [true,1], [true,1], [false,0], [false,0], [true,3], [true,1], [true,3], [true,1], [true,3], [false,0], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [false,0]],[[true,3], [false,0], [false,0], [true,1], [false,0], [false,0], [true,3], [true,3], [false,0], [true,3], [false,0], [true,1], [true,1], [false,0], [true,1], [true,1], [true,3], [false,0], [false,0], [false,0]],[[true,3], [true,1], [false,0], [false,0], [true,1], [false,0], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0], [true,3], [true,3], [true,1], [false,0], [true,3], [true,3], [true,1], [false,0]],[[false,0], [true,1], [true,1], [true,1], [true,3], [false,0], [false,0], [true,1], [false,0], [false,0], [false,0], [true,3], [false,0], [false,0], [true,3], [false,0], [true,1], [true,3], [true,3], [false,0]],[[false,0], [false,0], [true,1], [false,0], [false,0], [true,3], [false,0], [true,1], [true,3], [false,0], [true,1], [false,0], [true,3], [false,0], [true,1], [true,1], [false,0], [true,3], [false,0], [true,3]],[[false,0], [false,0], [false,0], [true,1], [false,0], [false,0], [true,1], [false,0], [true,3], [true,3], [true,3], [false,0], [false,0], [true,3], [false,0], [true,1], [false,0], [true,3], [true,1], [true,1]],[[false,0], [false,0], [true,1], [true,3], [true,3], [false,0], [true,3], [true,3], [true,3], [true,1], [true,1], [true,1], [false,0], [false,0], [false,0], [true,1], [false,0], [false,0], [false,0], [false,0]],[[false,0], [true,1], [false,0], [true,3], [false,0], [false,0], [true,3], [false,0], [false,0], [true,1], [true,3], [true,1], [true,1], [false,0], [true,3], [false,0], [false,0], [true,3], [false,0], [true,1]],[[true,1], [true,1], [true,1], [true,3], [true,1], [false,0], [true,3], [false,0], [true,1], [false,0], [true,3], [false,0], [true,3], [false,0], [false,0], [false,0], [true,3], [false,0], [false,0], [false,0]]]
 	return previews[order]
 
 probeOrder = (order, turn, degrees60 = true) ->
@@ -1198,7 +1206,9 @@ probeOrder = (order, turn, degrees60 = true) ->
 	return probes
 	
 
-exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 130, trackID = 0}={}) ->*
+
+
+exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false, dur = 170, trackID = 0, practice = true}={}) ->*
 
 	listener = new THREE.AudioListener()
 	console.log hide, turn, n, allVisible
@@ -1213,7 +1223,7 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 
 	l = 0
 
-	s = 100
+	s = 110
 	rx = s/(Math.PI/4.5*3.6)
 	ry = rx
 
@@ -1231,11 +1241,19 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		allVisible = false
 	if env.opts.allVisible
 		allVisible = true
-	if n == -1
-		n = Math.floor(Math.random() * (8 - 0 + 1)) + 0
+	if n == -1 && practice == false
+		n = Math.floor(Math.random() * (10 - 0)) + 0
+	if n == -1 && practice
+		n = Math.floor(Math.random() * (3 - 0)) + 0
 
+	if practice
+		trackID = n
+	if practice == false
+		trackID = n + 3
+	console.log "trackID", n, trackID
 	order = probeOrder n, turn, degrees60
-	previews = prevOrder n
+	previews = prevOrder n, practice
+	console.log previews, n
 	params = {major_radius: rx, minor_radius: ry, straight_length: l, target_speed: s, direction: 1, duration: dur, updateTime: 1.0, headway: 2.0, targets: 4, probes: order, previews: previews, ident: n, firstTurn: turn, hide: hide, waypoint_n: wp_n, no_missing: allVisible, track: trackID}
 	console.log params
 	scene = yield basecircleDriving env, params
@@ -1257,21 +1275,22 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 	#scene.fixcircles[0].children[0].material.color.g = 1.0
 	#scene.fixcircles[3].children[0].material.color.r = 1.0
 
-	startPoint = 0
+	scene.roadSecond = (s/3.6) /  scene.centerLine.getLength()
+	startPoint = scene.roadSecond
 	scene.player.physical.position.x = scene.centerLine.getPointAt(startPoint).y
 	scene.startX = scene.player.physical.position.x 
 	scene.player.physical.position.z = scene.centerLine.getPointAt(startPoint).x
 	if turn != -1
 		scene.player.physical.quaternion.setFromEuler(0, Math.PI ,0, 'XYZ')
 	scene.playerControls.throttle = 0
-
+	startPoint = 0
 
 	title = "%fixSwitchPrac.title" 
 	text = "%fixSwitchPrac.intro" #aukot voi olla eripitusia
 
-	title = "%fixSwitch.title" if dur == 155
-	text = "%fixSwitchGaps.intro" if hide
-	text = "%fixSwitchGapless.intro" if (hide && allVisible)
+	title = "%fixSwitch.title" if practice == false
+	text = "%fixSwitchGaps.intro" if (hide && practice)
+	text = "%fixSwitchGapless.intro" if (hide && practice == false)
 
 
 	markersVisible scene
@@ -1288,8 +1307,6 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		content: env.L text
 
 	rw = scene.centerLine.width
-	@let \scene, scene
-	yield @get \run
 
 
 
@@ -1312,13 +1329,17 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		addFixationCross scene, 1.5
 		calculateFuture scene, 1, s/3.6, currPos
 		handleFixLocs scene, i
-		console.log scene.fixcircles[i].position.x
-		if i > 0
+		if i > 1
 			scene.fixcircles[i].position.y = -100
 		if Math.abs(scene.fixcircles[i].position.x - scene.startX) > 1 && i> 1 && scene.fixcircles[i - 1].turn_wp == false && scene.fixcircles[i - 2].turn_wp == false
 			scene.fixcircles[i].turn_wp = true
 		else
 			scene.fixcircles[i].turn_wp = false
+
+	@let \scene, scene
+	yield @get \run
+
+
 	scene.futPos = startPoint
 	futPos scene
 
@@ -1362,11 +1383,32 @@ exportScenario \fixSwitch, (env, {hide=false, turn=-1, n=-1, allVisible = false,
 		if scene.end == true || (scene.time - startTime) > 300
 			trialTime = scene.time - startTime
 			listener.remove()
-			@let \done, passed: true, outro:
-				title: env.L "Passed"
-				content: """
-				<p>Suoritus kesti #{trialTime.toFixed 2} sekuntia.</p>
-                <p>Olit kokonaisuudessaan #{scene.outside.totalTime.toFixed 2} sekuntia tien ulkopuolella.</p>
+
+
+			highScore = localStorage.getItem("highScore")
+
+			score = ((trialTime - scene.outside.totalTime)/trialTime)*4 - 3
+			env.logger.write finalScore: score
+			score = Math.max 0, score
+			score = Number.parseInt(score*100)
+			rec = ''
+			if score > highScore
+				highScore = score
+				if practice == false
+					rec = ' (uusi ennätys)'
+			if hide
+				localStorage.setItem('highScore' highScore)
+				@let \done, passed: true, outro:
+					title: env.L "Passed"
+					content: """
+					<p>Suoritusprosenttisi oli #{score}%#{rec}.</p>
+		            <p>Paras suorituksesi tähän asti on ollut #{highScore}%</p>
+				 """
+			else
+				@let \done, passed: true, outro:
+					title: env.L "Passed"
+					content: """
+					<p>Suoritusprosenttisi oli #{score}%.</p>
 				 """
 			return false
 
@@ -2706,6 +2748,52 @@ exportScenario \forcedBlindFollowInTraffic, (env, opts) ->*
 	@let \done, result
 
 	return result
+
+
+
+exportScenario \beechOutro, (env) ->*
+	L = env.L
+	currentYear = (new Date).getFullYear()
+	radioSelect = (name, ...options) ->
+		for {value, label} in options
+			$ """
+			<div class="radio">
+				<label>
+					<input type="radio" name="#name" value="#value">
+					#label
+				</label>
+			</div>
+			"""
+
+	dialogs =
+		->
+			@ \title .text L "Questionnaire"
+			@ \text .append L "Did you use any strategy to predict when the turn changes?"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "strategy",
+				* value: 'Yes', label: L "Yes"
+			input = $("""<textarea name="strategy" cols = "40" rows = "5" style="color: black">""")
+			.appendTo @ \inputs
+			@ \inputs .append radioSelect "strategy",
+				* value: 'No', label: L "No"
+		->
+			@ \title .text L "Questionnaire"
+			@ \text .append L "Kokeessa käännöksen pisteet näkyivät silloin tällöin tavallista aikaisemmin (hetken ajan). Koitko ennakonäkymän auttavan käännösten ennakoinnissa?"
+			@ \accept .text L "Next"
+			@ \cancel .text L "Previous"
+			@ \inputs .append radioSelect "HepStrat",
+				* value: 'Yes', label: L "Kyllä"
+				* value: 'Maybe', label: L "Ehkä"
+				* value: 'No', label: L "En"
+	i = 0
+	while i < dialogs.length
+		result = yield ui.inputDialog env, dialogs[i]
+		console.log result
+		if result.canceled
+			i -= 2
+		i += 1
+
 
 exportScenario \participantInformation, (env) ->*
 	L = env.L

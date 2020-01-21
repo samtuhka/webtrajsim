@@ -30,24 +30,36 @@
 '%fixSwitchPrac.title': 'Pysy tiellä (harjoittelu)'
 '%fixSwitch.intro': """
 	<p>Tehtävänäsi on pysyä (nyt näkymättömällä) tiellä.
-	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Tien pinnalla näkyy punaisia merkkejä.</p>"""
+	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle. Mitä vähemmän aikaa vietät tien ulkopuolella, sitä parempi suorituksesi on. 
+	<p>Tien pinnalla näkyy valkoisia merkkejä.</p>"""
 '%fixSwitchPrac.intro': """
 	<p>Tehtävänäsi on pysyä tiellä.
-	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Tien pinnalla näkyy punaisia merkkejä.
+	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle. Mitä vähemmän aikaa vietät tien ulkopuolella, sitä parempi suorituksesi on. 
+	<p>Tien pinnalla näkyy valkoisia merkkejä.
 	<p> Myöhemmin kokeessa tiestä näkyy ainoastaan nämä merkit (eli valkoiset reunaviivat on hävitetty)
 	"""
 '%fixSwitchGaps.intro': """
-	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
-	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-    </p>"""
+	<p>Tehtävänäsi on pysyä (nyt näkymättömällä) tiellä.
+	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle. Mitä vähemmän aikaa vietät tien ulkopuolella, sitä parempi suorituksesi on. 
+	<p>Tien pinnalla näkyy valkoisia merkkejä. Merkit ilmestyvät normaalisti näkyviin yksi kerrallaan, mutta välillä kaukaisuudessa voi havaita hetkellisiä vinkkejä tien tulevasta muodosta.</p>"""
 '%fixSwitchGapless.intro': """
-	<p>Tehtävänäsi on pysyä punaisten merkkien osoittamalla tiellä.
-	<p>Aukot punaisten merkkien välillä ovat aina lyhyitä.
-	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle.
-	<p>Ajettava rata on sama kuin aiemmin.</p>"""
+	<p>Tehtävänäsi on pysyä näkymättömällä tiellä.
+	<p>Jos auto ei ole tiellä, peli alkaa soittamaan varoitusääntä kunnes palaat tielle. Mitä vähemmän aikaa vietät tien ulkopuolella, sitä parempi suorituksesi on. 
+	<p>Tien pinnalla näkyy valkoisia merkkejä. Merkit ilmestyvät normaalisti näkyviin yksi kerrallaan, mutta välillä kaukaisuudessa voi havaita hetkellisiä vinkkejä tien tulevasta muodosta.</p>"""
 
+
+'Questionnaire': 'Loppukysely'
+'Did you try to predict turn changes by counting the waypoints that had appeared on the ground?': 'Koetitko kokeen aikana ennustaa mutkan suunnan vaihdoksia laskemalla merkkien ja pidempien aukkojen määrää?'
+'Did you use any strategy to predict when the turn changes?': """
+	<p>Kokeen täytyi usein tehdä nopeita käännöksiä.</p>
+	<p>Käytitkö kokeen aikana mitään tietoista strategiaa käännösten ennakoimiseen?</p>
+"""
+'Describe your strategy' : 'Kuvaile strategiasi lyhyesti'
+'Yes. Counting the missing waypoints there were always': 'Kyllä. Laskien tyhjät välit mukaan, merkkejä ilmestyi yhden mutkan aikana aina'
+"waypoints" : 'kpl'
+'Yes': 'Kyllä. Kuvaile strategiasi lyhyesti'
+'No': 'En'
+'Tried': 'Yritin, mutta en onnistuneesti'
 
 
 '%runTheLight.outro': """Tästä eteenpäin suoritus hylätään, jos ajat punaista päin."""
@@ -229,7 +241,7 @@ Mikä seuraavista vastaa parhaiten sitä, kuinka usein olet ajanut keskimäärin
 "Give out an estimate on how many kilometres have you driven during your lifetime.": """Anna arviosi siitä, montako ajokilometriä olet ajanut koko elämäsi aikana."""
 
 'Video games': 'Tietokonepelaaminen'
-"How frequently do you play video games?": """Kuinka usein pelaat tietokonepelejä?"""
+"How frequently do you play video games?": """Kuinka usein pelaat tietokone- ja konsolipelejä?"""
 'I have played, but not anymore': 'Olen pelannut, mutta en tätä nykyä.'
 
 '%circleDriving.intro2ColorRev': """

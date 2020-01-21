@@ -326,20 +326,16 @@ shuffle = (array) ->
 	return array
 
 export fixSwitch = seqr.bind ->*
-
 	if localStorage.hasOwnProperty('experiment') == false
-		pracScens = [[0,1, 0, 0],[1, 1, 1, 1],[1,-1, 0, 1]]
+		pracScens = [[0,0,],[0,1],[1,2]]
 		pracScens.reverse()
 		
-		gap_scenarios = [[2,1, 0],[2,-1, 0],[3, 1, 0], [3, -1, 0], [4, 1, 0], [4, -1, 0], [5, 1, 0], [5, -1, 0],[6, 1, 0],[6, -1, 0]]
-		gapless_scenarios = [[2,1, 1],[2,-1, 1],[3, 1, 1], [3, -1, 1], [4, 1, 1], [4, -1, 1]]
-		experiment = gap_scenarios.concat gapless_scenarios
+		experiment = [[0],[1],[2],[3],[4],[5],[6],[7],[8],[9]]
 
 		experiment = shuffle experiment
 			
 		experiment = experiment.concat pracScens
 		experiment.reverse()
-
 		yield runWithNewEnv scenario.participantInformation
 		yield runWithNewEnv scenario.calibrationInst, 1
 		yield runWithNewEnv scenario.calibrationInst, 3
@@ -348,28 +344,25 @@ export fixSwitch = seqr.bind ->*
 		localStorage.setItem('experiment', JSON.stringify(experiment))
 		localStorage.setItem('passes', 0)
 		localStorage.setItem('retries', 0)
+		localStorage.setItem('highScore', 0)
 		window.location.reload()
 	else
 		experiment = JSON.parse(localStorage.getItem("experiment"))
 		id = localStorage.getItem("scenario_id")
 		if id < 3
-			task = runScenario scenario.fixSwitch, hide:(experiment[id][3] > 0), turn:experiment[id][1], allVisible: (experiment[id][2] > 0), n:experiment[id][0], dur:50
-		else if id < 19
-			task = runScenario scenario.fixSwitch, hide: true, turn:experiment[id][1], allVisible: (experiment[id][2] > 0), n:experiment[id][0]
+			task = runScenario scenario.fixSwitch, hide:(experiment[id][0] > 0),  n:experiment[id][1], practice: true
+		else if id < 13
+			task = runScenario scenario.fixSwitch, hide: true, n:experiment[id][0], practice: false
 		else
 			yield runWithNewEnv scenario.calibrationInst, 1
+			yield runWithNewEnv scenario.beechOutro
 			resetter()
 			env = newEnv!
-			yield scenario.experimentOutro yield env.get \env
-			env.let \destroy
-			yield env
+			yield runWithNewEnv scenario.experimentOutro
 			window.location.reload()
 
 		result = yield task.get \done
 		yield task
-
-		#if id == 3 && result.passed
-		#	yield runWithNewEnv scenario.calibrationInst, 1
 
 		yield runWithNewEnv scenario.calibrationInst, 3
 
@@ -397,16 +390,19 @@ export resetter = seqr.bind ->*
 		pas = localStorage.getItem('passes')
 		ret = localStorage.getItem('retries')
 		id = localStorage.getItem('scenario_id')
+		highScore = localStorage.getItem('highScore')
 
 		localStorage.setItem('experiment_copy', exp)
 		localStorage.setItem('passes_copy', pas)
 		localStorage.setItem('retries_copy', ret)
 		localStorage.setItem('scenario_id_copy', id)
+		localStorage.setItem('highScore_copy', highScore)
 
 		localStorage.removeItem("experiment")
 		localStorage.removeItem('passes')
 		localStorage.removeItem('retries')
 		localStorage.removeItem('scenario_id')
+		localStorage.removeItem('highScore')
 
 	#env = newEnv!
 	#yield scenario.resetterOutro yield env.get \env
@@ -572,5 +568,5 @@ export circleDriving = seqr.bind ->*
 
 	yield runWithNewEnv scenario.experimentOutro
 
-export defaultExperiment = circleDrivingTrue
+export defaultExperiment = fixSwitch
 
