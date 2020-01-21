@@ -85,8 +85,8 @@ for track in range(3):
         x_list += addx.tolist()
         y_list += addy.tolist()
 
-    #x_list = [-1] + x_list + [-1]
-    #y_list = [10*s] + y_list + [y_list[-1] - 100*s]
+    x_list = [-1] + x_list + [-1]
+    y_list = [10*s] + y_list + [y_list[-1] - 100*s]
     tracks.append([x_list, y_list])
 
 left_turns = 0

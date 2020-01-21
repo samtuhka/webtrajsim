@@ -20,6 +20,8 @@ def rotate(rad,x,y):
     y1 = math.sin(rad)*x + math.cos(rad)*y
     return x1, y1
 
+
+
 while True:
     dur = 1
     yaw_dur = dur*1
@@ -27,7 +29,7 @@ while True:
 
     turn_n = 20
 
-
+    balanced = {'right': [0,0,0,0,0], 'left': [0,0,0,0,0]}
     tracks = []
 
     for track in range(3):
@@ -85,11 +87,13 @@ while True:
             x_list += addx.tolist()
             y_list += addy.tolist()
 
-        #x_list = [-1] + x_list + [-1]
-        #y_list = [10*s] + y_list + [y_list[-1] - 100*s]
+        x_list = [-1] + x_list + [-1]
+        y_list = [10*s] + y_list + [y_list[-1] - 100*s]
         tracks.append([x_list, y_list])
-
+    s = ""
     left_turns = 0
+    s += "["
+
     for track in range(10):
         x_list = []
         y_list = []
@@ -104,8 +108,17 @@ while True:
         left = random.sample(left, 20)
         x_adj = 0
         y_adj = 0
+
+
+        pr = [1]*5 + [3]*5 + [0]*10
+        pr = random.sample(pr,20)
+        n = 0
+
+        s += "["
+
+
         for i in range(0,turn_n):
-            s = (2*np.pi)/(360/yaw_rate)*dur
+            speed = (2*np.pi)/(360/yaw_rate)*dur
 
             c = (yaw_rate/360*yaw_dur)*np.pi
             x,y = curve(np.pi, np.pi + c, 0)
@@ -115,7 +128,7 @@ while True:
             #plt.plot(x2,y2)
             #plt.show()
             rand = np.random.randint(0,1)
-            r = rand*s
+            r = rand*speed
 
             x3,y3 = rotate(-c, x2, y2)
             x3 += x2[-1] + 1
@@ -128,9 +141,10 @@ while True:
             addy = np.array(y.tolist() + y2.tolist() + y3.tolist() + y4.tolist())
             
             left_chance = np.random.random()    
-
+            left = False
             if left_chance > 0.5:
                 left_turns += 1
+                left = True
                 addx, addy = rotate(np.pi, addx, addy)
                 addx -= 2
                 addy = addy[::-1]
@@ -138,25 +152,45 @@ while True:
             else:
                 addy += y_adj
             rand = np.random.randint(4,7)
+
             if i < turn_n - 1:
-                y_adj += (y4[-1] - y[0]) - straights[i]*s
+                y_adj += (y4[-1] - y[0]) - straights[i]*speed
             else:
                 y_adj += (y4[-1] - y[0])
+
+            if pr[n] > 0:
+                if left:
+                    balanced['left'][pr[n]] += 1
+                else:
+                    balanced['right'][pr[n]] += 1
+                s += ("[true,{}]".format(pr[n]))
+            else:
+                s+= ("[false,0]")
+
+            n += 1
+            if i < 19:
+                s+= (", ")
+
 
             x_list += addx.tolist()
             y_list += addy.tolist()
 
+        if track < 9:
+            s += "],"
+        else:
+            s += "]"
+
         x_list = [-1] + x_list + [-1]
-        y_list = [10*s] + y_list + [y_list[-1] - 100*s]
+        y_list = [10*speed] + y_list + [y_list[-1] - 100*speed]
         tracks.append([x_list, y_list])
         #with open('./res/tracks/track_{}_x.json'.format(track), 'w') as outfile:
         #    json.dump(x_list, outfile)
         #with open('./res/tracks/track_{}_y.json'.format(track), 'w') as outfile:
         #    json.dump(y_list, outfile)
 
-    if (left_turns) == 100:
+    if (left_turns) == 100 and balanced['right'][1] == 25 and balanced['left'][1] == 25 and balanced['right'][3] == 25:
         break
-print(left_turns)
+print(left_turns, s, balanced)
 with open('./res/tracks/all_tracks.json'.format(track), 'w') as outfile:
     json.dump(tracks, outfile)
 plt.plot(np.array(y_list),np.array(x_list),  color = 'red')

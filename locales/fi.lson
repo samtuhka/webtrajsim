@@ -211,6 +211,7 @@ siihen lähetetä tähän kokeeseen liittymätöntä viestintää."""
 'Gender': 'Sukupuoli'
 'Female': 'Nainen'
 'Male': 'Mies'
+'Other': 'Muu'
 
 'Driving license year': 'Kuljettajatutkinnon suoritus'
 '%intro.license': """Anna vuosi, jona olet saanut B-luokan ajo-oikeuden (henkilöauto).
