@@ -6,7 +6,7 @@
     "jstat": "^1.1.5",
     "knuth-shuffle": "^1.0.1",
     "livescript": "^1.5.0",
-    "lodash": "^3.10.0",
+    "lodash": "^4.17.19",
     "msgpack-lite": "^0.1.11",
     "suncalc": "^1.6.0",
     "system-livescript": "git://github.com/jampekka/system-livescript",
